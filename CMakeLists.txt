@@ -28,7 +28,7 @@ endif ()
 ###############################################################################
 
 if (${CMAKE_C_COMPILER_ID} STREQUAL "GNU")
-    add_definitions (-pedantic -fPIC)
+    add_definitions (-pedantic -fPIC -std=c99)
 elseif (${CMAKE_C_COMPILER_ID} STREQUAL "Clang")
     add_definitions (-pedantic)
 elseif (${CMAKE_C_COMPILER_ID} STREQUAL "Intel")

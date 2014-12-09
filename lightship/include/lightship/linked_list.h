@@ -24,8 +24,8 @@ void list_clear(list_t* list);
 #define list_tail_data(x) ((x)->tail != NULL ? (x)->tail->data : NULL)
 
 void list_push(list_t* list, void* data);
-void list_pop(list_t* list);
-void list_erase_node(list_t* list, list_node_t* node);
+void* list_pop(list_t* list);
+void* list_erase_node(list_t* list, list_node_t* node);
 void list_erase_data(list_t* list, void* data);
 
 #define LIST_FOR_EACH(list, first, next, current)
