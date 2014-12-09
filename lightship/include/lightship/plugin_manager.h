@@ -21,6 +21,3 @@ typedef struct plugins_t
 
 void init_plugin_manager();
 void load_plugin(const char* filename);
-
-static void list_init(plugins_t* list);
-static void list_insert_head(plugin_t* node);

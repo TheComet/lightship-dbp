@@ -36,9 +36,10 @@ void list_push(list_t* list, void* data)
     /* first element being inserted, set tail */
     if(!list->head)
         list->tail = node;
+    else
+        list->head->next = node;/* next node of current node is the new node */
 
     node->prev = list->head;    /* previous node of new node is the current head */
-    list->head->next = node;    /* next node of current node is the new node */
     list->head = node;          /* new head is new node */
     node->next = NULL;          /* new node has no next node */
     node->data = data;
@@ -83,7 +84,7 @@ void list_erase_data(list_t* list, void* data)
     {
         if(current->data == data)
         {
-            list_erase_node(current);
+            list_erase_node(list, current);
             return;
         }
         current = current->next;

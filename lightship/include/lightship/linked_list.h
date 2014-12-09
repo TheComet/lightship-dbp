@@ -2,16 +2,16 @@ struct list_node_t;
 
 typedef struct list_node_t
 {
-    list_node_t* prev;
-    list_node_t* next;
+    struct list_node_t* prev;
+    struct list_node_t* next;
     void* data;
 } list_node_t;
 
 typedef struct list_t
 {
     int count;
-    list_node_t* head;
-    list_node_t* tail;
+    struct list_node_t* head;
+    struct list_node_t* tail;
 } list_t;
 
 list_t* list_create();
@@ -27,3 +27,5 @@ void list_push(list_t* list, void* data);
 void list_pop(list_t* list);
 void list_erase_node(list_t* list, list_node_t* node);
 void list_erase_data(list_t* list, void* data);
+
+#define LIST_FOR_EACH(list, first, next, current)
