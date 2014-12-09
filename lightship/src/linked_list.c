@@ -28,6 +28,7 @@ void list_clear(list_t* list)
         list->tail = list->tail->next;
         free(current);
     }
+    list->count = 0;
 }
 
 void list_push(list_t* list, void* data)
@@ -43,13 +44,14 @@ void list_push(list_t* list, void* data)
     list->head = node;          /* new head is new node */
     node->next = NULL;          /* new node has no next node */
     node->data = data;
+    ++list->count;
 }
 
-void list_pop(list_t* list)
+void* list_pop(list_t* list)
 {
     list_node_t* node = list->head;
     if(!node)
-        return;
+        return NULL;
     
     list->head = node->prev;    /* new head is previous node */
     if(list->head)              /* does the previous node exist? */
@@ -58,9 +60,10 @@ void list_pop(list_t* list)
         list->tail = NULL;      /* tail no longer exists */
 
     free(node);
+    --list->count;
 }
 
-void list_erase_node(list_t* list, list_node_t* node)
+void* list_erase_node(list_t* list, list_node_t* node)
 {
     list_node_t* prev = node->prev;
     list_node_t* next = node->next;
@@ -74,7 +77,10 @@ void list_erase_node(list_t* list, list_node_t* node)
     else
         list->head = prev;  /* head was pointing at current noid - point to previous */
 
+    void* data = node->data;
     free(node);
+    --list->count;
+    return data;
 }
 
 void list_erase_data(list_t* list, void* data)
