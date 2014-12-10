@@ -5,7 +5,7 @@
 int main(int argc, char** argv)
 {
     plugin_manager_init();
-    plugin_t* plugin = plugin_load("plugins/plugin_test.so");
+    plugin_t* plugin = plugin_load("plugin_test");
     if(plugin)
         plugin_unload(plugin);
     plugin_manager_deinit();
