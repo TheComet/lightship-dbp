@@ -15,11 +15,14 @@ void plugin_manager_init(void)
     list_init_list(&plugins);
 }
 
-plugin_t* plugin_load(const char* filename)
+plugin_t* plugin_load(const char* plugin_name)
 {
     /* try to load library */
-    fprintf_strings(stdout, 3, "loading plugin \"", filename, "\"...");
+    fprintf_strings(stdout, 3, "loading plugin \"", plugin_name, "\"...");
+    char* filename = malloc((strlen(plugin_name) + sizeof(char*)*12) * sizeof(char*));
+    sprintf(filename, "plugins/%s.so", plugin_name);
     void* handle = dlopen(filename, RTLD_LAZY);
+    free(filename);
     if(!handle)
     {
         fprintf_strings(stderr, 2, "Error loading plugin: ", dlerror());
