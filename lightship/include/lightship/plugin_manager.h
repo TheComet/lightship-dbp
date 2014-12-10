@@ -10,11 +10,13 @@ void plugin_manager_init(void);
 
 /*!
  * @brief Loads the specified plugin.
- * @param filename The filename of the plugin to load.
+ * @param plugin_name The name of the plugin to load. The function will search
+ * for a file matching the name in ./plugins, relative to the working
+ * directory.
  * @return Returns NULL if unsuccessful, otherwise a pointer to the plugin is
  * returned.
  */
-struct plugin_t* plugin_load(const char* filename);
+struct plugin_t* plugin_load(const char* plugin_name);
 
 void plugin_unload(struct plugin_t* plugin);
 
