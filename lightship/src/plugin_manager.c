@@ -4,7 +4,7 @@
 #include <lightship/plugin_manager.h>
 #include <lightship/plugin.h>
 #include <lightship/linked_list.h>
-#include <lightship/utility.h>
+#include <util/util.h>
 
 #include <dlfcn.h>
 
