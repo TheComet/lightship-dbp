@@ -26,7 +26,8 @@ void list_clear(list_t* list);
 void list_push(list_t* list, void* data);
 void* list_pop(list_t* list);
 void* list_erase_node(list_t* list, list_node_t* node);
-void list_erase_data(list_t* list, void* data);
+void list_erase_element(list_t* list, void* data);
 
-#define LIST_FOR_EACH(list, var) \
+#define LIST_FOR_EACH(list, var_type, var) \
+    var_type var; \
     for(list_node_t* node = (list)->tail; node != NULL && (var = node->data); node = node->next)

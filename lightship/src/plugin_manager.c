@@ -26,7 +26,7 @@ plugin_t* plugin_load(const char* filename)
         return NULL;
     }
     
-    /* get plugin init function */
+    /* get plugin start function */
     plugin_start_func start_func;
     *(plugin_t**)(&start_func) = dlsym(handle, "plugin_start");
     if(!start_func)
@@ -40,7 +40,7 @@ plugin_t* plugin_load(const char* filename)
         }
     }
 
-    /* make sure plugin has exit function */
+    /* get plugin exit function */
     plugin_stop_func stop_func;
     *(plugin_t**)(&stop_func) = dlsym(handle, "plugin_stop");
     if(!stop_func)
@@ -62,12 +62,33 @@ plugin_t* plugin_load(const char* filename)
         dlclose(handle);
         return NULL;
     }
+    
+    /* ensure the plugin has set valid data */
+    /* TODO check API version and stuff */
 
     /* save handle and insert into list of active plugins */
     plugin->handle = handle;
     plugin->start = start_func;
     plugin->stop = stop_func;
     list_push(&plugins, plugin);
+    
+    /* print info of loaded plugin */
+    char version_major[sizeof(int)*8+1];
+    char version_minor[sizeof(int)*8+1];
+    char version_patch[sizeof(int)*8+1];
+    sprintf(version_major, "%d", plugin->info.version.major);
+    sprintf(version_minor, "%d", plugin->info.version.minor);
+    sprintf(version_patch, "%d", plugin->info.version.patch);
+    fprintf_strings(stdout, 8,
+        "loaded plugin \"",
+        plugin->info.name,
+        "\", version ",
+        version_major,
+        ".",
+        version_minor,
+        ".",
+        version_patch
+    );
     
     return plugin;
 }
@@ -77,15 +98,14 @@ void plugin_unload(plugin_t* plugin)
     fprintf_strings(stdout, 3, "unloading plugin \"", plugin->info.name, "\"...");
     plugin->stop();
     dlclose(plugin->handle);
+    list_erase_element(&plugins, plugin);
 }
 
 void plugin_manager_deinit(void)
 {
     /* unload all plugins */
-    plugin_t* plugin;
-    LIST_FOR_EACH(&plugins, plugin)
+    LIST_FOR_EACH(&plugins, plugin_t*, plugin)
     {
         plugin_unload(plugin);
-        list_erase_node(&plugins, node);
     }
 }
