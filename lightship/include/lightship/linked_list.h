@@ -14,8 +14,8 @@ typedef struct list_t
     struct list_node_t* tail;
 } list_t;
 
-list_t* list_create();
-void list_init(list_t* list);
+list_t* list_create(void);
+void list_init_list(list_t* list);
 void list_destroy(list_t* list);
 void list_clear(list_t* list);
 
@@ -28,4 +28,5 @@ void* list_pop(list_t* list);
 void* list_erase_node(list_t* list, list_node_t* node);
 void list_erase_data(list_t* list, void* data);
 
-#define LIST_FOR_EACH(list, first, next, current)
+#define LIST_FOR_EACH(list, var) \
+    for(list_node_t* node = (list)->tail; node != NULL && (var = node->data); node = node->next)

@@ -49,3 +49,4 @@ endif ()
 include_directories ("lightship/include")
 
 add_subdirectory ("lightship")
+add_subdirectory ("plugins")

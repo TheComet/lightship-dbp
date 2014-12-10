@@ -8,12 +8,14 @@ typedef struct vector_t
 } vector_t;
 
 vector_t* vector_create(const int element_size);
+void vector_init_vector(vector_t* vector, const int element_size);
 void vector_destroy(vector_t* vector);
 void vector_clear(vector_t* vector);
 
 #define vector_count(x) ((x)->count)
 
 void vector_push(vector_t* vector, void* data);
+void* vector_emplace(vector_t* vector);
 void* vector_pop(vector_t* vector);
 void vector_insert(vector_t* vector, int index, void* data);
 void vector_erase(vector_t* vector, int index);
