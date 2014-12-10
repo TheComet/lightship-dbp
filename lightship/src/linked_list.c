@@ -83,7 +83,7 @@ void* list_erase_node(list_t* list, list_node_t* node)
     return data;
 }
 
-void list_erase_data(list_t* list, void* data)
+void list_erase_element(list_t* list, void* data)
 {
     list_node_t* current = list->tail;
     while(current)
