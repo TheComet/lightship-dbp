@@ -2,14 +2,14 @@
 #include <string.h>
 #include <lightship/linked_list.h>
 
-list_t* list_create()
+list_t* list_create(void)
 {
     list_t* list = (list_t*)malloc(sizeof(list_t));
-    list_init(list);
+    list_init_list(list);
     return list;
 }
 
-void list_init(list_t* list)
+void list_init_list(list_t* list)
 {
     memset(list, 0, sizeof(list_t));
 }
