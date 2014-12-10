@@ -43,10 +43,18 @@ if (CMAKE_BUILD_TYPE MATCHES Debug)
 endif ()
 
 ###############################################################################
+# generate missing folders and files
+###############################################################################
+
+file (MAKE_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/plugins")
+
+###############################################################################
 # Dependency settings
 ###############################################################################
 
 include_directories ("lightship/include")
+include_directories ("util/include")
 
 add_subdirectory ("lightship")
 add_subdirectory ("plugins")
+add_subdirectory ("util")
