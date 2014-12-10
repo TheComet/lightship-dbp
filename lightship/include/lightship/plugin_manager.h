@@ -1,23 +1,21 @@
-/* node for doubly linked list between plugins */
 struct plugin_t;
-struct plugin_node_t
-{
-    struct plugin_t* next;
-    struct plugin_t* prev;
-} plugin_node_t;
 
-/* plugin struct */
-typedef struct plugin_t
-{
-    struct plugin_node_t node;
-} plugin_t;
+/*!
+ * @brief Initialises the plugin manager.
+ * 
+ * Must be called before calling any other functions related to the plugin
+ * manager.
+ */
+void plugin_manager_init(void);
 
-/* container for plugins */
-typedef struct plugins_t
-{
-    struct plugin_t* head;
-    struct plugin_t* tail;
-} plugins_t;
+/*!
+ * @brief Loads the specified plugin.
+ * @param filename The filename of the plugin to load.
+ * @return Returns NULL if unsuccessful, otherwise a pointer to the plugin is
+ * returned.
+ */
+struct plugin_t* plugin_load(const char* filename);
 
-void init_plugin_manager();
-void load_plugin(const char* filename);
+void plugin_unload(struct plugin_t* plugin);
+
+void plugin_manager_deinit(void);

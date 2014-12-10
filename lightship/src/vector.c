@@ -5,9 +5,14 @@
 vector_t* vector_create(const int element_size)
 {
     vector_t* vector = malloc(sizeof(vector_t));
+    vector_init_vector(vector, element_size);
+    return vector;
+}
+
+void vector_init_vector(vector_t* vector, const int element_size)
+{
     vector_t tmp = {element_size, 0, 0, NULL};
     memcpy(vector, &tmp, sizeof(vector_t));
-    return vector;
 }
 
 void vector_destroy(vector_t* vector)
@@ -23,15 +28,18 @@ void vector_clear(vector_t* vector)
     vector->count = 0;
 }
 
-void vector_push(vector_t* vector, void* data)
+void* vector_emplace(vector_t* vector)
 {
     if(vector->count == vector->size)
         vector_expand(vector, -1);
-    
-    /* copy new element into end of vector */
-    int offset = vector->element_size * vector->count;
-    memcpy(vector->data + offset, data, vector->element_size);
+    void* data = vector->data + (vector->element_size * vector->count);
     ++vector->count;
+    return data;
+}
+
+void vector_push(vector_t* vector, void* data)
+{
+    memcpy(vector_emplace(vector), data, vector->element_size);
 }
 
 void* vector_pop(vector_t* vector)
