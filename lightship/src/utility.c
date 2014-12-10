@@ -1,6 +1,7 @@
 #include <stdarg.h>
 #include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <lightship/utility.h>
 
 void fprintf_strings(FILE* file, int num_strs, ...)
