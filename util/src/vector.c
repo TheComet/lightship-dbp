@@ -1,6 +1,6 @@
 #include <string.h>
 #include <stdlib.h>
-#include <lightship/vector.h>
+#include <util/vector.h>
 
 vector_t* vector_create(const int element_size)
 {
