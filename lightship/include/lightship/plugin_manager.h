@@ -26,6 +26,27 @@ void plugin_manager_deinit(void);
 
 /*!
  * @brief Loads the specified plugin.
+ * 
+ * In order to load a plugin, one must provide the name of the plugin, the
+ * desired version of the plugin, and search criteria. This is done by filling
+ * out the datafields in a struct of type *plugin_info_t* and passing it to
+ * this function. Example:
+ * @code
+ * plugin_info_t my_plugin;
+ * my_plugin.name = "foo";
+ * my_plugin.version.major = 1;
+ * my_plugin.version.minor = 2;
+ * my_plugin.version.patch = 6;
+ * @endcode
+ * Note that the name of the plugin isn't what the loaded plugin claims to be
+ * named, but is a substring of the actual file name. If the name were
+ * *foo*, then the file name would have to be *plugin_foo-1-2-6.so*.
+ * 
+ * The search criteria can be:
+ *   - *PLUGIN_VERSION_EXACT*: The version of the file has to match exactly.
+ *   - *PLUGIN_VERSION_MINIMUM*: The version of the file name must be at least
+ *     equal or greater than the requested version.
+ *
  * @param plugin_info Requirements for the plugin to be loaded.
  * for a file matching the name in ./plugins, relative to the working
  * directory.
