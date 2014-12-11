@@ -7,8 +7,8 @@
 #include <stdlib.h>
 #include <lightship/plugin_manager.h>
 #include <lightship/plugin.h>
-#include <lightship/linked_list.h>
-#include <util/util.h>
+#include <util/linked_list.h>
+#include <util/string.h>
 
 static list_t plugins;
 
