@@ -28,3 +28,12 @@ void fprintf_strings(FILE* file, int num_strs, ...)
     fprintf(file, "%s\n", buffer);
     free(buffer);
 }
+
+int is_number(const char chr)
+{
+    char* numbers = "0123456789";
+    while(numbers)
+        if(chr == *numbers++)
+            return 1;
+    return 0;
+}
