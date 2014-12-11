@@ -6,11 +6,11 @@ typedef struct plugin_t* (*plugin_start_func)(void);
 typedef void (*plugin_stop_func)(void);
 
 /* programming language the plugin was written in */
-typedef enum plugin_programming_language_t
+typedef enum plugin_programming_language_e
 {
     plugin_programming_language_c,
     plugin_programming_language_cpp
-} plugin_programming_language_t;
+} plugin_programming_language_e;
 
 /* api version information of the plugin */
 typedef struct plugin_api_version_t
@@ -23,7 +23,7 @@ typedef struct plugin_api_version_t
 typedef struct plugin_info_t
 {
     char* name;
-    plugin_programming_language_t language;
+    plugin_programming_language_e language;
     plugin_api_version_t version;
 } plugin_info_t;
 

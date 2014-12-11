@@ -5,9 +5,19 @@
 int main(int argc, char** argv)
 {
     plugin_manager_init();
-    plugin_t* plugin = plugin_load("plugin_test");
+    
+    /* load a test plugin */
+    plugin_info_t target;
+    target.name = "test";
+    target.version.major = 0;
+    target.version.minor = 0;
+    target.version.patch = 0;
+    plugin_t* plugin = plugin_load(&target, PLUGIN_VERSION_MINIMUM);
+    
+    /* unload the test plugin */
     if(plugin)
         plugin_unload(plugin);
+
     plugin_manager_deinit();
     
     return 0;
