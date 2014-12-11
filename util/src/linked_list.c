@@ -1,6 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
-#include <lightship/linked_list.h>
+#include <util/linked_list.h>
 
 list_t* list_create(void)
 {

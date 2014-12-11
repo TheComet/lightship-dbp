@@ -8,8 +8,8 @@ typedef void (*plugin_stop_func)(void);
 /* programming language the plugin was written in */
 typedef enum plugin_programming_language_e
 {
-    plugin_programming_language_c,
-    plugin_programming_language_cpp
+    PLUGIN_PROGRAMMING_LANGUAGE_C,
+    PLUGIN_PROGRAMMING_LANGUAGE_CPP
 } plugin_programming_language_e;
 
 /* api version information of the plugin */

@@ -2,7 +2,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <util/util.h>
+#include <util/string.h>
 
 void fprintf_strings(FILE* file, int num_strs, ...)
 {
