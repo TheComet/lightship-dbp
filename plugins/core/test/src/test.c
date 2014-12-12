@@ -4,9 +4,9 @@
 #include <util/plugin.h>
 #include <test/config.h>
 
-plugin_t* g_plugin;
+struct plugin_t* g_plugin;
 
-void plugin_start(plugin_t* plugin)
+void plugin_start(struct plugin_t* plugin)
 {
     g_plugin = plugin;
     

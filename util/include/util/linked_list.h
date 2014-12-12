@@ -1,42 +1,40 @@
-struct list_node_t;
-
 /*!
  * @brief Holds user defined data and information on linked nodes.
  */
-typedef struct list_node_t
+struct list_node_t
 {
     struct list_node_t* prev;
     struct list_node_t* next;
     void* data;
-} list_node_t;
+};
 
 /*!
  * @brief Holds information on the entire list of nodes.
  */
-typedef struct list_t
+struct list_t
 {
     int count;
     struct list_node_t* head;
     struct list_node_t* tail;
-} list_t;
+};
 
 /*!
  * @brief Creates a new, empty list.
  * @return A pointer to the new list.
  */
-list_t* list_create(void);
+struct list_t* list_create(void);
 
 /*!
  * @brief Initialises an existing list with default values.
  * @param list The list to initialise.
  */
-void list_init_list(list_t* list);
+void list_init_list(struct list_t* list);
 
 /*!
  * @brief Destroys a list.
  * @param list The list to destroy.
  */
-void list_destroy(list_t* list);
+void list_destroy(struct list_t* list);
 
 /*!
  * @brief Unlinks and removes all nodes in a list. The list will be empty after
@@ -44,7 +42,7 @@ void list_destroy(list_t* list);
  * @note The data each link held is not freed, it is up to you to traverse the
  * list and destroy any data contained within the list before clearing it.
  */
-void list_clear(list_t* list);
+void list_clear(struct list_t* list);
 
 /*!
  * @brief How many nodes the list has.
@@ -79,7 +77,7 @@ void list_clear(list_t* list);
  * @param list The list to add a new node to.
  * @param data The data the new node should reference.
  */
-void list_push(list_t* list, void* data);
+void list_push(struct list_t* list, void* data);
 
 /*!
  * @brief Removes a node from the head of the list.
@@ -91,7 +89,7 @@ void list_push(list_t* list, void* data);
  * @param list The list from which to remove the node.
  * @return Returns the data that was referenced by the now destroyed node.
  */
-void* list_pop(list_t* list);
+void* list_pop(struct list_t* list);
 
 /*!
  * @brief Removes a specified node from the list.
@@ -99,7 +97,7 @@ void* list_pop(list_t* list);
  * @param list The list from which to remove the node.
  * @return Returns the data that was referenced by the now destroyed node.
  */
-void* list_erase_node(list_t* list, list_node_t* node);
+void* list_erase_node(struct list_t* list, struct list_node_t* node);
 
 /*!
  * @brief Searches the list for the specified data, then erases the node.
@@ -108,7 +106,7 @@ void* list_erase_node(list_t* list, list_node_t* node);
  * @return Returns the data that was referenced by the now destroyed node.
  * If the specified data is not found in the list, NULL is returned.
  */
-void* list_erase_element(list_t* list, void* data);
+void* list_erase_element(struct list_t* list, void* data);
 
 /*!
  * @brief Convenient macro for iterating a list's elements.
@@ -127,4 +125,5 @@ void* list_erase_element(list_t* list, void* data);
  */
 #define LIST_FOR_EACH(list, var_type, var) \
     var_type var; \
-    for(list_node_t* node = (list)->tail; node != NULL && (var = node->data); node = node->next)
+	struct list_node_t* node; \
+    for(node = (list)->tail; node != NULL && (var = node->data); node = node->next)

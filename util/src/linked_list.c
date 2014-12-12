@@ -2,27 +2,27 @@
 #include <string.h>
 #include <util/linked_list.h>
 
-list_t* list_create(void)
+struct list_t* list_create(void)
 {
-    list_t* list = (list_t*)malloc(sizeof(list_t));
+    struct list_t* list = (struct list_t*)malloc(sizeof(struct list_t));
     list_init_list(list);
     return list;
 }
 
-void list_init_list(list_t* list)
+void list_init_list(struct list_t* list)
 {
-    memset(list, 0, sizeof(list_t));
+    memset(list, 0, sizeof(struct list_t));
 }
 
-void list_destroy(list_t* list)
+void list_destroy(struct list_t* list)
 {
     list_clear(list);
     free(list);
 }
 
-void list_clear(list_t* list)
+void list_clear(struct list_t* list)
 {
-    list_node_t* current;
+    struct list_node_t* current;
     while(current = list->tail)
     {
         list->tail = list->tail->next;
@@ -31,9 +31,9 @@ void list_clear(list_t* list)
     list->count = 0;
 }
 
-void list_push(list_t* list, void* data)
+void list_push(struct list_t* list, void* data)
 {
-    list_node_t* node = (list_node_t*)malloc(sizeof(list_node_t));
+    struct list_node_t* node = (struct list_node_t*)malloc(sizeof(struct list_node_t));
     /* first element being inserted, set tail */
     if(!list->head)
         list->tail = node;
@@ -47,9 +47,9 @@ void list_push(list_t* list, void* data)
     ++list->count;
 }
 
-void* list_pop(list_t* list)
+void* list_pop(struct list_t* list)
 {
-    list_node_t* node = list->head;
+    struct list_node_t* node = list->head;
     if(!node)
         return NULL;
     
@@ -63,10 +63,11 @@ void* list_pop(list_t* list)
     --list->count;
 }
 
-void* list_erase_node(list_t* list, list_node_t* node)
+void* list_erase_node(struct list_t* list, struct list_node_t* node)
 {
-    list_node_t* prev = node->prev;
-    list_node_t* next = node->next;
+    struct list_node_t* prev = node->prev;
+    struct list_node_t* next = node->next;
+	void* data;
     if(prev)
         prev->next = next;  /* node after current node is the previous' node next node */
     else
@@ -77,15 +78,15 @@ void* list_erase_node(list_t* list, list_node_t* node)
     else
         list->head = prev;  /* head was pointing at current noid - point to previous */
 
-    void* data = node->data;
+    data = node->data;
     free(node);
     --list->count;
     return data;
 }
 
-void* list_erase_element(list_t* list, void* data)
+void* list_erase_element(struct list_t* list, void* data)
 {
-    list_node_t* current = list->tail;
+    struct list_node_t* current = list->tail;
     while(current)
     {
         if(current->data == data)
