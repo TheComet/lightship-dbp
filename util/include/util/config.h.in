@@ -70,7 +70,7 @@
      * define public API macro, depending on whether the library is being
      * built or being linked against.
      */
-#   if defined(@PROJECT_NAME@_BUILDING_LIBRARY) // defined by CMake when library is being compiled
+#   if defined(@PROJECT_NAME@_BUILDING_LIBRARY) /* defined by CMake when library is being compiled */
 #       define @PROJECT_NAME@_PUBLIC_API @PROJECT_NAME@_HELPER_API_EXPORT
 #   else
 #       define @PROJECT_NAME@_PUBLIC_API @PROJECT_NAME@_HELPER_API_IMPORT
