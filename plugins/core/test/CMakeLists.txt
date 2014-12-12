@@ -19,6 +19,7 @@ add_library (plugin_test SHARED
     ${plugin_test_HEADERS}
     ${plugin_test_SOURCES}
 )
+target_link_libraries (plugin_test lightship_util)
 set_target_properties (plugin_test
     PROPERTIES
         PREFIX ""

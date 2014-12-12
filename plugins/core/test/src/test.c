@@ -3,10 +3,12 @@
 #include <stdio.h>
 #include <util/plugin.h>
 #include <test/config.h>
+#include <util/config.h>
+#include <lightship/plugin_manager.h>
 
 struct plugin_t* g_plugin;
 
-void plugin_start(struct plugin_t* plugin)
+void LIGHTSHIP_PUBLIC_API plugin_start(struct plugin_t* plugin)
 {
     g_plugin = plugin;
     
@@ -26,6 +28,6 @@ void plugin_start(struct plugin_t* plugin)
     );
 }
 
-void plugin_stop(void)
+void LIGHTSHIP_PUBLIC_API plugin_stop(void)
 {
 }

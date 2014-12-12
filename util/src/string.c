@@ -44,6 +44,13 @@ void fprintf_strings(FILE* file, int num_strs, ...)
     free(buffer);
 }
 
+char* malloc_string(const char* str)
+{
+	char* buffer = (char*)malloc((strlen(str)+1) * sizeof(char*));
+	strcpy(buffer, str);
+	return buffer;
+}
+
 int is_number(const char chr)
 {
     char* numbers = "0123456789";
