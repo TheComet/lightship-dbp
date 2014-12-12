@@ -28,7 +28,7 @@ endif ()
 ###############################################################################
 
 if (${CMAKE_C_COMPILER_ID} STREQUAL "GNU")
-    add_definitions (-pedantic -fPIC -std=c99)
+    add_definitions (-pedantic)
 elseif (${CMAKE_C_COMPILER_ID} STREQUAL "Clang")
     add_definitions (-pedantic)
 elseif (${CMAKE_C_COMPILER_ID} STREQUAL "Intel")
@@ -47,6 +47,7 @@ endif ()
 ###############################################################################
 
 file (MAKE_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/plugins")
+file (WRITE "${CMAKE_SOURCE_DIR}/util/include/util/.gitignore" "*")
 
 ###############################################################################
 # Dependency settings
