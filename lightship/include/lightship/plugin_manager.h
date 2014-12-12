@@ -81,8 +81,8 @@ struct plugin_t* plugin_get_by_name(const char* name);
  * @return Returns 1 if successful, 0 if otherwise.
  */
 static int plugin_version_acceptable(struct plugin_info_t* info,
-                        const char* file,
-                        plugin_search_criteria_t criteria);
+                                     const char* file,
+                                     plugin_search_criteria_t criteria);
 
 /*!
  * @brief Scans the plugin directory for a suitable plugin to load.
