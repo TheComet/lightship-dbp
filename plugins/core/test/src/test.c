@@ -10,17 +10,20 @@ void plugin_start(plugin_t* plugin)
 {
     g_plugin = plugin;
     
-    /* set information about this plugin */
-    g_plugin->info.name = "test";
-    g_plugin->info.author = "TheComet";
-    g_plugin->info.description = "A test plugin for lightship";
-    g_plugin->info.website = "github.com/TheComet93/";
-    
-    g_plugin->info.language = PLUGIN_PROGRAMMING_LANGUAGE_C;
-    
-    g_plugin->info.version.major = TEST_VERSION_MAJOR;
-    g_plugin->info.version.minor = TEST_VERSION_MINOR;
-    g_plugin->info.version.patch = TEST_VERSION_PATCH;
+    plugin_set_info(g_plugin,
+            "test",
+            "TheComet",
+            "A test plugin for lightship",
+            "http://github.com/TheComet93/"
+    );
+    plugin_set_programming_language(g_plugin,
+            PLUGIN_PROGRAMMING_LANGUAGE_C
+    );
+    plugin_set_version(g_plugin,
+            TEST_VERSION_MAJOR,
+            TEST_VERSION_MINOR,
+            TEST_VERSION_PATCH
+    );
 }
 
 void plugin_stop(void)
