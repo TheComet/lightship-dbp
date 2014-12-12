@@ -2,47 +2,48 @@
 #include <stdlib.h>
 #include <util/vector.h>
 
-vector_t* vector_create(const int element_size)
+struct vector_t* vector_create(const int element_size)
 {
-    vector_t* vector = malloc(sizeof(vector_t));
+    struct vector_t* vector = (struct vector_t*)malloc(sizeof(struct vector_t));
     vector_init_vector(vector, element_size);
     return vector;
 }
 
-void vector_init_vector(vector_t* vector, const int element_size)
+void vector_init_vector(struct vector_t* vector, const int element_size)
 {
-    vector_t tmp = {element_size, 0, 0, NULL};
-    memcpy(vector, &tmp, sizeof(vector_t));
+    struct vector_t tmp = {element_size, 0, 0, NULL};
+    memcpy(vector, &tmp, sizeof(struct vector_t));
 }
 
-void vector_destroy(vector_t* vector)
+void vector_destroy(struct vector_t* vector)
 {
     vector_clear(vector);
     free(vector);
 }
 
-void vector_clear(vector_t* vector)
+void vector_clear(struct vector_t* vector)
 {
     if(vector->data)
         free(vector->data);
     vector->count = 0;
 }
 
-void* vector_emplace(vector_t* vector)
+void* vector_emplace(struct vector_t* vector)
 {
+	void* data;
     if(vector->count == vector->size)
         vector_expand(vector, -1);
-    void* data = vector->data + (vector->element_size * vector->count);
+    data = vector->data + (vector->element_size * vector->count);
     ++vector->count;
     return data;
 }
 
-void vector_push(vector_t* vector, void* data)
+void vector_push(struct vector_t* vector, void* data)
 {
     memcpy(vector_emplace(vector), data, vector->element_size);
 }
 
-void* vector_pop(vector_t* vector)
+void* vector_pop(struct vector_t* vector)
 {
     if(!vector->count)
         return NULL;
@@ -51,8 +52,10 @@ void* vector_pop(vector_t* vector)
     return vector->data + (vector->element_size * vector->count);
 }
 
-void vector_insert(vector_t* vector, int index, void* data)
+void vector_insert(struct vector_t* vector, int index, void* data)
 {
+	int offset;
+
     /* last index (which would normally be invalid) is valid in this case */
     if(index > vector->size)
         return;
@@ -61,40 +64,47 @@ void vector_insert(vector_t* vector, int index, void* data)
         vector_expand(vector, index);
     
     /* copy new element into the specified index */
-    int offset = vector->element_size * index;
+    offset = vector->element_size * index;
     memcpy(vector->data + offset, data, vector->element_size);
     ++vector->count;
 }
 
-void vector_erase(vector_t* vector, int index)
+void vector_erase(struct vector_t* vector, int index)
 {
+	int offset;
+	int total_size;
+
     if(index >= vector->size)
         return;
     
     /* shift memory right after the specified element down by one element */
-    int offset = vector->element_size * index;
-    int total_size = vector->element_size * vector->count;
+    offset = vector->element_size * index;
+    total_size = vector->element_size * vector->count;
     memcpy(vector->data + offset, vector->data + offset + vector->element_size, total_size - offset);
     --vector->count;
 }
 
-void* vector_get_element(vector_t* vector, int index)
+void* vector_get_element(struct vector_t* vector, int index)
 {
     if(index >= vector->count)
         return NULL;
     return vector->data + (vector->element_size * index);
 }
 
-static void vector_expand(vector_t* vector, int insertion_index)
+static void vector_expand(struct vector_t* vector, int insertion_index)
 {
+	int new_size;
+	DATA_POINTER_TYPE old_data;
+	DATA_POINTER_TYPE new_data;
+
     /* expand by factor 2 */
-    int new_size = vector->size << 2;
+    new_size = vector->size << 2;
     if(new_size == 0)
         new_size = 2;
     
     /* prepare for reallocating data */
-    DATA_POINTER_TYPE old_data = vector->data;
-    DATA_POINTER_TYPE new_data = malloc(vector->element_size * new_size);
+    old_data = vector->data;
+    new_data = (DATA_POINTER_TYPE)malloc(vector->element_size * new_size);
     
     /* if no insertion index is required, copy all data to new memory */
     if(insertion_index == -1 || insertion_index >= new_size)

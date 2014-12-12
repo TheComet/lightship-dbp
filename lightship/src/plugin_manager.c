@@ -10,7 +10,7 @@
 #include <util/linked_list.h>
 #include <util/string.h>
 
-static list_t g_plugins;
+static struct list_t g_plugins;
 
 void plugin_manager_init(void)
 {
@@ -20,17 +20,17 @@ void plugin_manager_init(void)
 void plugin_manager_deinit(void)
 {
     /* unload all plugins */
-    LIST_FOR_EACH(&g_plugins, plugin_t*, plugin)
+    LIST_FOR_EACH(&g_plugins, struct plugin_t*, plugin)
     {
         plugin_unload(plugin);
     }
 }
 
-plugin_t* plugin_load(plugin_info_t* plugin_info, plugin_search_criteria_t criteria)
+struct plugin_t* plugin_load(struct plugin_info_t* plugin_info, plugin_search_criteria_t criteria)
 {
     char* filename = NULL;
     void* handle = NULL;
-    plugin_t* plugin = NULL;
+    struct plugin_t* plugin = NULL;
     plugin_start_func start_func;
     plugin_stop_func stop_func;
     
@@ -66,7 +66,7 @@ plugin_t* plugin_load(plugin_info_t* plugin_info, plugin_search_criteria_t crite
         
         /* get plugin start function */
         dlerror(); /* clear existing errors, if any */
-        *(plugin_t**)(&start_func) = dlsym(handle, "plugin_start");
+        *(struct plugin_t**)(&start_func) = dlsym(handle, "plugin_start");
         if(!start_func)
         {
             const char* error = dlerror();
@@ -79,7 +79,7 @@ plugin_t* plugin_load(plugin_info_t* plugin_info, plugin_search_criteria_t crite
 
         /* get plugin exit function */
         dlerror(); /* clear existing errors, if any */
-        *(plugin_t**)(&stop_func) = dlsym(handle, "plugin_stop");
+        *(struct plugin_t**)(&stop_func) = dlsym(handle, "plugin_stop");
         if(!stop_func)
         {
             const char* error = dlerror();
@@ -155,7 +155,7 @@ plugin_t* plugin_load(plugin_info_t* plugin_info, plugin_search_criteria_t crite
     return NULL;
 }
 
-void plugin_unload(plugin_t* plugin)
+void plugin_unload(struct plugin_t* plugin)
 {
     fprintf_strings(stdout, 3, "unloading plugin \"", plugin->info.name, "\"");
     
@@ -168,9 +168,9 @@ void plugin_unload(plugin_t* plugin)
     plugin_destroy(plugin);
 }
 
-plugin_t* plugin_get_by_name(const char* name)
+struct plugin_t* plugin_get_by_name(const char* name)
 {
-    LIST_FOR_EACH(&g_plugins, plugin_t*, plugin)
+    LIST_FOR_EACH(&g_plugins, struct plugin_t*, plugin)
     {
         if(strcmp(name, plugin->info.name) == 0)
             return plugin;
@@ -178,7 +178,7 @@ plugin_t* plugin_get_by_name(const char* name)
     return NULL;
 }
 
-static int plugin_version_acceptable(plugin_info_t* info,
+static int plugin_version_acceptable(struct plugin_info_t* info,
                         const char* file,
                         plugin_search_criteria_t criteria)
 {
@@ -212,7 +212,7 @@ static int plugin_version_acceptable(plugin_info_t* info,
     return 0;
 }
 
-static char* find_plugin(plugin_info_t* info, plugin_search_criteria_t criteria)
+static char* find_plugin(struct plugin_info_t* info, plugin_search_criteria_t criteria)
 {
     /* log */
     char version_str[sizeof(int)*27+1];
