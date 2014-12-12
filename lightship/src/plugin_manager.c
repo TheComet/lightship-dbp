@@ -12,6 +12,8 @@
 
 #ifdef LIGHTSHIP_PLATFORM_LINUX
 #   include <dirent.h>
+#elif defined (LIGHTSHIP_PLATFORM_WINDOWS)
+#	include <Windows.h>
 #endif
 
 static struct list_t g_plugins;
@@ -200,9 +202,21 @@ static int plugin_version_acceptable(struct plugin_info_t* info,
 static char* find_plugin(struct plugin_info_t* info, plugin_search_criteria_t criteria)
 {
     int n;
-    struct dirent** namelist;
     char version_str[sizeof(int)*27+1];
-    char* crit_info[] = {"\", minimum version ", "\" exact version "};
+#ifdef LIGHTSHIP_PLATFORM_LINUX
+	/* linux specific local variables */
+	struct dirent** namelist;
+	const char* rel_path_to_plugins = "plugins/";
+#elif defined(LIGHTSHIP_PLATFORM_WINDOWS)
+	/* windows specific local variables */
+	HANDLE fh;
+	WIN32_FIND_DATA fd;
+	char* path_to_plugins_search;
+	const char* rel_path_to_plugins = "..\\bin\\plugins\\";
+#endif
+
+	/* local variables */
+    const char* crit_info[] = {"\", minimum version ", "\" exact version "};
     char* file_found = NULL;
 
     /* log */
@@ -215,7 +229,7 @@ static char* find_plugin(struct plugin_info_t* info, plugin_search_criteria_t cr
     
     /* get list of files in plugins directory */
 #ifdef LIGHTSHIP_PLATFORM_LINUX
-    n = scandir("plugins", &namelist, NULL, alphasort);
+    n = scandir(rel_path_to_plugins, &namelist, NULL, alphasort);
     if(n < 0)
         return NULL;
     
@@ -226,11 +240,36 @@ static char* find_plugin(struct plugin_info_t* info, plugin_search_criteria_t cr
             plugin_version_acceptable(info, namelist[n]->d_name, criteria))
         {
             file_found = malloc((strlen(namelist[n]->d_name) + 9) * sizeof(char*));
-            sprintf(file_found, "plugins/%s", namelist[n]->d_name);
+            sprintf(file_found, "%s%s", rel_path_to_plugins, namelist[n]->d_name);
         }
         free(namelist[n]);
     }
     free(namelist);
+#elif defined(LIGHTSHIP_PLATFORM_WINDOWS)
+
+	path_to_plugins_search = (char*)malloc((strlen(rel_path_to_plugins)+1) * sizeof(char*));
+	sprintf(path_to_plugins_search, "%s*", rel_path_to_plugins);
+	fh = FindFirstFile(path_to_plugins_search, &fd);
+
+	if(fh != INVALID_HANDLE_VALUE)
+	{
+		do
+		{	/* is directory */
+			if(!(fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
+			{	/* file name version string matches criteria */
+				if(plugin_version_acceptable(info, fd.cFileName, criteria))
+				{
+					file_found = (char*)malloc((strlen(fd.cFileName)+strlen(rel_path_to_plugins)+1) * sizeof(char*));
+					sprintf(file_found, "%s%s", rel_path_to_plugins, fd.cFileName);
+					break;
+				}
+				printf("%s\n", fd.cFileName);
+			}
+		} while(FindNextFile(fh, &fd));
+	}
+
+	FindClose(fh);
+	free(path_to_plugins_search);
 #endif
     
     return file_found;

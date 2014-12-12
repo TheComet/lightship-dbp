@@ -9,7 +9,8 @@
      * build settings
      * --------------------------------------------------------------*/
 
-    #define @BUILD_TYPE@
+    #define @PROJECT_NAME@_@BUILD_TYPE@
+    #define @PROJECT_NAME@_@PLATFORM@
 
     /* --------------------------------------------------------------
      * Identify the operating system
