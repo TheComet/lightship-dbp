@@ -16,7 +16,7 @@ static char* get_last_error_string(void)
 	char* buffer = NULL;
 	LPSTR messageBuffer = NULL;
 
-    //Get the error message, if any.
+    /* Get the error message, if any. */
     DWORD errorMessageID = GetLastError();
     if(errorMessageID == 0)
         return malloc_string("No error message has been recorded");
