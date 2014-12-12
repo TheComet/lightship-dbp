@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-#include <lightship/plugin.h>
+#include <util/plugin.h>
 #include <test/config.h>
 
 plugin_t* g_plugin;

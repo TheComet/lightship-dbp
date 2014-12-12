@@ -6,7 +6,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <lightship/plugin_manager.h>
-#include <lightship/plugin.h>
+#include <util/plugin.h>
 #include <util/linked_list.h>
 #include <util/string.h>
 
