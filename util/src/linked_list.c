@@ -61,6 +61,8 @@ void* list_pop(struct list_t* list)
 
     free(node);
     --list->count;
+
+	return NULL;
 }
 
 void* list_erase_node(struct list_t* list, struct list_node_t* node)
