@@ -3,11 +3,16 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <lightship/module_loader.h>
 #include <lightship/plugin_manager.h>
+#include <util/config.h>
 #include <util/plugin.h>
 #include <util/linked_list.h>
 #include <util/string.h>
+#include <util/module_loader.h>
+
+#ifdef LIGHTSHIP_PLATFORM_LINUX
+#   include <dirent.h>
+#endif
 
 static struct list_t g_plugins;
 
@@ -32,6 +37,7 @@ struct plugin_t* plugin_load(struct plugin_info_t* plugin_info, plugin_search_cr
     struct plugin_t* plugin = NULL;
     plugin_start_func start_func;
     plugin_stop_func stop_func;
+    char version_str[sizeof(int)*27+1];
     
     /* 
      * if anything fails, the program will break from this for loop and clean
@@ -56,38 +62,19 @@ struct plugin_t* plugin_load(struct plugin_info_t* plugin_info, plugin_search_cr
         }
         
         /* try to load library */
-        handle = dlopen(filename, RTLD_LAZY);
+        handle = module_open(filename);
         if(!handle)
-        {
-            fprintf_strings(stderr, 2, "Error loading plugin: ", dlerror());
             break;
-        }
-        
+
         /* get plugin start function */
-        dlerror(); /* clear existing errors, if any */
-        *(struct plugin_t**)(&start_func) = dlsym(handle, "plugin_start");
+        *(struct plugin_t**)(&start_func) = module_sym(handle, "plugin_start");
         if(!start_func)
-        {
-            const char* error = dlerror();
-            if(error)
-            {
-                fprintf_strings(stderr, 2, "Error loading plugin: ", error);
-                break;
-            }
-        }
+            break;
 
         /* get plugin exit function */
-        dlerror(); /* clear existing errors, if any */
-        *(struct plugin_t**)(&stop_func) = dlsym(handle, "plugin_stop");
+        *(void**)(&stop_func) = module_sym(handle, "plugin_stop");
         if(!stop_func)
-        {
-            const char* error = dlerror();
-            if(error)
-            {
-                fprintf_strings(stderr, 2, "Error loading plugin: ", error);
-                break;
-            }
-        }
+            break;
 
         /* start the plugin */
         plugin = plugin_create();
@@ -99,7 +86,6 @@ struct plugin_t* plugin_load(struct plugin_info_t* plugin_info, plugin_search_cr
         }
         
         /* get the version string the plugin claims to be */
-        char version_str[sizeof(int)*27+1];
         plugin_get_version_string(version_str, &plugin->info);
         
         /* ensure the plugin claims to be the same version as its filename */
@@ -147,7 +133,7 @@ struct plugin_t* plugin_load(struct plugin_info_t* plugin_info, plugin_search_cr
     if(filename)
         free(filename);
     if(handle)
-        dlclose(handle);
+        module_close(handle);
     if(plugin)
         plugin_destroy(plugin);
     
@@ -162,7 +148,7 @@ void plugin_unload(struct plugin_t* plugin)
     
     /* shutdown plugin and clean up */
     plugin->stop();
-    dlclose(plugin->handle);
+    module_close(plugin->handle);
     list_erase_element(&g_plugins, plugin);
     plugin_destroy(plugin);
 }
@@ -213,24 +199,27 @@ static int plugin_version_acceptable(struct plugin_info_t* info,
 
 static char* find_plugin(struct plugin_info_t* info, plugin_search_criteria_t criteria)
 {
-    /* log */
+    int n;
+    struct dirent** namelist;
     char version_str[sizeof(int)*27+1];
+    char* crit_info[] = {"\", minimum version ", "\" exact version "};
+    char* file_found = NULL;
+
+    /* log */
     sprintf(version_str, "%d-%d-%d",
             info->version.major,
             info->version.minor,
             info->version.patch);
-    char* crit_info[] = {"\", minimum version ", "\" exact version "};
     fprintf_strings(stdout, 4, "looking for plugin \"", info->name, crit_info[criteria],
             version_str);
     
     /* get list of files in plugins directory */
-    struct dirent** namelist;
-    int n = scandir("plugins", &namelist, NULL, alphasort);
+#ifdef LIGHTSHIP_PLATFORM_LINUX
+    n = scandir("plugins", &namelist, NULL, alphasort);
     if(n < 0)
         return NULL;
     
     /* search for plugin file name */
-    char* file_found = NULL;
     while(n--)
     {
         if(!file_found && 
@@ -242,6 +231,7 @@ static char* find_plugin(struct plugin_info_t* info, plugin_search_criteria_t cr
         free(namelist[n]);
     }
     free(namelist);
+#endif
     
     return file_found;
 }

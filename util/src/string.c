@@ -17,7 +17,7 @@ __inline static void safe_strcat(char* target, const char* source)
         strcat(target, source);
 }
 
-void fprintf_strings(struct FILE* file, int num_strs, ...)
+void fprintf_strings(FILE* file, int num_strs, ...)
 {
 	int total_length = 0;
 	int i;
