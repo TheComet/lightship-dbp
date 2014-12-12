@@ -10,7 +10,7 @@
 #include <util/linked_list.h>
 #include <util/string.h>
 
-static list_t g_plugins;
+static struct list_t g_plugins;
 
 void plugin_manager_init(void)
 {
@@ -20,7 +20,7 @@ void plugin_manager_init(void)
 void plugin_manager_deinit(void)
 {
     /* unload all plugins */
-    LIST_FOR_EACH(&g_plugins, plugin_t*, plugin)
+    LIST_FOR_EACH(&g_plugins, struct plugin_t*, plugin)
     {
         plugin_unload(plugin);
     }

@@ -9,15 +9,17 @@ struct
 
 int main(int argc, char** argv)
 {
+	struct plugin_t* plugin;
+	struct plugin_info_t target;
+
     plugin_manager_init();
     
     /* load a test plugin */
-    plugin_info_t target;
     target.name = "test";
     target.version.major = 0;
     target.version.minor = 0;
     target.version.patch = 0;
-    plugin_t* plugin = plugin_load(&target, PLUGIN_VERSION_MINIMUM);
+    plugin = plugin_load(&target, PLUGIN_VERSION_MINIMUM);
     
     /* unload the test plugin */
     if(plugin)
