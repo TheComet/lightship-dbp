@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <lightship/plugin_manager.h>
-#include <lightship/plugin.h>
+#include <util/plugin.h>
 
 struct
 {
