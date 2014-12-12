@@ -2,6 +2,11 @@
 #include <lightship/plugin_manager.h>
 #include <lightship/plugin.h>
 
+struct
+{
+    int fuck;
+} gay;
+
 int main(int argc, char** argv)
 {
     plugin_manager_init();

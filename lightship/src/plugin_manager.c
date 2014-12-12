@@ -65,6 +65,7 @@ plugin_t* plugin_load(plugin_info_t* plugin_info, plugin_search_criteria_t crite
         }
         
         /* get plugin start function */
+        dlerror(); /* clear existing errors, if any */
         *(plugin_t**)(&start_func) = dlsym(handle, "plugin_start");
         if(!start_func)
         {
@@ -77,6 +78,7 @@ plugin_t* plugin_load(plugin_info_t* plugin_info, plugin_search_criteria_t crite
         }
 
         /* get plugin exit function */
+        dlerror(); /* clear existing errors, if any */
         *(plugin_t**)(&stop_func) = dlsym(handle, "plugin_stop");
         if(!stop_func)
         {
@@ -174,50 +176,6 @@ plugin_t* plugin_get_by_name(const char* name)
             return plugin;
     }
     return NULL;
-}
-
-static int plugin_extract_version_from_string(const char* file,
-                                       uint32_t* major,
-                                       uint32_t* minor,
-                                       uint32_t* patch)
-{
-    /* strtok modifies the character array, copy into temporary */
-    char file_temp[(strlen(file)+1)*sizeof(char*)];
-    strcpy(file_temp, file);
-    
-    /* extract major, minor, and patch from file name */
-    *major = -1;
-    *minor = -1;
-    *patch = -1;
-    char* pch = strtok(file_temp, "-");
-    /* skip ahead until a token is found that contains a number */
-    while(pch != NULL)
-    {
-        if(strpbrk(pch, "0123456789") != NULL)
-            break;
-        pch = strtok(NULL, "-");
-    }
-    /* the following numbers must be major, minor, and patch numbers */
-    if(pch != NULL)
-        *major = atoi(pch);
-    if((pch = strtok(NULL, "-")) != NULL)
-        *minor = atoi(pch);
-    if((pch = strtok(NULL, "-")) != NULL)
-        *patch = atoi(pch);
-    
-    /* error check */
-    if(*major == -1 || *minor == -1 || *patch == -1)
-        return 0;
-
-    return 1;
-}
-
-void plugin_get_version_string(char* str, plugin_info_t* info)
-{
-    sprintf(str, "%d-%d-%d",
-        info->version.major,
-        info->version.minor,
-        info->version.patch);
 }
 
 static int plugin_version_acceptable(plugin_info_t* info,
