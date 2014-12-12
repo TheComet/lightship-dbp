@@ -73,28 +73,6 @@ void plugin_unload(struct plugin_t* plugin);
 struct plugin_t* plugin_get_by_name(const char* name);
 
 /*!
- * @brief Extracts the three version digits from a string.
- * @param [in] file The file name to extract them from.
- * @param [out] major Where to store the major number.
- * @param [out] minor Where to sotre the minor number.
- * @param [out] patch Where to store the patch number.
- * @return Returns 1 if successful, 0 if otherwise.
- */
-static int plugin_extract_version_from_string(const char* file,
-                                       uint32_t* major,
-                                       uint32_t* minor,
-                                       uint32_t* patch);
-
-/*!
- * @brief Generates a version string from the info struct and copies it into
- * the provided buffer.
- * @param [out] str The buffer to copy the version string into.
- * @param info The plugin info struct from which to generate the version
- * string.
- */
-void plugin_get_version_string(char* str, struct plugin_info_t* info);
-
-/*!
  * @brief Evaluates whether the specified file is an acceptable plugin to load
  * based on the specified info and criteria.
  * @param info The requested plugin to try and match.
