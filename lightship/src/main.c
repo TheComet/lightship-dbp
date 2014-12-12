@@ -18,6 +18,7 @@ int main(int argc, char** argv)
     target.version.minor = 0;
     target.version.patch = 0;
     plugin_t* plugin = plugin_load(&target, PLUGIN_VERSION_MINIMUM);
+    plugin_t* plugin2 = plugin_load(&target, PLUGIN_VERSION_MINIMUM);
     
     /* unload the test plugin */
     if(plugin)
