@@ -3,13 +3,13 @@
 /*!
  * @brief Plugin object. For every loaded plugin there exists one instance of this.
  */
-typedef struct plugin_t
+struct plugin_t
 {
-    plugin_info_t info;
+    struct plugin_info_t info;
     void* handle;
     plugin_start_func start;
     plugin_stop_func stop;
-} plugin_t;
+};
 
 /*!
  * @brief Creates and initialises a new plugin object.
@@ -18,19 +18,19 @@ typedef struct plugin_t
  * no longer needed.
  * @return Returns the newly created plugin object.
  */
-plugin_t* plugin_create(void);
+struct plugin_t* plugin_create(void);
 
 /*!
  * @brief Initialises a plugin object.
  * @param plugin The plugin to initialise.
  */
-void plugin_init_plugin(plugin_t* plugin);
+void plugin_init_plugin(struct plugin_t* plugin);
 
 /*!
  * @brief Destroys a plugin object.
  * @param plugin The plugin to destroy.
  */
-void plugin_destroy(plugin_t* plugin);
+void plugin_destroy(struct plugin_t* plugin);
 
 /*!
  * @brief Sets general information about the plugin.
@@ -42,7 +42,7 @@ void plugin_destroy(plugin_t* plugin);
  * @param description A short description about what your plugin does.
  * @param website A URL to your website.
  */
-void plugin_set_info(plugin_t* plugin,
+void plugin_set_info(struct plugin_t* plugin,
                      const char* name,
                      const char* author,
                      const char* description,
@@ -51,14 +51,14 @@ void plugin_set_info(plugin_t* plugin,
 /*!
  * @brief Frees all buffers allocated for info strings.
  */
-static void plugin_free_info(plugin_t* plugin);
+static void plugin_free_info(struct plugin_t* plugin);
 
 /*!
  * @brief Sets the programming language of the plugin.
  * @param plugin The plugin to set.
  * @param language The programming language.
  */
-void plugin_set_programming_language(plugin_t* plugin, plugin_programming_language_t language);
+void plugin_set_programming_language(struct plugin_t* plugin, plugin_programming_language_t language);
 
 /*!
  * @brief Sets the version of the plugin.
@@ -67,10 +67,10 @@ void plugin_set_programming_language(plugin_t* plugin, plugin_programming_langua
  * @param minor The minor version.
  * @param patch The patch version.
  */
-void plugin_set_version(plugin_t* plugin, uint32_t major, uint32_t minior, uint32_t patch);
+void plugin_set_version(struct plugin_t* plugin, uint32_t major, uint32_t minior, uint32_t patch);
 
 /* TODO plugin dependencies */
-void plugin_add_dependency(plugin_info_t* plugin);
+void plugin_add_dependency(struct plugin_info_t* plugin);
 
 /*!
  * @brief Extracts the three version digits from a string.
