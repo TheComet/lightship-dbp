@@ -1,5 +1,3 @@
-#define _SVID_SOURCE
-
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -9,9 +7,9 @@
 #include <util/linked_list.h>
 #include <util/string.h>
 #include <util/module_loader.h>
+#include <util/dir.h>
 
 #ifdef LIGHTSHIP_PLATFORM_LINUX
-#   include <dirent.h>
 #elif defined (LIGHTSHIP_PLATFORM_WINDOWS)
 #	include <Windows.h>
 #endif
@@ -203,9 +201,9 @@ static char* find_plugin(struct plugin_info_t* info, plugin_search_criteria_t cr
 {
     int n;
     char version_str[sizeof(int)*27+1];
+    struct list_t* list;
 #ifdef LIGHTSHIP_PLATFORM_LINUX
 	/* linux specific local variables */
-	struct dirent** namelist;
 	const char* rel_path_to_plugins = "plugins/";
 #elif defined(LIGHTSHIP_PLATFORM_WINDOWS)
 	/* windows specific local variables */
@@ -227,25 +225,28 @@ static char* find_plugin(struct plugin_info_t* info, plugin_search_criteria_t cr
     fprintf_strings(stdout, 4, "looking for plugin \"", info->name, crit_info[criteria],
             version_str);
     
-    /* get list of files in plugins directory */
-#ifdef LIGHTSHIP_PLATFORM_LINUX
-    n = scandir(rel_path_to_plugins, &namelist, NULL, alphasort);
-    if(n < 0)
-        return NULL;
-    
-    /* search for plugin file name */
-    while(n--)
+    /* get list of files in various plugin directories */
+    list = list_create();
+    get_directory_listing(list, rel_path_to_plugins);
+    /* TODO more to come, load from config file */
+
+    /* search for plugin file name matching criteria */
+    LIST_FOR_EACH(list, char*, name)
     {
         if(!file_found && 
-            plugin_version_acceptable(info, namelist[n]->d_name, criteria))
+            plugin_version_acceptable(info, name, criteria))
         {
-            file_found = malloc((strlen(namelist[n]->d_name) + 9) * sizeof(char*));
-            sprintf(file_found, "%s%s", rel_path_to_plugins, namelist[n]->d_name);
+            file_found = malloc((strlen(name)+strlen(rel_path_to_plugins)+1) * sizeof(char*));
+            sprintf(file_found, "%s%s", rel_path_to_plugins, name);
         }
-        free(namelist[n]);
+
+        /* can also free the strings no longer needed */
+        free(name);
     }
-    free(namelist);
-#elif defined(LIGHTSHIP_PLATFORM_WINDOWS)
+    
+    /* free list of directories */
+    list_destroy(list);
+#if defined(LIGHTSHIP_PLATFORM_WINDOWS)
 
 	path_to_plugins_search = (char*)malloc((strlen(rel_path_to_plugins)+1) * sizeof(char*));
 	sprintf(path_to_plugins_search, "%s*", rel_path_to_plugins);
