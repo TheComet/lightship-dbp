@@ -1,10 +1,9 @@
 #define _SVID_SOURCE
-#include <dlfcn.h>
-#include <dirent.h>
 
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <lightship/module_loader.h>
 #include <lightship/plugin_manager.h>
 #include <util/plugin.h>
 #include <util/linked_list.h>
