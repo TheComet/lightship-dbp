@@ -42,6 +42,16 @@ if (CMAKE_BUILD_TYPE MATCHES Debug)
     )
 endif ()
 
+if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+	set (PLATFORM "LINUX")
+elseif (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+	set (PLATFORM "MAC")
+elseif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+	set (PLATFORM "WINDOWS")
+endif ()
+
+add_definitions (-DLIGHTSHIP_BUILDING_LIBRARY)
+
 ###############################################################################
 # generate missing folders and files
 ###############################################################################

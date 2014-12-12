@@ -1,12 +1,10 @@
 project (util)
 
 set (PROJECT_NAME "LIGHTSHIP")
-set (BUILD_TYPE "LIGHTSHIP_SHARED")
+set (BUILD_TYPE "SHARED")
 
 configure_file ("include/util/config.h.in"
                 "${CMAKE_SOURCE_DIR}/util/include/util/config.h")
-
-add_definitions (-DLIGHTSHIP_BUILDING_LIBRARY)
 
 file (GLOB lightship_util_HEADERS "include/util/*.h")
 file (GLOB lightship_util_SOURCES "src/*.c")
