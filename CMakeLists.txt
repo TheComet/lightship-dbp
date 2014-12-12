@@ -47,7 +47,8 @@ endif ()
 ###############################################################################
 
 file (MAKE_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/plugins")
-file (WRITE "${CMAKE_SOURCE_DIR}/util/include/util/.gitignore" "*")
+# ignore auto generated file config.h
+file (WRITE "${CMAKE_SOURCE_DIR}/util/include/util/.gitignore" "config.h")
 
 ###############################################################################
 # Dependency settings
