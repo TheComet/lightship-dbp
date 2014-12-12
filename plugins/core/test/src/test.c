@@ -4,16 +4,23 @@
 #include <lightship/plugin.h>
 #include <test/config.h>
 
-plugin_t plugin;
+plugin_t* g_plugin;
 
-plugin_t* plugin_start(void)
+void plugin_start(plugin_t* plugin)
 {
-    memset(&plugin, 0, sizeof(plugin_t));
-    plugin.info.name = "test";
-    plugin.info.version.major = TEST_VERSION_MAJOR;
-    plugin.info.version.minor = TEST_VERSION_MINOR;
-    plugin.info.version.patch = TEST_VERSION_PATCH;
-    return &plugin;
+    g_plugin = plugin;
+    
+    /* set information about this plugin */
+    g_plugin->info.name = "test";
+    g_plugin->info.author = "TheComet";
+    g_plugin->info.description = "A test plugin for lightship";
+    g_plugin->info.website = "github.com/TheComet93/";
+    
+    g_plugin->info.language = PLUGIN_PROGRAMMING_LANGUAGE_C;
+    
+    g_plugin->info.version.major = TEST_VERSION_MAJOR;
+    g_plugin->info.version.minor = TEST_VERSION_MINOR;
+    g_plugin->info.version.patch = TEST_VERSION_PATCH;
 }
 
 void plugin_stop(void)
