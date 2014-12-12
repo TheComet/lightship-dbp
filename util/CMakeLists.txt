@@ -1,4 +1,4 @@
-project (lightship_util)
+project (util)
 
 file (GLOB lightship_util_HEADERS "include/util/*.h")
 file (GLOB lightship_util_SOURCES "src/*.c")

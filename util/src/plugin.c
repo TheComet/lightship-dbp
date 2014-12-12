@@ -1,7 +1,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <lightship/plugin.h>
+#include <util/plugin.h>
 
 #define PLUGIN_FREE_INFO_STRING(plugin, strname) \
     if((plugin)->info.strname) \
