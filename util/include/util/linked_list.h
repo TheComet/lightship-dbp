@@ -125,5 +125,5 @@ void* list_erase_element(struct list_t* list, void* data);
  */
 #define LIST_FOR_EACH(list, var_type, var) \
     var_type var; \
-	struct list_node_t* node; \
+    struct list_node_t* node; \
     for(node = (list)->tail; node != NULL && (var = node->data); node = node->next)

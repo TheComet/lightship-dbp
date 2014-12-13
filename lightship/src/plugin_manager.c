@@ -198,7 +198,7 @@ static char* find_plugin(struct plugin_info_t* info, plugin_search_criteria_t cr
     char version_str[sizeof(int)*27+1];
     struct list_t* list;
 
-	/* local variables */
+    /* local variables */
     const char* crit_info[] = {"\", minimum version ", "\" exact version "};
     char* file_found = NULL;
 
@@ -211,38 +211,38 @@ static char* find_plugin(struct plugin_info_t* info, plugin_search_criteria_t cr
             version_str);
     
     /* 
-	 * Get list of files in various plugin directories.
-	 * TODO load from config file
-	 */
+     * Get list of files in various plugin directories.
+     * TODO load from config file
+     */
     list = list_create();
 #ifdef LIGHTSHIP_PLATFORM_LINUX
-	get_directory_listing(list, "plugins/");
+    get_directory_listing(list, "plugins/");
 #elif defined(LIGHTSHIP_PLATFORM_WINDOWS)
-#	ifdef _DEBUG
-	get_directory_listing(list, "..\\bin\\Debug\\");
-#	else
-	get_directory_listing(list, "..\\bin\\Release\\");
-#	endif
+#    ifdef _DEBUG
+    get_directory_listing(list, "..\\bin\\Debug\\");
+#    else
+    get_directory_listing(list, "..\\bin\\Release\\");
+#    endif
 #elif defined(LIGHTSHIP_PLATFORM_MAC)
     get_directory_listing(list, "plugins/");
 #endif
 
     /* search for plugin file name matching criteria */
-	{ /* need these braces because LIST_FOR_EACH declares new variables */
-		LIST_FOR_EACH(list, char*, name)
-		{
-			if(!file_found && 
-				plugin_version_acceptable(info, name, criteria))
-			{
-				file_found = name;
-			}
-			else
-			{
-				/* can also free the strings no longer needed */
-				free(name);
-			}
-		}
-	}
+    { /* need these braces because LIST_FOR_EACH declares new variables */
+        LIST_FOR_EACH(list, char*, name)
+        {
+            if(!file_found && 
+                plugin_version_acceptable(info, name, criteria))
+            {
+                file_found = name;
+            }
+            else
+            {
+                /* can also free the strings no longer needed */
+                free(name);
+            }
+        }
+    }
     
     /* free list of directories */
     list_destroy(list);

@@ -9,8 +9,8 @@ struct
 
 int main(int argc, char** argv)
 {
-	struct plugin_t* plugin;
-	struct plugin_info_t target;
+    struct plugin_t* plugin;
+    struct plugin_info_t target;
 
     plugin_manager_init();
     
