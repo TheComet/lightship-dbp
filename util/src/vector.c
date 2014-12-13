@@ -11,8 +11,8 @@ struct vector_t* vector_create(const int element_size)
 
 void vector_init_vector(struct vector_t* vector, const int element_size)
 {
-    struct vector_t tmp = {element_size, 0, 0, NULL};
-    memcpy(vector, &tmp, sizeof(struct vector_t));
+    memset(vector, 0, sizeof(struct vector_t));
+    vector->element_size = element_size;
 }
 
 void vector_destroy(struct vector_t* vector)
