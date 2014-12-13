@@ -9,11 +9,6 @@
 #include <util/module_loader.h>
 #include <util/dir.h>
 
-#ifdef LIGHTSHIP_PLATFORM_LINUX
-#elif defined (LIGHTSHIP_PLATFORM_WINDOWS)
-#	include <Windows.h>
-#endif
-
 static struct list_t g_plugins;
 
 void plugin_manager_init(void)
@@ -202,16 +197,6 @@ static char* find_plugin(struct plugin_info_t* info, plugin_search_criteria_t cr
     int n;
     char version_str[sizeof(int)*27+1];
     struct list_t* list;
-#ifdef LIGHTSHIP_PLATFORM_LINUX
-	/* linux specific local variables */
-	const char* rel_path_to_plugins = "plugins/";
-#elif defined(LIGHTSHIP_PLATFORM_WINDOWS)
-	/* windows specific local variables */
-	HANDLE fh;
-	WIN32_FIND_DATA fd;
-	char* path_to_plugins_search;
-	const char* rel_path_to_plugins = "..\\bin\\plugins\\";
-#endif
 
 	/* local variables */
     const char* crit_info[] = {"\", minimum version ", "\" exact version "};
@@ -225,53 +210,40 @@ static char* find_plugin(struct plugin_info_t* info, plugin_search_criteria_t cr
     fprintf_strings(stdout, 4, "looking for plugin \"", info->name, crit_info[criteria],
             version_str);
     
-    /* get list of files in various plugin directories */
+    /* 
+	 * Get list of files in various plugin directories.
+	 * TODO load from config file
+	 */
     list = list_create();
-    get_directory_listing(list, rel_path_to_plugins);
-    /* TODO more to come, load from config file */
+#ifdef LIGHTSHIP_PLATFORM_LINUX
+	get_directory_listing(list, "plugins/");
+#elif defined(LIGHTSHIP_PLATFORM_WINDOWS)
+#	ifdef _DEBUG
+	get_directory_listing(list, "..\\bin\\Debug\\");
+#	else
+	get_directory_listing(list, "..\\bin\\Release\\");
+#	endif
+#endif
 
     /* search for plugin file name matching criteria */
-    LIST_FOR_EACH(list, char*, name)
-    {
-        if(!file_found && 
-            plugin_version_acceptable(info, name, criteria))
-        {
-            file_found = malloc((strlen(name)+strlen(rel_path_to_plugins)+1) * sizeof(char*));
-            sprintf(file_found, "%s%s", rel_path_to_plugins, name);
-        }
-
-        /* can also free the strings no longer needed */
-        free(name);
-    }
+	{ /* need these braces because LIST_FOR_EACH declares new variables */
+		LIST_FOR_EACH(list, char*, name)
+		{
+			if(!file_found && 
+				plugin_version_acceptable(info, name, criteria))
+			{
+				file_found = name;
+			}
+			else
+			{
+				/* can also free the strings no longer needed */
+				free(name);
+			}
+		}
+	}
     
     /* free list of directories */
     list_destroy(list);
-#if defined(LIGHTSHIP_PLATFORM_WINDOWS)
-
-	path_to_plugins_search = (char*)malloc((strlen(rel_path_to_plugins)+1) * sizeof(char*));
-	sprintf(path_to_plugins_search, "%s*", rel_path_to_plugins);
-	fh = FindFirstFile(path_to_plugins_search, &fd);
-
-	if(fh != INVALID_HANDLE_VALUE)
-	{
-		do
-		{	/* is directory */
-			if(!(fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
-			{	/* file name version string matches criteria */
-				if(plugin_version_acceptable(info, fd.cFileName, criteria))
-				{
-					file_found = (char*)malloc((strlen(fd.cFileName)+strlen(rel_path_to_plugins)+1) * sizeof(char*));
-					sprintf(file_found, "%s%s", rel_path_to_plugins, fd.cFileName);
-					break;
-				}
-				printf("%s\n", fd.cFileName);
-			}
-		} while(FindNextFile(fh, &fd));
-	}
-
-	FindClose(fh);
-	free(path_to_plugins_search);
-#endif
     
     return file_found;
 }
