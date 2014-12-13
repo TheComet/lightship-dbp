@@ -36,6 +36,7 @@ void plugin_destroy(struct plugin_t* plugin)
 
 void plugin_set_info(struct plugin_t* plugin,
                      const char* name,
+                     const char* category,
                      const char* author,
                      const char* description,
                      const char* website)
@@ -43,6 +44,7 @@ void plugin_set_info(struct plugin_t* plugin,
     plugin_free_info(plugin);
     
     PLUGIN_ADD_INFO_STRING(plugin, name, name)
+    PLUGIN_ADD_INFO_STRING(plugin, category, category);
     PLUGIN_ADD_INFO_STRING(plugin, author, author)
     PLUGIN_ADD_INFO_STRING(plugin, description, description)
     PLUGIN_ADD_INFO_STRING(plugin, website, website)
@@ -51,6 +53,7 @@ void plugin_set_info(struct plugin_t* plugin,
 static void plugin_free_info(struct plugin_t* plugin)
 {
     PLUGIN_FREE_INFO_STRING(plugin, name)
+    PLUGIN_FREE_INFO_STRING(plugin, category);
     PLUGIN_FREE_INFO_STRING(plugin, author)
     PLUGIN_FREE_INFO_STRING(plugin, description)
     PLUGIN_FREE_INFO_STRING(plugin, website)
