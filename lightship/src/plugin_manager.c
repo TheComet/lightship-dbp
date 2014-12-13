@@ -223,6 +223,8 @@ static char* find_plugin(struct plugin_info_t* info, plugin_search_criteria_t cr
 #	else
 	get_directory_listing(list, "..\\bin\\Release\\");
 #	endif
+#elif defined(LIGHTSHIP_PLATFORM_MAC)
+    get_directory_listing(list, "plugins/");
 #endif
 
     /* search for plugin file name matching criteria */
