@@ -23,7 +23,7 @@ void list_destroy(struct list_t* list)
 void list_clear(struct list_t* list)
 {
     struct list_node_t* current;
-    while(current = list->tail)
+    while((current = list->tail))
     {
         list->tail = list->tail->next;
         free(current);

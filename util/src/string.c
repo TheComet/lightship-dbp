@@ -28,11 +28,10 @@ void fprintf_strings(FILE* file, int num_strs, ...)
     va_start(ap, num_strs);
     for(i = 0; i != num_strs; ++i)
         total_length += safe_strlen(va_arg(ap, char*));
-    total_length += sizeof(char*); /* null terminator */
-    buffer = (char*)malloc(total_length * sizeof(char*));
+    buffer = (char*)malloc((total_length+1) * sizeof(char*));
     va_end(ap);
     
-    /* concatinate all strings into the allocated buffer */
+    /* concatenate all strings into the allocated buffer */
     va_start(ap, num_strs);
     strcpy(buffer, va_arg(ap, char*));
     for(i = 1; i < num_strs; ++i)
@@ -55,11 +54,10 @@ char* cat_strings(int num_strs, ...)
     va_start(ap, num_strs);
     for(i = 0; i != num_strs; ++i)
         total_length += safe_strlen(va_arg(ap, char*));
-    total_length += sizeof(char*); /* null terminator */
-    buffer = (char*)malloc(total_length * sizeof(char*));
+    buffer = (char*)malloc((total_length+1) * sizeof(char*));
     va_end(ap);
     
-    /* concatinate all strings into the allocated buffer */
+    /* concatenate all strings into the allocated buffer */
     va_start(ap, num_strs);
     strcpy(buffer, va_arg(ap, char*));
     for(i = 1; i < num_strs; ++i)
@@ -79,7 +77,7 @@ char* malloc_string(const char* str)
 int is_number(const char chr)
 {
     char* numbers = "0123456789";
-    while(numbers)
+    while(*numbers)
         if(chr == *numbers++)
             return 1;
     return 0;

@@ -1,19 +1,19 @@
 #include <stdio.h>
 
 /*!
- * @brief Concatinates n number of strings and prints it to the specified file.
+ * @brief Concatenates n number of strings and prints it to the specified file.
  * @param file The file to print to.
- * @param num_strs The number of strings that should be concatinated.
- * @param ...str A list of comma-seperated strings to concatinate.
+ * @param num_strs The number of strings that should be concatenated.
+ * @param ...str A list of comma-seperated strings to concatenate.
  */
 void fprintf_strings(FILE* file, int num_strs, ...);
 
 /*!
- * @brief Concatinates n number of strings and returns the buffer.
+ * @brief Concatenates n number of strings and returns the buffer.
  * @note The buffer needs to be freed manually when it is no longer required.
- * @param num_strs The number of strings that should be concatinated.
- * @param ...str A list of comma-seperated strings to concatinate.
- * @return The new buffer containing all concatinated strings.
+ * @param num_strs The number of strings that should be concatenated.
+ * @param ...str A list of comma-seperated strings to concatenate.
+ * @return The new buffer containing all concatenated strings.
  */
 char* cat_strings(int num_strs, ...);
 
