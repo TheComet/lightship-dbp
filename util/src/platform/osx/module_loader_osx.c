@@ -1,36 +1,38 @@
-#define _SVID_SOURCE
-#include <dirent.h>
-#include <errno.h>
-#include <sys/types.h>
-#include <util/dir.h>
-#include <util/linked_list.h>
+#include <stdio.h>
+#include <dlfcn.h>
+#include <util/module_loader.h>
 #include <util/string.h>
 
-void get_directory_listing(struct list_t* list, const char* dir)
+void* module_open(const char* filename)
 {
-    DIR* fd;
-    struct dirent* dp;
-
-    /* open directory */
-    fd = opendir(dir);
-    if(!fd)
+    void* handle = dlopen(filename, RTLD_LAZY);
+    if(!handle)
     {
-        fprintf_strings(stderr, 3, "Error searching directory \"", dir, "\": ");
-        perror("");
-        return;
+        fprintf_strings(stderr, 2, "Error loading plugin: ", dlerror());
+        return NULL;
     }
+    return handle;
+}
 
-    /* copy contents of directory into linked list */
-    do
+void* module_sym(void* handle, const char* symbol)
+{
+    void* ptr;
+
+    dlerror(); /* clear existing errors, if any */
+    ptr = dlsym(handle, symbol);
+    if(!ptr)
     {
-        errno = 0;
+        const char* error = dlerror();
+        if(error)
+        {
+            fprintf_strings(stderr, 2, "Error loading plugin: ", error);
+            return NULL;
+        }
+    }
+    return ptr;
+}
 
-        list_push(list, cat_strings(2, dir, dp->d_name));
-    } while ((dp = readdir(fd)) != NULL);
-
-    /* catch any errors */
-    if(errno != 0)
-        perror("Error reading directory");
-
-    closedir(fd);
+void module_close(void* handle)
+{
+    dlclose(handle);
 }
