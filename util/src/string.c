@@ -44,6 +44,31 @@ void fprintf_strings(FILE* file, int num_strs, ...)
     free(buffer);
 }
 
+char* cat_strings(int num_strs, ...)
+{
+	int total_length = 0;
+	int i;
+	char* buffer;
+    /* compute total length of all strings combined and allocate a buffer able
+     * to contain all strings plus a null terminator */
+    va_list ap;
+    va_start(ap, num_strs);
+    for(i = 0; i != num_strs; ++i)
+        total_length += safe_strlen(va_arg(ap, char*));
+    total_length += sizeof(char*); /* null terminator */
+    buffer = (char*)malloc(total_length * sizeof(char*));
+    va_end(ap);
+    
+    /* concatinate all strings into the allocated buffer */
+    va_start(ap, num_strs);
+    strcpy(buffer, va_arg(ap, char*));
+    for(i = 1; i < num_strs; ++i)
+        safe_strcat(buffer, va_arg(ap, char*));
+    va_end(ap);
+    
+    return buffer;
+}
+
 char* malloc_string(const char* str)
 {
 	char* buffer = (char*)malloc((strlen(str)+1) * sizeof(char*));

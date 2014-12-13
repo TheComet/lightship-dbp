@@ -1,0 +1,33 @@
+#include <util\config.h>
+
+#ifdef LIGHTSHIP_PLATFORM_WINDOWS
+
+#include <Windows.h>
+#include <util\string.h>
+#include <util\platform\win\error.h>
+
+char* get_last_error_string(void)
+{
+	int size;
+	char* buffer = NULL;
+	LPSTR messageBuffer = NULL;
+
+    /* Get the error message, if any. */
+    DWORD errorMessageID = GetLastError();
+    if(errorMessageID == 0)
+        return malloc_string("No error message has been recorded");
+
+    size = FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+                                 NULL, errorMessageID, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&messageBuffer, 0, NULL);
+
+	buffer = (char*)malloc((size+1) * sizeof(char*));
+	strncpy(buffer, messageBuffer, size);
+	buffer[size] = '\0';
+
+    /* Free the buffer. */
+    LocalFree(messageBuffer);
+
+    return buffer;
+}
+
+#endif /* #ifdef LIGHTSHIP_PLATFORM_WINDOWS */

@@ -28,7 +28,8 @@ void get_directory_listing(struct list_t* list, const char* dir)
     do
     {
         errno = 0;
-        list_push(list, malloc_string(dp->d_name));
+
+        list_push(list, cat_strings(2, dir, dp->d_name));
     } while ((dp = readdir(fd)) != NULL);
 
     /* catch any errors */
