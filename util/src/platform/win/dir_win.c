@@ -1,9 +1,6 @@
-#include <util/config.h>
-
-#ifdef LIGHTSHIP_PLATFORM_WINDOWS
-
 #include <Windows.h>
 #include <stdio.h>
+#include <util\dir.h>
 #include <util\linked_list.h>
 #include <util\string.h>
 #include <util\platform\win\error.h>
@@ -40,5 +37,3 @@ void get_directory_listing(struct list_t* list, const char* dir)
 	FindClose(fh);
 	free(search_str);
 }
-
-#endif /* #ifdef LIGHTSHIP_PLATFORM_WINDOWS */
