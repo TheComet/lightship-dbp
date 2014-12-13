@@ -14,4 +14,9 @@ void* module_open(const char* filename);
  * success.
  */
 void* module_sym(void* handle, const char* symbol);
+
+/*!
+ * @brief Closes the specified module.
+ * @param handle The handle of the module to close.
+ */
 void module_close(void* handle);
