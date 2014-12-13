@@ -31,6 +31,7 @@ typedef struct plugin_api_version_t
 typedef struct plugin_info_t
 {
     char* name;
+    char* category;
     char* author;
     char* description;
     char* website;
