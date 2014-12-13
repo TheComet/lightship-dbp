@@ -6,8 +6,19 @@ set (BUILD_TYPE "SHARED")
 configure_file ("include/util/config.h.in"
                 "${CMAKE_SOURCE_DIR}/util/include/util/config.h")
 
-file (GLOB_RECURSE lightship_util_HEADERS "include/util/*.h")
-file (GLOB_RECURSE lightship_util_SOURCES "src/*.c")
+if (PLATFORM MATCHES "LINUX")
+    set (PLATFORM_HEADER_DIRS "include/util/platform/linux/*.h")
+    set (PLATFORM_SOURCE_DIRS "src/platform/linux/*.c")
+elseif (PLATFORM MATCHES "MAC")
+    set (PLATFORM_HEADER_DIRS "include/util/platform/osx/*.h")
+    set (PLATFORM_SOURCE_DIRS "src/platform/osx/*.c")
+elseif (PLATFORM MATCHES "WINDOWS")
+    set (PLATFORM_HEADER_DIRS "include/util/platform/win/*.h")
+    set (PLATFORM_SOURCE_DIRS "src/platform/win/*.c")
+endif ()
+                
+file (GLOB lightship_util_HEADERS "include/util/*.h" ${PLATFORM_HEADER_DIRS})
+file (GLOB lightship_util_SOURCES "src/*.c" ${PLATFORM_SOURCE_DIRS})
 
 add_library (lightship_util STATIC
     ${lightship_util_HEADERS}

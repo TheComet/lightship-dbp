@@ -1,8 +1,5 @@
-#include <util/config.h>
-
-#ifdef LIGHTSHIP_PLATFORM_WINDOWS
-
 #include <stdio.h>
+#include <util\module_loader.h>
 #include <util\string.h>
 #include <Windows.h>
 
@@ -42,5 +39,3 @@ void module_close(void* handle)
 {
     FreeLibrary((HINSTANCE)handle);
 }
-
-#endif /* #ifdef LIGHTSHIP_PLATFORM_WINDOWS */
