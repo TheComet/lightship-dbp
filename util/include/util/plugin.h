@@ -34,16 +34,18 @@ void plugin_destroy(struct plugin_t* plugin);
 
 /*!
  * @brief Sets general information about the plugin.
- * @param plugin The plugin to set information abuot.
+ * @param plugin The plugin to set information about.
  * @param name The name of the plugin. This should be globally unique and
  * should not change between versions, as other plugins might use this string
  * to discover your plugin.
+ * @param category What category your plugin is in.
  * @param author The name of the plugin author(s).
  * @param description A short description about what your plugin does.
  * @param website A URL to your website.
  */
 void plugin_set_info(struct plugin_t* plugin,
                      const char* name,
+                     const char* category,
                      const char* author,
                      const char* description,
                      const char* website);
