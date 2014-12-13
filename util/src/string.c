@@ -19,9 +19,9 @@ __inline static void safe_strcat(char* target, const char* source)
 
 void fprintf_strings(FILE* file, int num_strs, ...)
 {
-	int total_length = 0;
-	int i;
-	char* buffer;
+    int total_length = 0;
+    int i;
+    char* buffer;
     /* compute total length of all strings combined and allocate a buffer able
      * to contain all strings plus a null terminator */
     va_list ap;
@@ -45,9 +45,9 @@ void fprintf_strings(FILE* file, int num_strs, ...)
 
 char* cat_strings(int num_strs, ...)
 {
-	int total_length = 0;
-	int i;
-	char* buffer;
+    int total_length = 0;
+    int i;
+    char* buffer;
     /* compute total length of all strings combined and allocate a buffer able
      * to contain all strings plus a null terminator */
     va_list ap;
@@ -69,9 +69,9 @@ char* cat_strings(int num_strs, ...)
 
 char* malloc_string(const char* str)
 {
-	char* buffer = (char*)malloc((strlen(str)+1) * sizeof(char*));
-	strcpy(buffer, str);
-	return buffer;
+    char* buffer = (char*)malloc((strlen(str)+1) * sizeof(char*));
+    strcpy(buffer, str);
+    return buffer;
 }
 
 int is_number(const char chr)

@@ -30,7 +30,7 @@ void vector_clear(struct vector_t* vector)
 
 void* vector_emplace(struct vector_t* vector)
 {
-	void* data;
+    void* data;
     if(vector->count == vector->size)
         vector_expand(vector, -1);
     data = vector->data + (vector->element_size * vector->count);
@@ -54,7 +54,7 @@ void* vector_pop(struct vector_t* vector)
 
 void vector_insert(struct vector_t* vector, int index, void* data)
 {
-	int offset;
+    int offset;
 
     /* last index (which would normally be invalid) is valid in this case */
     if(index > vector->size)
@@ -71,8 +71,8 @@ void vector_insert(struct vector_t* vector, int index, void* data)
 
 void vector_erase(struct vector_t* vector, int index)
 {
-	int offset;
-	int total_size;
+    int offset;
+    int total_size;
 
     if(index >= vector->size)
         return;
@@ -93,9 +93,9 @@ void* vector_get_element(struct vector_t* vector, int index)
 
 static void vector_expand(struct vector_t* vector, int insertion_index)
 {
-	int new_size;
-	DATA_POINTER_TYPE old_data;
-	DATA_POINTER_TYPE new_data;
+    int new_size;
+    DATA_POINTER_TYPE old_data;
+    DATA_POINTER_TYPE new_data;
 
     /* expand by factor 2 */
     new_size = vector->size << 2;

@@ -83,8 +83,8 @@ int plugin_extract_version_from_string(const char* file,
 {
     /* strtok modifies the character array, copy into temporary */
     char* buffer = (char*)malloc((strlen(file)+1)*sizeof(char*));
-	char* temp = buffer;
-	char* pch;
+    char* temp = buffer;
+    char* pch;
     strcpy(buffer, file);
     pch = strtok(temp, "-");
     
@@ -108,8 +108,8 @@ int plugin_extract_version_from_string(const char* file,
     if((pch = strtok(NULL, "-")) != NULL)
         *patch = atoi(pch);
 
-	/* free temporary buffer */
-	free(buffer);
+    /* free temporary buffer */
+    free(buffer);
     
     /* error check */
     if(*major == -1 || *minor == -1 || *patch == -1)

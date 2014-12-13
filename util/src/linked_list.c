@@ -62,14 +62,14 @@ void* list_pop(struct list_t* list)
     free(node);
     --list->count;
 
-	return NULL;
+    return NULL;
 }
 
 void* list_erase_node(struct list_t* list, struct list_node_t* node)
 {
     struct list_node_t* prev = node->prev;
     struct list_node_t* next = node->next;
-	void* data;
+    void* data;
     if(prev)
         prev->next = next;  /* node after current node is the previous' node next node */
     else
