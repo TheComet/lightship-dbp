@@ -1,7 +1,7 @@
 #define DATA_POINTER_TYPE unsigned char*
 struct vector_t
 {
-    const int element_size;
+    int element_size;
     int count; /* number of elements inserted */
     int size;  /* how many elements actually fit into the allocated space */
     DATA_POINTER_TYPE data;
