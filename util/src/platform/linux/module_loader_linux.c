@@ -1,10 +1,7 @@
-#include <util/config.h>
-
-#ifdef LIGHTSHIP_PLATFORM_LINUX
-
 #include <stdio.h>
-#include <util/string.h>
 #include <dlfcn.h>
+#include <util/module_loader.h>
+#include <util/string.h>
 
 void* module_open(const char* filename)
 {
@@ -39,5 +36,3 @@ void module_close(void* handle)
 {
     dlclose(handle);
 }
-
-#endif /* #ifdef LIGHTSHIP_PLATFORM_LINUX */

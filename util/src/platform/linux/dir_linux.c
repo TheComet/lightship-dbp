@@ -1,12 +1,8 @@
 #define _SVID_SOURCE
-
-#include <util/config.h>
-
-#ifdef LIGHTSHIP_PLATFORM_LINUX
-
 #include <dirent.h>
 #include <errno.h>
 #include <sys/types.h>
+#include <util/dir.h>
 #include <util/linked_list.h>
 #include <util/string.h>
 
@@ -38,5 +34,3 @@ void get_directory_listing(struct list_t* list, const char* dir)
 
     closedir(fd);
 }
-
-#endif /* #ifdef LIGHTSHIP_PLATFORM_LINUX */

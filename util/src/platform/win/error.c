@@ -1,10 +1,6 @@
-#include <util\config.h>
-
-#ifdef LIGHTSHIP_PLATFORM_WINDOWS
-
 #include <Windows.h>
-#include <util\string.h>
 #include <util\platform\win\error.h>
+#include <util\string.h>
 
 char* get_last_error_string(void)
 {
@@ -29,5 +25,3 @@ char* get_last_error_string(void)
 
     return buffer;
 }
-
-#endif /* #ifdef LIGHTSHIP_PLATFORM_WINDOWS */
