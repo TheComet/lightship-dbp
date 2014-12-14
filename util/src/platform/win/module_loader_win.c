@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <util\module_loader.h>
 #include <util\string.h>
+#include <util\platform\win\error.h>
 #include <Windows.h>
 
 void* module_open(const char* filename)
