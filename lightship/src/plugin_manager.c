@@ -192,7 +192,6 @@ static int plugin_version_acceptable(struct plugin_info_t* info,
 
 static char* find_plugin(struct plugin_info_t* info, plugin_search_criteria_t criteria)
 {
-    int n;
     char version_str[sizeof(int)*27+1];
     struct list_t* list;
 
