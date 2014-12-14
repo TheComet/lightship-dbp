@@ -8,12 +8,12 @@
 
 void get_directory_listing(struct list_t* list, const char* dir)
 {
-    DIR* fd;
+    DIR* dirp;
     struct dirent* dp;
 
     /* open directory */
-    fd = opendir(dir);
-    if(!fd)
+    dirp = opendir(dir);
+    if(!dirp)
     {
         fprintf_strings(stderr, 3, "Error searching directory \"", dir, "\": ");
         perror("");
@@ -21,15 +21,15 @@ void get_directory_listing(struct list_t* list, const char* dir)
     }
 
     /* copy contents of directory into linked list */
-    do
+    errno = 0;
+    while (!(dp = readdir(dirp)));
     {
-        errno = 0;
         list_push(list, cat_strings(2, dir, dp->d_name));
-    } while ((dp = readdir(fd)) != NULL);
+    }
 
     /* catch any errors */
     if(errno != 0)
         perror("Error reading directory");
 
-    closedir(fd);
+    closedir(dirp);
 }
