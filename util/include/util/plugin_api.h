@@ -2,8 +2,15 @@
 
 /* these must be implemented by the plugin */
 struct plugin_t;
-typedef struct plugin_t* (*plugin_start_func)(void);
+typedef struct plugin_t* (*plugin_init_func)(void);
+typedef int (*plugin_start_func)(void);
 typedef void (*plugin_stop_func)(void);
+
+typedef enum plugin_result_t
+{
+    PLUGIN_FAILURE = 0,
+    PLUGIN_SUCCESS = 1
+} plugin_result_t;
 
 /*!
  * @brief Programming language the plugin was written in.

@@ -7,6 +7,7 @@ struct plugin_t
 {
     struct plugin_info_t info;
     void* handle;
+    plugin_init_func init;
     plugin_start_func start;
     plugin_stop_func stop;
 };

@@ -18,6 +18,15 @@ typedef enum plugin_search_criteria_t
 void plugin_manager_init(void);
 
 /*!
+ * @brief Starts a loaded plugin.
+ * 
+ * This calls the plugin's plugin_start() function.
+ * @param plugin The plugin to start.
+ * @return Returns 1 if successful, 0 if otherwise.
+ */
+#define plugin_start(plugin) ((plugin)->start());
+
+/*!
  * @brief De-initialises the plugin manager.
  * 
  * This will unload all plugins cleanly and clean up any memory being used.
