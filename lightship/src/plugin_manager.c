@@ -217,8 +217,12 @@ static char* find_plugin(struct plugin_info_t* info, plugin_search_criteria_t cr
 #elif defined(LIGHTSHIP_PLATFORM_WINDOWS)
 #    ifdef _DEBUG
     get_directory_listing(list, "..\\bin\\Debug\\");
+    get_directory_listing(list, "plugins\\");
+    get_directory_listing(list, ".\\");
 #    else
     get_directory_listing(list, "..\\bin\\Release\\");
+    get_directory_listing(list, "plugins\\");
+    get_directory_listing(list, ".\\");
 #    endif
 #elif defined(LIGHTSHIP_PLATFORM_MAC)
     get_directory_listing(list, "plugins/");
