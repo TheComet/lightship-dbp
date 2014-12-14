@@ -19,7 +19,7 @@ void plugin_manager_init(void)
 void plugin_manager_deinit(void)
 {
     /* unload all plugins */
-    LIST_FOR_EACH(&g_plugins, struct plugin_t*, plugin)
+    LIST_FOR_EACH(&g_plugins, struct plugin_t, plugin)
     {
         plugin_unload(plugin);
     }
@@ -150,7 +150,7 @@ void plugin_unload(struct plugin_t* plugin)
 
 struct plugin_t* plugin_get_by_name(const char* name)
 {
-    LIST_FOR_EACH(&g_plugins, struct plugin_t*, plugin)
+    LIST_FOR_EACH(&g_plugins, struct plugin_t, plugin)
     {
         if(strcmp(name, plugin->info.name) == 0)
             return plugin;
@@ -229,7 +229,7 @@ static char* find_plugin(struct plugin_info_t* info, plugin_search_criteria_t cr
 
     /* search for plugin file name matching criteria */
     { /* need these braces because LIST_FOR_EACH declares new variables */
-        LIST_FOR_EACH(list, char*, name)
+        LIST_FOR_EACH(list, char, name)
         {
             if(!file_found && 
                 plugin_version_acceptable(info, name, criteria))
