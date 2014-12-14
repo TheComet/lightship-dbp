@@ -136,13 +136,15 @@ struct plugin_t* plugin_load(struct plugin_info_t* plugin_info, plugin_search_cr
 
 void plugin_unload(struct plugin_t* plugin)
 {
+    void* module_handle;
     fprintf_strings(stdout, 3, "unloading plugin \"", plugin->info.name, "\"");
     
     /* TODO notify everything that this plugin is about to be unloaded */
     
     /* shutdown plugin and clean up */
+    module_handle = plugin->handle;
     plugin->stop();
-    module_close(plugin->handle);
+    module_close(module_handle);
     list_erase_element(&g_plugins, plugin);
 }
 
@@ -233,6 +235,7 @@ static char* find_plugin(struct plugin_info_t* info, plugin_search_criteria_t cr
         LIST_FOR_EACH(list, char, name)
         {
             if(!file_found && 
+                strstr(name, info->name) &&
                 plugin_version_acceptable(info, name, criteria))
             {
                 file_found = name;
