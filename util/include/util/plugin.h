@@ -22,26 +22,26 @@ struct plugin_t* plugin_create(void);
 
 /*!
  * @brief Initialises a plugin object.
- * @param plugin The plugin to initialise.
+ * @param [in] plugin The plugin to initialise.
  */
 void plugin_init_plugin(struct plugin_t* plugin);
 
 /*!
  * @brief Destroys a plugin object.
- * @param plugin The plugin to destroy.
+ * @param [in] plugin The plugin to destroy.
  */
 void plugin_destroy(struct plugin_t* plugin);
 
 /*!
  * @brief Sets general information about the plugin.
- * @param plugin The plugin to set information about.
- * @param name The name of the plugin. This should be globally unique and
+ * @param [in] plugin The plugin to set information about.
+ * @param [in] name The name of the plugin. This should be globally unique and
  * should not change between versions, as other plugins might use this string
  * to discover your plugin.
- * @param category What category your plugin is in.
- * @param author The name of the plugin author(s).
- * @param description A short description about what your plugin does.
- * @param website A URL to your website.
+ * @param [in] category What category your plugin is in.
+ * @param [in] author The name of the plugin author(s).
+ * @param [in] description A short description about what your plugin does.
+ * @param [in] website A URL to your website.
  */
 void plugin_set_info(struct plugin_t* plugin,
                      const char* name,
@@ -57,17 +57,18 @@ static void plugin_free_info(struct plugin_t* plugin);
 
 /*!
  * @brief Sets the programming language of the plugin.
- * @param plugin The plugin to set.
- * @param language The programming language.
+ * @param [in] plugin The plugin to set.
+ * @param [in] language The programming language.
  */
-void plugin_set_programming_language(struct plugin_t* plugin, plugin_programming_language_t language);
+void plugin_set_programming_language(struct plugin_t* plugin,
+                                     plugin_programming_language_t language);
 
 /*!
  * @brief Sets the version of the plugin.
- * @param plugin The plugin to set.
- * @param major The major version.
- * @param minor The minor version.
- * @param patch The patch version.
+ * @param [in] plugin The plugin to set.
+ * @param [in] major The major version.
+ * @param [in] minor The minor version.
+ * @param [in] patch The patch version.
  */
 void plugin_set_version(struct plugin_t* plugin, uint32_t major, uint32_t minior, uint32_t patch);
 
@@ -92,7 +93,7 @@ int plugin_extract_version_from_string(const char* file,
  * the provided buffer.
  * @param [out] str The buffer to copy the version string into.
  * @note The buffer should be at least sizeof(int)*27+1.
- * @param info The plugin info struct from which to generate the version
+ * @param [in] info The plugin info struct from which to generate the version
  * string.
  */
 void plugin_get_version_string(char* str, struct plugin_info_t* info);

@@ -1,11 +1,23 @@
 #include <stdio.h>
 #include <lightship/plugin_manager.h>
 #include <util/plugin.h>
+#include <util/vector.h>
 
-struct
+struct action_t;
+typedef void (*callback_func)(void);
+typedef void (*signal_func)(struct action_t*);
+
+struct signal_t
 {
-    int fuck;
-} gay;
+    signal_func fire;
+};
+
+struct action_t
+{
+    callback_func exec;
+};
+
+
 
 int main(int argc, char** argv)
 {

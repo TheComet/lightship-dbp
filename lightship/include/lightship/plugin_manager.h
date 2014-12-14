@@ -47,11 +47,11 @@ void plugin_manager_deinit(void);
  *   - *PLUGIN_VERSION_MINIMUM*: The version of the file name must be at least
  *     equal or greater than the requested version.
  *
- * @param plugin_info Requirements for the plugin to be loaded.
+ * @param [in] plugin_info Requirements for the plugin to be loaded.
  * for a file matching the name in ./plugins, relative to the working
  * directory.
- * @param criteria Set whether the desired plugin version should be exact or if
- * the desired plugin version should be greater or equal.
+ * @param [in] criteria Set whether the desired plugin version should be exact
+ * or if the desired plugin version should be greater or equal.
  * @return Returns NULL if unsuccessful, otherwise a pointer to the plugin is
  * returned.
  */
@@ -60,13 +60,13 @@ struct plugin_t* plugin_load(struct plugin_info_t* plugin_info,
 
 /*!
  * @brief Unloads the specified plugin.
- * @param plugin The plugin to unload.
+ * @param [in] plugin The plugin to unload.
  */
 void plugin_unload(struct plugin_t* plugin);
 
 /*!
  * @brief Searches all loaded plugins for a matching name.
- * @param name The name of the plugin to search for.
+ * @param [in] name The name of the plugin to search for.
  * @return Returns the plugin if a matching name was found. Returns NULL on
  * failure.
  */
@@ -75,9 +75,9 @@ struct plugin_t* plugin_get_by_name(const char* name);
 /*!
  * @brief Evaluates whether the specified file is an acceptable plugin to load
  * based on the specified info and criteria.
- * @param info The requested plugin to try and match.
- * @param file The file to test.
- * @param criteria The criteria to use.
+ * @param [in] info The requested plugin to try and match.
+ * @param [in] file The file to test.
+ * @param [in] criteria The criteria to use.
  * @return Returns 1 if successful, 0 if otherwise.
  */
 static int plugin_version_acceptable(struct plugin_info_t* info,
@@ -86,8 +86,8 @@ static int plugin_version_acceptable(struct plugin_info_t* info,
 
 /*!
  * @brief Scans the plugin directory for a suitable plugin to load.
- * @param info The requested plugin to try and match.
- * @param criteria The criteria to use.
+ * @param [in] info The requested plugin to try and match.
+ * @param [in] criteria The criteria to use.
  * @return Returns the full file name and relative path if a plugin was
  * matched. Returns NULL on failure.
  */

@@ -26,13 +26,13 @@ struct list_t* list_create(void);
 
 /*!
  * @brief Initialises an existing list with default values.
- * @param list The list to initialise.
+ * @param [in] list The list to initialise.
  */
 void list_init_list(struct list_t* list);
 
 /*!
  * @brief Destroys a list.
- * @param list The list to destroy.
+ * @param [in] list The list to destroy.
  */
 void list_destroy(struct list_t* list);
 
@@ -51,7 +51,7 @@ void list_clear(struct list_t* list);
 
 /*!
  * @brief Returns the current head data in the list.
- * @param list The list to get the head data from.
+ * @param [in] list The list to get the head data from.
  * @return NULL if the list is empty, otherwise a void* pointer pointing to the
  * data held by the head node.
  */
@@ -59,7 +59,7 @@ void list_clear(struct list_t* list);
 
 /*!
  * @brief Returns the current tail data in the list.
- * @param list The list to get the tail data from.
+ * @param [in] list The list to get the tail data from.
  * @return NULL if the list is empty, otherwise a void* pointer pointing to the
  * data held by the head node.
  */
@@ -74,8 +74,8 @@ void list_clear(struct list_t* list);
  * @note The data is **not** copied into the list, it is referenced. Therefore,
  * the life of the object being pointed to must outlive the life of the node
  * in the list.
- * @param list The list to add a new node to.
- * @param data The data the new node should reference.
+ * @param [in] list The list to add a new node to.
+ * @param [in] data The data the new node should reference.
  */
 void list_push(struct list_t* list, void* data);
 
@@ -86,7 +86,7 @@ void list_push(struct list_t* list, void* data);
  * to the item preceeding the removed item, or if there is no preceeding item,
  * the head of the list will point to NULL.
  * @note The data being referenced by the node is **not** freed.
- * @param list The list from which to remove the node.
+ * @param [in] list The list from which to remove the node.
  * @return Returns the data that was referenced by the now destroyed node.
  */
 void* list_pop(struct list_t* list);
@@ -94,7 +94,7 @@ void* list_pop(struct list_t* list);
 /*!
  * @brief Removes a specified node from the list.
  * @note The data being referenced by the node is **not** freed.
- * @param list The list from which to remove the node.
+ * @param [in] list The list from which to remove the node.
  * @return Returns the data that was referenced by the now destroyed node.
  */
 void* list_erase_node(struct list_t* list, struct list_node_t* node);
@@ -102,7 +102,7 @@ void* list_erase_node(struct list_t* list, struct list_node_t* node);
 /*!
  * @brief Searches the list for the specified data, then erases the node.
  * @note The data being referenced by the node is **not** freed.
- * @param list The list from which to remove the node.
+ * @param [in] list The list from which to remove the node.
  * @return Returns the data that was referenced by the now destroyed node.
  * If the specified data is not found in the list, NULL is returned.
  */
@@ -113,17 +113,18 @@ void* list_erase_element(struct list_t* list, void* data);
  * 
  * Example:
  * @code
- * LIST_FOR_EACH(my_list, my_data_type*, element_name)
+ * list_t* someList = (a list containing elements of type "struct bar")
+ * LIST_FOR_EACH(someList, struct bar, element)
  * {
- *     do_things_with_element(element_name);
+ *     do_something_with(element);  ("element" is now of type "struct bar*")
  * }
  * @endcode
- * @param list Should be of type list_t*.
- * @param var_type Should be the type of data you're storing in each node.
- * @param var The name of a temporary variable you'd like to use within the
+ * @param [in] list Should be of type list_t*.
+ * @param [in] var_type Should be the type of data you're storing in each node.
+ * @param [in] var The name of a temporary variable you'd like to use within the
  * for-loop to reference the current element.
  */
 #define LIST_FOR_EACH(list, var_type, var) \
-    var_type var; \
+    var_type* var; \
     struct list_node_t* node; \
     for(node = (list)->tail; node != NULL && (var = node->data); node = node->next)
