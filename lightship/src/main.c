@@ -25,6 +25,14 @@ void load_core_plugins()
     plugin_renderer = plugin_load(&target, PLUGIN_VERSION_MINIMUM);
 }
 
+void start_core_plugins()
+{
+    if(plugin_test)
+        plugin_start(plugin_test);
+    if(plugin_renderer)
+        plugin_start(plugin_renderer);
+}
+
 void unload_core_plugins()
 {
     /* unload plugins */
@@ -38,6 +46,7 @@ int main(int argc, char** argv)
 {
     plugin_manager_init();
     load_core_plugins();
+    start_core_plugins();
 
     unload_core_plugins();
     plugin_manager_deinit();

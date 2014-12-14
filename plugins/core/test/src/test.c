@@ -7,7 +7,7 @@
 
 struct plugin_t* g_plugin;
 
-LIGHTSHIP_PUBLIC_API struct plugin_t* plugin_start(void)
+LIGHTSHIP_PUBLIC_API struct plugin_t* plugin_init(void)
 {
     g_plugin = plugin_create();
     
@@ -30,6 +30,12 @@ LIGHTSHIP_PUBLIC_API struct plugin_t* plugin_start(void)
     printf("hello world! I am a plugin.\n");
 
     return g_plugin;
+}
+
+LIGHTSHIP_PUBLIC_API plugin_result_t plugin_start(void)
+{
+    printf("hello world! I am a plugin.\n");
+    return PLUGIN_SUCCESS;
 }
 
 LIGHTSHIP_PUBLIC_API void plugin_stop(void)
