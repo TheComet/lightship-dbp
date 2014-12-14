@@ -29,10 +29,10 @@ LIGHTSHIP_PUBLIC_API struct plugin_t* plugin_start(void)
     
     printf("hello world! I am a plugin.\n");
 
-	return g_plugin;
+    return g_plugin;
 }
 
 LIGHTSHIP_PUBLIC_API void plugin_stop(void)
 {
-	plugin_destroy(g_plugin);
+    plugin_destroy(g_plugin);
 }
