@@ -26,7 +26,6 @@ void get_directory_listing(struct list_t* list, const char* dir)
     while((fp = readdir(dirp)) != NULL)
     {
         list_push(list, cat_strings(2, dir, fp->d_name));
-        fp = readdir(dirp);
     }
 
     /* catch any errors */

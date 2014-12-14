@@ -26,8 +26,6 @@ LIGHTSHIP_PUBLIC_API struct plugin_t* plugin_init(void)
             TEST_VERSION_MINOR,
             TEST_VERSION_PATCH
     );
-    
-    printf("hello world! I am a plugin.\n");
 
     return g_plugin;
 }
