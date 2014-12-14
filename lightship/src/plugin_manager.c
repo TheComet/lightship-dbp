@@ -30,6 +30,7 @@ struct plugin_t* plugin_load(struct plugin_info_t* plugin_info, plugin_search_cr
     char* filename = NULL;
     void* handle = NULL;
     struct plugin_t* plugin = NULL;
+    plugin_init_func init_func;
     plugin_start_func start_func;
     plugin_stop_func stop_func;
     char version_str[sizeof(int)*27+1];
@@ -60,9 +61,14 @@ struct plugin_t* plugin_load(struct plugin_info_t* plugin_info, plugin_search_cr
         handle = module_open(filename);
         if(!handle)
             break;
+        
+        /* get plugin initialise function */
+        *(struct plugin_t**)(&init_func) = module_sym(handle, "plugin_init");
+        if(!init_func)
+            break;
 
         /* get plugin start function */
-        *(struct plugin_t**)(&start_func) = module_sym(handle, "plugin_start");
+        *(int**)(&start_func) = module_sym(handle, "plugin_start");
         if(!start_func)
             break;
 
@@ -72,10 +78,10 @@ struct plugin_t* plugin_load(struct plugin_info_t* plugin_info, plugin_search_cr
             break;
 
         /* start the plugin */
-        plugin = start_func();
+        plugin = init_func();
         if(!plugin)
         {
-            fprintf_strings(stderr, 1, "Error starting plugin: \"plugin_start\" returned NULL");
+            fprintf_strings(stderr, 1, "Error initialising plugin: \"plugin_init\" returned NULL");
             break;
         }
         
@@ -104,6 +110,7 @@ struct plugin_t* plugin_load(struct plugin_info_t* plugin_info, plugin_search_cr
 
         /* save handle and insert into list of active plugins */
         plugin->handle = handle;
+        plugin->init = init_func;
         plugin->start = start_func;
         plugin->stop = stop_func;
         list_push(&g_plugins, plugin);
