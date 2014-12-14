@@ -4,13 +4,12 @@
 #include <util/plugin.h>
 #include <test/config.h>
 #include <util/config.h>
-#include <lightship/plugin_manager.h>
 
 struct plugin_t* g_plugin;
 
-void LIGHTSHIP_PUBLIC_API plugin_start(struct plugin_t* plugin)
+LIGHTSHIP_PUBLIC_API struct plugin_t* plugin_start(void)
 {
-    g_plugin = plugin;
+    g_plugin = plugin_create();
     
     plugin_set_info(g_plugin,
             "test",                         /* name */
@@ -29,8 +28,11 @@ void LIGHTSHIP_PUBLIC_API plugin_start(struct plugin_t* plugin)
     );
     
     printf("hello world! I am a plugin.\n");
+
+	return g_plugin;
 }
 
-void LIGHTSHIP_PUBLIC_API plugin_stop(void)
+LIGHTSHIP_PUBLIC_API void plugin_stop(void)
 {
+	plugin_destroy(g_plugin);
 }

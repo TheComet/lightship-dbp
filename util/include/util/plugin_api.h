@@ -2,7 +2,7 @@
 
 /* these must be implemented by the plugin */
 struct plugin_t;
-typedef void (*plugin_start_func)(struct plugin_t*);
+typedef struct plugin_t* (*plugin_start_func)(void);
 typedef void (*plugin_stop_func)(void);
 
 /*!

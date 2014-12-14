@@ -72,8 +72,7 @@ struct plugin_t* plugin_load(struct plugin_info_t* plugin_info, plugin_search_cr
             break;
 
         /* start the plugin */
-        plugin = plugin_create();
-        start_func(plugin);
+        plugin = start_func();
         if(!plugin)
         {
             fprintf_strings(stderr, 1, "Error starting plugin: \"plugin_start\" returned NULL");
@@ -145,7 +144,6 @@ void plugin_unload(struct plugin_t* plugin)
     plugin->stop();
     module_close(plugin->handle);
     list_erase_element(&g_plugins, plugin);
-    plugin_destroy(plugin);
 }
 
 struct plugin_t* plugin_get_by_name(const char* name)
