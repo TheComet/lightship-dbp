@@ -93,7 +93,11 @@ int plugin_extract_version_from_string(const char* file,
     *minor = -1;
     *patch = -1;
 
-    /* skip ahead until a token is found that contains a number */
+    /* 
+     * Skip first token, as that is the plugin name, then skip ahead until a
+     * token is found that contains a number.
+     */
+    pch = strtok(NULL, "-");
     while(pch != NULL)
     {
         if(strpbrk(pch, "0123456789") != NULL)
