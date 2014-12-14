@@ -17,11 +17,18 @@ __inline static void safe_strcat(char* target, const char* source)
         strcat(target, source);
 }
 
+__inline static void safe_strcpy(char* target, const char* source)
+{
+    if(source)
+        strcpy(target, source);
+}
+
 void fprintf_strings(FILE* file, int num_strs, ...)
 {
-    int total_length = 0;
     int i;
     char* buffer;
+    int total_length = 0;
+
     /* compute total length of all strings combined and allocate a buffer able
      * to contain all strings plus a null terminator */
     va_list ap;
@@ -33,7 +40,7 @@ void fprintf_strings(FILE* file, int num_strs, ...)
     
     /* concatenate all strings into the allocated buffer */
     va_start(ap, num_strs);
-    strcpy(buffer, va_arg(ap, char*));
+    safe_strcpy(buffer, va_arg(ap, char*));
     for(i = 1; i < num_strs; ++i)
         safe_strcat(buffer, va_arg(ap, char*));
     va_end(ap);
@@ -59,7 +66,7 @@ char* cat_strings(int num_strs, ...)
     
     /* concatenate all strings into the allocated buffer */
     va_start(ap, num_strs);
-    strcpy(buffer, va_arg(ap, char*));
+    safe_strcpy(buffer, va_arg(ap, char*));
     for(i = 1; i < num_strs; ++i)
         safe_strcat(buffer, va_arg(ap, char*));
     va_end(ap);
