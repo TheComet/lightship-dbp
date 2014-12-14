@@ -53,7 +53,7 @@ struct plugin_t* plugin_load(struct plugin_info_t* plugin_info, plugin_search_cr
         filename = find_plugin(plugin_info, criteria);
         if(!filename)
         {
-            fprintf(stderr, "Error: no such file or directory\n");
+            fprintf(stderr, "Error searching for plugin: no such file or directory\n");
             break;
         }
         
