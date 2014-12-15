@@ -9,9 +9,18 @@ else()
     set (CMAKE_BUILD_TYPE Debug CACHE STRING "Choose the type of build, options are: None(CMAKE_CXX_FLAGS or CMAKE_C_FLAGS used) Debug Release RelWithDebInfo MinSizeRel.")
 endif()
 
+if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+    set (PLATFORM "LINUX")
+elseif (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+    set (PLATFORM "MAC")
+elseif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+    set (PLATFORM "WINDOWS")
+endif ()
+
 ###############################################################################
 # set output locations
 ###############################################################################
+
 set (CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
 set (CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
 if (MSVC)
@@ -43,14 +52,6 @@ if (CMAKE_BUILD_TYPE MATCHES Debug)
         -D_DEBUG
         -DDEBUG
     )
-endif ()
-
-if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-	set (PLATFORM "LINUX")
-elseif (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-	set (PLATFORM "MAC")
-elseif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-	set (PLATFORM "WINDOWS")
 endif ()
 
 add_definitions (-DLIGHTSHIP_BUILDING_LIBRARY)

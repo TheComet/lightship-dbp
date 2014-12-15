@@ -43,7 +43,7 @@ set_target_properties (plugin_renderer_gl
 
 add_custom_command (TARGET plugin_renderer_gl POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
-    "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/${plugin_renderer_gl_OUTPUT_NAME}.*"
+    "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/${plugin_renderer_gl_OUTPUT_NAME}${CMAKE_SHARED_LIBRARY_SUFFIX}"
     "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/plugins/")
 
 ###############################################################################
