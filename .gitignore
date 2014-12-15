@@ -30,3 +30,6 @@
 
 # project files
 *.kdev4
+
+# Mac OS X
+.DS_Store
