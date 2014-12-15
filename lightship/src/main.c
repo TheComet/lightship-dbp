@@ -6,7 +6,7 @@
 struct plugin_t* plugin_test = NULL;
 struct plugin_t* plugin_renderer = NULL;
 
-void load_core_plugins()
+void load_core_plugins(void)
 {
     struct plugin_info_t target;
     
@@ -25,7 +25,7 @@ void load_core_plugins()
     plugin_renderer = plugin_load(&target, PLUGIN_VERSION_MINIMUM);
 }
 
-void start_core_plugins()
+void start_core_plugins(void)
 {
     if(plugin_test)
         plugin_start(plugin_test);
@@ -33,7 +33,7 @@ void start_core_plugins()
         plugin_start(plugin_renderer);
 }
 
-void unload_core_plugins()
+void unload_core_plugins(void)
 {
     /* unload plugins */
     if(plugin_test)
