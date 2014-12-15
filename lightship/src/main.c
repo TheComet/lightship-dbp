@@ -5,6 +5,7 @@
 
 struct plugin_t* plugin_test = NULL;
 struct plugin_t* plugin_renderer = NULL;
+struct plugin_t* plugin_input = NULL;
 
 void load_core_plugins(void)
 {
@@ -23,6 +24,13 @@ void load_core_plugins(void)
     target.version.minor = 0;
     target.version.patch = 1;
     plugin_renderer = plugin_load(&target, PLUGIN_VERSION_MINIMUM);
+    
+    /* load input plugin */
+    target.name = "input_glfw";
+    target.version.major = 0;
+    target.version.minor = 0;
+    target.version.patch = 1;
+    plugin_input = plugin_load(&target, PLUGIN_VERSION_MINIMUM);
 }
 
 void start_core_plugins(void)
@@ -31,15 +39,8 @@ void start_core_plugins(void)
         plugin_start(plugin_test);
     if(plugin_renderer)
         plugin_start(plugin_renderer);
-}
-
-void unload_core_plugins(void)
-{
-    /* unload plugins */
-    if(plugin_test)
-        plugin_unload(plugin_test);
-    if(plugin_renderer)
-        plugin_unload(plugin_renderer);
+    if(plugin_input)
+        plugin_start(plugin_input);
 }
 
 int main(int argc, char** argv)
@@ -48,7 +49,6 @@ int main(int argc, char** argv)
     load_core_plugins();
     start_core_plugins();
 
-    unload_core_plugins();
     plugin_manager_deinit();
     
     return 0;
