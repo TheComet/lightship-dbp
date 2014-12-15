@@ -19,7 +19,7 @@ void plugin_manager_init(void)
 void plugin_manager_deinit(void)
 {
     /* unload all plugins */
-    LIST_FOR_EACH(&g_plugins, struct plugin_t, plugin)
+    LIST_FOR_EACH_ERASE_R(&g_plugins, struct plugin_t, plugin)
     {
         plugin_unload(plugin);
     }
