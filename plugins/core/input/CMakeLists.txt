@@ -18,11 +18,12 @@ include_directories (${CMAKE_CURRENT_BINARY_DIR})
 # source files and library definition
 ###############################################################################
 
+set (plugin_input_OUTPUT_NAME
+    "plugin_input-${PLUGIN_INPUT_VERSION_STRING}")
+
 file (GLOB plugin_input_HEADERS "include/input/*.h")
 file (GLOB plugin_input_SOURCES "src/*.c")
 
-set (TEMP ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
-set (CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/plugins")
 add_library (plugin_input SHARED
     ${plugin_input_HEADERS}
     ${plugin_input_SOURCES}
@@ -37,5 +38,8 @@ set_target_properties (plugin_input
         PREFIX ""
     OUTPUT_NAME "plugin_input-${PLUGIN_INPUT_VERSION_STRING}"
 )
-set (CMAKE_LIBRARY_OUTPUT_DIRECTORY ${TEMP})
 
+add_custom_command (TARGET plugin_input POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/${plugin_input_OUTPUT_NAME}.*"
+    "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/plugins/")
