@@ -1,4 +1,4 @@
-#include <util/pstdint.h>
+#include "util/pstdint.h"
 
 /* these must be implemented by the plugin */
 struct plugin_t;

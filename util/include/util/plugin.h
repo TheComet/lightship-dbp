@@ -1,4 +1,4 @@
-#include <util/plugin_api.h>
+#include "util/plugin_api.h"
 
 /*!
  * @brief Plugin object. For every loaded plugin there exists one instance of this.

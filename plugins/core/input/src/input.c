@@ -1,6 +1,6 @@
-#include <input/config.h>
-#include <util/config.h>
-#include <util/plugin.h>
+#include "input/config.h"
+#include "util/config.h"
+#include "util/plugin.h"
 #include <stdio.h>
 
 struct plugin_t* g_plugin = NULL;

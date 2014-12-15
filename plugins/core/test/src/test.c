@@ -1,9 +1,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-#include <util/plugin.h>
-#include <test/config.h>
-#include <util/config.h>
+#include "util/plugin.h"
+#include "test/config.h"
+#include "util/config.h"
 
 struct plugin_t* g_plugin;
 
