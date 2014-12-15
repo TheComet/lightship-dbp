@@ -231,21 +231,11 @@ static char* find_plugin(struct plugin_info_t* info, plugin_search_criteria_t cr
      * TODO load from config file
      */
     list = list_create();
-#ifdef LIGHTSHIP_PLATFORM_LINUX
-    get_directory_listing(list, "plugins/");
-#elif defined(LIGHTSHIP_PLATFORM_WINDOWS)
-#    ifdef _DEBUG
-    get_directory_listing(list, "..\\bin\\Debug\\");
+#if defined(LIGHTSHIP_PLATFORM_WINDOWS)
     get_directory_listing(list, "plugins\\");
-    get_directory_listing(list, ".\\");
-#    else
-    get_directory_listing(list, "..\\bin\\Release\\");
-    get_directory_listing(list, "plugins\\");
-    get_directory_listing(list, ".\\");
-#    endif
-#elif defined(LIGHTSHIP_PLATFORM_MAC)
+#else
     get_directory_listing(list, "plugins/");
-#endif
+#endif 
 
     /* search for plugin file name matching criteria */
     { /* need these braces because LIST_FOR_EACH declares new variables */
