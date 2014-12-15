@@ -55,3 +55,10 @@ message (STATUS "GL: ${OPENGL_LIBRARIES}")
 
 include_directories ("../renderer_gl/ext/GL/glfw-3.0.3/include/GLFW/")
 target_link_libraries (plugin_input_glfw GLFW_303)
+
+###############################################################################
+# GLEW
+###############################################################################
+
+include_directories ("ext/GL/glew-1.9.0/include/")
+target_link_libraries (plugin_input_glfw GLEW_190)
