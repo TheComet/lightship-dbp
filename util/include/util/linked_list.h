@@ -110,6 +110,7 @@ void* list_erase_element(struct list_t* list, void* data);
 
 /*!
  * @brief Convenient macro for iterating a list's elements in forward order.
+ * @note It is **unsafe** to erase the current element from the list.
  * 
  * Example:
  * @code
@@ -131,7 +132,8 @@ void* list_erase_element(struct list_t* list, void* data);
 
 /*!
  * @brief Convenient macro for iterating a list's elements in reverse order.
- * 
+ * @note It is **unsafe** to erase the current element from the list.
+ *
  * Example:
  * @code
  * list_t* someList = (a list containing elements of type "struct bar")
@@ -150,14 +152,50 @@ void* list_erase_element(struct list_t* list, void* data);
     struct list_node_t* node; \
     for(node = (list)->head; node != NULL && (var = node->data); node = node->prev)
 
+/*!
+ * @brief Convenient macro for iterating a list's elements in forward order.
+ * @note It is safe to erase the current element from the list when using this
+ * form of iteration.
+ *
+ * Example:
+ * @code
+ * list_t* someList = (a list containing elements of type "struct bar")
+ * LIST_FOR_EACH_ERASE(someList, struct bar, element)
+ * {
+ *     do_something_with(element);  ("element" is now of type "struct bar*")
+ * }
+ * @endcode
+ * @param [in] list Should be of type list_t*.
+ * @param [in] var_type Should be the type of data you're storing in each node.
+ * @param [in] var The name of a temporary variable you'd like to use within the
+ * for-loop to reference the current element.
+ */
 #define LIST_FOR_EACH_ERASE(list, var_type, var) \
     var_type* var; \
     struct list_node_t* node; \
     struct list_node_t* next_node; \
-    for(node = (list)->tail; node != NULL && (var = node->data) && (next_node = node->next); node = next_node)
-        
+    for(node = (list)->head; node != NULL && ((var = node->data, next_node = node->next) || 1); node = next_node)
+
+/*!
+ * @brief Convenient macro for iterating a list's elements in reverse order.
+ * @note It is safe to erase the current element from the list when using this
+ * form of iteration.
+ *
+ * Example:
+ * @code
+ * list_t* someList = (a list containing elements of type "struct bar")
+ * LIST_FOR_EACH_ERASE_R(someList, struct bar, element)
+ * {
+ *     do_something_with(element);  ("element" is now of type "struct bar*")
+ * }
+ * @endcode
+ * @param [in] list Should be of type list_t*.
+ * @param [in] var_type Should be the type of data you're storing in each node.
+ * @param [in] var The name of a temporary variable you'd like to use within the
+ * for-loop to reference the current element.
+ */
 #define LIST_FOR_EACH_ERASE_R(list, var_type, var) \
     var_type* var; \
     struct list_node_t* node; \
     struct list_node_t* prev_node; \
-    for(node = (list)->head; node != NULL && (var = node->data) && (prev_node = node->prev); node = prev_node)
+    for(node = (list)->head; node != NULL && ((var = node->data, prev_node = node->prev) || 1); node = prev_node)
