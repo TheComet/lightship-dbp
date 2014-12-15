@@ -40,6 +40,16 @@ set_target_properties (plugin_input_glfw
 set (CMAKE_LIBRARY_OUTPUT_DIRECTORY ${TEMP})
 
 ###############################################################################
+# OpenGL
+###############################################################################
+
+find_package (OpenGL REQUIRED)
+include_directories (${OPENGL_INCLUDE_DIR})
+target_link_libraries (plugin_input_glfw ${OPENGL_LIBRARIES})
+message (STATUS "GL: ${OPENGL_INCLUDE_DIR}")
+message (STATUS "GL: ${OPENGL_LIBRARIES}")
+
+###############################################################################
 # GLFW
 ###############################################################################
 
