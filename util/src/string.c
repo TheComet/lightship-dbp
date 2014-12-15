@@ -2,7 +2,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <util/string.h>
+#include "util/string.h"
 
 __inline static int safe_strlen(const char* str)
 {

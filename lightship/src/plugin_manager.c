@@ -1,13 +1,13 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <lightship/plugin_manager.h>
-#include <util/config.h>
-#include <util/plugin.h>
-#include <util/linked_list.h>
-#include <util/string.h>
-#include <util/module_loader.h>
-#include <util/dir.h>
+#include "lightship/plugin_manager.h"
+#include "util/config.h"
+#include "util/plugin.h"
+#include "util/linked_list.h"
+#include "util/string.h"
+#include "util/module_loader.h"
+#include "util/dir.h"
 
 static struct list_t g_plugins;
 

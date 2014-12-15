@@ -1,7 +1,7 @@
 #include <stdio.h>
-#include <lightship/plugin_manager.h>
-#include <util/plugin.h>
-#include <util/vector.h>
+#include "lightship/plugin_manager.h"
+#include "util/plugin.h"
+#include "util/vector.h"
 
 struct plugin_t* plugin_test = NULL;
 struct plugin_t* plugin_renderer = NULL;
@@ -26,7 +26,7 @@ void load_core_plugins(void)
     plugin_renderer = plugin_load(&target, PLUGIN_VERSION_MINIMUM);
     
     /* load input plugin */
-    target.name = "input_glfw";
+    target.name = "input";
     target.version.major = 0;
     target.version.minor = 0;
     target.version.patch = 1;
