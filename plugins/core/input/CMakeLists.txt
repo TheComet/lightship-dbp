@@ -41,5 +41,5 @@ set_target_properties (plugin_input
 
 add_custom_command (TARGET plugin_input POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
-    "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/${plugin_input_OUTPUT_NAME}.*"
+    "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/${plugin_input_OUTPUT_NAME}${CMAKE_SHARED_LIBRARY_SUFFIX}"
     "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/plugins/")
