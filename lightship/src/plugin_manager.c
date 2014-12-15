@@ -21,18 +21,24 @@ void plugin_manager_deinit(void)
     /* unload all plugins */
     LIST_FOR_EACH_ERASE_R(&g_plugins, struct plugin_t, plugin)
     {
+        /* NOTE this erases the plugin object from the linked list */
         plugin_unload(plugin);
     }
 }
 
 struct plugin_t* plugin_load(struct plugin_info_t* plugin_info, plugin_search_criteria_t criteria)
 {
+    /* will contain the file name of the plugin if it is found. Must be free()'d */
     char* filename = NULL;
+    /* will hold the handle of the loaded module, if successful */
     void* handle = NULL;
-    struct plugin_t* plugin = NULL;
+    /* functions to extract from the loaded module */
     plugin_init_func init_func;
     plugin_start_func start_func;
     plugin_stop_func stop_func;
+    /* will reference the allocated plugin object returned by plugin_init() */
+    struct plugin_t* plugin = NULL;
+    /* buffer for holding the various version strings that will be constructed */
     char version_str[sizeof(int)*27+1];
     
     /* 
@@ -53,7 +59,7 @@ struct plugin_t* plugin_load(struct plugin_info_t* plugin_info, plugin_search_cr
         filename = find_plugin(plugin_info, criteria);
         if(!filename)
         {
-            fprintf(stderr, "Error searching for plugin: no such file or directory\n");
+            fprintf(stderr, "Error searching for plugin: Unable to find a file matching the critera\n");
             break;
         }
         
@@ -104,11 +110,10 @@ struct plugin_t* plugin_load(struct plugin_info_t* plugin_info, plugin_search_cr
         /*
          * If the program has reached this point, it means the plugin has
          * successfully been loaded and passed basic verification. Copy all
-         * of the relevant data into the plugin struct and return the plugin
-         * object.
+         * of the relevant data into the plugin struct, push it into the list
+         * of loaded plugins and return the plugin object.
          */
 
-        /* save handle and insert into list of active plugins */
         plugin->handle = handle;
         plugin->init = init_func;
         plugin->start = start_func;
@@ -148,7 +153,13 @@ void plugin_unload(struct plugin_t* plugin)
     
     /* TODO notify everything that this plugin is about to be unloaded */
     
-    /* shutdown plugin and clean up */
+    /* 
+     * NOTE The plugin object becomes invalid as soon as plugin->stop() is
+     * called. That is why the module handle must first be extracted before
+     * stopping the plugin, so we can unload the module safely.
+     * NOTE Erasing an element from the linked list does not require the plugin
+     * object to be valid, as it does not dereference it.
+     */
     module_handle = plugin->handle;
     plugin->stop();
     module_close(module_handle);
@@ -195,16 +206,15 @@ static int plugin_version_acceptable(struct plugin_info_t* info,
         default:
             break;
     }
-    
+
     return 0;
 }
 
 static char* find_plugin(struct plugin_info_t* info, plugin_search_criteria_t criteria)
 {
+    /* local variables */
     char version_str[sizeof(int)*27+1];
     struct list_t* list;
-
-    /* local variables */
     const char* crit_info[] = {"\", minimum version ", "\" exact version "};
     char* file_found = NULL;
 
@@ -249,7 +259,10 @@ static char* find_plugin(struct plugin_info_t* info, plugin_search_criteria_t cr
             }
             else
             {
-                /* can also free the strings no longer needed */
+                /* 
+                 * get_directory_listing() allocates the strings it pushes into
+                 * the linked list, and it is up to us to free them.
+                 */
                 free(name);
             }
         }
