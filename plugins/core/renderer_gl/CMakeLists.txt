@@ -18,11 +18,14 @@ include_directories (${CMAKE_CURRENT_BINARY_DIR})
 # source files and library definition
 ###############################################################################
 
+set (plugin_renderer_gl_OUTPUT_NAME
+    "plugin_renderer_gl-${PLUGIN_RENDERER_GL_VERSION_STRING}")
+
 file (GLOB plugin_renderer_gl_HEADERS "include/renderer_gl/*.h")
 file (GLOB plugin_renderer_gl_SOURCES "src/*.c")
 
-set (TEMP ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
-set (CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/plugins")
+include_directories ("include")
+
 add_library (plugin_renderer_gl SHARED
     ${plugin_renderer_gl_HEADERS}
     ${plugin_renderer_gl_SOURCES}
@@ -35,9 +38,13 @@ target_link_libraries (plugin_renderer_gl
 set_target_properties (plugin_renderer_gl
     PROPERTIES
         PREFIX ""
-    OUTPUT_NAME "plugin_renderer_gl-${PLUGIN_RENDERER_GL_VERSION_STRING}"
+    OUTPUT_NAME ${plugin_renderer_gl_OUTPUT_NAME}
 )
-set (CMAKE_LIBRARY_OUTPUT_DIRECTORY ${TEMP})
+
+add_custom_command (TARGET plugin_renderer_gl POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/${plugin_renderer_gl_OUTPUT_NAME}.*"
+    "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/plugins/")
 
 ###############################################################################
 # OpenGL

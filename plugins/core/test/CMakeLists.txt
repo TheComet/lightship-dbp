@@ -10,11 +10,12 @@ configure_file ("include/test/config.h.in"
                 "${CMAKE_CURRENT_BINARY_DIR}/test/config.h")
 include_directories (${CMAKE_CURRENT_BINARY_DIR})
 
+set (plugin_test_OUTPUT_NAME
+    "plugin_test-${PLUGIN_TEST_VERSION_STRING}")
+
 file (GLOB plugin_test_HEADERS "include/test/*.h")
 file (GLOB plugin_test_SOURCES "src/*.c")
 
-set (TEMP ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
-set (CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/plugins")
 add_library (plugin_test SHARED
     ${plugin_test_HEADERS}
     ${plugin_test_SOURCES}
@@ -27,4 +28,8 @@ set_target_properties (plugin_test
         PREFIX ""
         OUTPUT_NAME "plugin_test-${PLUGIN_TEST_VERSION_STRING}"
 )
-set (CMAKE_LIBRARY_OUTPUT_DIRECTORY ${TEMP})
+
+add_custom_command (TARGET plugin_test POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/${plugin_test_OUTPUT_NAME}.*"
+    "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/plugins/")
