@@ -1,10 +1,10 @@
-#include <renderer_gl/config.h>
-#include <util/config.h>
-#include <util/plugin.h>
+#include "renderer_gl/config.h"
+#include "util/config.h"
+#include "util/plugin.h"
 #include <stdio.h>
 
-#include <GL/glew.h>
-#include <glfw3.h>
+#include "GL/glew.h"
+#include "glfw3.h"
 
 struct plugin_t* g_plugin = NULL;
 GLFWwindow* g_window = NULL;
