@@ -37,6 +37,8 @@ set_target_properties (plugin_@NAME@
     OUTPUT_NAME "plugin_@NAME@-${PLUGIN_@NAME_CAPS@_VERSION_STRING}"
 )
 
+add_dependencies (lightship plugin_@NAME@)
+
 ###############################################################################
 # copy plugin to plugins/ folder after build
 ###############################################################################
