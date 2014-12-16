@@ -24,6 +24,16 @@ set (plugin_input_OUTPUT_NAME
 file (GLOB plugin_input_HEADERS "include/input/*.h")
 file (GLOB plugin_input_SOURCES "src/*.c")
 
+if (${CMAKE_C_COMPILER_ID} STREQUAL "GNU")
+    add_definitions (-pedantic)
+elseif (${CMAKE_C_COMPILER_ID} STREQUAL "Clang")
+    add_definitions (-pedantic)
+elseif (${CMAKE_C_COMPILER_ID} STREQUAL "Intel")
+elseif (${CMAKE_C_COMPILER_ID} STREQUAL "MSVC")
+endif ()
+
+include_directories ("include")
+
 add_library (plugin_input SHARED
     ${plugin_input_HEADERS}
     ${plugin_input_SOURCES}
