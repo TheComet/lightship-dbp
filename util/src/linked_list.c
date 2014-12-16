@@ -28,6 +28,7 @@ void list_clear(struct list_t* list)
         list->tail = list->tail->next;
         free(current);
     }
+    list->head = NULL;
     list->count = 0;
 }
 
