@@ -3,20 +3,12 @@
 #include "util/plugin.h"
 #include "util/vector.h"
 
-struct plugin_t* plugin_test = NULL;
 struct plugin_t* plugin_renderer = NULL;
 struct plugin_t* plugin_input = NULL;
 
 void load_core_plugins(void)
 {
     struct plugin_info_t target;
-    
-    /* load a test plugin */
-    target.name = "test";
-    target.version.major = 0;
-    target.version.minor = 0;
-    target.version.patch = 0;
-    plugin_test = plugin_load(&target, PLUGIN_VERSION_MINIMUM);
     
     /* load graphics plugin */
     target.name = "renderer_gl";
@@ -35,8 +27,6 @@ void load_core_plugins(void)
 
 void start_core_plugins(void)
 {
-    if(plugin_test)
-        plugin_start(plugin_test);
     if(plugin_renderer)
         plugin_start(plugin_renderer);
     if(plugin_input)
