@@ -1,10 +1,10 @@
-struct GLFWWindow;
+struct GLFWwindow;
 
 struct window_t
 {
     int width;
     int height;
-    struct GLFWWindow* window;
+    struct GLFWwindow* window;
 };
 
 struct window_t* window_create(void);
