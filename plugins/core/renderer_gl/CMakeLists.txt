@@ -1,5 +1,7 @@
 project ("plugin_renderer_gl")
 
+add_subdirectory ("ext")
+
 ###############################################################################
 # generate config.h for this plugin
 ###############################################################################
@@ -23,6 +25,14 @@ set (plugin_renderer_gl_OUTPUT_NAME
 
 file (GLOB plugin_renderer_gl_HEADERS "include/renderer_gl/*.h")
 file (GLOB plugin_renderer_gl_SOURCES "src/*.c")
+
+if (${CMAKE_C_COMPILER_ID} STREQUAL "GNU")
+    add_definitions (-pedantic -fPIC)
+elseif (${CMAKE_C_COMPILER_ID} STREQUAL "Clang")
+    add_definitions (-pedantic -fPIC)
+elseif (${CMAKE_C_COMPILER_ID} STREQUAL "Intel")
+elseif (${CMAKE_C_COMPILER_ID} STREQUAL "MSVC")
+endif ()
 
 include_directories ("include")
 
@@ -77,6 +87,3 @@ target_link_libraries (plugin_renderer_gl GLEW_190)
 ###############################################################################
 
 include_directories ("ext/GL/glm-0.9.4.0/")
-
-add_subdirectory ("ext")
-

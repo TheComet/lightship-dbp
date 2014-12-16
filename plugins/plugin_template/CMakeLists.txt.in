@@ -24,6 +24,14 @@ set (plugin_@NAME@_OUTPUT_NAME
 file (GLOB plugin_@NAME@_HEADERS "include/@NAME@/*.h")
 file (GLOB plugin_@NAME@_SOURCES "src/*.c")
 
+if (${CMAKE_C_COMPILER_ID} STREQUAL "GNU")
+    add_definitions (-pedantic)
+elseif (${CMAKE_C_COMPILER_ID} STREQUAL "Clang")
+    add_definitions (-pedantic)
+elseif (${CMAKE_C_COMPILER_ID} STREQUAL "Intel")
+elseif (${CMAKE_C_COMPILER_ID} STREQUAL "MSVC")
+endif ()
+
 include_directories ("include")
 
 add_library (plugin_@NAME@ SHARED
