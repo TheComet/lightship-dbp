@@ -1,6 +1,6 @@
 #include "util/config.h"   /* platform macros and definitions */
 #include "util/plugin.h"   /* plugin api */
-#include "input/config.h"  /* configurations for this plugin */
+#include "@NAME@/config.h"  /* configurations for this plugin */
 
 struct plugin_t* g_plugin = NULL;
 
