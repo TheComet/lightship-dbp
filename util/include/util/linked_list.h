@@ -179,7 +179,7 @@ void* list_erase_element(struct list_t* list, void* data);
      * Why ||1 ? -> It is possible that the expression after && evaluates to be
      * false (such is the case when node->data = NULL, or node->prev = NULL).
      * In order to not exit the for-loop in this situation, I've added a ||1 to
-     * make the second expression always true.
+     * prevent short circuiting of the expression.
      */
 
 /*!
@@ -209,6 +209,6 @@ void* list_erase_element(struct list_t* list, void* data);
      * Why ||1 ? -> It is possible that the expression after && evaluates to be
      * false (such is the case when node->data = NULL, or node->prev = NULL).
      * In order to not exit the for-loop in this situation, I've added a ||1 to
-     * make the second expression always true.
+     * prevent short circuiting of the expression.
      */
 
