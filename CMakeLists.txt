@@ -18,6 +18,20 @@ elseif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
     set (PLATFORM "WINDOWS")
 endif ()
 
+# create vcproj.user file for Visual Studio to set debug working directory
+function(create_vcproj_userfile TARGETNAME)
+  if(MSVC)
+    configure_file(
+      ${CMAKE_CURRENT_SOURCE_DIR}/VisualStudioUserFile.vcproj.user.in
+      ${CMAKE_CURRENT_BINARY_DIR}/${TARGETNAME}.vcproj.user
+      @ONLY)
+    configure_file(
+      ${CMAKE_CURRENT_SOURCE_DIR}/VisualStudioUserFile.vcxproj.user.in
+      ${CMAKE_CURRENT_BINARY_DIR}/${TARGETNAME}.vcxproj.user
+      @ONLY)
+  endif()
+endfunction()
+
 ###############################################################################
 # set output locations
 ###############################################################################

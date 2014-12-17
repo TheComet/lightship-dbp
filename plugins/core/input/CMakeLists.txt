@@ -38,6 +38,7 @@ add_library (plugin_input SHARED
     ${plugin_input_HEADERS}
     ${plugin_input_SOURCES}
 )
+create_vcproj_userfile (plugin_input)
 
 target_link_libraries (plugin_input
     lightship_util
