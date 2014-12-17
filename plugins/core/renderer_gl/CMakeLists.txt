@@ -40,6 +40,7 @@ add_library (plugin_renderer_gl SHARED
     ${plugin_renderer_gl_HEADERS}
     ${plugin_renderer_gl_SOURCES}
 )
+create_vcproj_userfile (renderer_gl)
 
 target_link_libraries (plugin_renderer_gl
     lightship_util

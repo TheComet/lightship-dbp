@@ -23,3 +23,4 @@ target_link_libraries (lightship
     lightship_util
     ${DYNAMIC_LINKER_LIBRARY}
 )
+create_vcproj_userfile (lightship)
