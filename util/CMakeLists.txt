@@ -32,3 +32,4 @@ add_library (lightship_util STATIC
     ${lightship_util_HEADERS}
     ${lightship_util_SOURCES}
 )
+create_vcproj_userfile (lightship_util)
