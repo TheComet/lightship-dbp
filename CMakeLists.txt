@@ -1,4 +1,4 @@
-project (gay C)
+project (lightship C)
 cmake_minimum_required (VERSION 2.6)
 
 # If the user specifies -DCMAKE_BUILD_TYPE on the command line, take their
