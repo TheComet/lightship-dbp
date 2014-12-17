@@ -22,11 +22,11 @@ endif ()
 function(create_vcproj_userfile TARGETNAME)
   if(MSVC)
     configure_file(
-      ${CMAKE_CURRENT_SOURCE_DIR}/VisualStudioUserFile.vcproj.user.in
+      ${CMAKE_SOURCE_DIR}/VisualStudioUserFile.vcproj.user.in
       ${CMAKE_CURRENT_BINARY_DIR}/${TARGETNAME}.vcproj.user
       @ONLY)
     configure_file(
-      ${CMAKE_CURRENT_SOURCE_DIR}/VisualStudioUserFile.vcxproj.user.in
+      ${CMAKE_SOURCE_DIR}/VisualStudioUserFile.vcxproj.user.in
       ${CMAKE_CURRENT_BINARY_DIR}/${TARGETNAME}.vcxproj.user
       @ONLY)
   endif()
@@ -43,6 +43,13 @@ if (MSVC)
 else ()
     set (CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
 endif ()
+
+foreach( OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES} )
+    string( TOUPPER ${OUTPUTCONFIG} OUTPUTCONFIG )
+    set( CMAKE_RUNTIME_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY} )
+    set( CMAKE_LIBRARY_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${CMAKE_LIBRARY_OUTPUT_DIRECTORY} )
+    set( CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY} )
+endforeach( OUTPUTCONFIG CMAKE_CONFIGURATION_TYPES )
 
 ###############################################################################
 # compiler definitions and flags
