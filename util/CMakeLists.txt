@@ -1,4 +1,4 @@
-project (util)
+project (util C)
 
 set (PROJECT_NAME "LIGHTSHIP")
 set (BUILD_TYPE "SHARED")
