@@ -1,8 +1,8 @@
 #include <stdio.h>
-#include <Windows.h>
-#include "util\module_loader.h"
-#include "util\string.h"
-#include "util\platform\win\error.h"
+#include <windows.h>
+#include "util/module_loader.h"
+#include "util/string.h"
+#include "util/platform/win/error.h"
 
 void* module_open(const char* filename)
 {
