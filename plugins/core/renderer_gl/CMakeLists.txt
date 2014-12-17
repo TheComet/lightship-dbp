@@ -1,4 +1,4 @@
-project ("plugin_renderer_gl")
+project ("plugin_renderer_gl" C)
 
 add_subdirectory ("ext")
 

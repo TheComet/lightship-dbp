@@ -1,4 +1,4 @@
-project ("plugin_input")
+project ("plugin_input" C)
 
 ###############################################################################
 # generate config.h for this plugin
