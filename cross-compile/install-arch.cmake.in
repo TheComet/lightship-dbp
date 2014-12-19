@@ -1,0 +1,6 @@
+execute_process (
+    COMMAND
+        make install
+    WORKING_DIRECTORY
+        "@BUILD_DIR@"
+)
