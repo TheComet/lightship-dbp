@@ -1,5 +1,5 @@
-option (CROSS_WINDOWS_i486 "cross compile for windows i486" OFF)
-option (CROSS_WINDOWS_x86_64 "cross compile for windows x86_64" OFF)
+option (CROSS_COMPILE_i486-pc-mingw32 "cross compile for windows i486" OFF)
+option (CROSS_COMPILE_x86_64-pc-mingw32 "cross compile for windows x86_64" OFF)
 
 macro (generate_cross_arch ARCH_NAME ARCH C_COMPILER RC_COMPILER ROOT_PATH)
 
@@ -14,7 +14,7 @@ macro (generate_cross_arch ARCH_NAME ARCH C_COMPILER RC_COMPILER ROOT_PATH)
     set (C_COMPILER ${C_COMPILER})
     set (RC_COMPILER ${RC_COMPILER})
     set (ROOT_PATH ${ROOT_PATH})
-    set (${ARCH}_INSTALL_DIR
+    set (${ARCH}_INSTALL_PREFIX
         "${CMAKE_INSTALL_PREFIX}/${ARCH}"
     CACHE STRING
         "The install prefix of target ${ARCH}")
@@ -30,7 +30,7 @@ macro (generate_cross_arch ARCH_NAME ARCH C_COMPILER RC_COMPILER ROOT_PATH)
         COMMAND
             cmake
                 -DCMAKE_TOOLCHAIN_FILE=${CMAKE_CURRENT_LIST_DIR}/toolchains/toolchain-${ARCH}.cmake
-                -DCMAKE_INSTALL_PREFIX=${${ARCH}_INSTALL_DIR}
+                -DCMAKE_INSTALL_PREFIX=${${ARCH}_INSTALL_PREFIX}
                 -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
                 ..
         WORKING_DIRECTORY
@@ -51,14 +51,14 @@ macro (generate_cross_arch ARCH_NAME ARCH C_COMPILER RC_COMPILER ROOT_PATH)
 
 endmacro ()
 
-if (CROSS_WINDOWS_i486)
+if (CROSS_COMPILE_i486-pc-mingw32)
     generate_cross_arch ("Windows"
                          "i486-pc-mingw32"
                          "/usr/bin/i486-pc-mingw32-gcc"
                          "/usr/bin/i486-pc-mingw32-windres"
                          "/usr/bin/i486-pc-mingw32")
 endif ()
-if (CROSS_WINDOWS_x86_64)
+if (CROSS_COMPILE_x86_64-pc-mingw32)
     generate_cross_arch ("Windows"
                          "x86_64-pc-mingw32"
                          "/usr/bin/x86_64-pc-mingw32-gcc"
