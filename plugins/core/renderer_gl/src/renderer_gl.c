@@ -43,7 +43,7 @@ LIGHTSHIP_PUBLIC_API plugin_result_t plugin_start(void)
     }
 
     g_window = window_create();
-    
+
     return PLUGIN_SUCCESS;
 }
 
