@@ -22,11 +22,11 @@ endif ()
 function(create_vcproj_userfile TARGETNAME)
   if(MSVC)
     configure_file(
-      ${CMAKE_SOURCE_DIR}/VisualStudioUserFile.vcproj.user.in
+      ${CMAKE_SOURCE_DIR}/cmake/templates/VisualStudioUserFile.vcproj.user.in
       ${CMAKE_CURRENT_BINARY_DIR}/${TARGETNAME}.vcproj.user
       @ONLY)
     configure_file(
-      ${CMAKE_SOURCE_DIR}/VisualStudioUserFile.vcxproj.user.in
+      ${CMAKE_SOURCE_DIR}/cmake/templates/VisualStudioUserFile.vcxproj.user.in
       ${CMAKE_CURRENT_BINARY_DIR}/${TARGETNAME}.vcxproj.user
       @ONLY)
   endif()
