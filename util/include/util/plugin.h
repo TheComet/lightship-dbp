@@ -1,3 +1,4 @@
+#include "util/pstdint.h"
 #include "util/plugin_api.h"
 
 /*!
