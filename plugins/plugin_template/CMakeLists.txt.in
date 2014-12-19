@@ -1,6 +1,18 @@
 project ("plugin_@NAME@")
 
 ###############################################################################
+# compiler flags for this project
+###############################################################################
+
+if (${CMAKE_C_COMPILER_ID} STREQUAL "GNU")
+    add_definitions (-pedantic)
+elseif (${CMAKE_C_COMPILER_ID} STREQUAL "Clang")
+    add_definitions (-pedantic)
+elseif (${CMAKE_C_COMPILER_ID} STREQUAL "Intel")
+elseif (${CMAKE_C_COMPILER_ID} STREQUAL "MSVC")
+endif ()
+
+###############################################################################
 # generate config.h for this plugin
 ###############################################################################
 
@@ -24,14 +36,6 @@ set (plugin_@NAME@_OUTPUT_NAME
 file (GLOB plugin_@NAME@_HEADERS "include/@NAME@/*.h")
 file (GLOB plugin_@NAME@_SOURCES "src/*.c")
 
-if (${CMAKE_C_COMPILER_ID} STREQUAL "GNU")
-    add_definitions (-pedantic)
-elseif (${CMAKE_C_COMPILER_ID} STREQUAL "Clang")
-    add_definitions (-pedantic)
-elseif (${CMAKE_C_COMPILER_ID} STREQUAL "Intel")
-elseif (${CMAKE_C_COMPILER_ID} STREQUAL "MSVC")
-endif ()
-
 include_directories ("include")
 
 add_library (plugin_@NAME@ SHARED
@@ -39,12 +43,14 @@ add_library (plugin_@NAME@ SHARED
     ${plugin_@NAME@_SOURCES}
 )
 
+# adjust output name to not have the "lib" prefix and insert version number
 set_target_properties (plugin_@NAME@
     PROPERTIES
         PREFIX ""
     OUTPUT_NAME "plugin_@NAME@-${PLUGIN_@NAME_CAPS@_VERSION_STRING}"
 )
 
+# ensure plugin is built before lightship
 add_dependencies (lightship plugin_@NAME@)
 
 ###############################################################################
