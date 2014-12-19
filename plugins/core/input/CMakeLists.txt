@@ -1,6 +1,18 @@
 project ("plugin_input" C)
 
 ###############################################################################
+# compiler flags for this project
+###############################################################################
+
+if (${CMAKE_C_COMPILER_ID} STREQUAL "GNU")
+    add_definitions (-pedantic)
+elseif (${CMAKE_C_COMPILER_ID} STREQUAL "Clang")
+    add_definitions (-pedantic)
+elseif (${CMAKE_C_COMPILER_ID} STREQUAL "Intel")
+elseif (${CMAKE_C_COMPILER_ID} STREQUAL "MSVC")
+endif ()
+
+###############################################################################
 # generate config.h for this plugin
 ###############################################################################
 
@@ -24,35 +36,51 @@ set (plugin_input_OUTPUT_NAME
 file (GLOB plugin_input_HEADERS "include/input/*.h")
 file (GLOB plugin_input_SOURCES "src/*.c")
 
-if (${CMAKE_C_COMPILER_ID} STREQUAL "GNU")
-    add_definitions (-pedantic)
-elseif (${CMAKE_C_COMPILER_ID} STREQUAL "Clang")
-    add_definitions (-pedantic)
-elseif (${CMAKE_C_COMPILER_ID} STREQUAL "Intel")
-elseif (${CMAKE_C_COMPILER_ID} STREQUAL "MSVC")
-endif ()
-
 include_directories ("include")
 
 add_library (plugin_input SHARED
     ${plugin_input_HEADERS}
     ${plugin_input_SOURCES}
 )
-create_vcproj_userfile (plugin_input)
 
-target_link_libraries (plugin_input
-    lightship_util
-)
-
+# adjust output name to not have the "lib" prefix and insert version number
 set_target_properties (plugin_input
     PROPERTIES
         PREFIX ""
     OUTPUT_NAME "plugin_input-${PLUGIN_INPUT_VERSION_STRING}"
 )
 
+# ensure plugin is built before lightship
+add_dependencies (lightship plugin_input)
+
+###############################################################################
+# copy plugin to plugins/ folder after build
+###############################################################################
+
 add_custom_command (TARGET plugin_input POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
     "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/${plugin_input_OUTPUT_NAME}${CMAKE_SHARED_LIBRARY_SUFFIX}"
     "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/plugins/")
 
-add_dependencies (lightship plugin_input)
+###############################################################################
+# link lightship utility static library
+###############################################################################
+
+target_link_libraries (plugin_input
+    lightship_util
+)
+
+###############################################################################
+# other libs...
+###############################################################################
+
+###############################################################################
+# install targets
+###############################################################################
+
+install (
+    TARGETS
+        plugin_input
+    DESTINATION
+        "bin/plugins"
+)

@@ -1,10 +1,30 @@
-project (util C)
+project ("util" C)
+
+###############################################################################
+# compiler flags for this library
+###############################################################################
+
+if (${CMAKE_C_COMPILER_ID} STREQUAL "GNU")
+    add_definitions (-pedantic -fPIC)
+elseif (${CMAKE_C_COMPILER_ID} STREQUAL "Clang")
+    add_definitions (-pedantic -fPIC)
+elseif (${CMAKE_C_COMPILER_ID} STREQUAL "Intel")
+elseif (${CMAKE_C_COMPILER_ID} STREQUAL "MSVC")
+endif ()
+
+###############################################################################
+# generate config.h for this library
+###############################################################################
 
 set (PROJECT_NAME "LIGHTSHIP")
 set (BUILD_TYPE "SHARED")
 
 configure_file ("include/util/config.h.in"
                 "${CMAKE_SOURCE_DIR}/util/include/util/config.h")
+
+###############################################################################
+# select platform specific implementation source files
+###############################################################################
 
 if (${PLATFORM} MATCHES "LINUX")
     set (PLATFORM_HEADER_DIRS "include/util/platform/linux/*.h")
@@ -17,14 +37,10 @@ elseif (${PLATFORM} MATCHES "WINDOWS")
     set (PLATFORM_SOURCE_DIRS "src/platform/win/*.c")
 endif ()
 
-if (${CMAKE_C_COMPILER_ID} STREQUAL "GNU")
-    add_definitions (-pedantic -fPIC)
-elseif (${CMAKE_C_COMPILER_ID} STREQUAL "Clang")
-    add_definitions (-pedantic -fPIC)
-elseif (${CMAKE_C_COMPILER_ID} STREQUAL "Intel")
-elseif (${CMAKE_C_COMPILER_ID} STREQUAL "MSVC")
-endif ()
-                
+###############################################################################
+# source files and library definition
+###############################################################################
+
 file (GLOB lightship_util_HEADERS "include/util/*.h" ${PLATFORM_HEADER_DIRS})
 file (GLOB lightship_util_SOURCES "src/*.c" ${PLATFORM_SOURCE_DIRS})
 

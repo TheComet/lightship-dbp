@@ -1,6 +1,19 @@
 project ("plugin_renderer_gl" C)
 
+# needs to be added before setting compiler flags
 add_subdirectory ("ext")
+
+###############################################################################
+# compiler flags for this project
+###############################################################################
+
+if (${CMAKE_C_COMPILER_ID} STREQUAL "GNU")
+    add_definitions (-pedantic)
+elseif (${CMAKE_C_COMPILER_ID} STREQUAL "Clang")
+    add_definitions (-pedantic)
+elseif (${CMAKE_C_COMPILER_ID} STREQUAL "Intel")
+elseif (${CMAKE_C_COMPILER_ID} STREQUAL "MSVC")
+endif ()
 
 ###############################################################################
 # generate config.h for this plugin
@@ -26,48 +39,39 @@ set (plugin_renderer_gl_OUTPUT_NAME
 file (GLOB plugin_renderer_gl_HEADERS "include/renderer_gl/*.h")
 file (GLOB plugin_renderer_gl_SOURCES "src/*.c")
 
-if (${CMAKE_C_COMPILER_ID} STREQUAL "GNU")
-    add_definitions (-pedantic -fPIC)
-elseif (${CMAKE_C_COMPILER_ID} STREQUAL "Clang")
-    add_definitions (-pedantic -fPIC)
-elseif (${CMAKE_C_COMPILER_ID} STREQUAL "Intel")
-elseif (${CMAKE_C_COMPILER_ID} STREQUAL "MSVC")
-endif ()
-
 include_directories ("include")
 
 add_library (plugin_renderer_gl SHARED
     ${plugin_renderer_gl_HEADERS}
     ${plugin_renderer_gl_SOURCES}
 )
-create_vcproj_userfile (renderer_gl)
 
-target_link_libraries (plugin_renderer_gl
-    lightship_util
-)
-
+# adjust output name to not have the "lib" prefix and insert version number
 set_target_properties (plugin_renderer_gl
     PROPERTIES
         PREFIX ""
     OUTPUT_NAME ${plugin_renderer_gl_OUTPUT_NAME}
 )
 
+# ensure plugin is built before lightship
+add_dependencies (lightship plugin_renderer_gl)
+
+###############################################################################
+# copy plugin to plugins/ folder after build
+###############################################################################
+
 add_custom_command (TARGET plugin_renderer_gl POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
     "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/${plugin_renderer_gl_OUTPUT_NAME}${CMAKE_SHARED_LIBRARY_SUFFIX}"
     "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/plugins/")
 
-add_dependencies (lightship plugin_renderer_gl)
-
 ###############################################################################
-# OpenGL
+# link lightship utility static library
 ###############################################################################
 
-find_package (OpenGL REQUIRED)
-include_directories (${OPENGL_INCLUDE_DIR})
-target_link_libraries (plugin_renderer_gl ${OPENGL_LIBRARIES})
-message (STATUS "GL: ${OPENGL_INCLUDE_DIR}")
-message (STATUS "GL: ${OPENGL_LIBRARIES}")
+target_link_libraries (plugin_renderer_gl
+    lightship_util
+)
 
 ###############################################################################
 # GLFW
@@ -84,7 +88,22 @@ include_directories ("ext/GL/glew-1.9.0/include/")
 target_link_libraries (plugin_renderer_gl GLEW_190)
 
 ###############################################################################
-# GLM
+# OpenGL
 ###############################################################################
 
-include_directories ("ext/GL/glm-0.9.4.0/")
+find_package (OpenGL REQUIRED)
+include_directories (${OPENGL_INCLUDE_DIR})
+target_link_libraries (plugin_renderer_gl ${OPENGL_LIBRARIES})
+message (STATUS "GL: ${OPENGL_INCLUDE_DIR}")
+message (STATUS "GL: ${OPENGL_LIBRARIES}")
+
+###############################################################################
+# install targets
+###############################################################################
+
+install (
+    TARGETS
+        plugin_renderer_gl
+    DESTINATION
+        "bin/plugins"
+)
