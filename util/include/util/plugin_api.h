@@ -19,7 +19,8 @@ typedef enum plugin_programming_language_t
 {
     PLUGIN_PROGRAMMING_LANGUAGE_UNSET,
     PLUGIN_PROGRAMMING_LANGUAGE_C,
-    PLUGIN_PROGRAMMING_LANGUAGE_CPP
+    PLUGIN_PROGRAMMING_LANGUAGE_CPP,
+    PLUGIN_PROGRAMMING_LANGUAGE_D
 } plugin_programming_language_t;
 
 /*!
