@@ -178,6 +178,7 @@ endif()
 if (_GLFW_WGL)
     list(APPEND glfw_INCLUDE_DIRS ${OPENGL_INCLUDE_DIR})
     list(APPEND glfw_LIBRARIES ${OPENGL_gl_LIBRARY})
+    message ("libs: ${OPENGL_gl_LIBRARY}")
 endif()
 
 #--------------------------------------------------------------------
