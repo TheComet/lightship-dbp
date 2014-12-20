@@ -22,6 +22,11 @@ char event_unregister(struct plugin_t* plugin,
     return callback_unregister(&g_events, plugin, name);
 }
 
+void event_unregister_all(struct plugin_t* plugin)
+{
+    callback_unregister_all(&g_events, plugin);
+}
+
 intptr_t event_get(const char* name)
 {
     return callback_get(&g_events, name);

@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include "lightship/plugin_manager.h"
 #include "lightship/api.h"
+#include "lightship/services.h"
+#include "lightship/events.h"
 #include "util/config.h"
 #include "util/plugin.h"
 #include "util/linked_list.h"
@@ -153,6 +155,10 @@ void plugin_unload(struct plugin_t* plugin)
     fprintf_strings(stdout, 3, "unloading plugin \"", plugin->info.name, "\"");
     
     /* TODO notify everything that this plugin is about to be unloaded */
+    
+    /* unregister all services and events registered by this plugin */
+    service_unregister_all(plugin);
+    event_unregister_all(plugin);
     
     /* 
      * NOTE The plugin object becomes invalid as soon as plugin->stop() is

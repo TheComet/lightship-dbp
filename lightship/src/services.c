@@ -22,6 +22,11 @@ char service_unregister(struct plugin_t* plugin,
     return callback_unregister(&g_services, plugin, name);
 }
 
+void service_unregister_all(struct plugin_t* plugin)
+{
+    callback_unregister_all(&g_services, plugin);
+}
+
 intptr_t service_get(const char* name)
 {
     return callback_get(&g_services, name);
