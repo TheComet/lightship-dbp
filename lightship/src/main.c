@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "lightship/plugin_manager.h"
 #include "lightship/services.h"
+#include "lightship/events.h"
 #include "lightship/api.h"
 #include "util/plugin.h"
 #include "util/vector.h"
@@ -8,6 +9,9 @@
 struct plugin_t* plugin_main_loop = NULL;
 struct plugin_t* plugin_renderer = NULL;
 struct plugin_t* plugin_input = NULL;
+
+typedef void (*start_loop_func)(void); start_loop_func start;
+typedef void (*stop_loop_func) (void); stop_loop_func stop;
 
 void load_core_plugins(void)
 {
@@ -48,11 +52,15 @@ void start_core_plugins(void)
 int main(int argc, char** argv)
 {
     api_init();
-    plugin_manager_init();
     services_init();
+    events_init();
+    plugin_manager_init();
 
     load_core_plugins();
     start_core_plugins();
+    
+    start = (start_loop_func)service_get("main_loop.start");
+    stop  = (stop_loop_func) service_get("main_loop.stop");
 
     plugin_manager_deinit();
 

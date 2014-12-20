@@ -2,6 +2,7 @@
 #include "util/config.h"   /* platform macros and definitions */
 #include "util/plugin.h"   /* plugin api */
 #include "main_loop/config.h"  /* configurations for this plugin */
+#include "main_loop/main_loop.h"
 
 struct plugin_t* g_plugin = NULL;
 
@@ -12,11 +13,11 @@ LIGHTSHIP_PUBLIC_API struct plugin_t* plugin_init(struct lightship_api_t* api)
     
     /* set plugin information */
     plugin_set_info(g_plugin,
-            "",   /* name */
-            "",   /* category */
-            "",   /* author */
-            "",   /* description */
-            ""    /* website */
+            "main_loop",   /* name */
+            "system",   /* category */
+            "TheComet",   /* author */
+            "Controls the speed of game loop and render loop",   /* description */
+            "http://github.com/TheComet93/"    /* website */
     );
     plugin_set_programming_language(g_plugin,
             PLUGIN_PROGRAMMING_LANGUAGE_C
@@ -26,6 +27,9 @@ LIGHTSHIP_PUBLIC_API struct plugin_t* plugin_init(struct lightship_api_t* api)
             MAIN_LOOP_VERSION_MINOR,
             MAIN_LOOP_VERSION_PATCH
     );
+    
+    api->service_register(g_plugin, "start", (intptr_t)main_loop_start);
+    api->service_register(g_plugin, "stop", (intptr_t)main_loop_stop);
 
     return g_plugin;
 }
