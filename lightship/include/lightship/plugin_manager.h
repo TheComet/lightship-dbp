@@ -1,13 +1,4 @@
-#include "util/pstdint.h"
-
-struct plugin_t;
-struct plugin_info_t;
-
-typedef enum plugin_search_criteria_t
-{
-    PLUGIN_VERSION_MINIMUM = 0,
-    PLUGIN_VERSION_EXACT = 1
-} plugin_search_criteria_t;
+#include "util/plugin_api.h"
 
 /*!
  * @brief Initialises the plugin manager.

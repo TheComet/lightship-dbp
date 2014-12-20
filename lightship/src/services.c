@@ -14,14 +14,14 @@ void services_init(void)
 
 char service_register(struct plugin_t* plugin,
                       const char* name,
-                      service_func exec)
+                      intptr_t exec)
 {
     struct service_t* service;
     char* full_name;
 
     /* check if service is already registered */
     full_name = cat_strings(3, plugin->info.name, ".", name);
-    if(!service_get(full_name))
+    if(service_get(full_name))
     {
         free(full_name);
         return 0;
@@ -76,12 +76,12 @@ void service_unregister_all(struct plugin_t* plugin)
     }
 }
 
-service_func service_get(const char* name)
+intptr_t service_get(const char* name)
 {
     LIST_FOR_EACH(&g_services, struct service_t, service)
     {
         if(strcmp(service->name, name) == 0)
             return service->exec;
     }
-    return NULL;
+    return 0;
 }

@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "lightship/plugin_manager.h"
+#include "lightship/api.h"
 #include "util/config.h"
 #include "util/plugin.h"
 #include "util/linked_list.h"
@@ -84,7 +85,7 @@ struct plugin_t* plugin_load(struct plugin_info_t* plugin_info, plugin_search_cr
             break;
 
         /* start the plugin */
-        plugin = init_func();
+        plugin = init_func(&g_api);
         if(!plugin)
         {
             fprintf_strings(stderr, 1, "Error initialising plugin: \"plugin_init\" returned NULL");
