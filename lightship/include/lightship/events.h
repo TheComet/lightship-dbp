@@ -11,4 +11,5 @@ char event_register(struct plugin_t* plugin,
                       intptr_t exec);
 char event_unregister(struct plugin_t* plugin,
                         const char* name);
+void event_unregister_all(struct plugin_t* plugin);
 intptr_t event_get(const char* name);

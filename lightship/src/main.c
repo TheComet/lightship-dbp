@@ -42,11 +42,14 @@ void load_core_plugins(void)
 void start_core_plugins(void)
 {
     if(plugin_main_loop)
-        plugin_start(plugin_main_loop);
+        if(plugin_start(plugin_main_loop) == PLUGIN_FAILURE)
+            return;
     if(plugin_renderer)
-        plugin_start(plugin_renderer);
+        if(plugin_start(plugin_renderer) == PLUGIN_FAILURE)
+            return;
     if(plugin_input)
-        plugin_start(plugin_input);
+        if(plugin_start(plugin_input) == PLUGIN_FAILURE)
+            return;
 }
 
 int main(int argc, char** argv)

@@ -15,7 +15,7 @@ void plugin_manager_init(void);
  * @param plugin The plugin to start.
  * @return Returns 1 if successful, 0 if otherwise.
  */
-#define plugin_start(plugin) ((plugin)->start());
+#define plugin_start(plugin) ((plugin)->start())
 
 /*!
  * @brief De-initialises the plugin manager.
