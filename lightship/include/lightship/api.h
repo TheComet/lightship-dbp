@@ -7,6 +7,9 @@ typedef struct plugin_t*    (*plugin_get_by_name_func)  (const char*);
 typedef char                (*service_register_func)    (struct plugin_t*, const char*, intptr_t);
 typedef char                (*service_unregister_func)  (struct plugin_t*, const char*);
 typedef intptr_t            (*service_get_func)         (const char*);
+typedef char                (*event_register_func)      (struct plugin_t*, const char*, intptr_t);
+typedef char                (*event_unregister_func)    (struct plugin_t*, const char*);
+typedef intptr_t            (*event_get_func)           (const char*);
 
 struct lightship_api_t
 {
@@ -16,6 +19,9 @@ struct lightship_api_t
     service_register_func service_register;
     service_unregister_func service_unregister;
     service_get_func service_get;
+    event_register_func event_register;
+    event_unregister_func event_unregister;
+    event_get_func event_get;
 };
 
 extern struct lightship_api_t g_api;

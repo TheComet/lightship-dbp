@@ -1,3 +1,6 @@
+#ifndef LIGHTSHIP_UTIL_LINKED_LIST_HPP
+#define LIGHTSHIP_UTIL_LINKED_LIST_HPP
+
 /*!
  * @brief Holds user defined data and information on linked nodes.
  */
@@ -212,3 +215,4 @@ void* list_erase_element(struct list_t* list, void* data);
      * prevent short circuiting of the expression.
      */
 
+#endif /* LIGHTSHIP_UTIL_LINKED_LIST_HPP */
