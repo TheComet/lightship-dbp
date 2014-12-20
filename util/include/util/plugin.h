@@ -1,4 +1,6 @@
-#include "util/pstdint.h"
+#ifndef LIGHTSHIP_UTIL_PLUGIN_HPP
+#define LIGHTSHIP_UTIL_PLUGIN_HPP
+
 #include "util/plugin_api.h"
 
 /*!
@@ -99,3 +101,5 @@ int plugin_extract_version_from_string(const char* file,
  * string.
  */
 void plugin_get_version_string(char* str, struct plugin_info_t* info);
+
+#endif /* LIGHTSHIP_UTIL_PLUGIN_HPP */

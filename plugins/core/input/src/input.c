@@ -1,3 +1,4 @@
+#include "lightship/api.h" /* lightship API so we can register and call services */
 #include "input/config.h"
 #include "util/config.h"
 #include "util/plugin.h"
@@ -5,7 +6,7 @@
 
 struct plugin_t* g_plugin = NULL;
 
-LIGHTSHIP_PUBLIC_API struct plugin_t* plugin_init(void)
+LIGHTSHIP_PUBLIC_API struct plugin_t* plugin_init(struct lightship_api_t* api)
 {
     g_plugin = plugin_create();
     

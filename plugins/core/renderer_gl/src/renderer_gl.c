@@ -1,15 +1,23 @@
-#include <stdio.h>
-#include "GL/glew.h"
-#include "glfw3.h"
-#include "renderer_gl/config.h"
+#include "lightship/api.h" /* lightship API so we can register and call services */
 #include "util/config.h"
 #include "util/plugin.h"
+#include "renderer_gl/config.h"
 #include "renderer_gl/window.h"
+
+#include "GL/glew.h"
+#include "glfw3.h"
+
+#include <stdio.h>
 
 struct plugin_t* g_plugin = NULL;
 struct window_t* g_window = NULL;
 
-LIGHTSHIP_PUBLIC_API struct plugin_t* plugin_init(void)
+void hello(void)
+{
+    printf("hello world\n");
+}
+
+LIGHTSHIP_PUBLIC_API struct plugin_t* plugin_init(struct lightship_api_t* api)
 {
     g_plugin = plugin_create();
     
@@ -29,6 +37,8 @@ LIGHTSHIP_PUBLIC_API struct plugin_t* plugin_init(void)
             RENDERER_GL_VERSION_MINOR,
             RENDERER_GL_VERSION_PATCH
     );
+
+    api->service_register(g_plugin, "hello", (intptr_t)hello);
 
     return g_plugin;
 }

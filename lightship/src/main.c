@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "lightship/plugin_manager.h"
 #include "lightship/services.h"
+#include "lightship/api.h"
 #include "util/plugin.h"
 #include "util/vector.h"
 
@@ -46,12 +47,14 @@ void start_core_plugins(void)
 
 int main(int argc, char** argv)
 {
+    api_init();
     plugin_manager_init();
     services_init();
+
     load_core_plugins();
     start_core_plugins();
 
     plugin_manager_deinit();
-    
+
     return 0;
 }
