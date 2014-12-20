@@ -23,7 +23,7 @@ void load_core_plugins(void)
     target.version.minor = 0;
     target.version.patch = 1;
     plugin_main_loop = plugin_load(&target, PLUGIN_VERSION_MINIMUM);
-    
+
     /* load graphics plugin */
     target.name = "renderer_gl";
     target.version.major = 0;
@@ -39,20 +39,19 @@ void load_core_plugins(void)
     plugin_input = plugin_load(&target, PLUGIN_VERSION_MINIMUM);
 }
 
-void start_core_plugins(void)
+char start_core_plugins(void)
 {
-    if(plugin_main_loop)
-        if(plugin_start(plugin_main_loop) == PLUGIN_FAILURE)
-            return;
-    if(plugin_renderer)
-        if(plugin_start(plugin_renderer) == PLUGIN_FAILURE)
-            return;
-    if(plugin_input)
-        if(plugin_start(plugin_input) == PLUGIN_FAILURE)
-            return;
+    if(!plugin_main_loop || plugin_start(plugin_main_loop) == PLUGIN_FAILURE)
+        return 0;
+    if(!plugin_renderer  || plugin_start(plugin_renderer) == PLUGIN_FAILURE)
+        return 0;
+    if(!plugin_input     || plugin_start(plugin_input) == PLUGIN_FAILURE)
+        return 0;
+
+    return 1;
 }
 
-int main(int argc, char** argv)
+char init(void)
 {
     api_init();
     services_init();
@@ -60,12 +59,29 @@ int main(int argc, char** argv)
     plugin_manager_init();
 
     load_core_plugins();
-    start_core_plugins();
+    if(!start_core_plugins())
+        return 0;
+    
+    return 1;
+}
+
+void deinit(void)
+{
+    plugin_manager_deinit();
+}
+
+int main(int argc, char** argv)
+{
+    if(!init())
+    {
+        deinit();
+        return 0;
+    }
     
     start = (start_loop_func)service_get("main_loop.start");
     stop  = (stop_loop_func) service_get("main_loop.stop");
-
-    plugin_manager_deinit();
+    
+    deinit();
 
     return 0;
 }
