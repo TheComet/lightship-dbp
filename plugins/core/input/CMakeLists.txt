@@ -81,6 +81,8 @@ target_link_libraries (plugin_input
 install (
     TARGETS
         plugin_input
-    DESTINATION
+    LIBRARY DESTINATION
+        "bin/plugins"
+    RUNTIME DESTINATION
         "bin/plugins"
 )

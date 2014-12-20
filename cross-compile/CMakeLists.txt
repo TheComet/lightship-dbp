@@ -1,6 +1,8 @@
 option (CROSS_COMPILE_i486-pc-mingw32 "cross compile for windows i486" OFF)
 option (CROSS_COMPILE_x86_64-pc-mingw32 "cross compile for windows x86_64" OFF)
 
+file (WRITE "toolchains/.gitignore" "*")
+
 macro (generate_cross_arch ARCH_NAME ARCH C_COMPILER RC_COMPILER ROOT_PATH)
 
     # create build directory for this architecture and make sure it gets
