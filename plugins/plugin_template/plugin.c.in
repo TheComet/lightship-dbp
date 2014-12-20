@@ -1,10 +1,11 @@
+#include "lightship/api.h" /* lightship API so we can register and call services */
 #include "util/config.h"   /* platform macros and definitions */
 #include "util/plugin.h"   /* plugin api */
 #include "@NAME@/config.h"  /* configurations for this plugin */
 
 struct plugin_t* g_plugin = NULL;
 
-LIGHTSHIP_PUBLIC_API struct plugin_t* plugin_init(void)
+LIGHTSHIP_PUBLIC_API struct plugin_t* plugin_init(struct lightship_api_t* api)
 {
     /* create plugin object - host requires this */
     g_plugin = plugin_create();
