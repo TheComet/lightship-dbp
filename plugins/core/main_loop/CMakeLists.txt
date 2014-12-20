@@ -1,4 +1,4 @@
-project ("plugin_main_loop")
+project ("plugin_main_loop" C)
 
 ###############################################################################
 # compiler flags for this project
@@ -73,3 +73,16 @@ target_link_libraries (plugin_main_loop
 ###############################################################################
 # other libs...
 ###############################################################################
+
+###############################################################################
+# install targets
+###############################################################################
+
+install (
+    TARGETS
+        plugin_main_loop
+    LIBRARY DESTINATION
+        "bin/plugins"
+    RUNTIME DESTINATION
+        "bin/plugins"
+)

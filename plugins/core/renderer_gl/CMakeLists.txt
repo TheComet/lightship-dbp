@@ -104,6 +104,8 @@ message (STATUS "GL: ${OPENGL_LIBRARIES}")
 install (
     TARGETS
         plugin_renderer_gl
-    DESTINATION
+    LIBRARY DESTINATION
+        "bin/plugins"
+    RUNTIME DESTINATION
         "bin/plugins"
 )
