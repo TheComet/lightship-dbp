@@ -3,12 +3,12 @@
 
 struct plugin_t;
 
-extern struct list_t g_services;
+extern struct list_t g_events;
 
-void services_init(void);
-char service_register(struct plugin_t* plugin,
+void events_init(void);
+char event_register(struct plugin_t* plugin,
                       const char* name,
                       intptr_t exec);
-char service_unregister(struct plugin_t* plugin,
+char event_unregister(struct plugin_t* plugin,
                         const char* name);
-intptr_t service_get(const char* name);
+intptr_t event_get(const char* name);
