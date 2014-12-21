@@ -84,7 +84,7 @@ int main(int argc, char** argv)
     if(start)
         start();
     else
-        fprintf(stderr, "Failed to find main loop \"start\" function");
+        fprintf(stderr, "Failed to find service \"main_loop.start\". Cannot start.");
 
     /* clean up */
     deinit();
