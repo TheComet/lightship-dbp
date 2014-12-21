@@ -1,6 +1,32 @@
 #include "lightship/events.h"
-#include "lightship/callback.h"
 #include "util/plugin.h"
+#include "util/string.h"
+#include <string.h>
+#include <stdlib.h>
+
+/*!
+ * @brief Returns the full name of the event using a plugin object and event name.
+ * @note The returned string must be freed manually.
+ */
+static char* event_get_full_name(struct plugin_t* plugin, const char* name);
+
+/*!
+ * @brief Returns the namespace name of the event using a plugin object.
+ * @note The returned string must be freed manually.
+ */
+static char* event_get_namespace_name(struct plugin_t* plugin);
+
+/*!
+ * @brief Frees an event object.
+ * @note This does not remove it from the list.
+ */
+static void event_free(struct event_t* event);
+
+/*!
+ * @brief Frees an event listener object.
+ * @note This does not remove it from the list.
+ */
+static void event_listener_free(struct event_listener_t* listener);
 
 struct list_t g_events;
 
@@ -9,25 +35,171 @@ void events_init(void)
     list_init_list(&g_events);
 }
 
-char event_register(struct plugin_t* plugin,
-                      const char* name,
-                      intptr_t exec)
+struct event_t* event_create(struct plugin_t* plugin,
+                             const char* name)
 {
-    return callback_register(&g_events, plugin, name, exec);
+    char* full_name;
+    struct event_t* event;
+    
+    /* check for duplicate event names */
+    full_name = event_get_full_name(plugin, name);
+    if(event_get(full_name))
+    {
+        free(full_name);
+        return NULL;
+    }
+    
+    /* create new event and register to global list of events */
+    event = (struct event_t*)malloc(sizeof(struct event_t));
+    event->name = full_name; /* full_name must be freed */
+    event->exec = event_dispatch;
+    event->listeners = list_create();
+    list_push(&g_events, event);
+    
+    return event;
 }
 
-char event_unregister(struct plugin_t* plugin,
-                        const char* name)
+char event_destroy(struct event_t* event_delete)
 {
-    return callback_unregister(&g_events, plugin, name);
+    LIST_FOR_EACH(&g_events, struct event_t, event)
+    {
+        if(event == event_delete)
+        {
+            event_free(event);
+            list_erase_node(&g_events, node);
+            return 1;
+        }
+    }
+    return 0;
 }
 
-void event_unregister_all(struct plugin_t* plugin)
+void event_destroy_plugin_event(struct plugin_t* plugin,
+                           const char* name)
 {
-    callback_unregister_all(&g_events, plugin);
+    char* full_name = event_get_full_name(plugin, name);
+
+    {
+        LIST_FOR_EACH(&g_events, struct event_t, event)
+        {
+            if(strcmp(event->name, full_name) == 0)
+            {
+                event_free(event);
+                list_erase_node(&g_events, node);
+                break;
+            }
+        }
+    }
+    free(full_name);
 }
 
-intptr_t event_get(const char* name)
+void event_destroy_all_plugin_events(struct plugin_t* plugin)
 {
-    return callback_get(&g_events, name);
+    char* namespace = event_get_namespace_name(plugin);
+    int len = strlen(namespace) + 1;
+    LIST_FOR_EACH_ERASE(&g_events, struct event_t, event)
+    {
+        if(strncmp(event->name, namespace, len) == 0)
+        {
+            event_free(event);
+            list_erase_node(&g_events, node);
+        }
+    }
+}
+
+struct event_t* event_get(const char* full_name)
+{
+    LIST_FOR_EACH(&g_events, struct event_t, event)
+    {
+        if(strcmp(event->name, full_name) == 0)
+            return event;
+    }
+    return NULL;
+}
+
+char event_register_listener(struct plugin_t* plugin, const char* full_name, event_func callback)
+{
+    struct event_listener_t* new_listener;
+    struct event_t* event = event_get(full_name);
+    if(event == NULL)
+        return 0;
+    
+    /* make sure plugin hasn't already registered to this event */
+    {
+        LIST_FOR_EACH(event->listeners, struct event_listener_t, listener)
+        {
+            if(strcmp(listener->name, plugin->info.name) == 0)
+                return 0;
+        }
+    }
+    
+    /* create event listener object */
+    new_listener = (struct event_listener_t*)malloc(sizeof(struct event_listener_t));
+    new_listener->exec = callback;
+    /* create and copy string from plugin name */
+    new_listener->name = malloc_string(plugin->info.name);
+    list_push(event->listeners, new_listener);
+    
+    return 1;
+}
+
+char event_unregister_listener(const char* event_name, const char* plugin_name)
+{
+    struct event_t* event = event_get(event_name);
+    if(event == NULL)
+        return 0;
+    
+    {
+        LIST_FOR_EACH(event->listeners, struct event_listener_t, listener)
+        {
+            if(strcmp(listener->name, plugin_name) == 0)
+            {
+                event_listener_free(listener);
+                list_erase_node(event->listeners, node);
+                return 1;
+            }
+        }
+    }
+    
+    return 0;
+}
+
+void event_unregister_all_listeners(struct event_t* event)
+{
+    LIST_FOR_EACH_ERASE(event->listeners, struct event_listener_t, listener)
+    {
+        event_listener_free(listener);
+        list_erase_node(event->listeners, node);
+    }
+}
+
+void event_dispatch(struct event_t* event, void* args)
+{
+    LIST_FOR_EACH(event->listeners, struct event_listener_t, listener)
+    {
+        listener->exec(event, args);
+    }
+}
+
+static char* event_get_full_name(struct plugin_t* plugin, const char* name)
+{
+    return cat_strings(3, plugin->info.name, ".", name);
+}
+
+static char* event_get_namespace_name(struct plugin_t* plugin)
+{
+    return cat_strings(2, plugin->info.name, ".");
+}
+
+static void event_free(struct event_t* event)
+{
+    free(event->name); /* full_name must be freed manually, see event_create() */
+    event_unregister_all_listeners(event);
+    list_destroy(event->listeners);
+    free(event);
+}
+
+static void event_listener_free(struct event_listener_t* listener)
+{
+    free(listener->name);
+    free(listener);
 }

@@ -4,18 +4,6 @@
 #include "util/plugin_api.h"
 
 /*!
- * @brief Plugin object. For every loaded plugin there exists one instance of this.
- */
-struct plugin_t
-{
-    struct plugin_info_t info;
-    void* handle;
-    plugin_init_func init;
-    plugin_start_func start;
-    plugin_stop_func stop;
-};
-
-/*!
  * @brief Creates and initialises a new plugin object.
  * @note The plugin is not stored internally, it is expected for the
  * programmer to eventually call plugin_destroy() when the returned object is
@@ -53,11 +41,6 @@ void plugin_set_info(struct plugin_t* plugin,
                      const char* author,
                      const char* description,
                      const char* website);
-
-/*!
- * @brief Frees all buffers allocated for info strings.
- */
-static void plugin_free_info(struct plugin_t* plugin);
 
 /*!
  * @brief Sets the programming language of the plugin.

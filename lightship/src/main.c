@@ -11,7 +11,6 @@ struct plugin_t* plugin_renderer = NULL;
 struct plugin_t* plugin_input = NULL;
 
 typedef void (*start_loop_func)(void); start_loop_func start;
-typedef void (*stop_loop_func) (void); stop_loop_func stop;
 
 void load_core_plugins(void)
 {
@@ -79,8 +78,8 @@ int main(int argc, char** argv)
     }
     
     start = (start_loop_func)service_get("main_loop.start");
-    stop  = (stop_loop_func) service_get("main_loop.stop");
-    
+    start();
+
     deinit();
 
     return 0;

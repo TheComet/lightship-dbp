@@ -2,6 +2,17 @@
 #include <stdlib.h>
 #include "util/vector.h"
 
+/*!
+ * @brief Expands the underlying memory.
+ * 
+ * This implementation will expand the memory by a factor of 2 each time this
+ * is called. All elements are copied into the new section of memory.
+ * @param [in] insertion_index Set to -1 if no space should be made for element
+ * insertion. Otherwise this parameter specifies the index of the element to
+ * "evade" when re-allocating all other elements.
+ */
+static void vector_expand(struct vector_t* vector, int insertion_index);
+
 struct vector_t* vector_create(const int element_size)
 {
     struct vector_t* vector = (struct vector_t*)malloc(sizeof(struct vector_t));
