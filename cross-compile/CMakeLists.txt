@@ -46,6 +46,7 @@ macro (generate_cross_arch ARCH_NAME ARCH C_COMPILER RC_COMPILER ROOT_PATH)
             ${BUILD_DIR}
     )
 
+    # reference the generated install script
     install (
         SCRIPT
             "${CMAKE_CURRENT_BINARY_DIR}/install-${ARCH}.cmake"
