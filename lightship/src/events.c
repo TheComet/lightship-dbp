@@ -1,18 +1,19 @@
 #include "lightship/events.h"
 #include "util/plugin.h"
 #include "util/string.h"
+#include "util/memory.h"
 #include <string.h>
 #include <stdlib.h>
 
 /*!
  * @brief Returns the full name of the event using a plugin object and event name.
- * @note The returned string must be freed manually.
+ * @note The returned string must be FREEd manually.
  */
 static char* event_get_full_name(struct plugin_t* plugin, const char* name);
 
 /*!
  * @brief Returns the namespace name of the event using a plugin object.
- * @note The returned string must be freed manually.
+ * @note The returned string must be FREEd manually.
  */
 static char* event_get_namespace_name(struct plugin_t* plugin);
 
@@ -20,13 +21,13 @@ static char* event_get_namespace_name(struct plugin_t* plugin);
  * @brief Frees an event object.
  * @note This does not remove it from the list.
  */
-static void event_free(struct event_t* event);
+static void event_FREE(struct event_t* event);
 
 /*!
  * @brief Frees an event listener object.
  * @note This does not remove it from the list.
  */
-static void event_listener_free(struct event_listener_t* listener);
+static void event_listener_FREE(struct event_listener_t* listener);
 
 struct list_t g_events;
 
@@ -45,13 +46,13 @@ struct event_t* event_create(struct plugin_t* plugin,
     full_name = event_get_full_name(plugin, name);
     if(event_get(full_name))
     {
-        free(full_name);
+        FREE(full_name);
         return NULL;
     }
     
     /* create new event and register to global list of events */
-    event = (struct event_t*)malloc(sizeof(struct event_t));
-    event->name = full_name; /* full_name must be freed */
+    event = (struct event_t*)MALLOC(sizeof(struct event_t));
+    event->name = full_name; /* full_name must be FREEd */
     event->exec = event_dispatch;
     event->listeners = list_create();
     list_push(&g_events, event);
@@ -65,7 +66,7 @@ char event_destroy(struct event_t* event_delete)
     {
         if(event == event_delete)
         {
-            event_free(event);
+            event_FREE(event);
             list_erase_node(&g_events, node);
             return 1;
         }
@@ -83,13 +84,13 @@ void event_destroy_plugin_event(struct plugin_t* plugin,
         {
             if(strcmp(event->name, full_name) == 0)
             {
-                event_free(event);
+                event_FREE(event);
                 list_erase_node(&g_events, node);
                 break;
             }
         }
     }
-    free(full_name);
+    FREE(full_name);
 }
 
 void event_destroy_all_plugin_events(struct plugin_t* plugin)
@@ -100,7 +101,7 @@ void event_destroy_all_plugin_events(struct plugin_t* plugin)
     {
         if(strncmp(event->name, namespace, len) == 0)
         {
-            event_free(event);
+            event_FREE(event);
             list_erase_node(&g_events, node);
         }
     }
@@ -133,10 +134,10 @@ char event_register_listener(struct plugin_t* plugin, const char* full_name, eve
     }
     
     /* create event listener object */
-    new_listener = (struct event_listener_t*)malloc(sizeof(struct event_listener_t));
+    new_listener = (struct event_listener_t*)MALLOC(sizeof(struct event_listener_t));
     new_listener->exec = callback;
     /* create and copy string from plugin name */
-    new_listener->name = malloc_string(plugin->info.name);
+    new_listener->name = MALLOC_string(plugin->info.name);
     list_push(event->listeners, new_listener);
     
     return 1;
@@ -153,7 +154,7 @@ char event_unregister_listener(const char* event_name, const char* plugin_name)
         {
             if(strcmp(listener->name, plugin_name) == 0)
             {
-                event_listener_free(listener);
+                event_listener_FREE(listener);
                 list_erase_node(event->listeners, node);
                 return 1;
             }
@@ -167,7 +168,7 @@ void event_unregister_all_listeners(struct event_t* event)
 {
     LIST_FOR_EACH_ERASE(event->listeners, struct event_listener_t, listener)
     {
-        event_listener_free(listener);
+        event_listener_FREE(listener);
         list_erase_node(event->listeners, node);
     }
 }
@@ -190,16 +191,16 @@ static char* event_get_namespace_name(struct plugin_t* plugin)
     return cat_strings(2, plugin->info.name, ".");
 }
 
-static void event_free(struct event_t* event)
+static void event_FREE(struct event_t* event)
 {
-    free(event->name); /* full_name must be freed manually, see event_create() */
+    FREE(event->name); /* full_name must be FREEd manually, see event_create() */
     event_unregister_all_listeners(event);
     list_destroy(event->listeners);
-    free(event);
+    FREE(event);
 }
 
-static void event_listener_free(struct event_listener_t* listener)
+static void event_listener_FREE(struct event_listener_t* listener)
 {
-    free(listener->name);
-    free(listener);
+    FREE(listener->name);
+    FREE(listener);
 }

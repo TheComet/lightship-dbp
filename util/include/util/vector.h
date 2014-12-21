@@ -20,7 +20,7 @@ struct vector_t* vector_create(const int element_size);
 
 /*!
  * @brief Initialises an existing vector object.
- * @note This does **not** free existing memory. If you've pushed elements
+ * @note This does **not** FREE existing memory. If you've pushed elements
  * into your vector and call this, you will have created a memory leak.
  * @param [in] vector The vector to initialise.
  * @param [in] element_size Specifies the size in bytes of the type of data you
@@ -29,7 +29,7 @@ struct vector_t* vector_create(const int element_size);
 void vector_init_vector(struct vector_t* vector, const int element_size);
 
 /*!
- * @brief Destroys an existing vector object and frees all memory allocated by
+ * @brief Destroys an existing vector object and FREEs all memory allocated by
  * inserted elements.
  * @param [in] vector The vector to destroy.
  */
@@ -38,17 +38,17 @@ void vector_destroy(struct vector_t* vector);
 /*!
  * @brief Erases all elements in a vector.
  * @note This does not actually erase the underlying memory, it simply resets
- * the element counter. If you wish to free the underlying memory, see
- * vector_clear_free().
+ * the element counter. If you wish to FREE the underlying memory, see
+ * vector_clear_FREE().
  * @param [in] vector The vector to clear.
  */
 void vector_clear(struct vector_t* vector);
 
 /*!
- * @brief Erases all elements in a vector and frees their memory.
+ * @brief Erases all elements in a vector and FREEs their memory.
  * @param [in] vector The vector to clear.
  */
-void vector_clear_free(struct vector_t* vector);
+void vector_clear_FREE(struct vector_t* vector);
 
 /*!
  * @brief Gets the number of elements that have been inserted into the vector.

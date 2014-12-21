@@ -5,6 +5,7 @@
 #include "lightship/api.h"
 #include "util/plugin.h"
 #include "util/vector.h"
+#include "util/memory.h"
 
 struct plugin_t* plugin_main_loop = NULL;
 struct plugin_t* plugin_renderer = NULL;
@@ -81,6 +82,8 @@ int main(int argc, char** argv)
     start();
 
     deinit();
+    
+    memory_report();
 
     return 0;
 }

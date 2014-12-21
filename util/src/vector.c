@@ -1,6 +1,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "util/vector.h"
+#include "util/memory.h"
 
 /*!
  * @brief Expands the underlying memory.
@@ -15,7 +16,7 @@ static void vector_expand(struct vector_t* vector, int insertion_index);
 
 struct vector_t* vector_create(const int element_size)
 {
-    struct vector_t* vector = (struct vector_t*)malloc(sizeof(struct vector_t));
+    struct vector_t* vector = (struct vector_t*)MALLOC(sizeof(struct vector_t));
     vector_init_vector(vector, element_size);
     return vector;
 }
@@ -29,22 +30,22 @@ void vector_init_vector(struct vector_t* vector, const int element_size)
 void vector_destroy(struct vector_t* vector)
 {
     vector_clear(vector);
-    free(vector);
+    FREE(vector);
 }
 
 void vector_clear(struct vector_t* vector)
 {
     /* 
-     * No need to free or overwrite existing memory, just reset the counter
+     * No need to FREE or overwrite existing memory, just reset the counter
      * and let future insertions overwrite
      */
     vector->count = 0;
 }
 
-void vector_clear_free(struct vector_t* vector)
+void vector_clear_FREE(struct vector_t* vector)
 {
     if(vector->data)
-        free(vector->data);
+        FREE(vector->data);
     vector->data = NULL;
     vector->count = 0;
     vector->capacity = 0;
@@ -144,13 +145,13 @@ static void vector_expand(struct vector_t* vector, int insertion_index)
      */
     if(new_size == 0)
     {
-        vector->data = malloc(vector->element_size << 2);
+        vector->data = MALLOC(vector->element_size << 2);
         return;
     }
     
     /* prepare for reallocating data */
     old_data = vector->data;
-    new_data = (DATA_POINTER_TYPE)malloc(vector->element_size * new_size);
+    new_data = (DATA_POINTER_TYPE)MALLOC(vector->element_size * new_size);
     
     /* if no insertion index is required, copy all data to new memory */
     if(insertion_index == -1 || insertion_index >= new_size)
@@ -169,7 +170,7 @@ static void vector_expand(struct vector_t* vector, int insertion_index)
                total_size - offset);
     }
     vector->data = new_data;
-    free(old_data);
+    FREE(old_data);
     
     /* update counters */
     vector->capacity = new_size;
