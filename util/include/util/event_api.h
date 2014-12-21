@@ -7,6 +7,18 @@ struct event_t;
 /* event callback function signature */
 typedef void (*event_func)(struct event_t*, void*);
 
+#define EVENT_LISTENER(name) \
+    void name(struct event_t* evt, void* arg)
+
+#define EVENT_FIRE(event, arg) \
+    ((event)->exec(event, arg)
+
+#define EVENT(event) \
+    extern struct event_t* event
+
+#define EVENT_IMPL(event) \
+    struct event_t* event = NULL
+
 struct event_t
 {
     char* name;

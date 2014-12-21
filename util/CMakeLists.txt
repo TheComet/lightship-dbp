@@ -5,9 +5,9 @@ project ("util" C)
 ###############################################################################
 
 if (${CMAKE_C_COMPILER_ID} STREQUAL "GNU")
-    add_definitions (-pedantic -fPIC)
+    add_definitions (-W -Wall -Wextra -pedantic -fPIC)
 elseif (${CMAKE_C_COMPILER_ID} STREQUAL "Clang")
-    add_definitions (-pedantic -fPIC)
+    add_definitions (-W -Wall -Wextra -pedantic -fPIC)
 elseif (${CMAKE_C_COMPILER_ID} STREQUAL "Intel")
 elseif (${CMAKE_C_COMPILER_ID} STREQUAL "MSVC")
 endif ()
