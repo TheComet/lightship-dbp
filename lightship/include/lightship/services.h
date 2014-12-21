@@ -6,6 +6,12 @@
 
 struct plugin_t;
 
+struct service_t
+{
+    char* name;
+    intptr_t exec;
+};
+
 extern struct list_t g_services;
 
 void services_init(void);

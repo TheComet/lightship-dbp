@@ -1,5 +1,4 @@
 #include "lightship/events.h"
-#include "lightship/callback.h"
 #include "util/plugin.h"
 #include "util/string.h"
 #include <string.h>
