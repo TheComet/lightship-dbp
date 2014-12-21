@@ -16,11 +16,11 @@ typedef void (*event_func)(struct event_t*, void*);
     else \
         fprintf(stderr, "Error: Cannot fire event for it is NULL\n");
 
-#define EVENT(event) \
-    extern struct event_t* event
+#define EVENT_H(event) \
+    extern struct event_t* event;
 
-#define EVENT_IMPL(event) \
-    struct event_t* event = (void*)0
+#define EVENT_C(event) \
+    struct event_t* event = (void*)0;
 
 struct event_t
 {

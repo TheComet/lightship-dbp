@@ -10,7 +10,7 @@
 
 struct plugin_t* g_plugin = NULL;
 
-LIGHTSHIP_PUBLIC_API struct plugin_t* plugin_init(struct lightship_api_t* api)
+PLUGIN_INIT()
 {
     /* create plugin object - host requires this */
     g_plugin = plugin_create();
@@ -38,13 +38,13 @@ LIGHTSHIP_PUBLIC_API struct plugin_t* plugin_init(struct lightship_api_t* api)
     return g_plugin;
 }
 
-LIGHTSHIP_PUBLIC_API plugin_result_t plugin_start(void)
+PLUGIN_START()
 {
-    register_event_listeners(g_plugin, &g_api);
+    register_event_listeners(g_plugin, api);
     return PLUGIN_SUCCESS;
 }
 
-LIGHTSHIP_PUBLIC_API void plugin_stop(void)
+PLUGIN_STOP()
 {
     plugin_destroy(g_plugin);
 }

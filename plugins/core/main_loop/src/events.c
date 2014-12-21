@@ -1,7 +1,7 @@
 #include "lightship/api.h"
 #include "main_loop/main_loop.h"
 
-EVENT_IMPL(evt_render);
+EVENT_C(evt_render)
 
 void register_events(struct plugin_t* plugin, struct lightship_api_t* api)
 {
