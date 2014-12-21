@@ -12,6 +12,28 @@
 #include "util/module_loader.h"
 #include "util/dir.h"
 
+/*!
+ * @brief Evaluates whether the specified file is an acceptable plugin to load
+ * based on the specified info and criteria.
+ * @param [in] info The requested plugin to try and match.
+ * @param [in] file The file to test.
+ * @param [in] criteria The criteria to use.
+ * @return Returns 1 if successful, 0 if otherwise.
+ */
+static int plugin_version_acceptable(struct plugin_info_t* info,
+                                     const char* file,
+                                     plugin_search_criteria_t criteria);
+
+/*!
+ * @brief Scans the plugin directory for a suitable plugin to load.
+ * @param [in] info The requested plugin to try and match.
+ * @param [in] criteria The criteria to use.
+ * @return Returns the full file name and relative path if a plugin was
+ * matched. Returns NULL on failure.
+ */
+static char* find_plugin(struct plugin_info_t* info,
+                         plugin_search_criteria_t criteria);
+
 static struct list_t g_plugins;
 
 void plugin_manager_init(void)
@@ -158,7 +180,7 @@ void plugin_unload(struct plugin_t* plugin)
     
     /* unregister all services and events registered by this plugin */
     service_unregister_all(plugin);
-    event_unregister_all(plugin);
+    event_destroy_all_plugin_events(plugin);
     
     /* 
      * NOTE The plugin object becomes invalid as soon as plugin->stop() is
