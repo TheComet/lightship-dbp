@@ -77,7 +77,7 @@ int main(int argc, char** argv)
         deinit();
         return 0;
     }
-    
+
     start = (start_loop_func)service_get("main_loop.start");
     start();
 
