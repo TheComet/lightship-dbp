@@ -5,10 +5,10 @@
 #include "util/plugin.h"
 #include "util/string.h"
 
-char callback_register(struct list_t* cb_list,
-                       struct plugin_t* plugin,
-                       const char* name,
-                       intptr_t exec)
+struct callback_t* callback_create_and_register(struct list_t* cb_list,
+                                                struct plugin_t* plugin,
+                                                const char* name,
+                                                intptr_t exec)
 {
     struct callback_t* callback;
     char* full_name;
@@ -18,7 +18,7 @@ char callback_register(struct list_t* cb_list,
     if(callback_get(cb_list, full_name))
     {
         free(full_name);
-        return 0;
+        return NULL;
     }
 
     /* create callback and add to list */
@@ -26,35 +26,38 @@ char callback_register(struct list_t* cb_list,
     callback->name = full_name;
     callback->exec = exec;
     list_push(cb_list, callback);
-    
-    return 1;
+
+    return callback;
 }
 
-char callback_unregister(struct list_t* cb_list,
-                         struct plugin_t* plugin,
-                         const char* name)
+char callback_destroy_and_unregister(struct list_t* cb_list,
+                                     struct plugin_t* plugin,
+                                     const char* name)
 {
     char* full_name;
+    char success = 0;
     
     /* remove callback from list */
     full_name = cat_strings(3, plugin->info.name, ".", name);
     {
         LIST_FOR_EACH_ERASE(cb_list, struct callback_t, callback)
         {
-            if(strcmp(callback->name, name) == 0)
+            if(strcmp(callback->name, full_name) == 0)
             {
                 free(callback->name);
                 free(callback);
                 list_erase_node(cb_list, node);
-                return 1;
+                success = 1;
+                break;
             }
         }
     }
+    free(full_name);
 
-    return 0;
+    return success;
 }
 
-void callback_unregister_all(struct list_t* cb_list,
+void callback_destroy_all(struct list_t* cb_list,
                              struct plugin_t* plugin)
 {
     char* name = cat_strings(2, plugin->info.name, ".");
@@ -70,6 +73,7 @@ void callback_unregister_all(struct list_t* cb_list,
             }
         }
     }
+    free(name);
 }
 
 intptr_t callback_get(struct list_t* cb_list, const char* name)

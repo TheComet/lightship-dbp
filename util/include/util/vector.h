@@ -1,3 +1,6 @@
+#ifndef LIGHTSHIP_UTIL_VECTOR_HPP
+#define LIGHTSHIP_UTIL_VECTOR_HPP
+
 #define DATA_POINTER_TYPE unsigned char*
 struct vector_t
 {
@@ -130,17 +133,6 @@ void vector_erase(struct vector_t* vector, int index);
 void* vector_get_element(struct vector_t*, int index);
 
 /*!
- * @brief Expands the underlying memory.
- * 
- * This implementation will expand the memory by a factor of 2 each time this
- * is called. All elements are copied into the new section of memory.
- * @param [in] insertion_index Set to -1 if no space should be made for element
- * insertion. Otherwise this parameter specifies the index of the element to
- * "evade" when re-allocating all other elements.
- */
-static void vector_expand(struct vector_t* vector, int insertion_index);
-
-/*!
  * @brief Convenient macro for iterating a vector's elements.
  * 
  * Example:
@@ -160,3 +152,5 @@ static void vector_expand(struct vector_t* vector, int insertion_index);
     var_type* var; \
     void* end_of_vector = vector->data + vector->count * vector->element_size; \
     for(var = vector->data; var != end_of_vector; var += vector->element_size)
+
+#endif /* LIGHTSHIP_UTIL_VECTOR_HPP */

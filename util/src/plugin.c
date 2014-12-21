@@ -3,6 +3,11 @@
 #include <stdio.h>
 #include "util/plugin.h"
 
+/*!
+ * @brief Frees all buffers allocated for info strings.
+ */
+static void plugin_free_info(struct plugin_t* plugin);
+
 #define PLUGIN_FREE_INFO_STRING(plugin, strname) \
     if((plugin)->info.strname) \
         free((plugin)->info.strname); \
@@ -116,7 +121,7 @@ int plugin_extract_version_from_string(const char* file,
     free(buffer);
     
     /* error check */
-    if(*major == -1 || *minor == -1 || *patch == -1)
+    if(*major == (uint32_t)(-1) || *minor == (uint32_t)(-1) || *patch == (uint32_t)(-1))
         return 0;
 
     return 1;

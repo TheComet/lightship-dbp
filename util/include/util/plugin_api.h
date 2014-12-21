@@ -56,5 +56,17 @@ struct plugin_info_t
     struct plugin_api_version_t version;
 };
 
+/*!
+ * @brief Plugin object. For every loaded plugin there exists one instance of this.
+ */
+struct plugin_t
+{
+    struct plugin_info_t info;
+    void* handle;
+    plugin_init_func init;
+    plugin_start_func start;
+    plugin_stop_func stop;
+};
+
 #endif /* LIGHTSHIP_UTIL_PLUGIN_API_HPP */
 
