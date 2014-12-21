@@ -44,8 +44,7 @@ endif ()
 file (GLOB lightship_util_HEADERS "include/util/*.h" ${PLATFORM_HEADER_DIRS})
 file (GLOB lightship_util_SOURCES "src/*.c" ${PLATFORM_SOURCE_DIRS})
 
-add_library (lightship_util STATIC
+add_library (lightship_util SHARED
     ${lightship_util_HEADERS}
     ${lightship_util_SOURCES}
 )
-create_vcproj_userfile (lightship_util)
