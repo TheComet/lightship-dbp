@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "util/string.h"
+#include "util/memory.h"
 
 __inline static int safe_strlen(const char* str)
 {
@@ -35,7 +36,7 @@ void fprintf_strings(FILE* file, int num_strs, ...)
     va_start(ap, num_strs);
     for(i = 0; i != num_strs; ++i)
         total_length += safe_strlen(va_arg(ap, char*));
-    buffer = (char*)malloc((total_length+1) * sizeof(char*));
+    buffer = (char*)MALLOC((total_length+1) * sizeof(char*));
     va_end(ap);
     
     /* concatenate all strings into the allocated buffer */
@@ -47,7 +48,7 @@ void fprintf_strings(FILE* file, int num_strs, ...)
     
     /* finally, print to file and clean up */
     fprintf(file, "%s\n", buffer);
-    free(buffer);
+    FREE(buffer);
 }
 
 char* cat_strings(int num_strs, ...)
@@ -61,7 +62,7 @@ char* cat_strings(int num_strs, ...)
     va_start(ap, num_strs);
     for(i = 0; i != num_strs; ++i)
         total_length += safe_strlen(va_arg(ap, char*));
-    buffer = (char*)malloc((total_length+1) * sizeof(char*));
+    buffer = (char*)MALLOC((total_length+1) * sizeof(char*));
     va_end(ap);
     
     /* concatenate all strings into the allocated buffer */
@@ -74,9 +75,9 @@ char* cat_strings(int num_strs, ...)
     return buffer;
 }
 
-char* malloc_string(const char* str)
+char* MALLOC_string(const char* str)
 {
-    char* buffer = (char*)malloc((strlen(str)+1) * sizeof(char*));
+    char* buffer = (char*)MALLOC((strlen(str)+1) * sizeof(char*));
     strcpy(buffer, str);
     return buffer;
 }

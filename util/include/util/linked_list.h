@@ -42,7 +42,7 @@ void list_destroy(struct list_t* list);
 /*!
  * @brief Unlinks and removes all nodes in a list. The list will be empty after
  * this operation.
- * @note The data each link held is not freed, it is up to you to traverse the
+ * @note The data each link held is not FREEd, it is up to you to traverse the
  * list and destroy any data contained within the list before clearing it.
  */
 void list_clear(struct list_t* list);
@@ -88,7 +88,7 @@ void list_push(struct list_t* list, void* data);
  * Removes the head node from the list, if any. The head of the list will point
  * to the item preceeding the removed item, or if there is no preceeding item,
  * the head of the list will point to NULL.
- * @note The data being referenced by the node is **not** freed.
+ * @note The data being referenced by the node is **not** FREEd.
  * @param [in] list The list from which to remove the node.
  * @return Returns the data that was referenced by the now destroyed node.
  */
@@ -96,7 +96,7 @@ void* list_pop(struct list_t* list);
 
 /*!
  * @brief Removes a specified node from the list.
- * @note The data being referenced by the node is **not** freed.
+ * @note The data being referenced by the node is **not** FREEd.
  * @param [in] list The list from which to remove the node.
  * @return Returns the data that was referenced by the now destroyed node.
  */
@@ -104,7 +104,7 @@ void* list_erase_node(struct list_t* list, struct list_node_t* node);
 
 /*!
  * @brief Searches the list for the specified data, then erases the node.
- * @note The data being referenced by the node is **not** freed.
+ * @note The data being referenced by the node is **not** FREEd.
  * @param [in] list The list from which to remove the node.
  * @return Returns the data that was referenced by the now destroyed node.
  * If the specified data is not found in the list, NULL is returned.

@@ -13,7 +13,7 @@ void* module_open(const char* filename)
         if(error)
         {
             fprintf_strings(stderr, 2, "Error loading plugin: ", error);
-            free(error);
+            FREE(error);
         }
     }
     return handle;
@@ -30,7 +30,7 @@ void* module_sym(void* handle, const char* symbol)
         if(error)
         {
             fprintf_strings(stderr, 2, "Error loading plugin: ", error);
-            free(error);
+            FREE(error);
         }
     }
     return (void*)ptr;
