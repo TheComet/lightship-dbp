@@ -1,10 +1,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include "util/linked_list.h"
+#include "util/memory.h"
 
 struct list_t* list_create(void)
 {
-    struct list_t* list = (struct list_t*)malloc(sizeof(struct list_t));
+    struct list_t* list = (struct list_t*)MALLOC(sizeof(struct list_t));
     list_init_list(list);
     return list;
 }
@@ -17,7 +18,7 @@ void list_init_list(struct list_t* list)
 void list_destroy(struct list_t* list)
 {
     list_clear(list);
-    free(list);
+    FREE(list);
 }
 
 void list_clear(struct list_t* list)
@@ -26,7 +27,7 @@ void list_clear(struct list_t* list)
     while((current = list->tail))
     {
         list->tail = list->tail->next;
-        free(current);
+        FREE(current);
     }
     list->head = NULL;
     list->count = 0;
@@ -34,7 +35,7 @@ void list_clear(struct list_t* list)
 
 void list_push(struct list_t* list, void* data)
 {
-    struct list_node_t* node = (struct list_node_t*)malloc(sizeof(struct list_node_t));
+    struct list_node_t* node = (struct list_node_t*)MALLOC(sizeof(struct list_node_t));
     /* first element being inserted, set tail */
     if(!list->head)
         list->tail = node;
@@ -60,7 +61,7 @@ void* list_pop(struct list_t* list)
     else                        /* the previous node doesn't exist */
         list->tail = NULL;      /* tail no longer exists */
 
-    free(node);
+    FREE(node);
     --list->count;
 
     return NULL;
@@ -82,7 +83,7 @@ void* list_erase_node(struct list_t* list, struct list_node_t* node)
         list->head = prev;  /* head was pointing at current noid - point to previous */
 
     data = node->data;
-    free(node);
+    FREE(node);
     --list->count;
     return data;
 }

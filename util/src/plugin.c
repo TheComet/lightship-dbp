@@ -2,27 +2,28 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "util/plugin.h"
+#include "util/memory.h"
 
 /*!
  * @brief Frees all buffers allocated for info strings.
  */
-static void plugin_free_info(struct plugin_t* plugin);
+static void plugin_FREE_info(struct plugin_t* plugin);
 
 #define PLUGIN_FREE_INFO_STRING(plugin, strname) \
     if((plugin)->info.strname) \
-        free((plugin)->info.strname); \
+        FREE((plugin)->info.strname); \
     (plugin)->info.strname = NULL;
 
 #define PLUGIN_ADD_INFO_STRING(plugin, strname, str) \
     if(str) \
     { \
-        (plugin)->info.strname = (char*)malloc((strlen(str)+1) * sizeof(char*)); \
+        (plugin)->info.strname = (char*)MALLOC((strlen(str)+1) * sizeof(char*)); \
         strcpy((plugin)->info.strname, str); \
     }
 
 struct plugin_t* plugin_create(void)
 {
-    struct plugin_t* plugin = (struct plugin_t*)malloc(sizeof(struct plugin_t));
+    struct plugin_t* plugin = (struct plugin_t*)MALLOC(sizeof(struct plugin_t));
     plugin_init_plugin(plugin);
     return plugin;
 }
@@ -35,8 +36,8 @@ void plugin_init_plugin(struct plugin_t* plugin)
 
 void plugin_destroy(struct plugin_t* plugin)
 {
-    plugin_free_info(plugin);
-    free(plugin);
+    plugin_FREE_info(plugin);
+    FREE(plugin);
 }
 
 void plugin_set_info(struct plugin_t* plugin,
@@ -46,7 +47,7 @@ void plugin_set_info(struct plugin_t* plugin,
                      const char* description,
                      const char* website)
 {
-    plugin_free_info(plugin);
+    plugin_FREE_info(plugin);
     
     PLUGIN_ADD_INFO_STRING(plugin, name, name)
     PLUGIN_ADD_INFO_STRING(plugin, category, category);
@@ -55,7 +56,7 @@ void plugin_set_info(struct plugin_t* plugin,
     PLUGIN_ADD_INFO_STRING(plugin, website, website)
 }
 
-static void plugin_free_info(struct plugin_t* plugin)
+static void plugin_FREE_info(struct plugin_t* plugin)
 {
     PLUGIN_FREE_INFO_STRING(plugin, name)
     PLUGIN_FREE_INFO_STRING(plugin, category);
@@ -87,7 +88,7 @@ int plugin_extract_version_from_string(const char* file,
                                        uint32_t* patch)
 {
     /* strtok modifies the character array, copy into temporary */
-    char* buffer = (char*)malloc((strlen(file)+1)*sizeof(char*));
+    char* buffer = (char*)MALLOC((strlen(file)+1)*sizeof(char*));
     char* temp = buffer;
     char* pch;
     strcpy(buffer, file);
@@ -117,8 +118,8 @@ int plugin_extract_version_from_string(const char* file,
     if((pch = strtok(NULL, "-")) != NULL)
         *patch = atoi(pch);
 
-    /* free temporary buffer */
-    free(buffer);
+    /* FREE temporary buffer */
+    FREE(buffer);
     
     /* error check */
     if(*major == (uint32_t)(-1) || *minor == (uint32_t)(-1) || *patch == (uint32_t)(-1))

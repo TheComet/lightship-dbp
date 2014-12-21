@@ -1,4 +1,5 @@
 #include "lightship/services.h"
+#include "util/memory.h"
 #include "util/plugin.h"
 #include "util/string.h"
 #include <stdlib.h>
@@ -22,12 +23,12 @@ char service_register(struct plugin_t* plugin,
     full_name = cat_strings(3, plugin->info.name, ".", name);
     if(service_get(full_name))
     {
-        free(full_name);
+        FREE(full_name);
         return 0;
     }
 
     /* create service and add to list */
-    service = (struct service_t*)malloc(sizeof(struct service_t));
+    service = (struct service_t*)MALLOC(sizeof(struct service_t));
     service->name = full_name;
     service->exec = exec;
     list_push(&g_services, service);
@@ -48,15 +49,15 @@ char service_unregister(struct plugin_t* plugin,
         {
             if(strcmp(service->name, full_name) == 0)
             {
-                free(service->name);
-                free(service);
+                FREE(service->name);
+                FREE(service);
                 list_erase_node(&g_services, node);
                 success = 1;
                 break;
             }
         }
     }
-    free(full_name);
+    FREE(full_name);
 
     return success;
 }
@@ -70,13 +71,13 @@ void service_unregister_all(struct plugin_t* plugin)
         {
             if(strncmp(service->name, name, len) == 0)
             {
-                free(service->name);
-                free(service);
+                FREE(service->name);
+                FREE(service);
                 list_erase_node(&g_services, node);
             }
         }
     }
-    free(name);
+    FREE(name);
 }
 
 intptr_t service_get(const char* name)

@@ -10,6 +10,7 @@
 #include "util/string.h"
 #include "util/module_loader.h"
 #include "util/dir.h"
+#include "util/memory.h"
 
 /*!
  * @brief Evaluates whether the specified file is an acceptable plugin to load
@@ -52,7 +53,7 @@ void plugin_manager_deinit(void)
 
 struct plugin_t* plugin_load(struct plugin_info_t* plugin_info, plugin_search_criteria_t criteria)
 {
-    /* will contain the file name of the plugin if it is found. Must be free()'d */
+    /* will contain the file name of the plugin if it is found. Must be FREE()'d */
     char* filename = NULL;
     /* will hold the handle of the loaded module, if successful */
     void* handle = NULL;
@@ -152,7 +153,7 @@ struct plugin_t* plugin_load(struct plugin_info_t* plugin_info, plugin_search_cr
             version_str
         );
         
-        free(filename);
+        FREE(filename);
         return plugin;
     }
     
@@ -161,7 +162,7 @@ struct plugin_t* plugin_load(struct plugin_info_t* plugin_info, plugin_search_cr
      * loading the plugin. Clean up...
      */
     if(filename)
-        free(filename);
+        FREE(filename);
     if(handle)
         module_close(handle);
     if(plugin)
@@ -279,14 +280,14 @@ static char* find_plugin(struct plugin_info_t* info, plugin_search_criteria_t cr
             {
                 /* 
                  * get_directory_listing() allocates the strings it pushes into
-                 * the linked list, and it is up to us to free them.
+                 * the linked list, and it is up to us to FREE them.
                  */
-                free(name);
+                FREE(name);
             }
         }
     }
     
-    /* free list of directories */
+    /* FREE list of directories */
     list_destroy(list);
     
     return file_found;
