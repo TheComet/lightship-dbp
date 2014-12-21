@@ -177,7 +177,7 @@ void* list_erase_element(struct list_t* list, void* data);
     var_type* var; \
     struct list_node_t* node; \
     struct list_node_t* next_node; \
-    for(node = (list)->head; node != NULL && ((var = node->data, next_node = node->next) || 1); node = next_node)
+    for(node = (list)->tail; node && ((var = node->data, next_node = node->next) || 1); node = next_node)
     /*
      * Why ||1 ? -> It is possible that the expression after && evaluates to be
      * false (such is the case when node->data = NULL, or node->prev = NULL).
@@ -207,7 +207,7 @@ void* list_erase_element(struct list_t* list, void* data);
     var_type* var; \
     struct list_node_t* node; \
     struct list_node_t* prev_node; \
-    for(node = (list)->head; node != NULL && ((var = node->data, prev_node = node->prev) || 1); node = prev_node)
+    for(node = (list)->head; node && ((var = node->data, prev_node = node->prev) || 1); node = prev_node)
     /*
      * Why ||1 ? -> It is possible that the expression after && evaluates to be
      * false (such is the case when node->data = NULL, or node->prev = NULL).
