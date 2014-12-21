@@ -20,9 +20,9 @@ struct lightship_api_t
     char                (*event_destroy)                   (struct event_t*);
     void                (*event_destroy_plugin_event)      (struct plugin_t*, const char*);
     void                (*event_destroy_all_plugin_events) (struct plugin_t*);
-    struct event_t*     (*event_get)                       (char*);
-    char                (*event_register_listener)         (char*, struct plugin_t*, event_func);
-    char                (*event_unregister_listener)       (char*, char*);
+    struct event_t*     (*event_get)                       (const char*);
+    char                (*event_register_listener)         (struct plugin_t*, const char*, event_func);
+    char                (*event_unregister_listener)       (const char*, const char*);
     void                (*event_unregister_all_listeners)  (struct event_t*);
 };
 

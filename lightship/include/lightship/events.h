@@ -56,17 +56,17 @@ void event_destroy_all_plugin_events(struct plugin_t* plugin);
  * @return If the event object does not exist, NULL is returned, otherwise the
  * event object is returned.
  */
-struct event_t* event_get(char* full_name);
+struct event_t* event_get(const char* full_name);
 
 /*!
  * @brief Registers a listener to the specified event.
  */
-char event_register_listener(char* full_name, struct plugin_t* plugin, event_func callback);
+char event_register_listener(struct plugin_t* plugin, const char* full_name, event_func callback);
 
 /*!
  * @brief Unregisters a listener from the specified event.
  */
-char event_unregister_listener(char* event_name, char* plugin_name);
+char event_unregister_listener(const char* event_name, const char* plugin_name);
 
 /*!
  * @brief Unregisters all listeners from the specified event.

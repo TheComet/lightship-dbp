@@ -1,5 +1,6 @@
-#include "renderer_gl/window.h"
+#include "GL/glew.h"
 #include "glfw3.h"
+#include "renderer_gl/window.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -23,12 +24,22 @@ struct window_t* window_create(void)
         fprintf(stderr, "Error: Failed to open glfw window. If you have an Intel GPU, they are not 3.3 compatible.\n");
         return NULL;
     }
+    glfwMakeContextCurrent(glfw_window); /* initialise GLEW */
+    glewExperimental = 1; /* needed in core profile */
+    if(glewInit() != GLEW_OK)
+    {
+        fprintf(stderr, "Failed to initialise GLEW\n");
+        return NULL;
+    }
+    
+    /* ensure the escape key can be captured */
+    glfwSetInputMode(glfw_window, GLFW_STICKY_KEYS, GL_TRUE);
     
     /* create window object */
     window = (struct window_t*)malloc(sizeof(struct window_t));
     memset(window, 0, sizeof(struct window_t));
     window->window = glfw_window;
-    
+
     return window;
 }
 

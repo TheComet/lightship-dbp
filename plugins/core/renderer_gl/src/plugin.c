@@ -11,10 +11,16 @@
 
 struct plugin_t* g_plugin = NULL;
 struct window_t* g_window = NULL;
+struct event_t* g_evt_close_window = NULL;
 
-void hello(void)
+void on_render(struct event_t* evt, void* args)
 {
-    printf("hello world\n");
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glfwSwapBuffers(g_window->window);
+    glfwPollEvents();
+    if(glfwGetKey(g_window->window, GLFW_KEY_ESCAPE) == GLFW_PRESS || 
+        glfwWindowShouldClose(g_window->window) != 0)
+        g_evt_close_window->exec(g_evt_close_window, NULL);
 }
 
 LIGHTSHIP_PUBLIC_API struct plugin_t* plugin_init(struct lightship_api_t* api)
@@ -38,7 +44,7 @@ LIGHTSHIP_PUBLIC_API struct plugin_t* plugin_init(struct lightship_api_t* api)
             RENDERER_GL_VERSION_PATCH
     );
 
-    api->service_register(g_plugin, "hello", (intptr_t)hello);
+    g_evt_close_window = g_api.event_create(g_plugin, "close_window");
 
     return g_plugin;
 }
@@ -55,6 +61,8 @@ LIGHTSHIP_PUBLIC_API plugin_result_t plugin_start(void)
     g_window = window_create();
     if(!g_window)
         return PLUGIN_FAILURE;
+    
+    g_api.event_register_listener(g_plugin, "main_loop.render", on_render);
 
     return PLUGIN_SUCCESS;
 }

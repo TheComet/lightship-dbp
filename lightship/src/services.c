@@ -20,7 +20,7 @@ char service_register(struct plugin_t* plugin,
 
     /* check if service is already registered */
     full_name = cat_strings(3, plugin->info.name, ".", name);
-    if(!service_get(full_name))
+    if(service_get(full_name))
     {
         free(full_name);
         return 0;
