@@ -5,16 +5,6 @@
 static char is_looping = 0;
 static struct event_t* evt_render = NULL;
 
-void register_events(struct plugin_t* plugin, struct lightship_api_t* api)
-{
-    evt_render = api->event_create(plugin, "render");
-}
-
-void register_listeners(struct plugin_t* plugin, struct lightship_api_t* api)
-{
-    api->event_register_listener(plugin, "renderer_gl.close_window", main_loop_stop);
-}
-
 void main_loop_start(void)
 {
     is_looping = 1;

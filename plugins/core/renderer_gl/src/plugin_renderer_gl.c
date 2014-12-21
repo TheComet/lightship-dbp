@@ -11,17 +11,6 @@
 
 struct plugin_t* g_plugin = NULL;
 struct window_t* g_window = NULL;
-struct event_t* g_evt_close_window = NULL;
-
-void on_render(struct event_t* evt, void* args)
-{
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glfwSwapBuffers(g_window->window);
-    glfwPollEvents();
-    if(glfwGetKey(g_window->window, GLFW_KEY_ESCAPE) == GLFW_PRESS || 
-        glfwWindowShouldClose(g_window->window) != 0)
-        g_evt_close_window->exec(g_evt_close_window, NULL);
-}
 
 LIGHTSHIP_PUBLIC_API struct plugin_t* plugin_init(struct lightship_api_t* api)
 {

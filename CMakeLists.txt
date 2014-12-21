@@ -56,9 +56,7 @@ endforeach( OUTPUTCONFIG CMAKE_CONFIGURATION_TYPES )
 ###############################################################################
 
 if (${CMAKE_C_COMPILER_ID} STREQUAL "GNU")
-    add_definitions (-W -Wall -Wextra)
 elseif (${CMAKE_C_COMPILER_ID} STREQUAL "Clang")
-    add_definitions (-W -Wall -Wextra)
 elseif (${CMAKE_C_COMPILER_ID} STREQUAL "Intel")
 elseif (${CMAKE_C_COMPILER_ID} STREQUAL "MSVC")
     add_definitions (/D "_CRT_SECURE_NO_WARNINGS")

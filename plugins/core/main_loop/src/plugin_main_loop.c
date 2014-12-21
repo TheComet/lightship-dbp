@@ -2,8 +2,10 @@
 #include "util/config.h"   /* platform macros and definitions */
 #include "util/plugin.h"   /* plugin api */
 #include "main_loop/config.h"  /* configurations for this plugin */
+#include "main_loop/services.h"
+#include "main_loop/events.h"
+
 #include "main_loop/main_loop.h"
-#include "util/event_api.h"
 #include <stdio.h>
 
 struct plugin_t* g_plugin = NULL;
@@ -30,9 +32,7 @@ LIGHTSHIP_PUBLIC_API struct plugin_t* plugin_init(struct lightship_api_t* api)
             MAIN_LOOP_VERSION_PATCH
     );
 
-    api->service_register(g_plugin, "start", (intptr_t)main_loop_start);
-    api->service_register(g_plugin, "stop", (intptr_t)main_loop_stop);
-    
+    register_services(g_plugin, api);
     register_events(g_plugin, api);
 
     return g_plugin;
@@ -40,7 +40,7 @@ LIGHTSHIP_PUBLIC_API struct plugin_t* plugin_init(struct lightship_api_t* api)
 
 LIGHTSHIP_PUBLIC_API plugin_result_t plugin_start(void)
 {
-    register_listeners(g_plugin, &g_api);
+    register_event_listeners(g_plugin, &g_api);
     return PLUGIN_SUCCESS;
 }
 

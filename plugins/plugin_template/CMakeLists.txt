@@ -7,7 +7,7 @@ endif ()
 string (TOUPPER ${NAME} NAME_CAPS)
 
 configure_file ("CMakeLists.txt.in" "${NAME}/CMakeLists.txt" @ONLY)
-configure_file ("plugin.c.in" "${NAME}/src/plugin.c" @ONLY)
+configure_file ("plugin.c.in" "${NAME}/src/plugin_${NAME}.c" @ONLY)
 configure_file ("config.h.in.in" "${NAME}/include/${NAME}/config.h.in")
 
 execute_process (COMMAND cmake -E remove "CMakeCache.txt")
