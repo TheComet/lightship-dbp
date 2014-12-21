@@ -1,3 +1,6 @@
+#ifndef LIGHTSHIP_PLUGIN_MANAGER_HPP
+#define LIGHTSHIP_PLUGIN_MANAGER_HPP
+
 #include "util/plugin_api.h"
 
 /*!
@@ -72,24 +75,4 @@ void plugin_unload(struct plugin_t* plugin);
  */
 struct plugin_t* plugin_get_by_name(const char* name);
 
-/*!
- * @brief Evaluates whether the specified file is an acceptable plugin to load
- * based on the specified info and criteria.
- * @param [in] info The requested plugin to try and match.
- * @param [in] file The file to test.
- * @param [in] criteria The criteria to use.
- * @return Returns 1 if successful, 0 if otherwise.
- */
-static int plugin_version_acceptable(struct plugin_info_t* info,
-                                     const char* file,
-                                     plugin_search_criteria_t criteria);
-
-/*!
- * @brief Scans the plugin directory for a suitable plugin to load.
- * @param [in] info The requested plugin to try and match.
- * @param [in] criteria The criteria to use.
- * @return Returns the full file name and relative path if a plugin was
- * matched. Returns NULL on failure.
- */
-static char* find_plugin(struct plugin_info_t* info,
-                         plugin_search_criteria_t criteria);
+#endif /* LIGHTSHIP_PLUGIN_MANAGER_HPP */
