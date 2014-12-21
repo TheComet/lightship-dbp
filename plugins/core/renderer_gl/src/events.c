@@ -2,7 +2,7 @@
 #include "util/event_api.h"
 #include "renderer_gl/window.h"
 
-EVENT_IMPL(evt_close_window);
+EVENT_C(evt_close_window)
 
 void register_events(struct plugin_t* plugin, struct lightship_api_t* api)
 {

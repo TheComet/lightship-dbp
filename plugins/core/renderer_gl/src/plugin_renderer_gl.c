@@ -36,8 +36,6 @@ PLUGIN_INIT()
     
     register_services(g_plugin, api);
     register_events(g_plugin, api);
-    
-    window_init();
 
     return g_plugin;
 }

@@ -181,6 +181,7 @@ void plugin_unload(struct plugin_t* plugin)
     /* unregister all services and events registered by this plugin */
     service_unregister_all(plugin);
     event_destroy_all_plugin_events(plugin);
+    event_unregister_all_listeners_of_plugin(plugin);
     
     /* 
      * NOTE The plugin object becomes invalid as soon as plugin->stop() is

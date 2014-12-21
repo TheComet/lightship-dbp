@@ -6,6 +6,15 @@
 #include <stdlib.h>
 
 /*!
+ * @brief Unregisters any listeners that belong to the specified namespace from
+ * the specified event.
+ * @param event The event to unregister the listeners from.
+ * @param namespace The namespace to search for.
+ */
+static void event_unregister_all_listeners_of_namespace(struct event_t* event,
+                                                        char* namespace);
+
+/*!
  * @brief Returns the full name of the event using a plugin object and event name.
  * @note The returned string must be FREEd manually.
  */
@@ -174,11 +183,44 @@ void event_unregister_all_listeners(struct event_t* event)
     }
 }
 
+void event_unregister_all_listeners_of_plugin(struct plugin_t* plugin)
+{
+    /* 
+     * For every listener in every event, search for any listener that belongs
+     * to the specified plugin
+     */
+    char* namespace = event_get_namespace_name(plugin);
+    int len = strlen(namespace);
+    {
+        LIST_FOR_EACH(&g_events, struct event_t, event)
+        {
+            event_unregister_all_listeners_of_namespace(event, namespace);
+        }
+    }
+    FREE(namespace);
+}
+
 void event_dispatch(struct event_t* event, void* args)
 {
     LIST_FOR_EACH(event->listeners, struct event_listener_t, listener)
     {
         listener->exec(event, args);
+    }
+}
+
+static void event_unregister_all_listeners_of_namespace(struct event_t* event,
+                                                        char* namespace)
+{
+    int len = strlen(namespace);
+    {
+        LIST_FOR_EACH_ERASE(event->listeners, struct event_listener_t, listener)
+        {
+            if(strncmp(listener->name, namespace, len))
+            {
+                event_listener_free(listener);
+                list_erase_node(event->listeners, node);
+            }
+        }
     }
 }
 
