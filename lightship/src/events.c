@@ -21,13 +21,13 @@ static char* event_get_namespace_name(struct plugin_t* plugin);
  * @brief Frees an event object.
  * @note This does not remove it from the list.
  */
-static void event_FREE(struct event_t* event);
+static void event_free(struct event_t* event);
 
 /*!
  * @brief Frees an event listener object.
  * @note This does not remove it from the list.
  */
-static void event_listener_FREE(struct event_listener_t* listener);
+static void event_listener_free(struct event_listener_t* listener);
 
 struct list_t g_events;
 
@@ -66,7 +66,7 @@ char event_destroy(struct event_t* event_delete)
     {
         if(event == event_delete)
         {
-            event_FREE(event);
+            event_free(event);
             list_erase_node(&g_events, node);
             return 1;
         }
@@ -84,7 +84,7 @@ void event_destroy_plugin_event(struct plugin_t* plugin,
         {
             if(strcmp(event->name, full_name) == 0)
             {
-                event_FREE(event);
+                event_free(event);
                 list_erase_node(&g_events, node);
                 break;
             }
@@ -96,15 +96,16 @@ void event_destroy_plugin_event(struct plugin_t* plugin,
 void event_destroy_all_plugin_events(struct plugin_t* plugin)
 {
     char* namespace = event_get_namespace_name(plugin);
-    int len = strlen(namespace) + 1;
+    int len = strlen(namespace);
     LIST_FOR_EACH_ERASE(&g_events, struct event_t, event)
     {
         if(strncmp(event->name, namespace, len) == 0)
         {
-            event_FREE(event);
+            event_free(event);
             list_erase_node(&g_events, node);
         }
     }
+    FREE(namespace);
 }
 
 struct event_t* event_get(const char* full_name)
@@ -154,7 +155,7 @@ char event_unregister_listener(const char* event_name, const char* plugin_name)
         {
             if(strcmp(listener->name, plugin_name) == 0)
             {
-                event_listener_FREE(listener);
+                event_listener_free(listener);
                 list_erase_node(event->listeners, node);
                 return 1;
             }
@@ -168,7 +169,7 @@ void event_unregister_all_listeners(struct event_t* event)
 {
     LIST_FOR_EACH_ERASE(event->listeners, struct event_listener_t, listener)
     {
-        event_listener_FREE(listener);
+        event_listener_free(listener);
         list_erase_node(event->listeners, node);
     }
 }
@@ -191,7 +192,7 @@ static char* event_get_namespace_name(struct plugin_t* plugin)
     return cat_strings(2, plugin->info.name, ".");
 }
 
-static void event_FREE(struct event_t* event)
+static void event_free(struct event_t* event)
 {
     FREE(event->name); /* full_name must be FREEd manually, see event_create() */
     event_unregister_all_listeners(event);
@@ -199,7 +200,7 @@ static void event_FREE(struct event_t* event)
     FREE(event);
 }
 
-static void event_listener_FREE(struct event_listener_t* listener)
+static void event_listener_free(struct event_listener_t* listener)
 {
     FREE(listener->name);
     FREE(listener);

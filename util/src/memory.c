@@ -19,7 +19,8 @@ void free_debug(void* ptr)
 
 void memory_report(void)
 {
-    printf("Memory allocations report:\n");
+    printf("Memory Report:\n");
     printf("  allocations: %lu\n", allocations);
     printf("  deallocations: %lu\n", deallocations);
+    printf("  memory leaks: %lu\n", (allocations > deallocations ? allocations - deallocations : deallocations - allocations));
 }

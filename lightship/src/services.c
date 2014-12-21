@@ -65,7 +65,7 @@ char service_unregister(struct plugin_t* plugin,
 void service_unregister_all(struct plugin_t* plugin)
 {
     char* name = cat_strings(2, plugin->info.name, ".");
-    int len = strlen(plugin->info.name) + 1;
+    int len = strlen(plugin->info.name);
     {
         LIST_FOR_EACH_ERASE(&g_services, struct service_t, service)
         {
