@@ -3,6 +3,8 @@
 #include "util/plugin.h"
 #include "renderer_gl/config.h"
 #include "renderer_gl/window.h"
+#include "renderer_gl/events.h"
+#include "renderer_gl/services.h"
 
 #include "GL/glew.h"
 #include "glfw3.h"
@@ -10,9 +12,8 @@
 #include <stdio.h>
 
 struct plugin_t* g_plugin = NULL;
-struct window_t* g_window = NULL;
 
-LIGHTSHIP_PUBLIC_API struct plugin_t* plugin_init(struct lightship_api_t* api)
+PLUGIN_INIT()
 {
     g_plugin = plugin_create();
     
@@ -32,13 +33,16 @@ LIGHTSHIP_PUBLIC_API struct plugin_t* plugin_init(struct lightship_api_t* api)
             RENDERER_GL_VERSION_MINOR,
             RENDERER_GL_VERSION_PATCH
     );
-
-    g_evt_close_window = g_api.event_create(g_plugin, "close_window");
+    
+    register_services(g_plugin, api);
+    register_events(g_plugin, api);
+    
+    window_init();
 
     return g_plugin;
 }
 
-LIGHTSHIP_PUBLIC_API plugin_result_t plugin_start(void)
+PLUGIN_START()
 {
     /* initialise GLFW */
     if(!glfwInit())
@@ -47,19 +51,17 @@ LIGHTSHIP_PUBLIC_API plugin_result_t plugin_start(void)
         return PLUGIN_FAILURE;
     }
 
-    g_window = window_create();
-    if(!g_window)
+    if(!window_init())
         return PLUGIN_FAILURE;
     
-    g_api.event_register_listener(g_plugin, "main_loop.render", on_render);
+    register_event_listeners(g_plugin, api);
 
     return PLUGIN_SUCCESS;
 }
 
-LIGHTSHIP_PUBLIC_API void plugin_stop(void)
+PLUGIN_STOP()
 {
-    if(g_window)
-        window_destroy(g_window);
+    window_deinit();
 
     glfwTerminate();
     plugin_destroy(g_plugin);

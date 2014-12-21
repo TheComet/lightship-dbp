@@ -2,7 +2,6 @@
 #include <string.h>
 #include <stdlib.h>
 #include "lightship/plugin_manager.h"
-#include "lightship/api.h"
 #include "lightship/services.h"
 #include "lightship/events.h"
 #include "util/config.h"
@@ -94,12 +93,12 @@ struct plugin_t* plugin_load(struct plugin_info_t* plugin_info, plugin_search_cr
             break;
         
         /* get plugin initialise function */
-        *(struct plugin_t**)(&init_func) = module_sym(handle, "plugin_init");
+        *(void**)(&init_func) = module_sym(handle, "plugin_init");
         if(!init_func)
             break;
 
         /* get plugin start function */
-        *(int**)(&start_func) = module_sym(handle, "plugin_start");
+        *(void**)(&start_func) = module_sym(handle, "plugin_start");
         if(!start_func)
             break;
 

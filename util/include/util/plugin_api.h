@@ -5,9 +5,13 @@
 
 /* these must be implemented by the plugin */
 struct lightship_api_t;
-typedef struct plugin_t* (*plugin_init_func)(struct lightship_api_t*);
-typedef char (*plugin_start_func)(void);
-typedef void (*plugin_stop_func)(void);
+typedef struct plugin_t*    (*plugin_init_func) (struct lightship_api_t*);
+typedef char                (*plugin_start_func)(struct lightship_api_t*);
+typedef void                (*plugin_stop_func) (void);
+
+#define PLUGIN_INIT()  LIGHTSHIP_PUBLIC_API struct plugin_t* plugin_init(struct lightship_api_t* api)
+#define PLUGIN_START() LIGHTSHIP_PUBLIC_API char plugin_start(struct lightship_api_t* api)
+#define PLUGIN_STOP()  LIGHTSHIP_PUBLIC_API void plugin_stop(void)
 
 typedef enum plugin_result_t
 {
