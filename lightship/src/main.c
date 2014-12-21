@@ -72,17 +72,22 @@ void deinit(void)
 
 int main(int argc, char** argv)
 {
+    /* initialise everything */
     if(!init())
     {
         deinit();
         return 0;
     }
 
+    /* get start of main loop and enter */
     start = (start_loop_func)service_get("main_loop.start");
-    start();
+    if(start)
+        start();
+    else
+        fprintf(stderr, "Failed to find main loop \"start\" function");
 
+    /* clean up */
     deinit();
-    
     memory_report();
 
     return 0;
