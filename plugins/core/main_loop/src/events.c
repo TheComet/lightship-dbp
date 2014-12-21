@@ -1,5 +1,4 @@
 #include "lightship/api.h"
-#include "util/event_api.h"
 #include "main_loop/main_loop.h"
 
 EVENT_IMPL(evt_render);
