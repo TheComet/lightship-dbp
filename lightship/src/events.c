@@ -43,7 +43,7 @@ struct event_t* event_create(struct plugin_t* plugin,
     
     /* check for duplicate event names */
     full_name = event_get_full_name(plugin, name);
-    if(event_get(full_name) == NULL)
+    if(event_get(full_name))
     {
         free(full_name);
         return NULL;
@@ -106,7 +106,7 @@ void event_destroy_all_plugin_events(struct plugin_t* plugin)
     }
 }
 
-struct event_t* event_get(char* full_name)
+struct event_t* event_get(const char* full_name)
 {
     LIST_FOR_EACH(&g_events, struct event_t, event)
     {
@@ -116,7 +116,7 @@ struct event_t* event_get(char* full_name)
     return NULL;
 }
 
-char event_register_listener(char* full_name, struct plugin_t* plugin, event_func callback)
+char event_register_listener(struct plugin_t* plugin, const char* full_name, event_func callback)
 {
     struct event_listener_t* new_listener;
     struct event_t* event = event_get(full_name);
@@ -137,11 +137,12 @@ char event_register_listener(char* full_name, struct plugin_t* plugin, event_fun
     new_listener->exec = callback;
     /* create and copy string from plugin name */
     new_listener->name = malloc_string(plugin->info.name);
+    list_push(event->listeners, new_listener);
     
     return 1;
 }
 
-char event_unregister_listener(char* event_name, char* plugin_name)
+char event_unregister_listener(const char* event_name, const char* plugin_name)
 {
     struct event_t* event = event_get(event_name);
     if(event == NULL)
