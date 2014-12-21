@@ -7,7 +7,7 @@ cmake_minimum_required (VERSION 2.6)
 if (DEFINED CMAKE_BUILD_TYPE)
     set (CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE} CACHE STRING "Choose the type of build, options are: None(CMAKE_CXX_FLAGS or CMAKE_C_FLAGS used) Debug Release RelWithDebInfo MinSizeRel.")
 else()
-    set (CMAKE_BUILD_TYPE Debug CACHE STRING "Choose the type of build, options are: None(CMAKE_CXX_FLAGS or CMAKE_C_FLAGS used) Debug Release RelWithDebInfo MinSizeRel.")
+    set (CMAKE_BUILD_TYPE "Debug" CACHE STRING "Choose the type of build, options are: None(CMAKE_CXX_FLAGS or CMAKE_C_FLAGS used) Debug Release RelWithDebInfo MinSizeRel.")
 endif()
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
@@ -56,7 +56,9 @@ endforeach( OUTPUTCONFIG CMAKE_CONFIGURATION_TYPES )
 ###############################################################################
 
 if (${CMAKE_C_COMPILER_ID} STREQUAL "GNU")
+    add_definitions (-W -Wall -Wextra)
 elseif (${CMAKE_C_COMPILER_ID} STREQUAL "Clang")
+    add_definitions (-W -Wall -Wextra)
 elseif (${CMAKE_C_COMPILER_ID} STREQUAL "Intel")
 elseif (${CMAKE_C_COMPILER_ID} STREQUAL "MSVC")
     add_definitions (/D "_CRT_SECURE_NO_WARNINGS")

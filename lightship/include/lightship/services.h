@@ -1,7 +1,16 @@
+#ifndef LIGHTSHIP_SERVICES_HPP
+#define LIGHTSHIP_SERVICES_HPP
+
 #include "util/pstdint.h"
 #include "util/linked_list.h"
 
 struct plugin_t;
+
+struct service_t
+{
+    char* name;
+    intptr_t exec;
+};
 
 extern struct list_t g_services;
 
@@ -13,3 +22,5 @@ char service_unregister(struct plugin_t* plugin,
                         const char* name);
 void service_unregister_all(struct plugin_t* plugin);
 intptr_t service_get(const char* name);
+
+#endif /* LIGHTSHIP_SERVICES_HPP */
