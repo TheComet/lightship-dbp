@@ -1,19 +1,15 @@
+#include "lightship/api.h"
 #include "util/event_api.h"
-
-#include "glfw3.h"
+#include "renderer_gl/window.h"
 
 EVENT_IMPL(evt_close_window);
 
-EVENT_LISTENER(on_render)
+void register_events(struct plugin_t* plugin, struct lightship_api_t* api)
 {
-    /* render everything */
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glfwSwapBuffers(g_window->window);
+    evt_close_window = api->event_create(plugin, "close_window");
+}
 
-    glfwPollEvents();
-
-    /* fire close window event */
-    if(glfwGetKey(g_window->window, GLFW_KEY_ESCAPE) == GLFW_PRESS || 
-        glfwWindowShouldClose(g_window->window) != 0)
-        EVENT_FIRE(evt_close_window, NULL);
+void register_event_listeners(struct plugin_t* plugin, struct lightship_api_t* api)
+{
+    api->event_register_listener(plugin, "main_loop.render", on_render);
 }
