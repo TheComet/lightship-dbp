@@ -60,7 +60,7 @@ void init(void)
 
     load_core_plugins();
     if(!start_core_plugins())
-        return ;
+        return;
     
     /* get start of main loop and enter */
     start = (start_loop_func)service_get("main_loop.start");
