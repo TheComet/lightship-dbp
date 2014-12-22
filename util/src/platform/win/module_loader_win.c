@@ -3,6 +3,7 @@
 #include "util/module_loader.h"
 #include "util/string.h"
 #include "util/platform/win/error.h"
+#include "util/memory.h"
 
 void* module_open(const char* filename)
 {

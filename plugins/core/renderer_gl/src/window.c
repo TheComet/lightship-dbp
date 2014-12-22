@@ -1,11 +1,11 @@
 #include "renderer_gl/window.h"
 #include "renderer_gl/events.h"
 #include "util/linked_list.h"
-#include "GL/glew.h"
-#include "glfw3.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "GL/glew.h"
+#include "glfw3.h"
 
 struct window_t g_window;
 
