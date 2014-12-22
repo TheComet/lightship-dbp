@@ -133,8 +133,8 @@ void* vector_get_element(struct vector_t* vector, intptr_t index)
 static void vector_expand(struct vector_t* vector, intptr_t insertion_index)
 {
     intptr_t new_size;
-    intptr_t old_data;
-    intptr_t new_data;
+    DATA_POINTER_TYPE* old_data;
+    DATA_POINTER_TYPE* new_data;
 
     /* expand by factor 2 */
     new_size = vector->capacity << 1;

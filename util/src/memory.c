@@ -82,7 +82,7 @@ void memory_deinit(void)
         {
             VECTOR_FOR_EACH(&report, struct report_info_t, info)
             {
-                printf("    un-freed memory at 0x%x, size 0x%x\n", info->location, info->size);
+                printf("    un-freed memory at 0x%lx, size 0x%lx\n", info->location, info->size);
             }
         }
         printf("  -----------------------------------------\n");
