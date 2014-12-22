@@ -1,6 +1,7 @@
 #include <windows.h>
 #include "util/platform/win/error.h"
 #include "util/string.h"
+#include "util/memory.h"
 
 char* get_last_error_string(void)
 {
