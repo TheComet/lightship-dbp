@@ -17,21 +17,30 @@ void load_core_plugins(void)
 {
     struct plugin_info_t target;
     
-    /* load main loop plugin */
+    /* 
+     * Main loop plugin.
+     * Dependencies: None.
+     */
     target.name = "main_loop";
     target.version.major = 0;
     target.version.minor = 0;
     target.version.patch = 1;
     plugin_main_loop = plugin_load(&target, PLUGIN_VERSION_MINIMUM);
 
-    /* load graphics plugin */
+    /*
+     * Graphics plugin.
+     * Dependencies: main_loop
+     */
     target.name = "renderer_gl";
     target.version.major = 0;
     target.version.minor = 0;
     target.version.patch = 1;
     plugin_renderer = plugin_load(&target, PLUGIN_VERSION_MINIMUM);
-    
-    /* load input plugin */
+
+    /* 
+     * Input plugin.
+     * Dependencies: main_loop, graphics
+     */
     target.name = "input";
     target.version.major = 0;
     target.version.minor = 0;
@@ -53,16 +62,36 @@ char start_core_plugins(void)
 
 void init(void)
 {
-    api_init();
+    /*
+     * Services and events should be initialised before anything else, as they
+     * register built-in mechanics that are required throughout the rest of the
+     * program (such as the log event).
+     */
     services_init();
     events_init();
+    
+    /*
+     * The lightship API must be initialised before any plugins can be
+     * loaded, so an api struct can be passed to each plugin.
+     */
+    api_init();
+    
+    /*
+     * The plugin manager must be initialised before being able to load
+     * plugins.
+     */
     plugin_manager_init();
 
+    /*
+     * Try to load and start the core plugins. If that fails, bail out.
+     */
     load_core_plugins();
     if(!start_core_plugins())
         return;
     
-    /* get start of main loop and enter */
+    /* 
+     * Try to get the main loop service and start running the game
+     */
     start = (start_loop_func)service_get("main_loop.start");
     if(start)
         start();
@@ -81,7 +110,7 @@ int main(int argc, char** argv)
     /* first thing - initialise memory management */
     memory_init();
 
-    /* initialise everything */
+    /* initialise everything else */
     init();
 
     /* clean up */
