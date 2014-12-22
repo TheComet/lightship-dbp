@@ -1,4 +1,3 @@
-project (lightship C)
 cmake_minimum_required (VERSION 2.6)
 
 # If the user specifies -DCMAKE_BUILD_TYPE on the command line, take their
@@ -9,6 +8,8 @@ if (DEFINED CMAKE_BUILD_TYPE)
 else()
     set (CMAKE_BUILD_TYPE "Debug" CACHE STRING "Choose the type of build, options are: None(CMAKE_CXX_FLAGS or CMAKE_C_FLAGS used) Debug Release RelWithDebInfo MinSizeRel.")
 endif()
+
+project ("lightship" C)
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     set (PLATFORM "LINUX")
