@@ -38,34 +38,66 @@ static void event_free(struct event_t* event);
  */
 static void event_listener_free(struct event_listener_t* listener);
 
+/*!
+ * @brief Allocates and registers an event globally with the specified name.
+ * @note No checks for duplicates are performed. This is an internal function.
+ * @param full_name The full name of the event.
+ * @note The event object owns **full_name** after this call and will free it
+ * when the event is destroyed.
+ * @return The new event object.
+ */
+static struct event_t* event_malloc_and_register(char* full_name);
+
 struct list_t g_events;
+EVENT_C(evt_log);
 
 void events_init(void)
 {
+    char* name;
+    
     list_init_list(&g_events);
+    
+    /* ----------------------------
+     * Register built-in events 
+     * --------------------------*/
+    
+    /* All logging events should be done through this event. */
+    name = malloc_string("log");
+    evt_log = event_malloc_and_register(name);
+}
+
+void events_deinit(void)
+{
+    LIST_FOR_EACH_ERASE(&g_events, struct event_t, event)
+    {
+        event_free(event);
+        list_erase_node(&g_events, node);
+    }
 }
 
 struct event_t* event_create(struct plugin_t* plugin,
                              const char* name)
 {
-    char* full_name;
-    struct event_t* event;
-    
+
     /* check for duplicate event names */
-    full_name = event_get_full_name(plugin, name);
+    char* full_name = event_get_full_name(plugin, name);
     if(event_get(full_name))
     {
         FREE(full_name);
         return NULL;
     }
     
+    return event_malloc_and_register(full_name);
+}
+
+static struct event_t* event_malloc_and_register(char* full_name)
+{
     /* create new event and register to global list of events */
-    event = (struct event_t*)MALLOC(sizeof(struct event_t));
+    struct event_t* event = (struct event_t*)MALLOC(sizeof(struct event_t));
     event->name = full_name; /* full_name must be FREEd */
     event->exec = event_dispatch;
     event->listeners = list_create();
     list_push(&g_events, event);
-    
     return event;
 }
 
