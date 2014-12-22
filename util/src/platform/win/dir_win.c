@@ -3,6 +3,7 @@
 #include "util/dir.h"
 #include "util/linked_list.h"
 #include "util/string.h"
+#include "util/memory.h"
 #include "util/platform/win/error.h"
 
 void get_directory_listing(struct list_t* list, const char* dir)

@@ -1,6 +1,26 @@
 project ("plugin_renderer_gl" C)
 
-# needs to be added before setting compiler flags
+if (${CMAKE_C_COMPILER_ID} STREQUAL "GNU")
+    add_definitions (-fPIC)
+elseif (${CMAKE_C_COMPILER_ID} STREQUAL "Clang")
+    add_definitions (-fPIC)
+elseif (${CMAKE_C_COMPILER_ID} STREQUAL "Intel")
+elseif (${CMAKE_C_COMPILER_ID} STREQUAL "MSVC")
+endif ()
+
+if(MSVC AND NOT "${MSVC_VERSION}" LESS 1400)
+    add_definitions( "/MP" )
+endif()
+
+add_definitions(
+    -DTW_STATIC
+    -DTW_NO_LIB_PRAGMA
+    -DTW_NO_DIRECT3D
+    -DGLEW_STATIC
+    -D_CRT_SECURE_NO_WARNINGS
+)
+
+# needs to be added before setting additional compiler flags
 add_subdirectory ("ext")
 
 ###############################################################################
@@ -66,14 +86,6 @@ add_custom_command (TARGET plugin_renderer_gl POST_BUILD
     "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/plugins/")
 
 ###############################################################################
-# link lightship utility static library
-###############################################################################
-
-target_link_libraries (plugin_renderer_gl
-    lightship_util
-)
-
-###############################################################################
 # GLFW
 ###############################################################################
 
@@ -96,6 +108,14 @@ include_directories (${OPENGL_INCLUDE_DIR})
 target_link_libraries (plugin_renderer_gl ${OPENGL_LIBRARIES})
 message (STATUS "GL: ${OPENGL_INCLUDE_DIR}")
 message (STATUS "GL: ${OPENGL_LIBRARIES}")
+
+###############################################################################
+# link lightship utility static library
+###############################################################################
+
+target_link_libraries (plugin_renderer_gl
+    lightship_util
+)
 
 ###############################################################################
 # install targets
