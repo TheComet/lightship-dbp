@@ -55,6 +55,7 @@ void free_debug(void* ptr)
     else
         fprintf(stderr, "Warning: free(NULL)");
     
+    /* remove the memory location from the vector */
     if(!ignore_vector_malloc)
     {
         VECTOR_FOR_EACH(&report, struct report_info_t, info)

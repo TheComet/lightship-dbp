@@ -65,8 +65,7 @@ EVENT_LISTENER(on_render)
     glfwPollEvents();
 
     /* fire close window event */
-    if(glfwGetKey(g_window.window, GLFW_KEY_ESCAPE) == GLFW_PRESS || 
-        glfwWindowShouldClose(g_window.window) != 0)
+    if(glfwWindowShouldClose(g_window.window) != 0)
     {
         EVENT_FIRE(evt_close_window, NULL)
     }
