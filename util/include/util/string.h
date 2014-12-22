@@ -1,12 +1,19 @@
 #include <stdio.h>
+#include "util/config.h"
 
 /*!
- * @brief Concatenates n number of strings and prints it to the specified file.
- * @param [in] file The file to print to.
+ * @brief Concatenates n number of strings and prints it to stdout.
  * @param [in] num_strs The number of strings that should be concatenated.
  * @param [in] ...str A list of comma-seperated strings to concatenate.
  */
-void fprintf_strings(FILE* file, int num_strs, ...);
+LIGHTSHIP_PUBLIC_API void stdout_strings(int num_strs, ...);
+
+/*!
+ * @brief Concatenates n number of strings and prints it to stderr.
+ * @param [in] num_strs The number of strings that should be concatenated.
+ * @param [in] ...str A list of comma-seperated strings to concatenate.
+ */
+LIGHTSHIP_PUBLIC_API void stderr_strings(int num_strs, ...);
 
 /*!
  * @brief Concatenates n number of strings and returns the buffer.
@@ -15,7 +22,7 @@ void fprintf_strings(FILE* file, int num_strs, ...);
  * @param [in] ...str A list of comma-seperated strings to concatenate.
  * @return The new buffer containing all concatenated strings.
  */
-char* cat_strings(int num_strs, ...);
+LIGHTSHIP_PUBLIC_API char* cat_strings(int num_strs, ...);
 
 /*!
  * @brief Copies the specified into a new buffer and returns it.
@@ -23,10 +30,10 @@ char* cat_strings(int num_strs, ...);
  * @param [in] str The string to copy.
  * @return The new buffer containing a copy of the input string.
  */
-char* MALLOC_string(const char* str);
+LIGHTSHIP_PUBLIC_API char* malloc_string(const char* str);
 
 /*!
  * @brief Checks if a character is a number or not.
  * @return Returns 1 if it is a number, 0 if otherwise.
  */
-int is_number(const char chr);
+LIGHTSHIP_PUBLIC_API int is_number(const char chr);

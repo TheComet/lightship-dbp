@@ -12,7 +12,7 @@ char* get_last_error_string(void)
     /* Get the error message, if any. */
     DWORD errorMessageID = GetLastError();
     if(errorMessageID == 0)
-        return MALLOC_string("No error message has been recorded");
+        return malloc_string("No error message has been recorded");
 
     size = FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
                                  NULL, errorMessageID, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&messageBuffer, 0, NULL);
