@@ -12,16 +12,16 @@
  * insertion. Otherwise this parameter specifies the index of the element to
  * "evade" when re-allocating all other elements.
  */
-static void vector_expand(struct vector_t* vector, int insertion_index);
+static void vector_expand(struct vector_t* vector, intptr_t insertion_index);
 
-struct vector_t* vector_create(const int element_size)
+struct vector_t* vector_create(const intptr_t element_size)
 {
     struct vector_t* vector = (struct vector_t*)MALLOC(sizeof(struct vector_t));
     vector_init_vector(vector, element_size);
     return vector;
 }
 
-void vector_init_vector(struct vector_t* vector, const int element_size)
+void vector_init_vector(struct vector_t* vector, const intptr_t element_size)
 {
     memset(vector, 0, sizeof(struct vector_t));
     vector->element_size = element_size;
@@ -36,13 +36,13 @@ void vector_destroy(struct vector_t* vector)
 void vector_clear(struct vector_t* vector)
 {
     /* 
-     * No need to FREE or overwrite existing memory, just reset the counter
+     * No need to free or overwrite existing memory, just reset the counter
      * and let future insertions overwrite
      */
     vector->count = 0;
 }
 
-void vector_clear_FREE(struct vector_t* vector)
+void vector_clear_free(struct vector_t* vector)
 {
     if(vector->data)
         FREE(vector->data);
@@ -57,7 +57,7 @@ void* vector_push_emplace(struct vector_t* vector)
     if(vector->count == vector->capacity)
         vector_expand(vector, -1);
     data = vector->data + (vector->element_size * vector->count);
-    ++vector->count;
+    ++(vector->count);
     return data;
 }
 
@@ -71,13 +71,13 @@ void* vector_pop(struct vector_t* vector)
     if(!vector->count)
         return NULL;
 
-    --vector->count;
+    --(vector->count);
     return vector->data + (vector->element_size * vector->count);
 }
 
-void vector_insert(struct vector_t* vector, int index, void* data)
+void vector_insert(struct vector_t* vector, intptr_t index, void* data)
 {
-    int offset;
+    intptr_t offset;
 
     /* 
      * Normally the last valid index is (capacity-1), but in this case it's valid
@@ -93,9 +93,9 @@ void vector_insert(struct vector_t* vector, int index, void* data)
     else
     {
         /* shift all elements up by one to make space for insertion */
-        int total_size = vector->count * vector->element_size;
-        offset = index * vector->element_size;
-        memcpy(vector->data + offset + vector->element_size,
+        intptr_t total_size = vector->count * vector->element_size;
+        offset = vector->element_size * index;
+        memmove(vector->data + offset + vector->element_size,
                vector->data + offset,
                total_size - offset);
     }
@@ -103,13 +103,13 @@ void vector_insert(struct vector_t* vector, int index, void* data)
     /* copy new element into the specified index */
     offset = vector->element_size * index;
     memcpy(vector->data + offset, data, vector->element_size);
-    ++vector->count;
+    ++(vector->count);
 }
 
-void vector_erase(struct vector_t* vector, int index)
+void vector_erase_index(struct vector_t* vector, intptr_t index)
 {
-    int offset;
-    int total_size;
+    intptr_t offset;
+    intptr_t total_size;
 
     if(index >= vector->capacity)
         return;
@@ -117,27 +117,27 @@ void vector_erase(struct vector_t* vector, int index)
     /* shift memory right after the specified element down by one element */
     offset = vector->element_size * index;  /* offset to the element being erased in bytes */
     total_size = vector->element_size * vector->count; /* total current size in bytes */
-    memcpy(vector->data + offset,   /* target is to overwrite the element specified by index */
-           vector->data + offset + vector->element_size,    /* copy beginning from one element ahead of element to be erased */
-           total_size - offset - vector->element_size);     /* copying number of elements after element to be erased */
-    --vector->count;
+    memmove(vector->data + offset,   /* target is to overwrite the element specified by index */
+            vector->data + offset + vector->element_size,    /* copy beginning from one element ahead of element to be erased */
+            total_size - offset - vector->element_size);     /* copying number of elements after element to be erased */
+    --(vector->count);
 }
 
-void* vector_get_element(struct vector_t* vector, int index)
+void* vector_get_element(struct vector_t* vector, intptr_t index)
 {
     if(index >= vector->count)
         return NULL;
     return vector->data + (vector->element_size * index);
 }
 
-static void vector_expand(struct vector_t* vector, int insertion_index)
+static void vector_expand(struct vector_t* vector, intptr_t insertion_index)
 {
-    int new_size;
-    DATA_POINTER_TYPE old_data;
-    DATA_POINTER_TYPE new_data;
+    intptr_t new_size;
+    intptr_t old_data;
+    intptr_t new_data;
 
     /* expand by factor 2 */
-    new_size = vector->capacity << 2;
+    new_size = vector->capacity << 1;
     
     /* 
      * If vector hasn't allocated anything yet, allocate the first two elements
@@ -145,13 +145,15 @@ static void vector_expand(struct vector_t* vector, int insertion_index)
      */
     if(new_size == 0)
     {
-        vector->data = MALLOC(vector->element_size << 2);
+        new_size = 2;
+        vector->data = MALLOC(vector->element_size * new_size);
+        vector->capacity = new_size;
         return;
     }
-    
+
     /* prepare for reallocating data */
     old_data = vector->data;
-    new_data = (DATA_POINTER_TYPE)MALLOC(vector->element_size * new_size);
+    new_data = (DATA_POINTER_TYPE*)MALLOC(vector->element_size * new_size);
     
     /* if no insertion index is required, copy all data to new memory */
     if(insertion_index == -1 || insertion_index >= new_size)
@@ -161,8 +163,8 @@ static void vector_expand(struct vector_t* vector, int insertion_index)
     else
     {
         /* copy old data up until right before insertion offset */
-        int offset = vector->element_size * insertion_index;
-        int total_size = vector->element_size * vector->count;
+        intptr_t offset = vector->element_size * insertion_index;
+        intptr_t total_size = vector->element_size * vector->count;
         memcpy(new_data, old_data, offset);
         /* copy the remaining amount of old data shifted one element ahead */
         memcpy(new_data + offset + vector->element_size,
@@ -171,7 +173,7 @@ static void vector_expand(struct vector_t* vector, int insertion_index)
     }
     vector->data = new_data;
     FREE(old_data);
-    
+
     /* update counters */
     vector->capacity = new_size;
 }
