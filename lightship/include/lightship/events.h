@@ -102,6 +102,11 @@ api->event_register_listener(plugin, "plugin_name.jump", on_player_jump);
 
 extern struct list_t g_events;
 
+/* ----------------------------
+ * Built-in events
+ * --------------------------*/
+EVENT_H(evt_log);
+
 struct plugin_t;
 
 /*!
@@ -109,6 +114,12 @@ struct plugin_t;
  * @note Must be called before calling any other event related functions.
  */
 void events_init(void);
+
+/*!
+ * @brief De-initialises the event system and cleans up any events that weren't
+ * removed.
+ */
+void events_deinit(void);
 
 /*!
  * @brief Creates and registers a new event in the host program.
