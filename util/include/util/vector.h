@@ -160,13 +160,13 @@ void* vector_get_element(struct vector_t*, intptr_t index);
     var_type* var; \
     DATA_POINTER_TYPE* end_of_vector = (vector)->data + (vector)->count * (vector)->element_size; \
     for(var = (var_type*)(vector)->data; \
-        var != end_of_vector; \
-        var = ((DATA_POINTER_TYPE*)var) + (vector)->element_size)
+        (DATA_POINTER_TYPE*)var != end_of_vector; \
+        var = (var_type*)(((DATA_POINTER_TYPE*)var) + (vector)->element_size))
 
 #define VECTOR_FOR_EACH_ERASE(vector, var_type, var) \
     var_type* var; \
     for(var = (vector)->data; \
-        var < (vector)->data + (vector)->count * (vector)->element_size; \
+        (DATA_POINTER_TYPE*)var < (vector)->data + (vector)->count * (vector)->element_size; \
         var = ((DATA_POINTER_TYPE*)var) + (vector)->element_size)
 
 #endif /* LIGHTSHIP_UTIL_VECTOR_HPP */
