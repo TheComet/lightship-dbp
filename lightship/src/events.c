@@ -147,7 +147,7 @@ char event_register_listener(struct plugin_t* plugin, const char* full_name, eve
     new_listener = (struct event_listener_t*)MALLOC(sizeof(struct event_listener_t));
     new_listener->exec = callback;
     /* create and copy string from plugin name */
-    new_listener->name = MALLOC_string(plugin->info.name);
+    new_listener->name = malloc_string(plugin->info.name);
     list_push(event->listeners, new_listener);
     
     return 1;

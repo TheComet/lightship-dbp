@@ -76,7 +76,7 @@ struct plugin_t* plugin_load(struct plugin_info_t* plugin_info, plugin_search_cr
         /* make sure not already loaded */
         if(plugin_get_by_name(plugin_info->name))
         {
-            fprintf_strings(stderr, 3, "plugin \"", plugin_info->name, "\" already loaded");
+            stderr_strings(3, "plugin \"", plugin_info->name, "\" already loaded");
             break;
         }
 
@@ -112,7 +112,7 @@ struct plugin_t* plugin_load(struct plugin_info_t* plugin_info, plugin_search_cr
         plugin = init_func(&g_api);
         if(!plugin)
         {
-            fprintf_strings(stderr, 1, "Error initialising plugin: \"plugin_init\" returned NULL");
+            stderr_strings(1, "Error initialising plugin: \"plugin_init\" returned NULL");
             break;
         }
         
@@ -122,7 +122,7 @@ struct plugin_t* plugin_load(struct plugin_info_t* plugin_info, plugin_search_cr
         /* ensure the plugin claims to be the same version as its filename */
         if(!plugin_version_acceptable(&plugin->info, filename, PLUGIN_VERSION_EXACT))
         {
-            fprintf_strings(stderr, 5,
+            stderr_strings(5,
                             "Error: plugin claims to be version ",
                             version_str,
                             ", but the filename is \"",
@@ -146,7 +146,7 @@ struct plugin_t* plugin_load(struct plugin_info_t* plugin_info, plugin_search_cr
         list_push(&g_plugins, plugin);
         
         /* print info about loaded plugin */
-        fprintf_strings(stdout, 4,
+        stdout_strings(4,
             "loaded plugin \"",
             plugin->info.name,
             "\", version ",
@@ -174,7 +174,7 @@ struct plugin_t* plugin_load(struct plugin_info_t* plugin_info, plugin_search_cr
 void plugin_unload(struct plugin_t* plugin)
 {
     void* module_handle;
-    fprintf_strings(stdout, 3, "unloading plugin \"", plugin->info.name, "\"");
+    stdout_strings(3, "unloading plugin \"", plugin->info.name, "\"");
     
     /* TODO notify everything that this plugin is about to be unloaded */
     
@@ -253,7 +253,7 @@ static char* find_plugin(struct plugin_info_t* info, plugin_search_criteria_t cr
             info->version.major,
             info->version.minor,
             info->version.patch);
-    fprintf_strings(stdout, 4, "looking for plugin \"", info->name, crit_info[criteria],
+    stdout_strings(4, "looking for plugin \"", info->name, crit_info[criteria],
             version_str);
     
     /* 
