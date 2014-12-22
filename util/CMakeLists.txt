@@ -48,3 +48,16 @@ add_library (lightship_util SHARED
     ${lightship_util_HEADERS}
     ${lightship_util_SOURCES}
 )
+
+###############################################################################
+# install targets
+###############################################################################
+
+install (
+    TARGETS
+        lightship_util
+    LIBRARY DESTINATION
+        "bin"
+    RUNTIME DESTINATION
+        "bin"
+)
