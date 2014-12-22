@@ -51,7 +51,7 @@ char start_core_plugins(void)
     return 1;
 }
 
-char init(void)
+void init(void)
 {
     api_init();
     services_init();
@@ -60,9 +60,14 @@ char init(void)
 
     load_core_plugins();
     if(!start_core_plugins())
-        return 0;
+        return ;
     
-    return 1;
+    /* get start of main loop and enter */
+    start = (start_loop_func)service_get("main_loop.start");
+    if(start)
+        start();
+    else
+        fprintf(stderr, "Failed to find service \"main_loop.start\". Cannot start.");
 }
 
 void deinit(void)
@@ -76,18 +81,7 @@ int main(int argc, char** argv)
     memory_init();
 
     /* initialise everything */
-    if(!init())
-    {
-        deinit();
-        return 0;
-    }
-
-    /* get start of main loop and enter */
-    start = (start_loop_func)service_get("main_loop.start");
-    if(start)
-        start();
-    else
-        fprintf(stderr, "Failed to find service \"main_loop.start\". Cannot start.");
+    init();
 
     /* clean up */
     deinit();
