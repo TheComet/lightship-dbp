@@ -1,13 +1,15 @@
 #ifndef LIGHTSHIP_UTIL_VECTOR_HPP
 #define LIGHTSHIP_UTIL_VECTOR_HPP
 
-#define DATA_POINTER_TYPE unsigned char*
+#include "util/pstdint.h"
+
+#define DATA_POINTER_TYPE unsigned char
 struct vector_t
 {
-    int element_size;       /* how large one element is in bytes */
-    int capacity;           /* how many elements actually fit into the allocated space */
-    int count;              /* number of elements inserted */
-    DATA_POINTER_TYPE data; /* pointer to the contiguous section of memory */
+    intptr_t element_size;       /* how large one element is in bytes */
+    intptr_t capacity;           /* how many elements actually fit into the allocated space */
+    intptr_t count;              /* number of elements inserted */
+    DATA_POINTER_TYPE* data;/* pointer to the contiguous section of memory */
 };
 
 /*!
@@ -16,7 +18,7 @@ struct vector_t
  * the vector to store. Typically one would pass sizeof(my_data_type).
  * @return Returns the newly created vector object.
  */
-struct vector_t* vector_create(const int element_size);
+struct vector_t* vector_create(const intptr_t element_size);
 
 /*!
  * @brief Initialises an existing vector object.
@@ -26,7 +28,7 @@ struct vector_t* vector_create(const int element_size);
  * @param [in] element_size Specifies the size in bytes of the type of data you
  * want the vector to store. Typically one would pass sizeof(my_data_type).
  */
-void vector_init_vector(struct vector_t* vector, const int element_size);
+void vector_init_vector(struct vector_t* vector, const intptr_t element_size);
 
 /*!
  * @brief Destroys an existing vector object and FREEs all memory allocated by
@@ -48,7 +50,7 @@ void vector_clear(struct vector_t* vector);
  * @brief Erases all elements in a vector and FREEs their memory.
  * @param [in] vector The vector to clear.
  */
-void vector_clear_FREE(struct vector_t* vector);
+void vector_clear_free(struct vector_t* vector);
 
 /*!
  * @brief Gets the number of elements that have been inserted into the vector.
@@ -106,7 +108,7 @@ void* vector_pop(struct vector_t* vector);
  * sizeof(data) is equal to what was specified when the vector was first
  * created. If this is not the case then it could cause undefined behaviour.
  */
-void vector_insert(struct vector_t* vector, int index, void* data);
+void vector_insert(struct vector_t* vector, intptr_t index, void* data);
 
 /*!
  * @brief Erases the specified element from the vector.
@@ -115,7 +117,13 @@ void vector_insert(struct vector_t* vector, int index, void* data);
  * @param [in] index The position of the element in the vector to erase. The index
  * ranges from **0** to **vector_count()-1**.
  */
-void vector_erase(struct vector_t* vector, int index);
+void vector_erase_index(struct vector_t* vector, intptr_t index);
+
+/*!
+ * @brief Searches the vector for the specified data, then erases it.
+ * @param [in] vector The vector from which to erase the data.
+ */
+void vector_erase_element(struct vector_t* vector, void* data);
 
 /*!
  * @brief Gets a pointer to the specified element in the vector.
@@ -130,7 +138,7 @@ void vector_erase(struct vector_t* vector, int index);
  * If the specified element doesn't exist (index out of bounds), NULL is
  * returned.
  */
-void* vector_get_element(struct vector_t*, int index);
+void* vector_get_element(struct vector_t*, intptr_t index);
 
 /*!
  * @brief Convenient macro for iterating a vector's elements.
@@ -150,7 +158,15 @@ void* vector_get_element(struct vector_t*, int index);
  */
 #define VECTOR_FOR_EACH(vector, var_type, var) \
     var_type* var; \
-    void* end_of_vector = vector->data + vector->count * vector->element_size; \
-    for(var = vector->data; var != end_of_vector; var += vector->element_size)
+    DATA_POINTER_TYPE* end_of_vector = (vector)->data + (vector)->count * (vector)->element_size; \
+    for(var = (var_type*)(vector)->data; \
+        var != end_of_vector; \
+        var = ((DATA_POINTER_TYPE*)var) + (vector)->element_size)
+
+#define VECTOR_FOR_EACH_ERASE(vector, var_type, var) \
+    var_type* var; \
+    for(var = (vector)->data; \
+        var < (vector)->data + (vector)->count * (vector)->element_size; \
+        var = ((DATA_POINTER_TYPE*)var) + (vector)->element_size)
 
 #endif /* LIGHTSHIP_UTIL_VECTOR_HPP */

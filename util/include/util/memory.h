@@ -8,6 +8,7 @@
 #   define FREE free
 #endif
 
+void memory_init(void);
 void* malloc_debug(intptr_t size);
 void free_debug(void* ptr);
-void memory_report(void);
+void memory_deinit(void);

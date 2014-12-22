@@ -190,7 +190,6 @@ void event_unregister_all_listeners_of_plugin(struct plugin_t* plugin)
      * to the specified plugin
      */
     char* namespace = event_get_namespace_name(plugin);
-    int len = strlen(namespace);
     {
         LIST_FOR_EACH(&g_events, struct event_t, event)
         {

@@ -72,6 +72,9 @@ void deinit(void)
 
 int main(int argc, char** argv)
 {
+    /* first thing - initialise memory management */
+    memory_init();
+
     /* initialise everything */
     if(!init())
     {
@@ -88,7 +91,9 @@ int main(int argc, char** argv)
 
     /* clean up */
     deinit();
-    memory_report();
+    
+    /* de-init memory management and print report */
+    memory_deinit();
 
     return 0;
 }

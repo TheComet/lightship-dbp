@@ -13,10 +13,8 @@
 
 struct plugin_t* g_plugin = NULL;
 
-PLUGIN_INIT()
+void set_plugin_info(void)
 {
-    g_plugin = plugin_create();
-    
     /* set plugin information */
     plugin_set_info(g_plugin,
             "renderer_gl",                  /* name */
@@ -33,7 +31,12 @@ PLUGIN_INIT()
             RENDERER_GL_VERSION_MINOR,
             RENDERER_GL_VERSION_PATCH
     );
-    
+}
+
+PLUGIN_INIT()
+{
+    g_plugin = plugin_create();
+    set_plugin_info();
     register_services(g_plugin, api);
     register_events(g_plugin, api);
 
