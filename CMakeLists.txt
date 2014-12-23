@@ -11,6 +11,9 @@ endif()
 
 project ("lightship" C)
 
+# Make macs happy
+set (CMAKE_MACOSX_RPATH OFF)
+
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     set (PLATFORM "LINUX")
 elseif (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
