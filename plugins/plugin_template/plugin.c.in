@@ -1,22 +1,24 @@
-#include "lightship/api.h" /* lightship API so we can register and call services */
-#include "util/config.h"   /* platform macros and definitions */
-#include "util/plugin.h"   /* plugin api */
-#include "@NAME@/config.h"  /* configurations for this plugin */
+#include "@NAME@/config.h"   /* configurations for this plugin */
+#include "lightship/api.h"   /* lightship API so we can register and call services */
+#include "util/config.h"     /* platform macros and definitions */
+#include "util/plugin.h"     /* plugin api */
+#include "@NAME@/services.h" /* plugin services */
+#include "@NAME@/events.h"   /* plugin events */
 
 struct plugin_t* g_plugin = NULL;
 
-LIGHTSHIP_PUBLIC_API struct plugin_t* plugin_init(struct lightship_api_t* api)
+void create_and_init_plugin(void)
 {
     /* create plugin object - host requires this */
     g_plugin = plugin_create();
     
-    /* set plugin information */
+    /* set plugin information - Change this in the file "CMakeLists.txt" */
     plugin_set_info(g_plugin,
-            "",   /* name */
-            "",   /* category */
-            "",   /* author */
-            "",   /* description */
-            ""    /* website */
+            @NAME_CAPS@_NAME,         /* name */
+            @NAME_CAPS@_CATEGORY,     /* category */
+            @NAME_CAPS@_AUTHOR,       /* author */
+            @NAME_CAPS@_DESCRIPTION,  /* description */
+            @NAME_CAPS@_WEBSITE       /* website */
     );
     plugin_set_programming_language(g_plugin,
             PLUGIN_PROGRAMMING_LANGUAGE_C
@@ -26,16 +28,24 @@ LIGHTSHIP_PUBLIC_API struct plugin_t* plugin_init(struct lightship_api_t* api)
             @NAME_CAPS@_VERSION_MINOR,
             @NAME_CAPS@_VERSION_PATCH
     );
+}
 
+PLUGIN_INIT()
+{
+    create_and_init_plugin();
+    register_services();
+    register_events();
     return g_plugin;
 }
 
-LIGHTSHIP_PUBLIC_API plugin_result_t plugin_start(void)
+PLUGIN_START()
 {
+    register_event_listeners();
+
     return PLUGIN_SUCCESS;
 }
 
-LIGHTSHIP_PUBLIC_API void plugin_stop(void)
+PLUGIN_STOP()
 {
     plugin_destroy(g_plugin);
 }
