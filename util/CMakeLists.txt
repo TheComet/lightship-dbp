@@ -21,14 +21,10 @@ set (BUILD_TYPE "SHARED")
 
 if (CMAKE_BUILD_TYPE MATCHES Debug)
     option (ENABLE_MEMORY_REPORT "Keeps track of the number of allocations and de-allocations and prints a report when the program shuts down" ON)
-    if (ENABLE_MEMORY_REPORT)
-        option (ENABLE_BACKTRACE "Generates backtraces for every malloc(), making it easy to track down memory leaks" ON)
-    endif ()
+    option (ENABLE_BACKTRACE "Generates backtraces for every malloc(), making it easy to track down memory leaks" ON)
 else ()
     option (ENABLE_MEMORY_REPORT "Keeps track of the number of allocations and de-allocations and prints a report when the program shuts down" OFF)
-    if (ENABLE_MEMORY_REPORT)
-        option (ENABLE_BACKTRACE "Generates backtraces for every malloc(), making it easy to track down memory leaks" OFF)
-    endif ()
+    option (ENABLE_BACKTRACE "Generates backtraces for every malloc(), making it easy to track down memory leaks" OFF)
 endif ()
 
 configure_file ("include/util/config.h.in"
