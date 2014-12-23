@@ -11,6 +11,8 @@
 
     #define @PROJECT_NAME@_@BUILD_TYPE@
     #define @PROJECT_NAME@_@PLATFORM@
+    #cmakedefine ENABLE_MEMORY_REPORT
+    #cmakedefine ENABLE_BACKTRACE
 
     /* --------------------------------------------------------------
      * Identify the operating system

@@ -102,7 +102,7 @@ void init(void)
 void deinit(void)
 {
     plugin_manager_deinit();
-    events_deinit();
+    /*events_deinit();*/
 }
 
 int main(int argc, char** argv)
