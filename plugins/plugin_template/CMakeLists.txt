@@ -9,8 +9,7 @@ string (TOUPPER ${NAME} NAME_CAPS)
 configure_file ("CMakeLists.txt.in" "${NAME}/CMakeLists.txt" @ONLY)
 configure_file ("plugin.c.in" "${NAME}/src/plugin_${NAME}.c" @ONLY)
 configure_file ("config.h.in.in" "${NAME}/include/${NAME}/config.h.in")
-
-execute_process (COMMAND cmake -E remove "CMakeCache.txt")
-#    "${CMAKE_SOURCE_DIR}/CMakeFiles"
-#    "${CMAKE_SOURCE_DIR}/cmake_install.cmake"
-#    "${CMAKE_SOURCE_DIR}/Makefile"
+configure_file ("events.h.in" "${NAME}/include/${NAME}/events.h" @ONLY)
+configure_file ("events.c.in" "${NAME}/src/events.c" @ONLY)
+configure_file ("services.h.in" "${NAME}/include/${NAME}/services.c" @ONLY)
+configure_file ("services.c.in" "${NAME}/src/services.c" @ONLY)

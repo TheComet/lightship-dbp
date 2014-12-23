@@ -267,8 +267,8 @@ static char* event_get_namespace_name(struct plugin_t* plugin)
 
 static void event_free(struct event_t* event)
 {
-    FREE(event->name); /* full_name must be FREEd manually, see event_create() */
     event_unregister_all_listeners(event);
+    FREE(event->name); /* full_name must be FREEd manually, see event_create() */
     list_destroy(event->listeners);
     FREE(event);
 }
