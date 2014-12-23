@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#define BACKTRACE_OMIT_COUNT 1
+#define BACKTRACE_OMIT_COUNT 2
 
 #ifdef ENABLE_MEMORY_REPORT
 static intptr_t allocations = 0;
