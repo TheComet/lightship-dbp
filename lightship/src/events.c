@@ -49,7 +49,7 @@ static void event_listener_free(struct event_listener_t* listener);
 static struct event_t* event_malloc_and_register(char* full_name);
 
 struct list_t g_events;
-EVENT_C(evt_log);
+EVENT_C(evt_log)
 
 void events_init(void)
 {
