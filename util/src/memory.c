@@ -1,7 +1,10 @@
 #include "util/memory.h"
 #include "util/vector.h"
+#include "util/backtrace.h"
 #include <stdlib.h>
 #include <stdio.h>
+
+#define BACKTRACE_OMIT_COUNT 1
 
 static intptr_t allocations = 0;
 static intptr_t deallocations = 0;
@@ -12,6 +15,8 @@ struct report_info_t
 {
     intptr_t location;
     intptr_t size;
+    intptr_t backtrace_size;
+    char** backtrace;
 };
 
 void memory_init(void)
@@ -39,6 +44,7 @@ void* malloc_debug(intptr_t size)
         struct report_info_t info;
         info.location = (intptr_t)p;
         info.size = size;
+        info.backtrace = get_backtrace(&info.backtrace_size);
         ignore_vector_malloc = 1;
         vector_push(&report, &info);
         ignore_vector_malloc = 0;
@@ -62,6 +68,7 @@ void free_debug(void* ptr)
         {
             if(info->location == (intptr_t)ptr)
             {
+                free(info->backtrace);
                 vector_erase_index(&report, ( ((DATA_POINTER_TYPE*)info) - report.data) / report.element_size);
                 break;
             }
@@ -72,22 +79,31 @@ void free_debug(void* ptr)
 void memory_deinit(void)
 {
 #ifdef _DEBUG
+    intptr_t i;
     --allocations; /* this is the single allocation still held by the report vector */
-    printf("Memory Report:\n");
-    printf("  allocations: %lu\n", allocations);
-    printf("  deallocations: %lu\n", deallocations);
-    printf("  memory leaks: %lu\n", (allocations > deallocations ? allocations - deallocations : deallocations - allocations));
+    printf("=========================================\n");
+    printf("Memory Report\n");
+    printf("=========================================\n");
     if(vector_count(&report) != 0)
     {
-        printf("  -----------------------------------------\n");
         {
             VECTOR_FOR_EACH(&report, struct report_info_t, info)
             {
-                printf("    un-freed memory at 0x%lx, size 0x%lx\n", info->location, info->size);
+                printf("  un-freed memory at 0x%lx, size 0x%lx\n", info->location, info->size);
+                printf("  Backtrace to where malloc() was called:\n");
+                for(i = BACKTRACE_OMIT_COUNT; i < info->backtrace_size; ++i)
+                    printf("      %s\n", info->backtrace[i]);
+                free(info->backtrace);
+                printf("  -----------------------------------------\n");
             }
         }
-        printf("  -----------------------------------------\n");
+        printf("=========================================\n");
     }
+    printf("allocations: %lu\n", allocations);
+    printf("deallocations: %lu\n", deallocations);
+    printf("memory leaks: %lu\n", (allocations > deallocations ? allocations - deallocations : deallocations - allocations));
+    printf("=========================================\n");
+    ++allocations; /* this is the single allocation still held by the report vector */
     vector_clear_free(&report);
 #endif
 }
