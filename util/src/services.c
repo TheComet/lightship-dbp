@@ -9,7 +9,15 @@ struct list_t g_services;
 
 void services_init(void)
 {
+    char* name;
+    
     list_init_list(&g_services);
+    
+    /* ----------------------------
+     * Register built-in services 
+     * --------------------------*/
+    
+    
 }
 
 char service_register(struct plugin_t* plugin,
@@ -26,14 +34,19 @@ char service_register(struct plugin_t* plugin,
         FREE(full_name);
         return 0;
     }
+    
+    service_malloc_and_register(full_name, exec);
+    
+    return 1;
+}
 
+void service_malloc_and_register(char* full_name, intptr_t exec)
+{
     /* create service and add to list */
-    service = (struct service_t*)MALLOC(sizeof(struct service_t));
+    struct service_t* service = (struct service_t*)MALLOC(sizeof(struct service_t));
     service->name = full_name;
     service->exec = exec;
     list_push(&g_services, service);
-    
-    return 1;
 }
 
 char service_unregister(struct plugin_t* plugin,

@@ -18,6 +18,7 @@ void services_init(void);
 LIGHTSHIP_PUBLIC_API char service_register(struct plugin_t* plugin,
                       const char* name,
                       intptr_t exec);
+void service_malloc_and_register(char* full_name, intptr_t exec);
 LIGHTSHIP_PUBLIC_API char service_unregister(struct plugin_t* plugin,
                         const char* name);
 LIGHTSHIP_PUBLIC_API void service_unregister_all(struct plugin_t* plugin);
