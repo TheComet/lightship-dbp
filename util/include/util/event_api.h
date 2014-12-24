@@ -24,10 +24,12 @@ typedef void (*event_func)(struct event_t*, void*);
         { \
             intptr_t size, i; \
             char** backtrace = get_backtrace(&size); \
-            llog(LOG_ERROR, 1, "Cannot fire event for it is NULL\n"); \
+            llog(LOG_ERROR, 1, "Cannot fire event for it is NULL"); \
+            llog_indent("Backtrace"); \
             for(i = 0; i != size; ++i) \
                 llog(LOG_ERROR, 1, backtrace[i]); \
             free(backtrace); \
+            llog_unindent(); \
         }
 #else
 #   define EVENT_FIRE(event, arg) \
