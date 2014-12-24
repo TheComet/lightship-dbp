@@ -50,7 +50,7 @@ LIGHTSHIP_PUBLIC_API void llog(log_level_t level, uint32_t num_strs, ...)
 #ifdef LOG_ENABLE_TIMESTAMPS
     rawtime = time(NULL); /* get system time */
     timeinfo = localtime(&rawtime); /* convert to local time */
-    total_length = strftime(timestamp, 12, "[%X] ", timeinfo) - 1;
+    total_length = strftime(timestamp, 12, "[%X] ", timeinfo);
 #endif
 
     /* determine prefix string */
@@ -84,7 +84,7 @@ LIGHTSHIP_PUBLIC_API void llog(log_level_t level, uint32_t num_strs, ...)
     for(i = 0; i != num_strs; ++i)
         total_length += safe_strlen(va_arg(ap, char*));
     total_length += strlen(prefix);
-    total_length += 2; /* null terminator and newline*/
+    total_length += 2; /* null terminator and newline */
     va_end(ap);
     
     /* allocate buffer and copy all strings into it */
@@ -104,7 +104,7 @@ LIGHTSHIP_PUBLIC_API void llog(log_level_t level, uint32_t num_strs, ...)
         safe_strcat(buffer, va_arg(ap, char*));
     va_end(ap);
     strcat(buffer, "\n");
-    
+
     /* fire event and clean up */
     log_.level = level;
     log_.message = buffer;
