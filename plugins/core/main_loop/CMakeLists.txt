@@ -5,9 +5,9 @@ project ("plugin_main_loop" C)
 ###############################################################################
 
 if (${CMAKE_C_COMPILER_ID} STREQUAL "GNU")
-    add_definitions (-W -Wall -Wextra -pedantic)
+    add_definitions (-W -Wall -Wextra -pedantic -Wno-unused-parameter)
 elseif (${CMAKE_C_COMPILER_ID} STREQUAL "Clang")
-    add_definitions (-W -Wall -Wextra -pedantic)
+    add_definitions (-W -Wall -Wextra -pedantic -Wno-unused-parameter)
 elseif (${CMAKE_C_COMPILER_ID} STREQUAL "Intel")
 elseif (${CMAKE_C_COMPILER_ID} STREQUAL "MSVC")
 endif ()

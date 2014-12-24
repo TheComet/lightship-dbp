@@ -153,5 +153,5 @@ EVENT_LISTENER(on_llog, struct log_t* arg)
     if(g_log_indent)
         fprintf(fp, "    %s", arg->message);
     else
-        fprintf(fp, arg->message);
+        fprintf(fp, "%s", arg->message);
 }
