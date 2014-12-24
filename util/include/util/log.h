@@ -20,7 +20,7 @@ struct log_t
     char* message;
 };
 
-void log_init(void);
+LIGHTSHIP_PUBLIC_API void log_init(void);
 LIGHTSHIP_PUBLIC_API void llog_indent(const char* indent_name);
 LIGHTSHIP_PUBLIC_API void llog_unindent(void);
 LIGHTSHIP_PUBLIC_API void llog(log_level_t level, uint32_t num_strs, ...);
