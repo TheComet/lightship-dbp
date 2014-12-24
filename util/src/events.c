@@ -162,15 +162,25 @@ struct event_t* event_get(const char* full_name)
 char event_register_listener(struct plugin_t* plugin, const char* full_name, event_func callback)
 {
     struct event_listener_t* new_listener;
+    char* register_name;
+    
+    /* get register name - if NULL was specified as a plugin, make it an empty string */
+    if(plugin)
+        register_name = plugin->info.name;
+    else
+        register_name = "";
+    
+    /* make sure event exists */
     struct event_t* event = event_get(full_name);
     if(event == NULL)
         return 0;
     
     /* make sure plugin hasn't already registered to this event */
+    if(plugin)
     {
         LIST_FOR_EACH(event->listeners, struct event_listener_t, listener)
         {
-            if(strcmp(listener->name, plugin->info.name) == 0)
+            if(strcmp(listener->name, register_name) == 0)
                 return 0;
         }
     }
@@ -179,7 +189,7 @@ char event_register_listener(struct plugin_t* plugin, const char* full_name, eve
     new_listener = (struct event_listener_t*)MALLOC(sizeof(struct event_listener_t));
     new_listener->exec = callback;
     /* create and copy string from plugin name */
-    new_listener->name = malloc_string(plugin->info.name);
+    new_listener->name = malloc_string(register_name);
     list_push(event->listeners, new_listener);
     
     return 1;

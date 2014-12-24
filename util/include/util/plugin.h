@@ -1,5 +1,5 @@
-#ifndef LIGHTSHIP_UTIL_PLUGIN_HPP
-#define LIGHTSHIP_UTIL_PLUGIN_HPP
+#ifndef LIGHTSHIP_UTIL_PLUGIN_H
+#define LIGHTSHIP_UTIL_PLUGIN_H
 
 #include "util/plugin_api.h"
 #include "util/config.h"
@@ -86,4 +86,4 @@ LIGHTSHIP_PUBLIC_API int plugin_extract_version_from_string(const char* file,
  */
 LIGHTSHIP_PUBLIC_API void plugin_get_version_string(char* str, struct plugin_info_t* info);
 
-#endif /* LIGHTSHIP_UTIL_PLUGIN_HPP */
+#endif /* LIGHTSHIP_UTIL_PLUGIN_H */

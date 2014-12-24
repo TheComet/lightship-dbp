@@ -1,7 +1,10 @@
+#ifndef LIGHTSHIP_UTIL_MEMORY_H
+#define LIGHTSHIP_UTIL_MEMORY_H
+
 #include "util/pstdint.h"
 #include "util/config.h"
 
-#ifdef ENABLE_MEMORY_REPORT
+#ifdef MEMORY_ENABLE_MEMORY_REPORT
 #   define MALLOC malloc_debug
 #   define FREE free_debug
 #else
@@ -12,7 +15,9 @@
 void memory_init(void);
 void memory_deinit(void);
 
-#ifdef ENABLE_MEMORY_REPORT
+#ifdef MEMORY_ENABLE_MEMORY_REPORT
 LIGHTSHIP_PUBLIC_API void* malloc_debug(intptr_t size);
 LIGHTSHIP_PUBLIC_API void free_debug(void* ptr);
 #endif
+
+#endif /* LIGHTSHIP_UTIL_MEMORY_H */

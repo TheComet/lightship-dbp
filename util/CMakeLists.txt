@@ -20,15 +20,21 @@ set (PROJECT_NAME "LIGHTSHIP")
 set (BUILD_TYPE "SHARED")
 
 if (CMAKE_BUILD_TYPE MATCHES Debug)
-    option (ENABLE_MEMORY_REPORT "Keeps track of the number of allocations and de-allocations and prints a report when the program shuts down" ON)
-    option (ENABLE_BACKTRACE "Generates backtraces for every malloc(), making it easy to track down memory leaks" ON)
+    option (MEMORY_ENABLE_MEMORY_REPORT "Keeps track of the number of allocations and de-allocations and prints a report when the program shuts down" ON)
+    option (MEMORY_ENABLE_BACKTRACE "Generates backtraces for every malloc(), making it easy to track down memory leaks" ON)
 else ()
-    option (ENABLE_MEMORY_REPORT "Keeps track of the number of allocations and de-allocations and prints a report when the program shuts down" OFF)
-    option (ENABLE_BACKTRACE "Generates backtraces for every malloc(), making it easy to track down memory leaks" OFF)
+    option (MEMORY_ENABLE_MEMORY_REPORT "Keeps track of the number of allocations and de-allocations and prints a report when the program shuts down" OFF)
+    option (MEMORY_ENABLE_BACKTRACE "Generates backtraces for every malloc(), making it easy to track down memory leaks" OFF)
 endif ()
 
+option (LOG_ENABLE_TIMESTAMPS "Whether or not to prefix log messages with timestamps" ON)
+
 configure_file ("include/util/config.h.in"
-                "${CMAKE_SOURCE_DIR}/util/include/util/config.h")
+                "include/util/config.h")
+execute_process (COMMAND cmake -E copy
+    "${CMAKE_BINARY_DIR}/util/include/util/config.h"
+    "${CMAKE_SOURCE_DIR}/util/include/util/config.h"
+)
 
 ###############################################################################
 # select platform specific implementation source files
@@ -51,6 +57,10 @@ endif ()
 
 file (GLOB lightship_util_HEADERS "include/util/*.h" ${PLATFORM_HEADER_DIRS})
 file (GLOB lightship_util_SOURCES "src/*.c" ${PLATFORM_SOURCE_DIRS})
+
+set (lightship_util_HEADERS ${lightship_util_HEADERS}
+    "include/util/config.h.in"
+)
 
 add_library (lightship_util ${BUILD_TYPE}
     ${lightship_util_HEADERS}

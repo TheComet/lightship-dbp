@@ -1,3 +1,6 @@
+#ifndef LIGHTSHIP_UTIL_STRING_H
+#define LIGHTSHIP_UTIL_STRING_H
+
 #include <stdio.h>
 #include "util/config.h"
 
@@ -37,3 +40,5 @@ LIGHTSHIP_PUBLIC_API char* malloc_string(const char* str);
  * @return Returns 1 if it is a number, 0 if otherwise.
  */
 LIGHTSHIP_PUBLIC_API int is_number(const char chr);
+
+#endif /* LIGHTSHIP_UTIL_STRING_H */
