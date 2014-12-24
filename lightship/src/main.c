@@ -35,7 +35,7 @@ void load_core_plugins(void)
     target.version.major = 0;
     target.version.minor = 0;
     target.version.patch = 1;
-    /*plugin_renderer = plugin_load(&target, PLUGIN_VERSION_MINIMUM);*/
+    plugin_renderer = plugin_load(&target, PLUGIN_VERSION_MINIMUM);
 
     /* 
      * Input plugin.
@@ -45,7 +45,7 @@ void load_core_plugins(void)
     target.version.major = 0;
     target.version.minor = 0;
     target.version.patch = 1;
-    /*plugin_input = plugin_load(&target, PLUGIN_VERSION_MINIMUM);*/
+    plugin_input = plugin_load(&target, PLUGIN_VERSION_MINIMUM);
 }
 
 char start_core_plugins(void)
@@ -102,7 +102,7 @@ void init(void)
 void deinit(void)
 {
     plugin_manager_deinit();
-    /*events_deinit();*/
+    events_deinit();
 }
 
 int main(int argc, char** argv)
@@ -115,7 +115,7 @@ int main(int argc, char** argv)
 
     /* clean up */
     deinit();
-    
+
     /* de-init memory management and print report */
     memory_deinit();
 
