@@ -12,4 +12,4 @@ struct window_t
 char window_init(void);
 void window_deinit(void);
 
-EVENT_LISTENER(on_render);
+EVENT_LISTENER(on_render, void* arg);
