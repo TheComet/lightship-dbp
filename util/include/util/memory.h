@@ -9,8 +9,8 @@
 #   define FREE free
 #endif
 
-LIGHTSHIP_PUBLIC_API void memory_init(void);
-LIGHTSHIP_PUBLIC_API void memory_deinit(void);
+void memory_init(void);
+void memory_deinit(void);
 
 #ifdef ENABLE_MEMORY_REPORT
 LIGHTSHIP_PUBLIC_API void* malloc_debug(intptr_t size);

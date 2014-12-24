@@ -128,7 +128,7 @@ void events_deinit(void);
  * @param name The name of the event. Should be unique plugin-wide.
  * @return Returns a new event object which should be stored by the plugin.
  */
-struct event_t* event_create(struct plugin_t* plugin,
+LIGHTSHIP_PUBLIC_API struct event_t* event_create(struct plugin_t* plugin,
                              const char* name);
 
 /*!
@@ -137,7 +137,7 @@ struct event_t* event_create(struct plugin_t* plugin,
  * @param event The event object to destroy.
  * @return Returns 1 if successful, 0 if otherwise.
  */
-char event_destroy(struct event_t* event_delete);
+LIGHTSHIP_PUBLIC_API char event_destroy(struct event_t* event_delete);
 
 /*!
  * @brief Destroys an event object by plugin object and name.
@@ -145,7 +145,7 @@ char event_destroy(struct event_t* event_delete);
  * @param plugin The plugin that created the event.
  * @param name The name of the event.
  */
-void event_destroy_plugin_event(struct plugin_t* plugin,
+LIGHTSHIP_PUBLIC_API void event_destroy_plugin_event(struct plugin_t* plugin,
                                 const char* name);
 
 /*!
@@ -153,42 +153,42 @@ void event_destroy_plugin_event(struct plugin_t* plugin,
  * @note This also destroys all registered event listeners.
  * @param plugin The plugin to destroy the events from.
  */
-void event_destroy_all_plugin_events(struct plugin_t* plugin);
+LIGHTSHIP_PUBLIC_API void event_destroy_all_plugin_events(struct plugin_t* plugin);
 
 /*!
  * @brief Returns an event object with the specified name.
  * @return If the event object does not exist, NULL is returned, otherwise the
  * event object is returned.
  */
-struct event_t* event_get(const char* full_name);
+LIGHTSHIP_PUBLIC_API struct event_t* event_get(const char* full_name);
 
 /*!
  * @brief Registers a listener to the specified event.
  */
-char event_register_listener(struct plugin_t* plugin, const char* full_name, event_func callback);
+LIGHTSHIP_PUBLIC_API char event_register_listener(struct plugin_t* plugin, const char* full_name, event_func callback);
 
 /*!
  * @brief Unregisters a listener from the specified event.
  */
-char event_unregister_listener(const char* event_name, const char* plugin_name);
+LIGHTSHIP_PUBLIC_API char event_unregister_listener(const char* event_name, const char* plugin_name);
 
 /*!
  * @brief Unregisters all listeners from the specified event.
  */
-void event_unregister_all_listeners(struct event_t* event);
+LIGHTSHIP_PUBLIC_API void event_unregister_all_listeners(struct event_t* event);
 
 /*!
  * @brief Unregisters all listeners that belong to the specified plugin
  * globally.
  * @param plugin The plugin the listeners belong to.
  */
-void event_unregister_all_listeners_of_plugin(struct plugin_t* plugin);
+LIGHTSHIP_PUBLIC_API void event_unregister_all_listeners_of_plugin(struct plugin_t* plugin);
 
 /*!
  * @brief Dispatches an event with arguments to all listeners of the specified
  * event.
  */
-void event_dispatch(struct event_t* event, void* args);
+LIGHTSHIP_PUBLIC_API void event_dispatch(struct event_t* event, void* args);
 
 #endif /* LIGHTSHIP_EVENTS_HPP */
 
