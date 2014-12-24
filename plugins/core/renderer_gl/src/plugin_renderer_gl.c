@@ -37,8 +37,8 @@ PLUGIN_INIT()
 {
     g_plugin = plugin_create();
     set_plugin_info();
-    register_services(g_plugin, api);
-    register_events(g_plugin, api);
+    register_services(g_plugin);
+    register_events(g_plugin);
 
     return g_plugin;
 }
@@ -55,7 +55,7 @@ PLUGIN_START()
     if(!window_init())
         return PLUGIN_FAILURE;
     
-    register_event_listeners(g_plugin, api);
+    register_event_listeners(g_plugin);
 
     return PLUGIN_SUCCESS;
 }

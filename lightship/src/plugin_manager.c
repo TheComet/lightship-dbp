@@ -2,8 +2,8 @@
 #include <string.h>
 #include <stdlib.h>
 #include "lightship/plugin_manager.h"
-#include "lightship/services.h"
-#include "lightship/events.h"
+#include "util/services.h"
+#include "util/events.h"
 #include "util/config.h"
 #include "util/plugin.h"
 #include "util/linked_list.h"

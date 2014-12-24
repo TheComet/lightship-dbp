@@ -1,14 +1,14 @@
-#include "lightship/api.h"
+#include "util/events.h"
 #include "main_loop/main_loop.h"
 
 EVENT_C(evt_render)
 
-void register_events(struct plugin_t* plugin, struct lightship_api_t* api)
+void register_events(struct plugin_t* plugin)
 {
-    evt_render = api->event_create(plugin, "render");
+    evt_render = event_create(plugin, "render");
 }
 
-void register_event_listeners(struct plugin_t* plugin, struct lightship_api_t* api)
+void register_event_listeners(struct plugin_t* plugin)
 {
-    api->event_register_listener(plugin, "renderer_gl.close_window", main_loop_stop);
+    event_register_listener(plugin, "renderer_gl.close_window", main_loop_stop);
 }

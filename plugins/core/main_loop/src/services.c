@@ -1,8 +1,9 @@
 #include "lightship/api.h"
+#include "util/services.h"
 #include "main_loop/main_loop.h"
 
-void register_services(struct plugin_t* plugin, struct lightship_api_t* api)
+void register_services(struct plugin_t* plugin)
 {
-    api->service_register(plugin, "start", (intptr_t)main_loop_start);
-    api->service_register(plugin, "stop", (intptr_t)main_loop_stop);
+    service_register(plugin, "start", (intptr_t)main_loop_start);
+    service_register(plugin, "stop", (intptr_t)main_loop_stop);
 }

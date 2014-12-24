@@ -32,15 +32,15 @@ PLUGIN_INIT()
             MAIN_LOOP_VERSION_PATCH
     );
 
-    register_services(g_plugin, api);
-    register_events(g_plugin, api);
+    register_services(g_plugin);
+    register_events(g_plugin);
 
     return g_plugin;
 }
 
 PLUGIN_START()
 {
-    register_event_listeners(g_plugin, api);
+    register_event_listeners(g_plugin);
     return PLUGIN_SUCCESS;
 }
 

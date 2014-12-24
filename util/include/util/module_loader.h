@@ -6,7 +6,7 @@
  * @return Returns NULL on failure, returns the handle to the module on
  * success.
  */
-LIGHTSHIP_PUBLIC_API void* module_open(const char* filename);
+void* module_open(const char* filename);
 
 /*!
  * @brief Retrieves a symbol from the module.
@@ -15,10 +15,10 @@ LIGHTSHIP_PUBLIC_API void* module_open(const char* filename);
  * @return Returns NULL on failure, returns the address of the symbol on
  * success.
  */
-LIGHTSHIP_PUBLIC_API void* module_sym(void* handle, const char* symbol);
+void* module_sym(void* handle, const char* symbol);
 
 /*!
  * @brief Closes the specified module.
  * @param [in] handle The handle of the module to close.
  */
-LIGHTSHIP_PUBLIC_API void module_close(void* handle);
+void module_close(void* handle);
