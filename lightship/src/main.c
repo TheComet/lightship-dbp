@@ -6,6 +6,7 @@
 #include "util/plugin.h"
 #include "util/vector.h"
 #include "util/memory.h"
+#include "util/log.h"
 
 struct plugin_t* plugin_main_loop = NULL;
 struct plugin_t* plugin_renderer = NULL;
@@ -69,6 +70,12 @@ void init(void)
      */
     services_init();
     events_init();
+    
+    /*
+     * Enable logging as soon as possible (right after enabling services and
+     * events)
+     */
+    log_init();
     
     /*
      * The lightship API must be initialised before any plugins can be

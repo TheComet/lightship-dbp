@@ -1,5 +1,5 @@
-#ifndef LIGHTSHIP_UTIL_PLUGIN_API_HPP
-#define LIGHTSHIP_UTIL_PLUGIN_API_HPP
+#ifndef LIGHTSHIP_UTIL_PLUGIN_API_H
+#define LIGHTSHIP_UTIL_PLUGIN_API_H
 
 #include "util/pstdint.h"
 
@@ -72,5 +72,5 @@ struct plugin_t
     plugin_stop_func stop;
 };
 
-#endif /* LIGHTSHIP_UTIL_PLUGIN_API_HPP */
+#endif /* LIGHTSHIP_UTIL_PLUGIN_API_H */
 

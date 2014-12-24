@@ -1,3 +1,6 @@
+#ifndef LIGHTSHIP_UTIL_MODULE_LOADER_H
+#define LIGHTSHIP_UTIL_MODULE_LOADER_H
+
 #include "util/config.h"
 
 /*!
@@ -22,3 +25,5 @@ void* module_sym(void* handle, const char* symbol);
  * @param [in] handle The handle of the module to close.
  */
 void module_close(void* handle);
+
+#endif /* LIGHTSHIP_UTIL_MODULE_LOADER_H */

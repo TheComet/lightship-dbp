@@ -1,5 +1,7 @@
-#ifndef LIGHTSHIP_UTIL_EVENT_API_HPP
-#define LIGHTSHIP_UTIL_EVENT_API_HPP
+#ifndef LIGHTSHIP_UTIL_EVENT_API_H
+#define LIGHTSHIP_UTIL_EVENT_API_H
+
+#include <stdio.h>
 
 struct list_t;
 struct event_t;
@@ -35,4 +37,4 @@ struct event_listener_t
     event_func exec;
 };
 
-#endif /* LIGHTSHIP_UTIL_EVENT_API_HPP */
+#endif /* LIGHTSHIP_UTIL_EVENT_API_H */

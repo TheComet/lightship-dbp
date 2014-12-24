@@ -1,5 +1,5 @@
-#ifndef LIGHTSHIP_API_HPP
-#define LIGHTSHIP_API_HPP
+#ifndef LIGHTSHIP_API_H
+#define LIGHTSHIP_API_H
 
 #include "util/plugin.h"
 
@@ -16,4 +16,4 @@ extern struct lightship_api_t g_api;
 
 void api_init(void);
 
-#endif /* LIGHTSHIP_API_HPP */
+#endif /* LIGHTSHIP_API_H */

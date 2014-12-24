@@ -6,7 +6,7 @@
 
 #define BACKTRACE_OMIT_COUNT 2
 
-#ifdef ENABLE_MEMORY_REPORT
+#ifdef MEMORY_ENABLE_MEMORY_REPORT
 static intptr_t allocations = 0;
 static intptr_t deallocations = 0;
 static intptr_t ignore_vector_malloc = 0;
@@ -16,7 +16,7 @@ struct report_info_t
 {
     intptr_t location;
     intptr_t size;
-#ifdef ENABLE_BACKTRACE
+#ifdef MEMORY_ENABLE_BACKTRACE
     intptr_t backtrace_size;
     char** backtrace;
 #endif
@@ -45,7 +45,7 @@ void* malloc_debug(intptr_t size)
         struct report_info_t info;
         info.location = (intptr_t)p;
         info.size = size;
-#ifdef ENABLE_BACKTRACE
+#ifdef MEMORY_ENABLE_BACKTRACE
         info.backtrace = get_backtrace(&info.backtrace_size);
 #endif
         ignore_vector_malloc = 1;
@@ -71,7 +71,7 @@ void free_debug(void* ptr)
         {
             if(info->location == (intptr_t)ptr)
             {
-#ifdef ENABLE_BACKTRACE
+#ifdef MEMORY_ENABLE_BACKTRACE
                 free(info->backtrace);
 #endif
                 vector_erase_index(&report, ( ((DATA_POINTER_TYPE*)info) - report.data) / report.element_size);
@@ -94,7 +94,7 @@ void memory_deinit(void)
             VECTOR_FOR_EACH(&report, struct report_info_t, info)
             {
                 printf("  un-freed memory at 0x%lx, size 0x%lx\n", info->location, info->size);
-#ifdef ENABLE_BACKTRACE
+#ifdef MEMORY_ENABLE_BACKTRACE
                 printf("  Backtrace to where malloc() was called:\n");
                 for(i = BACKTRACE_OMIT_COUNT; i < info->backtrace_size; ++i)
                     printf("      %s\n", info->backtrace[i]);
@@ -112,9 +112,9 @@ void memory_deinit(void)
     ++allocations; /* this is the single allocation still held by the report vector */
     vector_clear_free(&report);
 }
-#else /* ENABLE_MEMORY_REPORT */
+#else /* MEMORY_ENABLE_MEMORY_REPORT */
 
 void memory_init(void) {}
 void memory_deinit(void) {}
 
-#endif /* ENABLE_MEMORY_REPORT */
+#endif /* MEMORY_ENABLE_MEMORY_REPORT */

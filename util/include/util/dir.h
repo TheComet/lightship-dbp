@@ -1,3 +1,6 @@
+#ifndef LIGHTSHIP_UTIL_DIR_H
+#define LIGHTSHIP_UTIL_DIR_H
+
 #include "util/config.h"
 
 struct list_t;
@@ -12,3 +15,5 @@ struct list_t;
  * @param [in] dir The directory to scan (relative or absolute).
  */
 LIGHTSHIP_PUBLIC_API void get_directory_listing(struct list_t* list, const char* dir);
+
+#endif /* LIGHTSHIP_UTIL_DIR_H */

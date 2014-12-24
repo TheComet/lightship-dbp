@@ -25,7 +25,7 @@ __inline static void safe_strcpy(char* target, const char* source)
 
 LIGHTSHIP_PUBLIC_API void stdout_strings(int num_strs, ...)
 {
-	int total_length = 0;
+    int total_length = 0;
     int i;
     char* buffer;
     /* compute total length of all strings combined and allocate a buffer able
@@ -44,14 +44,14 @@ LIGHTSHIP_PUBLIC_API void stdout_strings(int num_strs, ...)
         safe_strcat(buffer, va_arg(ap, char*));
     va_end(ap);
 
-	/* print to stdout and clean up */
-	fprintf(stdout, "%s\n", buffer);
-	FREE(buffer);
+    /* print to stdout and clean up */
+    fprintf(stdout, "%s\n", buffer);
+    FREE(buffer);
 }
 
 LIGHTSHIP_PUBLIC_API void stderr_strings(int num_strs, ...)
 {
-	int total_length = 0;
+    int total_length = 0;
     int i;
     char* buffer;
     /* compute total length of all strings combined and allocate a buffer able
@@ -70,9 +70,9 @@ LIGHTSHIP_PUBLIC_API void stderr_strings(int num_strs, ...)
         safe_strcat(buffer, va_arg(ap, char*));
     va_end(ap);
 
-	/* print to stderr and clean up */
-	fprintf(stderr, "%s\n", buffer);
-	FREE(buffer);
+    /* print to stderr and clean up */
+    fprintf(stderr, "%s\n", buffer);
+    FREE(buffer);
 }
 
 char* cat_strings(int num_strs, ...)
@@ -80,6 +80,7 @@ char* cat_strings(int num_strs, ...)
     int total_length = 0;
     int i;
     char* buffer;
+
     /* compute total length of all strings combined and allocate a buffer able
      * to contain all strings plus a null terminator */
     va_list ap;
