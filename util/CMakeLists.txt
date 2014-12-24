@@ -18,6 +18,7 @@ endif ()
 
 set (PROJECT_NAME "LIGHTSHIP")
 set (BUILD_TYPE "SHARED")
+set (BUILTIN_NAMESPACE_NAME "builtin" CACHE STRING "This is the namespace under which builtin events and services are registered")
 
 if (CMAKE_BUILD_TYPE MATCHES Debug)
     option (MEMORY_ENABLE_MEMORY_REPORT "Keeps track of the number of allocations and de-allocations and prints a report when the program shuts down" ON)

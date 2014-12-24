@@ -103,7 +103,7 @@ void init(void)
     if(start)
         start();
     else
-        fprintf(stderr, "Failed to find service \"main_loop.start\". Cannot start.");
+        llog(LOG_FATAL, 1, "Failed to find service \"main_loop.start\". Cannot start.");
 }
 
 void deinit(void)

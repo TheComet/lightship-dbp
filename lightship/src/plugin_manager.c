@@ -11,6 +11,7 @@
 #include "util/module_loader.h"
 #include "util/dir.h"
 #include "util/memory.h"
+#include "util/log.h"
 
 /*!
  * @brief Evaluates whether the specified file is an acceptable plugin to load
@@ -76,7 +77,7 @@ struct plugin_t* plugin_load(struct plugin_info_t* plugin_info, plugin_search_cr
         /* make sure not already loaded */
         if(plugin_get_by_name(plugin_info->name))
         {
-            stderr_strings(3, "plugin \"", plugin_info->name, "\" already loaded");
+            llog(LOG_ERROR, 3, "plugin \"", plugin_info->name, "\" already loaded");
             break;
         }
 
@@ -84,7 +85,7 @@ struct plugin_t* plugin_load(struct plugin_info_t* plugin_info, plugin_search_cr
         filename = find_plugin(plugin_info, criteria);
         if(!filename)
         {
-            fprintf(stderr, "Error searching for plugin: Unable to find a file matching the critera\n");
+            llog(LOG_ERROR, 1, "Error searching for plugin: Unable to find a file matching the critera\n");
             break;
         }
         
@@ -112,7 +113,7 @@ struct plugin_t* plugin_load(struct plugin_info_t* plugin_info, plugin_search_cr
         plugin = init_func(&g_api);
         if(!plugin)
         {
-            stderr_strings(1, "Error initialising plugin: \"plugin_init\" returned NULL");
+            llog(LOG_ERROR, 1, "Error initialising plugin: \"plugin_init\" returned NULL");
             break;
         }
         
@@ -122,7 +123,7 @@ struct plugin_t* plugin_load(struct plugin_info_t* plugin_info, plugin_search_cr
         /* ensure the plugin claims to be the same version as its filename */
         if(!plugin_version_acceptable(&plugin->info, filename, PLUGIN_VERSION_EXACT))
         {
-            stderr_strings(5,
+            llog(LOG_ERROR, 5,
                             "Error: plugin claims to be version ",
                             version_str,
                             ", but the filename is \"",
@@ -146,7 +147,7 @@ struct plugin_t* plugin_load(struct plugin_info_t* plugin_info, plugin_search_cr
         list_push(&g_plugins, plugin);
         
         /* print info about loaded plugin */
-        stdout_strings(4,
+        llog(LOG_INFO, 4,
             "loaded plugin \"",
             plugin->info.name,
             "\", version ",
@@ -174,15 +175,15 @@ struct plugin_t* plugin_load(struct plugin_info_t* plugin_info, plugin_search_cr
 void plugin_unload(struct plugin_t* plugin)
 {
     void* module_handle;
-    stdout_strings(3, "unloading plugin \"", plugin->info.name, "\"");
+    llog(LOG_INFO, 3, "unloading plugin \"", plugin->info.name, "\"");
     
     /* TODO notify everything that this plugin is about to be unloaded */
-    
+
     /* unregister all services and events registered by this plugin */
     service_unregister_all(plugin);
     event_destroy_all_plugin_events(plugin);
     event_unregister_all_listeners_of_plugin(plugin);
-    
+
     /* 
      * NOTE The plugin object becomes invalid as soon as plugin->stop() is
      * called. That is why the module handle must first be extracted before
@@ -253,7 +254,7 @@ static char* find_plugin(struct plugin_info_t* info, plugin_search_criteria_t cr
             info->version.major,
             info->version.minor,
             info->version.patch);
-    stdout_strings(4, "looking for plugin \"", info->name, crit_info[criteria],
+    llog(LOG_INFO, 4, "looking for plugin \"", info->name, crit_info[criteria],
             version_str);
     
     /* 
