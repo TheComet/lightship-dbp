@@ -33,7 +33,7 @@ struct event_t
 
 struct event_listener_t
 {
-    char* name;
+    char* namespace;
     event_func exec;
 };
 

@@ -1,3 +1,4 @@
+#include "util/config.h"
 #include "util/events.h"
 #include "util/plugin.h"
 #include "util/string.h"
@@ -62,7 +63,7 @@ void events_init(void)
      * --------------------------*/
     
     /* All logging events should be done through this event. */
-    name = malloc_string("log");
+    name = malloc_string(BUILTIN_NAMESPACE_NAME ".log");
     evt_log = event_malloc_and_register(name);
 }
 
@@ -164,11 +165,11 @@ char event_register_listener(struct plugin_t* plugin, const char* full_name, eve
     struct event_listener_t* new_listener;
     char* register_name;
     
-    /* get register name - if NULL was specified as a plugin, make it an empty string */
+    /* get registration name - if NULL was specified as a plugin, make it builtin */
     if(plugin)
         register_name = plugin->info.name;
     else
-        register_name = "";
+        register_name = BUILTIN_NAMESPACE_NAME;
     
     /* make sure event exists */
     struct event_t* event = event_get(full_name);
@@ -180,7 +181,7 @@ char event_register_listener(struct plugin_t* plugin, const char* full_name, eve
     {
         LIST_FOR_EACH(event->listeners, struct event_listener_t, listener)
         {
-            if(strcmp(listener->name, register_name) == 0)
+            if(strcmp(listener->namespace, register_name) == 0)
                 return 0;
         }
     }
@@ -189,7 +190,7 @@ char event_register_listener(struct plugin_t* plugin, const char* full_name, eve
     new_listener = (struct event_listener_t*)MALLOC(sizeof(struct event_listener_t));
     new_listener->exec = callback;
     /* create and copy string from plugin name */
-    new_listener->name = malloc_string(register_name);
+    new_listener->namespace = cat_strings(2, register_name, ".");
     list_push(event->listeners, new_listener);
     
     return 1;
@@ -204,7 +205,7 @@ char event_unregister_listener(const char* event_name, const char* plugin_name)
     {
         LIST_FOR_EACH(event->listeners, struct event_listener_t, listener)
         {
-            if(strcmp(listener->name, plugin_name) == 0)
+            if(strcmp(listener->namespace, plugin_name) == 0)
             {
                 event_listener_free(listener);
                 list_erase_node(event->listeners, node);
@@ -256,7 +257,7 @@ static void event_unregister_all_listeners_of_namespace(struct event_t* event,
     {
         LIST_FOR_EACH_ERASE(event->listeners, struct event_listener_t, listener)
         {
-            if(strncmp(listener->name, namespace, len))
+            if(strncmp(listener->namespace, namespace, len) == 0)
             {
                 event_listener_free(listener);
                 list_erase_node(event->listeners, node);
@@ -285,6 +286,6 @@ static void event_free(struct event_t* event)
 
 static void event_listener_free(struct event_listener_t* listener)
 {
-    FREE(listener->name);
+    FREE(listener->namespace);
     FREE(listener);
 }

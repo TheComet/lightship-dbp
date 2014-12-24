@@ -14,6 +14,7 @@
     #cmakedefine MEMORY_ENABLE_MEMORY_REPORT
     #cmakedefine MEMORY_ENABLE_BACKTRACE
     #cmakedefine LOG_ENABLE_TIMESTAMPS
+    #define BUILTIN_NAMESPACE_NAME "@BUILTIN_NAMESPACE_NAME@"
 
     /* --------------------------------------------------------------
      * Identify the operating system
