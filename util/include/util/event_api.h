@@ -9,14 +9,30 @@ struct event_t;
 /* event callback function signature */
 typedef void (*event_func)(struct event_t*, void*);
 
-#define EVENT_LISTENER(name) \
-    void name(struct event_t* evt, void* arg)
+#define EVENT_LISTENER(name, arg) \
+    void name(struct event_t* evt, arg)
 
-#define EVENT_FIRE(event, arg) \
-    if((event)) \
-        ((event)->exec(event, arg)); \
-    else \
-        fprintf(stderr, "Error: Cannot fire event for it is NULL\n");
+#ifdef _DEBUG
+#   include <stdlib.h>
+#   include "util/backtrace.h"
+#   include "util/log.h"
+
+#   define EVENT_FIRE(event, arg) \
+        if((event)) \
+            ((event)->exec(event, (void*)arg)); \
+        else \
+        { \
+            intptr_t size, i; \
+            char** backtrace = get_backtrace(&size); \
+            llog(LOG_ERROR, 1, "Cannot fire event for it is NULL\n"); \
+            for(i = 0; i != size; ++i) \
+                llog(LOG_ERROR, 1, backtrace[i]); \
+            free(backtrace); \
+        }
+#else
+#   define EVENT_FIRE(event, arg) \
+        ((event)->exec(event, (void*)arg));
+#endif
 
 #define EVENT_H(event) \
     extern struct event_t* event;

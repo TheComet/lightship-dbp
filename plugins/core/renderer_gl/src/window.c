@@ -56,7 +56,7 @@ void window_deinit(void)
         glfwDestroyWindow(g_window.window);
 }
 
-EVENT_LISTENER(on_render)
+EVENT_LISTENER(on_render, void* arg)
 {
     /* render everything */
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

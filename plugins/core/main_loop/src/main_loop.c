@@ -2,6 +2,7 @@
 #include "main_loop/events.h"
 #include "lightship/api.h"
 #include "util/event_api.h"
+#include "util/log.h"
 #include <stdio.h>
 
 static char is_looping = 0;
