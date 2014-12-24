@@ -106,6 +106,8 @@ extern struct list_t g_events;
  * Built-in events
  * --------------------------*/
 EVENT_H(evt_log)
+EVENT_H(evt_log_indent)
+EVENT_H(evt_log_unindent)
 
 struct plugin_t;
 

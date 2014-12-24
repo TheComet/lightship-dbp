@@ -10,6 +10,8 @@
 #   include <time.h>
 #endif
 
+static char g_log_indent = 0;
+
 __inline static int safe_strlen(const char* str)
 {
     if(str)
@@ -26,6 +28,19 @@ __inline static void safe_strcat(char* target, const char* source)
 void log_init(void)
 {
     event_register_listener(NULL, BUILTIN_NAMESPACE_NAME ".log", (event_func)on_llog);
+    event_register_listener(NULL, BUILTIN_NAMESPACE_NAME ".log_indent", (event_func)on_llog_indent);
+}
+
+LIGHTSHIP_PUBLIC_API void llog_indent(const char* indent_name)
+{
+    EVENT_FIRE(evt_log_indent, indent_name);
+    g_log_indent = 1;
+}
+
+LIGHTSHIP_PUBLIC_API void llog_unindent(void)
+{
+    EVENT_FIRE(evt_log_unindent, NULL);
+    g_log_indent = 0;
 }
 
 LIGHTSHIP_PUBLIC_API void llog(log_level_t level, uint32_t num_strs, ...)
@@ -112,11 +127,16 @@ LIGHTSHIP_PUBLIC_API void llog(log_level_t level, uint32_t num_strs, ...)
     FREE(buffer);
 }
 
+EVENT_LISTENER(on_llog_indent, const char* str)
+{
+    llog(LOG_INFO, 1, str);
+}
+
 EVENT_LISTENER(on_llog, struct log_t* arg)
 {
     FILE* fp;
     
-    /* determine output */
+    /* determine output stream */
     switch(arg->level)
     {
         case LOG_INFO:
@@ -130,5 +150,8 @@ EVENT_LISTENER(on_llog, struct log_t* arg)
             break;
     }
     
-    fprintf(fp, ((struct log_t*)arg)->message);
+    if(g_log_indent)
+        fprintf(fp, "    %s", arg->message);
+    else
+        fprintf(fp, arg->message);
 }
