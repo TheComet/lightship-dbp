@@ -1,8 +1,7 @@
 #!/bin/sh
 
 # clean build and dist tree from last build
-rm -rf build/
-rm -rf dist/
+./clean.sh
 
 # build everything
 mkdir build && cd build
@@ -16,9 +15,9 @@ mkdir dist/x86_64-pc-linux-gnu || exit 1;
 mv dist/bin dist/x86_64-pc-linux-gnu || exit 1;
 
 # generate run scripts for each platform
-echo "@ECHO OFF\nlightship.exe\nPAUSE" > dist/x86_64-pc-mingw32/bin/run.bat || exit 1;
-echo "@ECHO OFF\nlightship.exe\nPAUSE" > dist/i486-pc-mingw32/bin/run.bat || exit 1;
-echo "export LD_LIBRARY_PATH=.\n./lightship" > dist/x86_64-pc-linux-gnu/bin/run.sh || exit 1;
+echo -e "@ECHO OFF\nlightship.exe\nPAUSE" > dist/x86_64-pc-mingw32/bin/run.bat || exit 1;
+echo -e "@ECHO OFF\nlightship.exe\nPAUSE" > dist/i486-pc-mingw32/bin/run.bat || exit 1;
+echo -e "export LD_LIBRARY_PATH=.\n./lightship" > dist/x86_64-pc-linux-gnu/bin/run.sh || exit 1;
 
 # compress
 7za a -t7z -m0=lzma -mx=9 -mfb=64 -md=32m -ms=on dist/archive/lightship-x86_64-pc-mingw32.7z dist/x86_64-pc-mingw32 || exit 1;
