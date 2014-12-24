@@ -25,7 +25,7 @@ __inline static void safe_strcat(char* target, const char* source)
 
 void log_init(void)
 {
-    event_register_listener(NULL, "log", on_llog);
+    event_register_listener(NULL, BUILTIN_NAMESPACE_NAME ".log", on_llog);
 }
 
 LIGHTSHIP_PUBLIC_API void llog(log_level_t level, uint32_t num_strs, ...)
