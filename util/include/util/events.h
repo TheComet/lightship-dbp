@@ -115,13 +115,13 @@ struct plugin_t;
  * @brief Initialises the event system.
  * @note Must be called before calling any other event related functions.
  */
-void events_init(void);
+LIGHTSHIP_PUBLIC_API void events_init(void);
 
 /*!
  * @brief De-initialises the event system and cleans up any events that weren't
  * removed.
  */
-void events_deinit(void);
+LIGHTSHIP_PUBLIC_API void events_deinit(void);
 
 /*!
  * @brief Creates and registers a new event in the host program.

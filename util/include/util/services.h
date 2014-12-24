@@ -14,7 +14,7 @@ struct service_t
 
 extern struct list_t g_services;
 
-void services_init(void);
+LIGHTSHIP_PUBLIC_API void services_init(void);
 LIGHTSHIP_PUBLIC_API char service_register(struct plugin_t* plugin,
                       const char* name,
                       intptr_t exec);
