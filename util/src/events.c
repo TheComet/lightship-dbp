@@ -51,6 +51,8 @@ static struct event_t* event_malloc_and_register(char* full_name);
 
 struct list_t g_events;
 EVENT_C(evt_log)
+EVENT_C(evt_log_indent)
+EVENT_C(evt_log_unindent)
 
 void events_init(void)
 {
@@ -65,6 +67,10 @@ void events_init(void)
     /* All logging events should be done through this event. */
     name = malloc_string(BUILTIN_NAMESPACE_NAME ".log");
     evt_log = event_malloc_and_register(name);
+    name = malloc_string(BUILTIN_NAMESPACE_NAME ".log_indent");
+    evt_log_indent = event_malloc_and_register(name);
+    name = malloc_string(BUILTIN_NAMESPACE_NAME ".log_unindent");
+    evt_log_unindent = event_malloc_and_register(name);
 }
 
 void events_deinit(void)
