@@ -7,7 +7,7 @@ macro (generate_cross_arch ARCH_NAME ARCH C_COMPILER RC_COMPILER ROOT_PATH)
 
     # create build directory for this architecture and make sure it gets
     # ignored by git
-    set (BUILD_DIR "${CMAKE_SOURCE_DIR}/build-${ARCH}")
+    set (BUILD_DIR "${CMAKE_BINARY_DIR}/build-${ARCH}")
     file (MAKE_DIRECTORY "${BUILD_DIR}")
     file (WRITE "${BUILD_DIR}/.gitignore" "*")
     
@@ -34,7 +34,7 @@ macro (generate_cross_arch ARCH_NAME ARCH C_COMPILER RC_COMPILER ROOT_PATH)
                 -DCMAKE_TOOLCHAIN_FILE=${CMAKE_CURRENT_LIST_DIR}/toolchains/toolchain-${ARCH}.cmake
                 -DCMAKE_INSTALL_PREFIX=${${ARCH}_INSTALL_PREFIX}
                 -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-                ..
+                ${CMAKE_SOURCE_DIR}
         WORKING_DIRECTORY
             ${BUILD_DIR}
     )
