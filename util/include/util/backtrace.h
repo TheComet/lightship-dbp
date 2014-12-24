@@ -4,7 +4,8 @@
 #define BACKTRACE_SIZE 64
 
 #include "util/pstdint.h"
+#include "util/config.h"
 
-char** get_backtrace(intptr_t* size);
+LIGHTSHIP_PUBLIC_API char** get_backtrace(intptr_t* size);
 
 #endif /* LIGHTSHIP_UTIL_BACKTRACE_H */
