@@ -1,5 +1,5 @@
-#ifndef LIGHTSHIP_UTIL_LINKED_LIST_HPP
-#define LIGHTSHIP_UTIL_LINKED_LIST_HPP
+#ifndef LIGHTSHIP_UTIL_LINKED_LIST_H
+#define LIGHTSHIP_UTIL_LINKED_LIST_H
 
 #include "util/config.h"
 
@@ -217,4 +217,4 @@ LIGHTSHIP_PUBLIC_API void* list_erase_element(struct list_t* list, void* data);
      * prevent short circuiting of the expression.
      */
 
-#endif /* LIGHTSHIP_UTIL_LINKED_LIST_HPP */
+#endif /* LIGHTSHIP_UTIL_LINKED_LIST_H */

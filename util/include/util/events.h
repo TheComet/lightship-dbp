@@ -93,8 +93,8 @@ api->event_register_listener(plugin, "plugin_name.jump", on_player_jump);
  * See event_register_listener() for more information.
  */
 
-#ifndef LIGHTSHIP_EVENTS_HPP
-#define LIGHTSHIP_EVENTS_HPP
+#ifndef LIGHTSHIP_UTIL_EVENTS_H
+#define LIGHTSHIP_UTIL_EVENTS_H
 
 #include "util/pstdint.h"
 #include "util/linked_list.h"
@@ -190,6 +190,6 @@ LIGHTSHIP_PUBLIC_API void event_unregister_all_listeners_of_plugin(struct plugin
  */
 LIGHTSHIP_PUBLIC_API void event_dispatch(struct event_t* event, void* args);
 
-#endif /* LIGHTSHIP_EVENTS_HPP */
+#endif /* LIGHTSHIP_UTIL_EVENTS_H */
 
 /** @} */

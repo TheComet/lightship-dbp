@@ -1,5 +1,5 @@
-#ifndef LIGHTSHIP_UTIL_VECTOR_HPP
-#define LIGHTSHIP_UTIL_VECTOR_HPP
+#ifndef LIGHTSHIP_UTIL_VECTOR_H
+#define LIGHTSHIP_UTIL_VECTOR_H
 
 #include "util/pstdint.h"
 #include "util/config.h"
@@ -170,4 +170,4 @@ LIGHTSHIP_PUBLIC_API void* vector_get_element(struct vector_t*, intptr_t index);
         (DATA_POINTER_TYPE*)var < (vector)->data + (vector)->count * (vector)->element_size; \
         var = ((DATA_POINTER_TYPE*)var) + (vector)->element_size)
 
-#endif /* LIGHTSHIP_UTIL_VECTOR_HPP */
+#endif /* LIGHTSHIP_UTIL_VECTOR_H */

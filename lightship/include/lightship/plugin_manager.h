@@ -1,5 +1,5 @@
-#ifndef LIGHTSHIP_PLUGIN_MANAGER_HPP
-#define LIGHTSHIP_PLUGIN_MANAGER_HPP
+#ifndef LIGHTSHIP_PLUGIN_MANAGER_H
+#define LIGHTSHIP_PLUGIN_MANAGER_H
 
 #include "lightship/api.h"
 #include "util/plugin_api.h"
@@ -76,4 +76,4 @@ void plugin_unload(struct plugin_t* plugin);
  */
 struct plugin_t* plugin_get_by_name(const char* name);
 
-#endif /* LIGHTSHIP_PLUGIN_MANAGER_HPP */
+#endif /* LIGHTSHIP_PLUGIN_MANAGER_H */
