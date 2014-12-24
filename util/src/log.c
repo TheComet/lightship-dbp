@@ -25,7 +25,7 @@ __inline static void safe_strcat(char* target, const char* source)
 
 void log_init(void)
 {
-    event_register_listener(NULL, BUILTIN_NAMESPACE_NAME ".log", on_llog);
+    event_register_listener(NULL, BUILTIN_NAMESPACE_NAME ".log", (event_func)on_llog);
 }
 
 LIGHTSHIP_PUBLIC_API void llog(log_level_t level, uint32_t num_strs, ...)
@@ -112,12 +112,12 @@ LIGHTSHIP_PUBLIC_API void llog(log_level_t level, uint32_t num_strs, ...)
     FREE(buffer);
 }
 
-EVENT_LISTENER(on_llog)
+EVENT_LISTENER(on_llog, struct log_t* arg)
 {
     FILE* fp;
     
     /* determine output */
-    switch(((struct log_t*)arg)->level)
+    switch(arg->level)
     {
         case LOG_INFO:
             fp = stdout;
