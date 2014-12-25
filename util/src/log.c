@@ -27,8 +27,8 @@ __inline static void safe_strcat(char* target, const char* source)
 
 void log_init(void)
 {
-    event_register_listener(NULL, BUILTIN_NAMESPACE_NAME ".log", (event_func)on_llog);
-    event_register_listener(NULL, BUILTIN_NAMESPACE_NAME ".log_indent", (event_func)on_llog_indent);
+    event_register_listener(NULL, BUILTIN_NAMESPACE_NAME ".log", (event_callback_func)on_llog);
+    event_register_listener(NULL, BUILTIN_NAMESPACE_NAME ".log_indent", (event_callback_func)on_llog_indent);
 }
 
 LIGHTSHIP_PUBLIC_API void llog_indent(const char* indent_name)

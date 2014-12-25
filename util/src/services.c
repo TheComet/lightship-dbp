@@ -24,7 +24,6 @@ char service_register(struct plugin_t* plugin,
                       const char* name,
                       intptr_t exec)
 {
-    struct service_t* service;
     char* full_name;
 
     /* check if service is already registered */
