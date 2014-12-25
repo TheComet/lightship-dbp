@@ -1,5 +1,6 @@
 #include "renderer_gl/window.h"
 #include "renderer_gl/events.h"
+#include "renderer_gl/input.h"
 #include "util/linked_list.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -43,6 +44,11 @@ char window_init(void)
     
     /* ensure the escape key can be captured */
     glfwSetInputMode(glfw_window, GLFW_STICKY_KEYS, GL_TRUE);
+    
+    /* register input callbacks */
+    glfwSetKeyCallback(glfw_window, key_callback);
+    glfwSetCursorPosCallback(glfw_window, mouse_position_callback);
+    glfwSetMouseButtonCallback(glfw_window, mouse_button_callback);
     
     /* create window object */
     g_window.window = glfw_window;

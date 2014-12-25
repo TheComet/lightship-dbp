@@ -1,6 +1,7 @@
 #include "util/pstdint.h"
 
 struct event_t;
+struct event_args;
 
 struct main_loop_statistics_t
 {

@@ -7,7 +7,7 @@ struct list_t;
 struct event_t;
 
 /* event callback function signature */
-typedef void (*event_func)(struct event_t*, void*);
+typedef void (*event_callback_func)(struct event_t*, void*);
 
 #define EVENT_LISTENER(name, arg) \
     void name(struct event_t* evt, arg)
@@ -19,7 +19,7 @@ typedef void (*event_func)(struct event_t*, void*);
 
 #   define EVENT_FIRE(event, arg) \
         if((event)) \
-            ((event)->exec(event, (void*)arg)); \
+            ((event)->exec(event, (struct event_args*)arg)); \
         else \
         { \
             intptr_t size, i; \
@@ -45,14 +45,14 @@ typedef void (*event_func)(struct event_t*, void*);
 struct event_t
 {
     char* name;
-    event_func exec;
+    event_callback_func exec;
     struct list_t* listeners; /* holds event_listener_t objects */
 };
 
 struct event_listener_t
 {
     char* namespace;
-    event_func exec;
+    event_callback_func exec;
 };
 
 #endif /* LIGHTSHIP_UTIL_EVENT_API_H */

@@ -167,7 +167,7 @@ LIGHTSHIP_PUBLIC_API struct event_t* event_get(const char* full_name);
 /*!
  * @brief Registers a listener to the specified event.
  */
-LIGHTSHIP_PUBLIC_API char event_register_listener(struct plugin_t* plugin, const char* full_name, event_func callback);
+LIGHTSHIP_PUBLIC_API char event_register_listener(struct plugin_t* plugin, const char* full_name, event_callback_func callback);
 
 /*!
  * @brief Unregisters a listener from the specified event.
