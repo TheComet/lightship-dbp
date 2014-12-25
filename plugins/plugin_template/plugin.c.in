@@ -33,14 +33,14 @@ void create_and_init_plugin(void)
 PLUGIN_INIT()
 {
     create_and_init_plugin();
-    register_services();
-    register_events();
+    register_services(g_plugin);
+    register_events(g_plugin);
     return g_plugin;
 }
 
 PLUGIN_START()
 {
-    register_event_listeners();
+    register_event_listeners(g_plugin);
 
     return PLUGIN_SUCCESS;
 }
