@@ -166,8 +166,9 @@ struct event_t* event_get(const char* full_name)
     return NULL;
 }
 
-char event_register_listener(struct plugin_t* plugin, const char* full_name, event_func callback)
+char event_register_listener(struct plugin_t* plugin, const char* full_name, event_callback_func callback)
 {
+    struct event_t* event;
     struct event_listener_t* new_listener;
     char* register_name;
     
@@ -178,7 +179,7 @@ char event_register_listener(struct plugin_t* plugin, const char* full_name, eve
         register_name = BUILTIN_NAMESPACE_NAME;
     
     /* make sure event exists */
-    struct event_t* event = event_get(full_name);
+    event = event_get(full_name);
     if(event == NULL)
         return 0;
     
