@@ -5,9 +5,9 @@ project ("plugin_@NAME@" C)
 ###############################################################################
 
 if (${CMAKE_C_COMPILER_ID} STREQUAL "GNU")
-    add_definitions (-W -Wall -Wextra -pedantic)
+    add_definitions (-W -Wall -Wextra -pedantic -Wno-unused-parameter)
 elseif (${CMAKE_C_COMPILER_ID} STREQUAL "Clang")
-    add_definitions (-W -Wall -Wextra -pedantic)
+    add_definitions (-W -Wall -Wextra -pedantic -Wno-unused-parameter)
 elseif (${CMAKE_C_COMPILER_ID} STREQUAL "Intel")
 elseif (${CMAKE_C_COMPILER_ID} STREQUAL "MSVC")
 endif ()
@@ -85,9 +85,9 @@ target_link_libraries (plugin_@NAME@
 
 install (
     TARGETS
-        @NAME@
+        plugin_@NAME@
     LIBRARY DESTINATION
         "bin/plugins"
-    RUNTIME_DESTINATION
+    RUNTIME DESTINATION
         "bin/plugins"
 )

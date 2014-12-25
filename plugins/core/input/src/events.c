@@ -1,4 +1,4 @@
-#include "@NAME@/events.h"
+#include "input/events.h"
 #include "util/event_api.h"
 
 /* -----------------------------------------------------
