@@ -7,6 +7,7 @@ EVENT_C(evt_key_release)
 EVENT_C(evt_mouse_move)
 EVENT_C(evt_mouse_button_press)
 EVENT_C(evt_mouse_button_release)
+EVENT_C(evt_mouse_scroll)
 
 void register_events(struct plugin_t* plugin)
 {
@@ -16,6 +17,7 @@ void register_events(struct plugin_t* plugin)
     evt_mouse_move = event_create(plugin, "mouse_move");
     evt_mouse_button_press = event_create(plugin, "mouse_button_press");
     evt_mouse_button_release = event_create(plugin, "mouse_button_release");
+    evt_mouse_scroll = event_create(plugin, "mouse_scroll");
 }
 
 void register_event_listeners(struct plugin_t* plugin)
