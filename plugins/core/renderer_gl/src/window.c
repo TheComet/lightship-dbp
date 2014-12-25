@@ -49,6 +49,7 @@ char window_init(void)
     glfwSetKeyCallback(glfw_window, key_callback);
     glfwSetCursorPosCallback(glfw_window, mouse_position_callback);
     glfwSetMouseButtonCallback(glfw_window, mouse_button_callback);
+    glfwSetScrollCallback(glfw_window, scroll_callback);
     
     /* create window object */
     g_window.window = glfw_window;
