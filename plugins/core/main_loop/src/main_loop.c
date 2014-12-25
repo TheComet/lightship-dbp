@@ -23,7 +23,7 @@ static struct main_loop_t loop = {
 
 static char is_time_to_update(void)
 {
-    long elapsed_time = main_loop_get_elapsed_time();
+    uint64_t elapsed_time = main_loop_get_elapsed_time();
 
     /* update internal statistics every second */
     if(elapsed_time - loop.statistics.last_update >= 1000000)
@@ -89,12 +89,14 @@ void main_loop_reset_timer(void)
     loop.statistics.last_update = 0;
 }
 
-long main_loop_get_elapsed_time(void)
+uint64_t main_loop_get_elapsed_time(void)
 {
     return get_time_in_microseconds() - loop.time_begin;
 }
 
+#ifdef _DEBUG
 EVENT_LISTENER(on_stats, struct main_loop_statistics_t* stats)
 {
-    printf("render fps: %ld, update fps: %ld\n", stats->render_frame_rate, stats->update_frame_rate);
+    printf("render fps: %u, update fps: %u\n", stats->render_frame_rate, stats->update_frame_rate);
 }
+#endif

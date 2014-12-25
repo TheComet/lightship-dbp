@@ -15,5 +15,7 @@ void register_events(struct plugin_t* plugin)
 void register_event_listeners(struct plugin_t* plugin)
 {
     event_register_listener(plugin, "renderer_gl.close_window", main_loop_stop);
-    event_register_listener(plugin, "main_loop.stats", on_stats);
+#ifdef _DEBUG
+    event_register_listener(plugin, "main_loop.stats", (event_func)on_stats);
+#endif
 }
