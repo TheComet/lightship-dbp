@@ -46,8 +46,8 @@ set (PLUGIN_RENDERER_GL_VERSION_STRING
     "${PLUGIN_RENDERER_GL_VERSION_MAJOR}-${PLUGIN_RENDERER_GL_VERSION_MINOR}-${PLUGIN_RENDERER_GL_VERSION_PATCH}")
 
 configure_file ("include/renderer_gl/config.h.in"
-                "${CMAKE_CURRENT_BINARY_DIR}/renderer_gl/config.h")
-include_directories (${CMAKE_CURRENT_BINARY_DIR})
+                "${CMAKE_CURRENT_BINARY_DIR}/include/renderer_gl/config.h")
+include_directories ("${CMAKE_CURRENT_BINARY_DIR}/include")
 
 ###############################################################################
 # source files and library definition

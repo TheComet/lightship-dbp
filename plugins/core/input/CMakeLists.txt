@@ -28,8 +28,8 @@ set (PLUGIN_INPUT_VERSION_STRING
     "${PLUGIN_INPUT_VERSION_MAJOR}-${PLUGIN_INPUT_VERSION_MINOR}-${PLUGIN_INPUT_VERSION_PATCH}")
 
 configure_file ("include/input/config.h.in"
-                "${CMAKE_CURRENT_BINARY_DIR}/input/config.h")
-include_directories (${CMAKE_CURRENT_BINARY_DIR})
+                "${CMAKE_CURRENT_BINARY_DIR}/include/input/config.h")
+include_directories ("${CMAKE_CURRENT_BINARY_DIR}/include")
 
 ###############################################################################
 # source files and library definition
