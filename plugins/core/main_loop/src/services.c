@@ -1,6 +1,6 @@
 #include "lightship/api.h"
 #include "util/services.h"
-#include "main_loop/main_loop.h"
+#include "plugin_main_loop/main_loop.h"
 
 void register_services(struct plugin_t* plugin)
 {

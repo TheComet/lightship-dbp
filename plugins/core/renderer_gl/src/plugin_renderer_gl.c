@@ -1,10 +1,10 @@
 #include "lightship/api.h" /* lightship API so we can register and call services */
 #include "util/config.h"
 #include "util/plugin.h"
-#include "renderer_gl/config.h"
-#include "renderer_gl/window.h"
-#include "renderer_gl/events.h"
-#include "renderer_gl/services.h"
+#include "plugin_renderer_gl/config.h"
+#include "plugin_renderer_gl/window.h"
+#include "plugin_renderer_gl/events.h"
+#include "plugin_renderer_gl/services.h"
 
 #include "GL/glew.h"
 #include "glfw3.h"

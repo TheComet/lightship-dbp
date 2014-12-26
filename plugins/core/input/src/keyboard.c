@@ -1,4 +1,4 @@
-#include "input/keyboard.h"
+#include "plugin_input/keyboard.h"
 #include <stdio.h>
 
 EVENT_LISTENER1(on_key_press, uint32_t key)

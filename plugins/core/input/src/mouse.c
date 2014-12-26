@@ -1,5 +1,5 @@
-#include "input/mouse.h"
-#include "input/events.h"
+#include "plugin_input/mouse.h"
+#include "plugin_input/events.h"
 #include <stdio.h>
 
 static struct mouse_t g_mouse = {
