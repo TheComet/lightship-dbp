@@ -28,8 +28,8 @@ set (PLUGIN_@NAME_CAPS@_VERSION_STRING
     "${PLUGIN_@NAME_CAPS@_VERSION_MAJOR}-${PLUGIN_@NAME_CAPS@_VERSION_MINOR}-${PLUGIN_@NAME_CAPS@_VERSION_PATCH}")
 
 configure_file ("include/@NAME@/config.h.in"
-                "${CMAKE_CURRENT_BINARY_DIR}/@NAME@/config.h")
-include_directories (${CMAKE_CURRENT_BINARY_DIR})
+                "${CMAKE_CURRENT_BINARY_DIR}/include/@NAME@/config.h")
+include_directories ("${CMAKE_CURRENT_BINARY_DIR}/include")
 
 ###############################################################################
 # source files and library definition
