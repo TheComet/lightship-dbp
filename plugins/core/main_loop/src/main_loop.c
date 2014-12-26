@@ -1,5 +1,5 @@
-#include "main_loop/main_loop.h"
-#include "main_loop/events.h"
+#include "plugin_main_loop/main_loop.h"
+#include "plugin_main_loop/events.h"
 #include "lightship/api.h"
 #include "util/event_api.h"
 #include "util/log.h"

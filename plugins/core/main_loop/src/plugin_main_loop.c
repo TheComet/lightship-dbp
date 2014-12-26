@@ -2,10 +2,10 @@
 #include "util/config.h"   /* platform macros and definitions */
 #include "util/plugin.h"   /* plugin api */
 #include "main_loop/config.h"  /* configurations for this plugin */
-#include "main_loop/services.h"
-#include "main_loop/events.h"
+#include "plugin_main_loop/services.h"
+#include "plugin_main_loop/events.h"
 
-#include "main_loop/main_loop.h"
+#include "plugin_main_loop/main_loop.h"
 #include <stdio.h>
 
 struct plugin_t* g_plugin = NULL;

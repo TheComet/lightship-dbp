@@ -27,7 +27,7 @@ set (PLUGIN_INPUT_WEBSITE "http://github.com/TheComet93")
 set (PLUGIN_INPUT_VERSION_STRING
     "${PLUGIN_INPUT_VERSION_MAJOR}-${PLUGIN_INPUT_VERSION_MINOR}-${PLUGIN_INPUT_VERSION_PATCH}")
 
-configure_file ("include/input/config.h.in"
+configure_file ("include/plugin_input/config.h.in"
                 "${CMAKE_CURRENT_BINARY_DIR}/include/input/config.h")
 include_directories ("${CMAKE_CURRENT_BINARY_DIR}/include")
 

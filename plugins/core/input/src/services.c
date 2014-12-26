@@ -1,5 +1,5 @@
 #include "lightship/api.h"
-#include "input/services.h"
+#include "plugin_input/services.h"
 
 void register_services(struct plugin_t* plugin)
 {
