@@ -1,5 +1,6 @@
 #include "plugin_renderer_gl/events.h"
 #include "util/event_api.h"
+#include "util/pstdint.h"
 #include "glfw3.h"
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
