@@ -56,7 +56,7 @@ include_directories ("${CMAKE_CURRENT_BINARY_DIR}/include")
 set (plugin_renderer_gl_OUTPUT_NAME
     "plugin_renderer_gl-${PLUGIN_RENDERER_GL_VERSION_STRING}")
 
-file (GLOB plugin_renderer_gl_HEADERS "include/renderer_gl/*.h")
+file (GLOB plugin_renderer_gl_HEADERS "include/plugin_renderer_gl/*.h")
 file (GLOB plugin_renderer_gl_SOURCES "src/*.c")
 
 include_directories ("include")

@@ -33,7 +33,7 @@ include_directories ("${CMAKE_CURRENT_BINARY_DIR}/include")
 set (plugin_main_loop_OUTPUT_NAME
     "plugin_main_loop-${PLUGIN_MAIN_LOOP_VERSION_STRING}")
 
-file (GLOB plugin_main_loop_HEADERS "include/main_loop/*.h")
+file (GLOB plugin_main_loop_HEADERS "include/plugin_main_loop/*.h")
 file (GLOB plugin_main_loop_SOURCES "src/*.c")
 
 include_directories ("include")

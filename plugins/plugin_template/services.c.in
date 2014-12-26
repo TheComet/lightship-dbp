@@ -1,4 +1,4 @@
-#include "lightship/api.h"
+#include "util/services.h"
 #include "plugin_@NAME@/services.h"
 
 void register_services(struct plugin_t* plugin)
