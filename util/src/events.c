@@ -102,7 +102,6 @@ static struct event_t* event_malloc_and_register(char* full_name)
     /* create new event and register to global list of events */
     struct event_t* event = (struct event_t*)MALLOC(sizeof(struct event_t));
     event->name = full_name; /* full_name must be FREEd */
-    event->exec = event_dispatch;
     event->listeners = list_create();
     list_push(&g_events, event);
     return event;
@@ -247,14 +246,6 @@ void event_unregister_all_listeners_of_plugin(struct plugin_t* plugin)
         }
     }
     FREE(namespace);
-}
-
-void event_dispatch(struct event_t* event, void* args)
-{
-    LIST_FOR_EACH(event->listeners, struct event_listener_t, listener)
-    {
-        listener->exec(event, args);
-    }
 }
 
 static void event_unregister_all_listeners_of_namespace(struct event_t* event,
