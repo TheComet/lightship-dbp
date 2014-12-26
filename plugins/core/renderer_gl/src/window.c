@@ -63,7 +63,7 @@ void window_deinit(void)
         glfwDestroyWindow(g_window.window);
 }
 
-EVENT_LISTENER(on_render, void* arg)
+EVENT_LISTENER(on_render)
 {
     /* render everything */
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -74,6 +74,6 @@ EVENT_LISTENER(on_render, void* arg)
     /* fire close window event */
     if(glfwWindowShouldClose(g_window.window) != 0)
     {
-        EVENT_FIRE(evt_close_window, NULL)
+        EVENT_FIRE(evt_close_window)
     }
 }

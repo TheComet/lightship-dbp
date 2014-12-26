@@ -1,30 +1,20 @@
+#include "util/events.h"
 #include "input/events.h"
-#include "util/event_api.h"
+#include "input/mouse.h"
 
 /* -----------------------------------------------------
  * All events this plugin emits
  * ---------------------------------------------------*/
 
-/*
- * EVENT_C(evt_name_1)
- * EVENT_C(evt_name_2)
- * etc...
- */
+EVENT_C(evt_mouse_clicked)
 
 void register_events(struct plugin_t* plugin)
 {
-    /* 
-     * evt_name_1 = event_create(plugin, "name_1");
-     * evt_name_2 = event_create(plugin, "name_2");
-     * etc...
-     */
+    evt_mouse_clicked = event_create(plugin, "mouse_clicked");
 }
 
 void register_event_listeners(struct plugin_t* plugin)
 {
-    /*
-     * event_register_listener(plugin, "something.event", on_callback_1);
-     * event_register_listener(plugin, "something_else.event_2", on_callback_2);
-     * etc...
-     */
+    event_register_listener(plugin, "renderer_gl.mouse_button_press", on_mouse_button_press);
+    event_register_listener(plugin, "renderer_gl.mouse_button_release", on_mouse_button_release);
 }

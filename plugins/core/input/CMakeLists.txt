@@ -20,10 +20,10 @@ set (PLUGIN_INPUT_VERSION_MAJOR 0)
 set (PLUGIN_INPUT_VERSION_MINOR 0)
 set (PLUGIN_INPUT_VERSION_PATCH 1)
 set (PLUGIN_INPUT_NAME "input")
-set (PLUGIN_INPUT_CATEGORY "unknown")
-set (PLUGIN_INPUT_AUTHOR "unknown")
-set (PLUGIN_INPUT_DESCRIPTION "unknown")
-set (PLUGIN_INPUT_WEBSITE "unknown")
+set (PLUGIN_INPUT_CATEGORY "input")
+set (PLUGIN_INPUT_AUTHOR "TheComet")
+set (PLUGIN_INPUT_DESCRIPTION "Input mapper for lightship")
+set (PLUGIN_INPUT_WEBSITE "http://github.com/TheComet93")
 set (PLUGIN_INPUT_VERSION_STRING
     "${PLUGIN_INPUT_VERSION_MAJOR}-${PLUGIN_INPUT_VERSION_MINOR}-${PLUGIN_INPUT_VERSION_PATCH}")
 
@@ -42,6 +42,7 @@ file (GLOB plugin_input_HEADERS "include/input/*.h")
 file (GLOB plugin_input_SOURCES "src/*.c")
 
 include_directories ("include")
+include_directories ("../renderer_gl/ext/GL/glfw-3.0.3/include/GLFW/")
 
 add_library (plugin_input SHARED
     ${plugin_input_HEADERS}
@@ -75,9 +76,7 @@ target_link_libraries (plugin_input
     lightship_util
 )
 
-###############################################################################
-# other libs...
-###############################################################################
+
 
 ###############################################################################
 # install targets

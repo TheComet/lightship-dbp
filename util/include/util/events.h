@@ -186,12 +186,6 @@ LIGHTSHIP_PUBLIC_API void event_unregister_all_listeners(struct event_t* event);
  */
 LIGHTSHIP_PUBLIC_API void event_unregister_all_listeners_of_plugin(struct plugin_t* plugin);
 
-/*!
- * @brief Dispatches an event with arguments to all listeners of the specified
- * event.
- */
-LIGHTSHIP_PUBLIC_API void event_dispatch(struct event_t* event, void* args);
-
 #endif /* LIGHTSHIP_UTIL_EVENTS_H */
 
 /** @} */

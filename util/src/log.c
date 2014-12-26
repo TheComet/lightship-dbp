@@ -33,13 +33,13 @@ void log_init(void)
 
 LIGHTSHIP_PUBLIC_API void llog_indent(const char* indent_name)
 {
-    EVENT_FIRE(evt_log_indent, indent_name);
+    EVENT_FIRE1(evt_log_indent, indent_name);
     g_log_indent = 1;
 }
 
 LIGHTSHIP_PUBLIC_API void llog_unindent(void)
 {
-    EVENT_FIRE(evt_log_unindent, NULL);
+    EVENT_FIRE(evt_log_unindent);
     g_log_indent = 0;
 }
 
@@ -123,16 +123,16 @@ LIGHTSHIP_PUBLIC_API void llog(log_level_t level, uint32_t num_strs, ...)
     /* fire event and clean up */
     log_.level = level;
     log_.message = buffer;
-    EVENT_FIRE(evt_log, (void*)(&log_));
+    EVENT_FIRE1(evt_log, (void*)(&log_));
     FREE(buffer);
 }
 
-EVENT_LISTENER(on_llog_indent, const char* str)
+EVENT_LISTENER1(on_llog_indent, const char* str)
 {
     llog(LOG_INFO, 1, str);
 }
 
-EVENT_LISTENER(on_llog, struct log_t* arg)
+EVENT_LISTENER1(on_llog, struct log_t* arg)
 {
     FILE* fp;
     

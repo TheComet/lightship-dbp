@@ -7,39 +7,32 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
     uint32_t k = (uint32_t)key;
     if(action == GLFW_PRESS)
     {
-        EVENT_FIRE(evt_key_press, &k);
+        EVENT_FIRE1(evt_key_press, (uint32_t)k);
     }
     if(action == GLFW_RELEASE)
     {
-        EVENT_FIRE(evt_key_release, &k);
+        EVENT_FIRE1(evt_key_release, (uint32_t)k);
     }
 }
 
 void mouse_position_callback(GLFWwindow* window, double xpos, double ypos)
 {
-    struct { uint32_t x; uint32_t y; } pos;
-    pos.x = (uint32_t)xpos;
-    pos.y = (uint32_t)ypos;
-    EVENT_FIRE(evt_mouse_move, &pos);
+    EVENT_FIRE2(evt_mouse_move, (uint32_t)xpos, (uint32_t)ypos);
 }
 
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 {
-    uint32_t btn = (uint32_t)button;
     if(action == GLFW_PRESS)
     {
-        EVENT_FIRE(evt_mouse_button_press, &btn);
+        EVENT_FIRE1(evt_mouse_button_press, (uint32_t)button);
     }
     if(action == GLFW_RELEASE)
     {
-        EVENT_FIRE(evt_mouse_button_release, &btn);
+        EVENT_FIRE1(evt_mouse_button_release, (uint32_t)button);
     }
 }
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
-    struct { uint32_t x; uint32_t y; } scroll;
-    scroll.x = (uint32_t)xoffset;
-    scroll.y = (uint32_t)yoffset;
-    EVENT_FIRE(evt_mouse_scroll, &scroll);
+    EVENT_FIRE2(evt_mouse_scroll, (uint32_t)xoffset, (uint32_t)yoffset);
 }
