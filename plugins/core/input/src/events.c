@@ -8,7 +8,7 @@
  * ---------------------------------------------------*/
 
 EVENT_C(evt_mouse_clicked)
-EVENT_H(evt_mouse_press)
+EVENT_C(evt_mouse_press)
 EVENT_C(evt_mouse_release)
 EVENT_C(evt_mouse_move)
 EVENT_C(evt_up)
