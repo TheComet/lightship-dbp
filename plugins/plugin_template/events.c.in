@@ -1,5 +1,5 @@
 #include "@NAME@/events.h"
-#include "util/event_api.h"
+#include "util/events.h"
 
 /* -----------------------------------------------------
  * All events this plugin emits

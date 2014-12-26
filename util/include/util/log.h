@@ -25,7 +25,7 @@ LIGHTSHIP_PUBLIC_API void llog_indent(const char* indent_name);
 LIGHTSHIP_PUBLIC_API void llog_unindent(void);
 LIGHTSHIP_PUBLIC_API void llog(log_level_t level, uint32_t num_strs, ...);
 
-EVENT_LISTENER(on_llog_indent, const char* str);
-EVENT_LISTENER(on_llog, struct log_t* arg);
+EVENT_LISTENER1(on_llog_indent, const char* str);
+EVENT_LISTENER1(on_llog, struct log_t* arg);
 
 #endif /* LIGHTSHIP_UTIL_LOG_H */
