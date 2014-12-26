@@ -53,7 +53,7 @@ typedef void (*event_callback_func)();
 /* this is the check for whether the event object is NULL or not */
 #   define IF_EVENT_VALID(event) \
                 if((event)) {
-                
+
 /* 
  * This is the closure of the IF_EVENT_VALID condition, which will print
  * the stacktrace.

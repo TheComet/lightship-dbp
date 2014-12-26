@@ -1,6 +1,5 @@
 #include "input/mouse.h"
 #include "input/events.h"
-#include "glfw3.h"
 #include <stdio.h>
 
 static struct mouse_t g_mouse = {
