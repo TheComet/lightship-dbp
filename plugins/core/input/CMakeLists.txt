@@ -38,7 +38,7 @@ include_directories ("${CMAKE_CURRENT_BINARY_DIR}/include")
 set (plugin_input_OUTPUT_NAME
     "plugin_input-${PLUGIN_INPUT_VERSION_STRING}")
 
-file (GLOB plugin_input_HEADERS "include/input/*.h")
+file (GLOB plugin_input_HEADERS "include/plugin_input/*.h")
 file (GLOB plugin_input_SOURCES "src/*.c")
 
 include_directories ("include")

@@ -44,7 +44,7 @@ include_directories ("${CMAKE_CURRENT_BINARY_DIR}/include")
 set (plugin_yaml_OUTPUT_NAME
     "plugin_yaml-${PLUGIN_YAML_VERSION_STRING}")
 
-file (GLOB plugin_yaml_HEADERS "include/yaml/*.h")
+file (GLOB plugin_yaml_HEADERS "include/plugin_yaml/*.h")
 file (GLOB plugin_yaml_SOURCES "src/*.c")
 
 include_directories ("include")
