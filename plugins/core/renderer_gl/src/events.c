@@ -1,5 +1,5 @@
 #include "util/events.h"
-#include "renderer_gl/window.h"
+#include "plugin_renderer_gl/window.h"
 
 EVENT_C(evt_close_window)
 EVENT_C(evt_key_press)

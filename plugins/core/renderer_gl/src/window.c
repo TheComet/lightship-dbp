@@ -1,6 +1,6 @@
-#include "renderer_gl/window.h"
-#include "renderer_gl/events.h"
-#include "renderer_gl/input.h"
+#include "plugin_renderer_gl/window.h"
+#include "plugin_renderer_gl/events.h"
+#include "plugin_renderer_gl/input.h"
 #include "util/linked_list.h"
 #include <stdio.h>
 #include <stdlib.h>

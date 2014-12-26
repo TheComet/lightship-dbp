@@ -1,5 +1,5 @@
 #include "util/events.h"
-#include "main_loop/main_loop.h"
+#include "plugin_main_loop/main_loop.h"
 
 EVENT_C(evt_render)
 EVENT_C(evt_update)

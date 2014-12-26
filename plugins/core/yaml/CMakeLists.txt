@@ -33,7 +33,7 @@ set (PLUGIN_YAML_WEBSITE "unknown")
 set (PLUGIN_YAML_VERSION_STRING
     "${PLUGIN_YAML_VERSION_MAJOR}-${PLUGIN_YAML_VERSION_MINOR}-${PLUGIN_YAML_VERSION_PATCH}")
 
-configure_file ("include/yaml/config.h.in"
+configure_file ("include/plugin_yaml/config.h.in"
                 "${CMAKE_CURRENT_BINARY_DIR}/include/yaml/config.h")
 include_directories ("${CMAKE_CURRENT_BINARY_DIR}/include")
 

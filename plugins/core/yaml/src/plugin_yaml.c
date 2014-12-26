@@ -2,8 +2,8 @@
 #include "lightship/api.h"   /* lightship API so we can register and call services */
 #include "util/config.h"     /* platform macros and definitions */
 #include "util/plugin.h"     /* plugin api */
-#include "yaml/services.h" /* plugin services */
-#include "yaml/events.h"   /* plugin events */
+#include "plugin_yaml/services.h" /* plugin services */
+#include "plugin_yaml/events.h"   /* plugin events */
 
 struct plugin_t* g_plugin = NULL;
 

@@ -1,5 +1,5 @@
 #include "lightship/api.h"
-#include "yaml/services.h"
+#include "plugin_yaml/services.h"
 
 void register_services(struct plugin_t* plugin)
 {

@@ -27,8 +27,8 @@ set (PLUGIN_@NAME_CAPS@_WEBSITE "unknown")
 set (PLUGIN_@NAME_CAPS@_VERSION_STRING
     "${PLUGIN_@NAME_CAPS@_VERSION_MAJOR}-${PLUGIN_@NAME_CAPS@_VERSION_MINOR}-${PLUGIN_@NAME_CAPS@_VERSION_PATCH}")
 
-configure_file ("include/@NAME@/config.h.in"
-                "${CMAKE_CURRENT_BINARY_DIR}/include/@NAME@/config.h")
+configure_file ("include/plugin_@NAME@/config.h.in"
+                "${CMAKE_CURRENT_BINARY_DIR}/include/plugin_@NAME@/config.h")
 include_directories ("${CMAKE_CURRENT_BINARY_DIR}/include")
 
 ###############################################################################
@@ -38,7 +38,7 @@ include_directories ("${CMAKE_CURRENT_BINARY_DIR}/include")
 set (plugin_@NAME@_OUTPUT_NAME
     "plugin_@NAME@-${PLUGIN_@NAME_CAPS@_VERSION_STRING}")
 
-file (GLOB plugin_@NAME@_HEADERS "include/@NAME@/*.h")
+file (GLOB plugin_@NAME@_HEADERS "include/plugin_@NAME@/*.h")
 file (GLOB plugin_@NAME@_SOURCES "src/*.c")
 
 include_directories ("include")

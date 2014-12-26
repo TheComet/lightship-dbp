@@ -1,7 +1,7 @@
 #include "util/events.h"
-#include "input/events.h"
-#include "input/mouse.h"
-#include "input/keyboard.h"
+#include "plugin_input/events.h"
+#include "plugin_input/mouse.h"
+#include "plugin_input/keyboard.h"
 
 /* -----------------------------------------------------
  * All events this plugin emits

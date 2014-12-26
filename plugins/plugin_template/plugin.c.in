@@ -1,9 +1,9 @@
-#include "@NAME@/config.h"   /* configurations for this plugin */
+#include "plugin_@NAME@/config.h"   /* configurations for this plugin */
 #include "lightship/api.h"   /* lightship API so we can register and call services */
 #include "util/config.h"     /* platform macros and definitions */
 #include "util/plugin.h"     /* plugin api */
-#include "@NAME@/services.h" /* plugin services */
-#include "@NAME@/events.h"   /* plugin events */
+#include "plugin_@NAME@/services.h" /* plugin services */
+#include "plugin_@NAME@/events.h"   /* plugin events */
 
 struct plugin_t* g_plugin = NULL;
 
