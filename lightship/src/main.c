@@ -9,6 +9,7 @@
 #include "util/log.h"
 
 struct plugin_t* plugin_main_loop = NULL;
+struct plugin_t* plugin_yaml = NULL;
 struct plugin_t* plugin_renderer = NULL;
 struct plugin_t* plugin_input = NULL;
 
@@ -27,6 +28,16 @@ void load_core_plugins(void)
     target.version.minor = 0;
     target.version.patch = 1;
     plugin_main_loop = plugin_load(&target, PLUGIN_VERSION_MINIMUM);
+    
+    /*!
+     * Yaml plugin.
+     * Dependencies: None.
+     */
+    target.name = "yaml";
+    target.version.major = 0;
+    target.version.minor = 0;
+    target.version.patch = 1;
+    plugin_yaml = plugin_load(&target, PLUGIN_VERSION_MINIMUM);
 
     /*
      * Graphics plugin.
@@ -40,7 +51,7 @@ void load_core_plugins(void)
 
     /* 
      * Input plugin.
-     * Dependencies: main_loop, graphics
+     * Dependencies: main_loop, graphics, yaml
      */
     target.name = "input";
     target.version.major = 0;
@@ -52,6 +63,8 @@ void load_core_plugins(void)
 char start_core_plugins(void)
 {
     if(!plugin_main_loop || plugin_start(plugin_main_loop) == PLUGIN_FAILURE)
+        return 0;
+    if(!plugin_yaml      || plugin_start(plugin_yaml) == PLUGIN_FAILURE)
         return 0;
     if(!plugin_renderer  || plugin_start(plugin_renderer) == PLUGIN_FAILURE)
         return 0;
@@ -95,15 +108,23 @@ void init(void)
     load_core_plugins();
     if(!start_core_plugins())
         return;
+
+    typedef uint32_t(*open_func)(const char*);
+    open_func open_s = (open_func)service_get("yaml.open");
+    uint32_t x = open_s("test.yml");
+
+    typedef void(*close_func)(uint32_t);
+    close_func close_s = (close_func)service_get("yaml.close");
+    close_s(x);
     
     /* 
      * Try to get the main loop service and start running the game
-     */
+     *
     start = (start_loop_func)service_get("main_loop.start");
     if(start)
         start();
     else
-        llog(LOG_FATAL, 1, "Failed to find service \"main_loop.start\". Cannot start.");
+        llog(LOG_FATAL, 1, "Failed to find service \"main_loop.start\". Cannot start.");*/
 }
 
 void deinit(void)
