@@ -15,7 +15,7 @@ struct vector_t
 
 /*!
  * @brief Creates a new vector object.
- * @param [in] element_size Specifies the size in bytes of the type of data you want
+ * @param[in] element_size Specifies the size in bytes of the type of data you want
  * the vector to store. Typically one would pass sizeof(my_data_type).
  * @return Returns the newly created vector object.
  */
@@ -25,8 +25,8 @@ LIGHTSHIP_PUBLIC_API struct vector_t* vector_create(const intptr_t element_size)
  * @brief Initialises an existing vector object.
  * @note This does **not** FREE existing memory. If you've pushed elements
  * into your vector and call this, you will have created a memory leak.
- * @param [in] vector The vector to initialise.
- * @param [in] element_size Specifies the size in bytes of the type of data you
+ * @param[in] vector The vector to initialise.
+ * @param[in] element_size Specifies the size in bytes of the type of data you
  * want the vector to store. Typically one would pass sizeof(my_data_type).
  */
 LIGHTSHIP_PUBLIC_API void vector_init_vector(struct vector_t* vector, const intptr_t element_size);
@@ -34,7 +34,7 @@ LIGHTSHIP_PUBLIC_API void vector_init_vector(struct vector_t* vector, const intp
 /*!
  * @brief Destroys an existing vector object and FREEs all memory allocated by
  * inserted elements.
- * @param [in] vector The vector to destroy.
+ * @param[in] vector The vector to destroy.
  */
 LIGHTSHIP_PUBLIC_API void vector_destroy(struct vector_t* vector);
 
@@ -43,13 +43,13 @@ LIGHTSHIP_PUBLIC_API void vector_destroy(struct vector_t* vector);
  * @note This does not actually erase the underlying memory, it simply resets
  * the element counter. If you wish to FREE the underlying memory, see
  * vector_clear_FREE().
- * @param [in] vector The vector to clear.
+ * @param[in] vector The vector to clear.
  */
 LIGHTSHIP_PUBLIC_API void vector_clear(struct vector_t* vector);
 
 /*!
  * @brief Erases all elements in a vector and FREEs their memory.
- * @param [in] vector The vector to clear.
+ * @param[in] vector The vector to clear.
  */
 LIGHTSHIP_PUBLIC_API void vector_clear_free(struct vector_t* vector);
 
@@ -65,8 +65,8 @@ LIGHTSHIP_PUBLIC_API void vector_clear_free(struct vector_t* vector);
  * re-allocation occurs to cut down on the frequency of re-allocations.
  * @note If you do not wish to copy data into the vector, but merely make
  * space, see vector_push_emplace().
- * @param [in] vector The vector to push into.
- * @param [in] data The data to copy into the vector. It is assumed that
+ * @param[in] vector The vector to push into.
+ * @param[in] data The data to copy into the vector. It is assumed that
  * sizeof(data) is equal to what was specified when the vector was first
  * created. If this is not the case then it could cause undefined behaviour.
  */
@@ -79,7 +79,7 @@ LIGHTSHIP_PUBLIC_API void vector_push(struct vector_t* vector, void* data);
  * vector related function is called, as the underlying memory of the vector
  * could be re-allocated. Use the pointer immediately after calling this
  * function.
- * @param [in] vector The vector to emplace an element into.
+ * @param[in] vector The vector to emplace an element into.
  * @return A pointer to the allocated memory for the requested element. See
  * warning and use with caution.
  */
@@ -91,7 +91,7 @@ LIGHTSHIP_PUBLIC_API void* vector_push_emplace(struct vector_t* vector);
  * vector related function is called, as the underlying memory of the vector
  * could be re-allocated. Use the pointer immediately after calling this
  * function.
- * @param [in] vector The vector to pop an element from.
+ * @param[in] vector The vector to pop an element from.
  * @return A pointer to the popped element. See warning and use with caution.
  * If there are no elements to pop, NULL is returned.
  */
@@ -102,10 +102,10 @@ LIGHTSHIP_PUBLIC_API void* vector_pop(struct vector_t* vector);
  * @note This can cause a re-allocation of the underlying memory. This
  * implementation expands the allocated memory by a factor of 2 every time a
  * re-allocation occurs to cut down on the frequency of re-allocations.
- * @param [in] vector The vector to insert into.
- * @param [in] index The position in the vector to insert into. The index
+ * @param[in] vector The vector to insert into.
+ * @param[in] index The position in the vector to insert into. The index
  * ranges from **0** to **vector_count()-1**.
- * @param [in] data The data to copy into the vector. It is assumed that
+ * @param[in] data The data to copy into the vector. It is assumed that
  * sizeof(data) is equal to what was specified when the vector was first
  * created. If this is not the case then it could cause undefined behaviour.
  */
@@ -115,14 +115,14 @@ LIGHTSHIP_PUBLIC_API void vector_insert(struct vector_t* vector, intptr_t index,
  * @brief Erases the specified element from the vector.
  * @note This causes all elements with indices greater than **index** to be
  * re-allocated (shifted 1 element down) so the vector remains contiguous.
- * @param [in] index The position of the element in the vector to erase. The index
+ * @param[in] index The position of the element in the vector to erase. The index
  * ranges from **0** to **vector_count()-1**.
  */
 LIGHTSHIP_PUBLIC_API void vector_erase_index(struct vector_t* vector, intptr_t index);
 
 /*!
  * @brief Removes the element in the vector pointed to by **element**.
- * @param [in] vector The vector from which to erase the data.
+ * @param[in] vector The vector from which to erase the data.
  * @param[in] element A pointer to an element within the vector.
  */
 LIGHTSHIP_PUBLIC_API void vector_erase_element(struct vector_t* vector, void* element);
@@ -133,8 +133,8 @@ LIGHTSHIP_PUBLIC_API void vector_erase_element(struct vector_t* vector, void* el
  * vector related function is called, as the underlying memory of the vector
  * could be re-allocated. Use the pointer immediately after calling this
  * function.
- * @param [in] vector The vector to get the element from.
- * @param [in] index The index of the element to get. The index ranges from
+ * @param[in] vector The vector to get the element from.
+ * @param[in] index The index of the element to get. The index ranges from
  * **0** to **vector_count()-1**.
  * @return [in] A pointer to the element. See warning and use with caution.
  * If the specified element doesn't exist (index out of bounds), NULL is
@@ -153,9 +153,9 @@ LIGHTSHIP_PUBLIC_API void* vector_get_element(struct vector_t*, intptr_t index);
  *     do_something_with(element);  ("element" is now of type "struct bar*")
  * }
  * @endcode
- * @param [in] vector The vector to iterate.
- * @param [in] var_type Should be the type of data stored in the vector.
- * @param [in] var The name of a temporary variable you'd like to use within the
+ * @param[in] vector The vector to iterate.
+ * @param[in] var_type Should be the type of data stored in the vector.
+ * @param[in] var The name of a temporary variable you'd like to use within the
  * for-loop to reference the current element.
  */
 #define VECTOR_FOR_EACH(vector, var_type, var) \

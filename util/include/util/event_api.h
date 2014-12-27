@@ -16,7 +16,13 @@ typedef void (*event_callback_func)();
  * appear a little bloated.
  * -----------------------------------------------------------------------*/
 
-/* register listeners with up to 4 receiving function parameters */
+/*!
+ * @brief Register listeners with up to 4 receiving function parameters
+ * @param[in] name The name to give the event listener. Usually something like
+ * *on_event*.
+ * @param[in] arg... The arguments to receive from the event.
+ * @note The event listener must have the same signature as the fired event.
+ */
 #define EVENT_LISTENER(name) \
     void name(struct event_t* evt)
 #define EVENT_LISTENER1(name, arg) \
@@ -82,7 +88,12 @@ typedef void (*event_callback_func)();
 #define EVENT_ITERATE_LISTENERS_END \
             }
 
-/* fire events with up to 4 function parameters */
+/*!
+ * @brief Fires the specified event with the specified arguments.
+ * @param[in] event The event to fire. Should be declared with EVENT_C/EVENT_H
+ * and be registered with the host program with event_register().
+ * @param[in] args... The arguments to fire along with the event.
+ */
 #define EVENT_FIRE(event) \
             IF_EVENT_VALID(event) \
                 EVENT_ITERATE_LISTENERS_BEGIN(event) \
@@ -114,6 +125,8 @@ typedef void (*event_callback_func)();
                 EVENT_ITERATE_LISTENERS_END \
             REPORT_EVENT_FIRE_FAILURE
 
+/* TODO Remove the need to define externs by converting the fire functions into
+ * function calls */
 #define EVENT_H(event) \
     extern struct event_t* event;
 
