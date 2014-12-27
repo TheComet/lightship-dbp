@@ -4,7 +4,7 @@
 #include "util/events.h"
 #include "lightship/api.h"
 #include "util/plugin.h"
-#include "util/vector.h"
+#include "util/unordered_vector.h"
 #include "util/memory.h"
 #include "util/log.h"
 

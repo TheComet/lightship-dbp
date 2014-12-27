@@ -1,6 +1,6 @@
 #include <string.h>
 #include <stdlib.h>
-#include "util/vector.h"
+#include "util/unordered_vector.h"
 #include "util/memory.h"
 
 /*!
@@ -12,28 +12,28 @@
  * insertion. Otherwise this parameter specifies the index of the element to
  * "evade" when re-allocating all other elements.
  */
-static void vector_expand(struct vector_t* vector, intptr_t insertion_index);
+static void unordered_vector_expand(struct unordered_vector_t* vector, intptr_t insertion_index);
 
-struct vector_t* vector_create(const intptr_t element_size)
+struct unordered_vector_t* unordered_vector_create(const intptr_t element_size)
 {
-    struct vector_t* vector = (struct vector_t*)MALLOC(sizeof(struct vector_t));
-    vector_init_vector(vector, element_size);
+    struct unordered_vector_t* vector = (struct unordered_vector_t*)MALLOC(sizeof(struct unordered_vector_t));
+    unordered_vector_init_vector(vector, element_size);
     return vector;
 }
 
-void vector_init_vector(struct vector_t* vector, const intptr_t element_size)
+void unordered_vector_init_vector(struct unordered_vector_t* vector, const intptr_t element_size)
 {
-    memset(vector, 0, sizeof(struct vector_t));
+    memset(vector, 0, sizeof(struct unordered_vector_t));
     vector->element_size = element_size;
 }
 
-void vector_destroy(struct vector_t* vector)
+void unordered_vector_destroy(struct unordered_vector_t* vector)
 {
-    vector_clear(vector);
+    unordered_vector_clear(vector);
     FREE(vector);
 }
 
-void vector_clear(struct vector_t* vector)
+void unordered_vector_clear(struct unordered_vector_t* vector)
 {
     /* 
      * No need to free or overwrite existing memory, just reset the counter
@@ -42,7 +42,7 @@ void vector_clear(struct vector_t* vector)
     vector->count = 0;
 }
 
-void vector_clear_free(struct vector_t* vector)
+void unordered_vector_clear_free(struct unordered_vector_t* vector)
 {
     if(vector->data)
         FREE(vector->data);
@@ -51,22 +51,22 @@ void vector_clear_free(struct vector_t* vector)
     vector->capacity = 0;
 }
 
-void* vector_push_emplace(struct vector_t* vector)
+void* unordered_vector_push_emplace(struct unordered_vector_t* vector)
 {
     void* data;
     if(vector->count == vector->capacity)
-        vector_expand(vector, -1);
+        unordered_vector_expand(vector, -1);
     data = vector->data + (vector->element_size * vector->count);
     ++(vector->count);
     return data;
 }
 
-void vector_push(struct vector_t* vector, void* data)
+void unordered_vector_push(struct unordered_vector_t* vector, void* data)
 {
-    memcpy(vector_push_emplace(vector), data, vector->element_size);
+    memcpy(unordered_vector_push_emplace(vector), data, vector->element_size);
 }
 
-void* vector_pop(struct vector_t* vector)
+void* unordered_vector_pop(struct unordered_vector_t* vector)
 {
     if(!vector->count)
         return NULL;
@@ -75,38 +75,7 @@ void* vector_pop(struct vector_t* vector)
     return vector->data + (vector->element_size * vector->count);
 }
 
-void vector_insert(struct vector_t* vector, intptr_t index, void* data)
-{
-    intptr_t offset = index * vector->element_size;
-
-    /* 
-     * Normally the last valid index is (capacity-1), but in this case it's valid
-     * because it's possible the user will want to insert at the very end of
-     * the vector.
-     */
-    if(index > vector->count)
-        return;
-
-    /* re-allocate? */
-    if(vector->count == vector->capacity)
-        vector_expand(vector, index);
-    else
-    {
-        /* 
-         * Move the element currently at insertion index to the end of the
-         * vector
-         */
-        memcpy(vector->data + vector->count * vector->element_size, /* the end of the vector */
-               vector->data + offset, /* the element that would be overwritten when inserting */
-               vector->element_size);
-    }
-
-    /* copy new element into the specified index */
-    memcpy(vector->data + offset, data, vector->element_size);
-    ++(vector->count);
-}
-
-void vector_erase_index(struct vector_t* vector, intptr_t index)
+void unordered_vector_erase_index(struct unordered_vector_t* vector, intptr_t index)
 {
     if(index >= vector->count)
         return;
@@ -123,7 +92,7 @@ void vector_erase_index(struct vector_t* vector, intptr_t index)
     --(vector->count);
 }
 
-void vector_erase_element(struct vector_t* vector, void* element)
+void unordered_vector_erase_element(struct unordered_vector_t* vector, void* element)
 {
     /* copy last element to fill the gap, but only if it is not the last */
     if(element != vector->data + (vector->count-1) * vector->element_size)
@@ -135,14 +104,14 @@ void vector_erase_element(struct vector_t* vector, void* element)
     --vector->count;
 }
 
-void* vector_get_element(struct vector_t* vector, intptr_t index)
+void* unordered_vector_get_element(struct unordered_vector_t* vector, intptr_t index)
 {
     if(index >= vector->count)
         return NULL;
     return vector->data + (vector->element_size * index);
 }
 
-static void vector_expand(struct vector_t* vector, intptr_t insertion_index)
+static void unordered_vector_expand(struct unordered_vector_t* vector, intptr_t insertion_index)
 {
     intptr_t new_size;
     DATA_POINTER_TYPE* old_data;
