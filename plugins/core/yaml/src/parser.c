@@ -1,14 +1,14 @@
-#include "util/vector.h"
+#include "util/unordered_vector.h"
 #include "util/log.h"
 #include "util/memory.h"
 #include "plugin_yaml/parser.h"
 
-struct vector_t g_open_docs;
+struct unordered_vector_t g_open_docs;
 static uint32_t GUID_counter = 1;
 
 void parser_init(void)
 {
-    vector_init_vector(&g_open_docs, sizeof(struct yaml_doc_t*));
+    unordered_vector_init_vector(&g_open_docs, sizeof(struct yaml_doc_t*));
 }
 
 uint32_t yaml_open(const char* filename)
@@ -44,7 +44,7 @@ uint32_t yaml_open(const char* filename)
     doc->ID = GUID_counter++;
     yaml_parser_initialize(&doc->parser);
     yaml_parser_set_input_string(&doc->parser, doc->text, doc->file_size);
-    vector_push(&g_open_docs, &doc);
+    unordered_vector_push(&g_open_docs, &doc);
     
     /* clean up */
     fclose(fp);
@@ -54,14 +54,14 @@ uint32_t yaml_open(const char* filename)
 
 void yaml_close(const char ID)
 {
-    VECTOR_FOR_EACH(&g_open_docs, struct yaml_doc_t*, docp)
+    UNORDERED_VECTOR_FOR_EACH(&g_open_docs, struct yaml_doc_t*, docp)
     {
         struct yaml_doc_t* doc = *docp; /* remember, what is in the vector is a pointer to the pointer of the yaml doc object */
         if(doc->ID == ID)
         {
             FREE(doc->text);
             FREE(doc);
-            vector_erase_element(&g_open_docs, doc);
+            unordered_vector_erase_element(&g_open_docs, doc);
             break;
         }
     }
@@ -71,5 +71,5 @@ void yaml_close(const char ID)
      * have to explicitely clean up when the plugin unloads.
      */
     if(g_open_docs.count == 0)
-        vector_clear_free(&g_open_docs);
+        unordered_vector_clear_free(&g_open_docs);
 }
