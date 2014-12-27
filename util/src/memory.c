@@ -74,7 +74,7 @@ void free_debug(void* ptr)
 #ifdef MEMORY_ENABLE_BACKTRACE
                 free(info->backtrace);
 #endif
-                vector_erase_index(&report, ( ((DATA_POINTER_TYPE*)info) - report.data) / report.element_size);
+                vector_erase_element(&report, info);
                 break;
             }
         }
