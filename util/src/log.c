@@ -25,7 +25,7 @@ __inline static void safe_strcat(char* target, const char* source)
         strcat(target, source);
 }
 
-void log_init(void)
+void llog_init(void)
 {
     event_register_listener(NULL, BUILTIN_NAMESPACE_NAME ".log", (event_callback_func)on_llog);
     event_register_listener(NULL, BUILTIN_NAMESPACE_NAME ".log_indent", (event_callback_func)on_llog_indent);

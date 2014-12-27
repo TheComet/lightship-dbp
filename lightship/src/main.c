@@ -88,7 +88,7 @@ void init(void)
      * Enable logging as soon as possible (right after enabling services and
      * events)
      */
-    log_init();
+    llog_init();
     
     /*
      * The lightship API must be initialised before any plugins can be
