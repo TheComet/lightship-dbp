@@ -6,23 +6,23 @@
 
 /*!
  * @brief Concatenates n number of strings and prints it to stdout.
- * @param [in] num_strs The number of strings that should be concatenated.
- * @param [in] ...str A list of comma-seperated strings to concatenate.
+ * @param[in] num_strs The number of strings that should be concatenated.
+ * @param[in] ...str A list of comma-seperated strings to concatenate.
  */
 LIGHTSHIP_PUBLIC_API void stdout_strings(int num_strs, ...);
 
 /*!
  * @brief Concatenates n number of strings and prints it to stderr.
- * @param [in] num_strs The number of strings that should be concatenated.
- * @param [in] ...str A list of comma-seperated strings to concatenate.
+ * @param[in] num_strs The number of strings that should be concatenated.
+ * @param[in] ...str A list of comma-seperated strings to concatenate.
  */
 LIGHTSHIP_PUBLIC_API void stderr_strings(int num_strs, ...);
 
 /*!
  * @brief Concatenates n number of strings and returns the buffer.
  * @note The buffer needs to be FREEd manually when it is no longer required.
- * @param [in] num_strs The number of strings that should be concatenated.
- * @param [in] ...str A list of comma-seperated strings to concatenate.
+ * @param[in] num_strs The number of strings that should be concatenated.
+ * @param[in] ...str A list of comma-seperated strings to concatenate.
  * @return The new buffer containing all concatenated strings.
  */
 LIGHTSHIP_PUBLIC_API char* cat_strings(int num_strs, ...);
@@ -30,7 +30,7 @@ LIGHTSHIP_PUBLIC_API char* cat_strings(int num_strs, ...);
 /*!
  * @brief Copies the specified into a new buffer and returns it.
  * @note The buffer needs to be FREEd manually when it is no longer required.
- * @param [in] str The string to copy.
+ * @param[in] str The string to copy.
  * @return The new buffer containing a copy of the input string.
  */
 LIGHTSHIP_PUBLIC_API char* malloc_string(const char* str);

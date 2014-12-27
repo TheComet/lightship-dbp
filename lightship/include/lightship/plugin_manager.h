@@ -16,7 +16,7 @@ void plugin_manager_init(void);
  * @brief Starts a loaded plugin.
  * 
  * This calls the plugin's plugin_start() function.
- * @param plugin The plugin to start.
+ * @param[in] plugin The plugin to start.
  * @return Returns 1 if successful, 0 if otherwise.
  */
 #define plugin_start(plugin) ((plugin)->start(&g_api))
@@ -51,10 +51,10 @@ void plugin_manager_deinit(void);
  *   - *PLUGIN_VERSION_MINIMUM*: The version of the file name must be at least
  *     equal or greater than the requested version.
  *
- * @param [in] plugin_info Requirements for the plugin to be loaded.
+ * @param[in] plugin_info Requirements for the plugin to be loaded.
  * for a file matching the name in ./plugins, relative to the working
  * directory.
- * @param [in] criteria Set whether the desired plugin version should be exact
+ * @param[in] criteria Set whether the desired plugin version should be exact
  * or if the desired plugin version should be greater or equal.
  * @return Returns NULL if unsuccessful, otherwise a pointer to the plugin is
  * returned.
@@ -64,13 +64,13 @@ struct plugin_t* plugin_load(struct plugin_info_t* plugin_info,
 
 /*!
  * @brief Unloads the specified plugin.
- * @param [in] plugin The plugin to unload.
+ * @param[in] plugin The plugin to unload.
  */
 void plugin_unload(struct plugin_t* plugin);
 
 /*!
  * @brief Searches all loaded plugins for a matching name.
- * @param [in] name The name of the plugin to search for.
+ * @param[in] name The name of the plugin to search for.
  * @return Returns the plugin if a matching name was found. Returns NULL on
  * failure.
  */
