@@ -121,10 +121,11 @@ LIGHTSHIP_PUBLIC_API void vector_insert(struct vector_t* vector, intptr_t index,
 LIGHTSHIP_PUBLIC_API void vector_erase_index(struct vector_t* vector, intptr_t index);
 
 /*!
- * @brief Searches the vector for the specified data, then erases it.
+ * @brief Removes the element in the vector pointed to by **element**.
  * @param [in] vector The vector from which to erase the data.
+ * @param[in] element A pointer to an element within the vector.
  */
-LIGHTSHIP_PUBLIC_API void vector_erase_element(struct vector_t* vector, void* data);
+LIGHTSHIP_PUBLIC_API void vector_erase_element(struct vector_t* vector, void* element);
 
 /*!
  * @brief Gets a pointer to the specified element in the vector.

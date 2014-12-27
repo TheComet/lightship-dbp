@@ -4,6 +4,7 @@
 #include "util/plugin.h"     /* plugin api */
 #include "plugin_yaml/services.h" /* plugin services */
 #include "plugin_yaml/events.h"   /* plugin events */
+#include "plugin_yaml/parser.h"
 
 struct plugin_t* g_plugin = NULL;
 
@@ -35,6 +36,7 @@ PLUGIN_INIT()
     create_and_init_plugin();
     register_services(g_plugin);
     register_events(g_plugin);
+    parser_init();
     return g_plugin;
 }
 
