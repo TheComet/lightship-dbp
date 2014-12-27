@@ -16,9 +16,9 @@
 /*!
  * @brief Evaluates whether the specified file is an acceptable plugin to load
  * based on the specified info and criteria.
- * @param [in] info The requested plugin to try and match.
- * @param [in] file The file to test.
- * @param [in] criteria The criteria to use.
+ * @param[in] info The requested plugin to try and match.
+ * @param[in] file The file to test.
+ * @param[in] criteria The criteria to use.
  * @return Returns 1 if successful, 0 if otherwise.
  */
 static int plugin_version_acceptable(struct plugin_info_t* info,
@@ -27,8 +27,8 @@ static int plugin_version_acceptable(struct plugin_info_t* info,
 
 /*!
  * @brief Scans the plugin directory for a suitable plugin to load.
- * @param [in] info The requested plugin to try and match.
- * @param [in] criteria The criteria to use.
+ * @param[in] info The requested plugin to try and match.
+ * @param[in] criteria The criteria to use.
  * @return Returns the full file name and relative path if a plugin was
  * matched. Returns NULL on failure.
  */

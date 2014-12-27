@@ -65,7 +65,7 @@ void yaml_close(const char ID)
             break;
         }
     }
-    
+
     /* 
      * If the vector is now empty, also free the data it is holding so we don't
      * have to explicitely clean up when the plugin unloads.
