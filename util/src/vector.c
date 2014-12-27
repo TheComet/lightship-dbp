@@ -84,7 +84,7 @@ void vector_insert(struct vector_t* vector, intptr_t index, void* data)
      * because it's possible the user will want to insert at the very end of
      * the vector.
      */
-    if(index > vector->capacity)
+    if(index > vector->count)
         return;
 
     /* re-allocate? */
@@ -108,19 +108,31 @@ void vector_insert(struct vector_t* vector, intptr_t index, void* data)
 
 void vector_erase_index(struct vector_t* vector, intptr_t index)
 {
-    intptr_t offset;
-    intptr_t total_size;
-
-    if(index >= vector->capacity)
+    if(index >= vector->count)
         return;
     
-    /* shift memory right after the specified element down by one element */
-    offset = vector->element_size * index;  /* offset to the element being erased in bytes */
-    total_size = vector->element_size * vector->count; /* total current size in bytes */
-    memmove(vector->data + offset,   /* target is to overwrite the element specified by index */
-            vector->data + offset + vector->element_size,    /* copy beginning from one element ahead of element to be erased */
-            total_size - offset - vector->element_size);     /* copying number of elements after element to be erased */
+    /* no need to copy memory if erasing the last index */
+    if(index < vector->count)
+    {
+        /* copy last element to fill the gap */
+        memcpy(vector->data + vector->element_size * index,    /* target is to overwrite the element specified by index */
+            vector->data + (vector->count-1) * vector->element_size, /* last element */
+            vector->element_size);
+    }
+    
     --(vector->count);
+}
+
+void vector_erase_element(struct vector_t* vector, void* element)
+{
+    /* copy last element to fill the gap, but only if it is not the last */
+    if(element != vector->data + (vector->count-1) * vector->element_size)
+    {
+        memcpy(element,    /* target is to overwrite the element */
+            vector->data + (vector->count-1) * vector->element_size, /* last element */
+            vector->element_size);
+    }
+    --vector->count;
 }
 
 void* vector_get_element(struct vector_t* vector, intptr_t index)
