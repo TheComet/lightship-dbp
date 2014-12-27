@@ -14,8 +14,8 @@ void parser_init(void)
 uint32_t yaml_open(const char* filename)
 {
     FILE* fp;
-    char* text;
-    int file_size;
+    unsigned char* text;
+    unsigned int file_size;
     struct yaml_doc_t* doc;
     
     /* try to open the file */
@@ -32,7 +32,7 @@ uint32_t yaml_open(const char* filename)
     rewind(fp);
     
     /* copy entire file into memory */
-    text = (char*)MALLOC(file_size+1);
+    text = (unsigned char*)MALLOC(file_size+1);
     fread(text, file_size, file_size, fp);
     text[file_size] = '\0';
     printf("yaml text:\n%s\n", text);
@@ -52,7 +52,7 @@ uint32_t yaml_open(const char* filename)
     return doc->ID;
 }
 
-void yaml_close(const char ID)
+void yaml_close(const uint32_t ID)
 {
     UNORDERED_VECTOR_FOR_EACH(&g_open_docs, struct yaml_doc_t*, docp)
     {

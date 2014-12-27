@@ -16,4 +16,4 @@ struct yaml_doc_t
 
 void parser_init(void);
 uint32_t yaml_open(const char* filename);
-void yaml_close(const char ID);
+void yaml_close(const uint32_t ID);
