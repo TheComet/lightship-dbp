@@ -77,7 +77,7 @@ void* vector_pop(struct vector_t* vector)
 
 void vector_insert(struct vector_t* vector, intptr_t index, void* data)
 {
-    intptr_t offset;
+    intptr_t offset = index * vector->element_size;
 
     /* 
      * Normally the last valid index is (capacity-1), but in this case it's valid
@@ -92,16 +92,16 @@ void vector_insert(struct vector_t* vector, intptr_t index, void* data)
         vector_expand(vector, index);
     else
     {
-        /* shift all elements up by one to make space for insertion */
-        intptr_t total_size = vector->count * vector->element_size;
-        offset = vector->element_size * index;
-        memmove(vector->data + offset + vector->element_size,
-               vector->data + offset,
-               total_size - offset);
+        /* 
+         * Move the element currently at insertion index to the end of the
+         * vector
+         */
+        memcpy(vector->data + vector->count * vector->element_size, /* the end of the vector */
+               vector->data + offset, /* the element that would be overwritten when inserting */
+               vector->element_size);
     }
 
     /* copy new element into the specified index */
-    offset = vector->element_size * index;
     memcpy(vector->data + offset, data, vector->element_size);
     ++(vector->count);
 }
