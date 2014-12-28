@@ -31,7 +31,7 @@ set (PLUGIN_YAML_AUTHOR "unknown")
 set (PLUGIN_YAML_DESCRIPTION "unknown")
 set (PLUGIN_YAML_WEBSITE "unknown")
 set (PLUGIN_YAML_VERSION_STRING
-    "${PLUGIN_YAML_VERSION_MAJOR}-${PLUGIN_YAML_VERSION_MINOR}-${PLUGIN_YAML_VERSION_PATCH}")
+    "${PLUGIN_YAML_VERSION_MAJOR}.${PLUGIN_YAML_VERSION_MINOR}.${PLUGIN_YAML_VERSION_PATCH}")
 
 configure_file ("include/plugin_yaml/config.h.in"
                 "${CMAKE_CURRENT_BINARY_DIR}/include/yaml/config.h")
