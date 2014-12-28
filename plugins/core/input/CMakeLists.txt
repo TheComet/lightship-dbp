@@ -25,7 +25,7 @@ set (PLUGIN_INPUT_AUTHOR "TheComet")
 set (PLUGIN_INPUT_DESCRIPTION "Input mapper for lightship")
 set (PLUGIN_INPUT_WEBSITE "http://github.com/TheComet93")
 set (PLUGIN_INPUT_VERSION_STRING
-    "${PLUGIN_INPUT_VERSION_MAJOR}-${PLUGIN_INPUT_VERSION_MINOR}-${PLUGIN_INPUT_VERSION_PATCH}")
+    "${PLUGIN_INPUT_VERSION_MAJOR}.${PLUGIN_INPUT_VERSION_MINOR}.${PLUGIN_INPUT_VERSION_PATCH}")
 
 configure_file ("include/plugin_input/config.h.in"
                 "${CMAKE_CURRENT_BINARY_DIR}/include/input/config.h")
@@ -75,8 +75,6 @@ add_custom_command (TARGET plugin_input POST_BUILD
 target_link_libraries (plugin_input
     lightship_util
 )
-
-
 
 ###############################################################################
 # install targets

@@ -7,9 +7,9 @@
 /*!
  * @brief Frees all buffers allocated for info strings.
  */
-static void plugin_FREE_info(struct plugin_t* plugin);
+static void plugin_free_info(struct plugin_t* plugin);
 
-#define PLUGIN_FREE_INFO_STRING(plugin, strname) \
+#define PLUGIN_free_INFO_STRING(plugin, strname) \
     if((plugin)->info.strname) \
         FREE((plugin)->info.strname); \
     (plugin)->info.strname = NULL;
@@ -36,7 +36,7 @@ void plugin_init_plugin(struct plugin_t* plugin)
 
 void plugin_destroy(struct plugin_t* plugin)
 {
-    plugin_FREE_info(plugin);
+    plugin_free_info(plugin);
     FREE(plugin);
 }
 
@@ -47,7 +47,7 @@ void plugin_set_info(struct plugin_t* plugin,
                      const char* description,
                      const char* website)
 {
-    plugin_FREE_info(plugin);
+    plugin_free_info(plugin);
     
     PLUGIN_ADD_INFO_STRING(plugin, name, name)
     PLUGIN_ADD_INFO_STRING(plugin, category, category);
@@ -56,13 +56,13 @@ void plugin_set_info(struct plugin_t* plugin,
     PLUGIN_ADD_INFO_STRING(plugin, website, website)
 }
 
-static void plugin_FREE_info(struct plugin_t* plugin)
+static void plugin_free_info(struct plugin_t* plugin)
 {
-    PLUGIN_FREE_INFO_STRING(plugin, name)
-    PLUGIN_FREE_INFO_STRING(plugin, category);
-    PLUGIN_FREE_INFO_STRING(plugin, author)
-    PLUGIN_FREE_INFO_STRING(plugin, description)
-    PLUGIN_FREE_INFO_STRING(plugin, website)
+    PLUGIN_free_INFO_STRING(plugin, name)
+    PLUGIN_free_INFO_STRING(plugin, category);
+    PLUGIN_free_INFO_STRING(plugin, author)
+    PLUGIN_free_INFO_STRING(plugin, description)
+    PLUGIN_free_INFO_STRING(plugin, website)
 }
 
 void plugin_set_programming_language(struct plugin_t* plugin, plugin_programming_language_t language)
@@ -91,31 +91,28 @@ int plugin_extract_version_from_string(const char* file,
     char* buffer = (char*)MALLOC((strlen(file)+1)*sizeof(char*));
     char* temp = buffer;
     char* pch;
+    const char* delim = ".";
     strcpy(buffer, file);
-    pch = strtok(temp, "-");
     
     /* extract major, minor, and patch from file name */
     *major = -1;
     *minor = -1;
     *patch = -1;
 
-    /* 
-     * Skip first token, as that is the plugin name, then skip ahead until a
-     * token is found that contains a number.
-     */
-    pch = strtok(NULL, "-");
+    /* skip ahead until a token is found that contains a number. */
+    pch = strtok(temp, delim);
     while(pch != NULL)
     {
         if(strpbrk(pch, "0123456789") != NULL)
             break;
-        pch = strtok(NULL, "-");
+        pch = strtok(NULL, delim);
     }
     /* the following numbers must be major, minor, and patch numbers */
     if(pch != NULL)
         *major = atoi(pch);
-    if((pch = strtok(NULL, "-")) != NULL)
+    if((pch = strtok(NULL, delim)) != NULL)
         *minor = atoi(pch);
-    if((pch = strtok(NULL, "-")) != NULL)
+    if((pch = strtok(NULL, delim)) != NULL)
         *patch = atoi(pch);
 
     /* FREE temporary buffer */
@@ -130,7 +127,7 @@ int plugin_extract_version_from_string(const char* file,
 
 void plugin_get_version_string(char* str, struct plugin_info_t* info)
 {
-    sprintf(str, "%d-%d-%d",
+    sprintf(str, "%d.%d.%d",
         info->version.major,
         info->version.minor,
         info->version.patch);

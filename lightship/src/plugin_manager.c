@@ -85,7 +85,7 @@ struct plugin_t* plugin_load(struct plugin_info_t* plugin_info, plugin_search_cr
         filename = find_plugin(plugin_info, criteria);
         if(!filename)
         {
-            llog(LOG_ERROR, 1, "Error searching for plugin: Unable to find a file matching the critera\n");
+            llog(LOG_ERROR, 1, "Error searching for plugin: Unable to find a file matching the critera");
             break;
         }
         
@@ -250,7 +250,7 @@ static char* find_plugin(struct plugin_info_t* info, plugin_search_criteria_t cr
     char* file_found = NULL;
 
     /* log */
-    sprintf(version_str, "%d-%d-%d",
+    sprintf(version_str, "%d.%d.%d",
             info->version.major,
             info->version.minor,
             info->version.patch);
