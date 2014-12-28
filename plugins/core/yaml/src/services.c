@@ -8,6 +8,7 @@ void register_services(struct plugin_t* plugin)
     * All services this plugin supports
     * ---------------------------------------------------*/
 
-    service_register(plugin, "open", (intptr_t)yaml_open);
-    service_register(plugin, "close", (intptr_t)yaml_close);
+    service_register(plugin, "load", (intptr_t)yaml_load);
+    service_register(plugin, "get", (intptr_t)yaml_get);
+    service_register(plugin, "destroy", (intptr_t)yaml_destroy);
 }

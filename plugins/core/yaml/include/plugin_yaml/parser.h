@@ -8,12 +8,10 @@ struct yaml_event_t;
 struct yaml_doc_t
 {
     uint32_t ID;
-    uint32_t file_size;
-    char* text;
-    yaml_parser_t parser;
-    yaml_event_t event;
+    struct ptree_t* dom;
 };
 
 void parser_init(void);
-uint32_t yaml_open(const char* filename);
-void yaml_close(const uint32_t ID);
+uint32_t yaml_load(const char* filename);
+char* yaml_get(uint32_t ID, const char* key);
+void yaml_destroy(uint32_t ID);
