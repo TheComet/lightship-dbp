@@ -33,7 +33,7 @@ char
 yaml_load_into_ptree(struct ptree_t* tree, yaml_parser_t* parser)
 {
     yaml_token_t token;
-    yaml_parser_states_e state = YAML_PARSER_STATE_NONE;;
+    yaml_parser_states_e state = YAML_PARSER_STATE_NONE;
     char* key = NULL;
 
     yaml_parser_scan(parser, &token);
@@ -88,7 +88,6 @@ yaml_load_into_ptree(struct ptree_t* tree, yaml_parser_t* parser)
             case YAML_BLOCK_ENTRY_TOKEN:
                 break;
             case YAML_BLOCK_END_TOKEN:
-                puts("<b>End block</b>");
                 /* make sure state slots in */
                 if(state != YAML_PARSER_STATE_NONE)
                 {
@@ -171,7 +170,7 @@ yaml_load_into_ptree(struct ptree_t* tree, yaml_parser_t* parser)
                      */
                     if(tree)
                     {
-                        if(ptree_find_local_by_key(tree, token.data.scalar.value))
+                        if(ptree_find_local_by_key(tree, (char*)token.data.scalar.value))
                         {
                             llog(LOG_ERROR, 3, "Duplicate key found in same level of indentation: \"", token.data.scalar.value, "\"");
                             state = YAML_PARSER_STATE_ERROR;
@@ -185,7 +184,7 @@ yaml_load_into_ptree(struct ptree_t* tree, yaml_parser_t* parser)
                      * libyaml yet, so just malloc the string and save it
                      * for later.
                      */
-                    key = malloc_string(token.data.scalar.value);
+                    key = malloc_string((char*)token.data.scalar.value);
                     
                     /* enter next state */
                     if(state == YAML_PARSER_STATE_GET_KEY)
@@ -199,13 +198,11 @@ yaml_load_into_ptree(struct ptree_t* tree, yaml_parser_t* parser)
                  */
                 if(state == YAML_PARSER_STATE_GET_VALUE)
                 {
-                    char* value;
-                    
                     /*
                      * It is now safe to either create the tree if it doesn't
                      * exist yet, or add a new node to the tree.
                      */
-                    ptree_add_node(tree, key, malloc_string(token.data.scalar.value));
+                    ptree_add_node(tree, key, malloc_string((char*)token.data.scalar.value));
                     
                     /*
                      * key is now no longer needed, free it for re-use.
@@ -222,7 +219,11 @@ yaml_load_into_ptree(struct ptree_t* tree, yaml_parser_t* parser)
             
             /* unexpected token */
             default:
-                llog(LOG_ERROR, 2, "Got token of type", (char*)token.type);
+                {
+                    char type_str[sizeof(yaml_token_type_t)+1];
+                    sprintf(type_str, "%d", token.type);
+                    llog(LOG_ERROR, 2, "Got token of type ", type_str);
+                }
                 state = YAML_PARSER_STATE_ERROR;
                 break;
         }
@@ -248,9 +249,9 @@ yaml_load_into_ptree(struct ptree_t* tree, yaml_parser_t* parser)
      * Make sure state machine has returned to initial state, otherwise there
      * has been an error
      */
-    if(state != YAML_PARSER_STATE_NONE &&
-       state != YAML_PARSER_STATE_RETURN ||
-       state == YAML_PARSER_STATE_ERROR)
+    if((state != YAML_PARSER_STATE_NONE &&
+        state != YAML_PARSER_STATE_RETURN) ||
+        state == YAML_PARSER_STATE_ERROR)
         return 0;
     
     return 1;
@@ -281,11 +282,10 @@ yaml_load(const char* filename)
         yaml_parser_delete(&parser);
         fclose(fp);
         ptree_destroy(tree);
-        llog(LOG_ERROR, 1, "Syntax error: Failed to parse YAML file");
+        llog(LOG_ERROR, 3, "Syntax error: Failed to parse YAML file \"", filename, "\"");
         return 0;
-    }else
-        ptree_print(tree);
-
+    }
+    
     /* create doc object and initialise parser */
     doc = (struct yaml_doc_t*)MALLOC(sizeof(struct yaml_doc_t));
     doc->ID = GUID_counter++;
