@@ -3,7 +3,8 @@
 #include "util/module_loader.h"
 #include "util/string.h"
 
-void* module_open(const char* filename)
+void*
+module_open(const char* filename)
 {
     void* handle = dlopen(filename, RTLD_LAZY);
     if(!handle)
@@ -14,7 +15,8 @@ void* module_open(const char* filename)
     return handle;
 }
 
-void* module_sym(void* handle, const char* symbol)
+void*
+module_sym(void* handle, const char* symbol)
 {
     void* ptr;
 
@@ -32,7 +34,8 @@ void* module_sym(void* handle, const char* symbol)
     return ptr;
 }
 
-void module_close(void* handle)
+void
+module_close(void* handle)
 {
     dlclose(handle);
 }

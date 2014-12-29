@@ -18,7 +18,8 @@ EVENT_C(evt_right)
 EVENT_C(evt_action)
 EVENT_C(evt_cancel)
 
-void register_events(struct plugin_t* plugin)
+void
+register_events(const struct plugin_t* plugin)
 {
     evt_mouse_clicked   = event_create(plugin, "mouse_clicked");
     evt_mouse_press     = event_create(plugin, "mouse_press");
@@ -32,7 +33,8 @@ void register_events(struct plugin_t* plugin)
     evt_cancel          = event_create(plugin, "cancel");
 }
 
-void register_event_listeners(struct plugin_t* plugin)
+void
+register_event_listeners(const struct plugin_t* plugin)
 {
     event_register_listener(plugin, "renderer_gl.mouse_button_press", on_mouse_button_press);
     event_register_listener(plugin, "renderer_gl.mouse_button_release", on_mouse_button_release);

@@ -22,7 +22,8 @@ struct report_info_t
 #endif
 };
 
-void memory_init(void)
+void
+memory_init(void)
 {
     allocations = 0;
     deallocations = 0;
@@ -30,7 +31,8 @@ void memory_init(void)
     unordered_vector_init_vector(&report, sizeof(struct report_info_t));
 }
 
-void* malloc_debug(intptr_t size)
+void*
+malloc_debug(intptr_t size)
 {
     void* p = malloc(size);
     if(p)
@@ -56,7 +58,8 @@ void* malloc_debug(intptr_t size)
     return p;
 }
 
-void free_debug(void* ptr)
+void
+free_debug(void* ptr)
 {
     free(ptr);
     if(ptr)
@@ -81,7 +84,8 @@ void free_debug(void* ptr)
     }
 }
 
-void memory_deinit(void)
+void
+memory_deinit(void)
 {
     intptr_t i;
     --allocations; /* this is the single allocation still held by the report vector */

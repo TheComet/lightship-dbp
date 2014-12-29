@@ -13,7 +13,8 @@
 
 struct plugin_t* g_plugin = NULL;
 
-void set_plugin_info(void)
+void
+set_plugin_info(void)
 {
     /* set plugin information */
     plugin_set_info(g_plugin,

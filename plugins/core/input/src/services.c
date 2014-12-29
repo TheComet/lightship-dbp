@@ -1,7 +1,8 @@
 #include "lightship/api.h"
 #include "plugin_input/services.h"
 
-void register_services(struct plugin_t* plugin)
+void
+register_services(const struct plugin_t* plugin)
 {
     /* -----------------------------------------------------
     * All services this plugin supports

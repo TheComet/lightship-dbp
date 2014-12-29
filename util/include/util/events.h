@@ -115,13 +115,15 @@ struct plugin_t;
  * @brief Initialises the event system.
  * @note Must be called before calling any other event related functions.
  */
-LIGHTSHIP_PUBLIC_API void events_init(void);
+LIGHTSHIP_PUBLIC_API void
+events_init(void);
 
 /*!
  * @brief De-initialises the event system and cleans up any events that weren't
  * removed.
  */
-LIGHTSHIP_PUBLIC_API void events_deinit(void);
+LIGHTSHIP_PUBLIC_API void
+events_deinit(void);
 
 /*!
  * @brief Creates and registers a new event in the host program.
@@ -130,8 +132,8 @@ LIGHTSHIP_PUBLIC_API void events_deinit(void);
  * @param[in] name The name of the event. Should be unique plugin-wide.
  * @return Returns a new event object which should be stored by the plugin.
  */
-LIGHTSHIP_PUBLIC_API struct event_t* event_create(struct plugin_t* plugin,
-                             const char* name);
+LIGHTSHIP_PUBLIC_API struct event_t*
+event_create(const struct plugin_t* plugin, const char* name);
 
 /*!
  * @brief Destroys an event object.
@@ -139,7 +141,8 @@ LIGHTSHIP_PUBLIC_API struct event_t* event_create(struct plugin_t* plugin,
  * @param[in] event The event object to destroy.
  * @return Returns 1 if successful, 0 if otherwise.
  */
-LIGHTSHIP_PUBLIC_API char event_destroy(struct event_t* event_delete);
+LIGHTSHIP_PUBLIC_API char
+event_destroy(struct event_t* event_delete);
 
 /*!
  * @brief Destroys an event object by plugin object and name.
@@ -147,44 +150,52 @@ LIGHTSHIP_PUBLIC_API char event_destroy(struct event_t* event_delete);
  * @param[in] plugin The plugin that created the event.
  * @param[in] name The name of the event.
  */
-LIGHTSHIP_PUBLIC_API void event_destroy_plugin_event(struct plugin_t* plugin,
-                                const char* name);
+LIGHTSHIP_PUBLIC_API void
+event_destroy_plugin_event(const struct plugin_t* plugin, const char* name);
 
 /*!
  * @brief Destroys all events that were registered by the specified plugin.
  * @note This also destroys all registered event listeners.
  * @param[in] plugin The plugin to destroy the events from.
  */
-LIGHTSHIP_PUBLIC_API void event_destroy_all_plugin_events(struct plugin_t* plugin);
+LIGHTSHIP_PUBLIC_API void
+event_destroy_all_plugin_events(const struct plugin_t* plugin);
 
 /*!
  * @brief Returns an event object with the specified name.
  * @return If the event object does not exist, NULL is returned, otherwise the
  * event object is returned.
  */
-LIGHTSHIP_PUBLIC_API struct event_t* event_get(const char* full_name);
+LIGHTSHIP_PUBLIC_API struct event_t*
+event_get(const char* full_name);
 
 /*!
  * @brief Registers a listener to the specified event.
  */
-LIGHTSHIP_PUBLIC_API char event_register_listener(struct plugin_t* plugin, const char* full_name, event_callback_func callback);
+LIGHTSHIP_PUBLIC_API char
+event_register_listener(const struct plugin_t* plugin,
+                        const char* full_name,
+                        event_callback_func callback);
 
 /*!
  * @brief Unregisters a listener from the specified event.
  */
-LIGHTSHIP_PUBLIC_API char event_unregister_listener(const char* event_name, const char* plugin_name);
+LIGHTSHIP_PUBLIC_API char
+event_unregister_listener(const char* event_name, const char* plugin_name);
 
 /*!
  * @brief Unregisters all listeners from the specified event.
  */
-LIGHTSHIP_PUBLIC_API void event_unregister_all_listeners(struct event_t* event);
+LIGHTSHIP_PUBLIC_API void
+event_unregister_all_listeners(const struct event_t* event);
 
 /*!
  * @brief Unregisters all listeners that belong to the specified plugin
  * globally.
  * @param[in] plugin The plugin the listeners belong to.
  */
-LIGHTSHIP_PUBLIC_API void event_unregister_all_listeners_of_plugin(struct plugin_t* plugin);
+LIGHTSHIP_PUBLIC_API void
+event_unregister_all_listeners_of_plugin(const struct plugin_t* plugin);
 
 #endif /* LIGHTSHIP_UTIL_EVENTS_H */
 

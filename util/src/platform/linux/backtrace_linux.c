@@ -1,7 +1,8 @@
 #include "util/backtrace.h"
 #include <execinfo.h>
 
-char** get_backtrace(intptr_t* size )
+char**
+get_backtrace(intptr_t* size )
 {
     void* array[BACKTRACE_SIZE];
     char** strings;

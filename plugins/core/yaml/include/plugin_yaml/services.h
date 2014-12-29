@@ -1,3 +1,4 @@
 struct plugin_t;
 
-void register_services(struct plugin_t* plugin);
+void
+register_services(const struct plugin_t* plugin);

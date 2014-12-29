@@ -7,7 +7,8 @@
 
 struct plugin_t* g_plugin = NULL;
 
-void create_and_init_plugin(void)
+void
+create_and_init_plugin(void)
 {
     /* create plugin object - host requires this */
     g_plugin = plugin_create();

@@ -3,25 +3,29 @@
 #include "util/linked_list.h"
 #include "util/memory.h"
 
-struct list_t* list_create(void)
+struct list_t*
+list_create(void)
 {
     struct list_t* list = (struct list_t*)MALLOC(sizeof(struct list_t));
     list_init_list(list);
     return list;
 }
 
-void list_init_list(struct list_t* list)
+void
+list_init_list(struct list_t* list)
 {
     memset(list, 0, sizeof(struct list_t));
 }
 
-void list_destroy(struct list_t* list)
+void
+list_destroy(struct list_t* list)
 {
     list_clear(list);
     FREE(list);
 }
 
-void list_clear(struct list_t* list)
+void
+list_clear(struct list_t* list)
 {
     struct list_node_t* current;
     while((current = list->tail))
@@ -33,7 +37,8 @@ void list_clear(struct list_t* list)
     list->count = 0;
 }
 
-void list_push(struct list_t* list, void* data)
+void
+list_push(struct list_t* list, void* data)
 {
     struct list_node_t* node = (struct list_node_t*)MALLOC(sizeof(struct list_node_t));
     /* first element being inserted, set tail */
@@ -49,7 +54,8 @@ void list_push(struct list_t* list, void* data)
     ++list->count;
 }
 
-void* list_pop(struct list_t* list)
+void*
+list_pop(struct list_t* list)
 {
     struct list_node_t* node = list->head;
     if(!node)
@@ -67,7 +73,8 @@ void* list_pop(struct list_t* list)
     return NULL;
 }
 
-void* list_erase_node(struct list_t* list, struct list_node_t* node)
+void*
+list_erase_node(struct list_t* list, struct list_node_t* node)
 {
     struct list_node_t* prev = node->prev;
     struct list_node_t* next = node->next;
@@ -88,7 +95,8 @@ void* list_erase_node(struct list_t* list, struct list_node_t* node)
     return data;
 }
 
-void* list_erase_element(struct list_t* list, void* data)
+void*
+list_erase_element(struct list_t* list, void* data)
 {
     struct list_node_t* current = list->tail;
     while(current)

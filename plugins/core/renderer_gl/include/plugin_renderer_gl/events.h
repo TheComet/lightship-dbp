@@ -11,5 +11,8 @@ EVENT_H(evt_mouse_button_press)
 EVENT_H(evt_mouse_button_release)
 EVENT_H(evt_mouse_scroll)
 
-void register_events(struct plugin_t* plugin);
-void register_event_listeners(struct plugin_t* plugin);
+void
+register_events(const struct plugin_t* plugin);
+
+void
+register_event_listeners(const struct plugin_t* plugin);

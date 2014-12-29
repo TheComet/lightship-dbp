@@ -11,19 +11,22 @@
  * no longer needed.
  * @return Returns the newly created plugin object.
  */
-LIGHTSHIP_PUBLIC_API struct plugin_t* plugin_create(void);
+LIGHTSHIP_PUBLIC_API struct plugin_t*
+plugin_create(void);
 
 /*!
  * @brief Initialises a plugin object.
  * @param[in] plugin The plugin to initialise.
  */
-LIGHTSHIP_PUBLIC_API void plugin_init_plugin(struct plugin_t* plugin);
+LIGHTSHIP_PUBLIC_API void
+plugin_init_plugin(struct plugin_t* plugin);
 
 /*!
  * @brief Destroys a plugin object.
  * @param[in] plugin The plugin to destroy.
  */
-LIGHTSHIP_PUBLIC_API void plugin_destroy(struct plugin_t* plugin);
+LIGHTSHIP_PUBLIC_API void
+plugin_destroy(struct plugin_t* plugin);
 
 /*!
  * @brief Sets general information about the plugin.
@@ -36,20 +39,22 @@ LIGHTSHIP_PUBLIC_API void plugin_destroy(struct plugin_t* plugin);
  * @param[in] description A short description about what your plugin does.
  * @param[in] website A URL to your website.
  */
-LIGHTSHIP_PUBLIC_API void plugin_set_info(struct plugin_t* plugin,
-                     const char* name,
-                     const char* category,
-                     const char* author,
-                     const char* description,
-                     const char* website);
+LIGHTSHIP_PUBLIC_API void
+plugin_set_info(struct plugin_t* plugin,
+                const char* name,
+                const char* category,
+                const char* author,
+                const char* description,
+                const char* website);
 
 /*!
  * @brief Sets the programming language of the plugin.
  * @param[in] plugin The plugin to set.
  * @param[in] language The programming language.
  */
-LIGHTSHIP_PUBLIC_API void plugin_set_programming_language(struct plugin_t* plugin,
-                                     plugin_programming_language_t language);
+LIGHTSHIP_PUBLIC_API void
+plugin_set_programming_language(struct plugin_t* plugin,
+                                plugin_programming_language_t language);
 
 /*!
  * @brief Sets the version of the plugin.
@@ -58,10 +63,15 @@ LIGHTSHIP_PUBLIC_API void plugin_set_programming_language(struct plugin_t* plugi
  * @param[in] minor The minor version.
  * @param[in] patch The patch version.
  */
-LIGHTSHIP_PUBLIC_API void plugin_set_version(struct plugin_t* plugin, uint32_t major, uint32_t minior, uint32_t patch);
+LIGHTSHIP_PUBLIC_API void
+plugin_set_version(struct plugin_t* plugin,
+                   uint32_t major,
+                   uint32_t minior,
+                   uint32_t patch);
 
 /* TODO plugin dependencies */
-LIGHTSHIP_PUBLIC_API void plugin_add_dependency(struct plugin_info_t* plugin);
+LIGHTSHIP_PUBLIC_API void
+plugin_add_dependency(struct plugin_info_t* plugin);
 
 /*!
  * @brief Extracts the three version digits from a string.
@@ -71,10 +81,11 @@ LIGHTSHIP_PUBLIC_API void plugin_add_dependency(struct plugin_info_t* plugin);
  * @param [out] patch Where to store the patch number.
  * @return Returns 1 if successful, 0 if otherwise.
  */
-LIGHTSHIP_PUBLIC_API int plugin_extract_version_from_string(const char* file,
-                                       uint32_t* major,
-                                       uint32_t* minor,
-                                       uint32_t* patch);
+LIGHTSHIP_PUBLIC_API char
+plugin_extract_version_from_string(const char* file,
+                                   uint32_t* major,
+                                   uint32_t* minor,
+                                   uint32_t* patch);
 
 /*!
  * @brief Generates a version string from the info struct and copies it into
@@ -84,6 +95,7 @@ LIGHTSHIP_PUBLIC_API int plugin_extract_version_from_string(const char* file,
  * @param[in] info The plugin info struct from which to generate the version
  * string.
  */
-LIGHTSHIP_PUBLIC_API void plugin_get_version_string(char* str, struct plugin_info_t* info);
+LIGHTSHIP_PUBLIC_API void
+plugin_get_version_string(char* str, const struct plugin_info_t* info);
 
 #endif /* LIGHTSHIP_UTIL_PLUGIN_H */
