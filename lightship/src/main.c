@@ -23,12 +23,12 @@ load_core_plugins(void)
     /* 
      * Main loop plugin.
      * Dependencies: None.
-     *
+     */
     target.name = "main_loop";
     target.version.major = 0;
     target.version.minor = 0;
     target.version.patch = 1;
-    plugin_main_loop = plugin_load(&target, PLUGIN_VERSION_MINIMUM);*/
+    plugin_main_loop = plugin_load(&target, PLUGIN_VERSION_MINIMUM);
     
     /*!
      * Yaml plugin.
@@ -43,7 +43,7 @@ load_core_plugins(void)
     /*
      * Graphics plugin.
      * Dependencies: main_loop
-     *
+     */
     target.name = "renderer_gl";
     target.version.major = 0;
     target.version.minor = 0;
@@ -53,25 +53,25 @@ load_core_plugins(void)
     /* 
      * Input plugin.
      * Dependencies: main_loop, graphics, yaml
-     *
+     */
     target.name = "input";
     target.version.major = 0;
     target.version.minor = 0;
     target.version.patch = 1;
-    plugin_input = plugin_load(&target, PLUGIN_VERSION_MINIMUM);*/
+    plugin_input = plugin_load(&target, PLUGIN_VERSION_MINIMUM);
 }
 
 char
 start_core_plugins(void)
-{/*
+{
     if(!plugin_main_loop || plugin_start(plugin_main_loop) == PLUGIN_FAILURE)
-        return 0;*/
+        return 0;
     if(!plugin_yaml      || plugin_start(plugin_yaml) == PLUGIN_FAILURE)
-        return 0;/*
+        return 0;
     if(!plugin_renderer  || plugin_start(plugin_renderer) == PLUGIN_FAILURE)
         return 0;
     if(!plugin_input     || plugin_start(plugin_input) == PLUGIN_FAILURE)
-        return 0;*/
+        return 0;
 
     return 1;
 }
@@ -112,10 +112,6 @@ init(void)
     if(!start_core_plugins())
         return;
 
-    int i;
-    for(i = 0; i != 100; ++i)
-    {
-    /**/
     typedef uint32_t(*load_func)(const char*);
     load_func load_s = (load_func)service_get("yaml.load");
     uint32_t x = load_s("test.yml");
@@ -127,16 +123,15 @@ init(void)
     typedef void(*destroy_func)(uint32_t);
     destroy_func destroy_s = (destroy_func)service_get("yaml.destroy");
     destroy_s(x);
-    }
 
     /* 
      * Try to get the main loop service and start running the game
-     *
+     */
     start = (start_loop_func)service_get("main_loop.start");
     if(start)
         start();
     else
-        llog(LOG_FATAL, 1, "Failed to find service \"main_loop.start\". Cannot start.");*/
+        llog(LOG_FATAL, 1, "Failed to find service \"main_loop.start\". Cannot start.");
 }
 
 void
@@ -146,22 +141,11 @@ deinit(void)
     events_deinit();
 }
 
-#include "util/ptree.h"
-
 int
 main(int argc, char** argv)
 {
     /* first thing - initialise memory management */
     memory_init();
-    /*
-    struct ptree_t* tree = ptree_create("root", NULL);
-    ptree_add_node(tree, "child1", NULL);
-    ptree_add_node(tree, "child2", NULL);
-    
-    ptree_print(tree);
-    ptree_destroy(tree);
-    memory_deinit();
-    return 0;*/
 
     /* initialise everything else */
     init();
