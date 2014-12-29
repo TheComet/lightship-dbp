@@ -312,6 +312,9 @@ yaml_get(const uint32_t ID, const char* key)
             break;
         }
     }
+    
+    /* Look up value in tree. */
+    return (char*)ptree_find_by_key(doc->dom, key);
 }
 
 void
