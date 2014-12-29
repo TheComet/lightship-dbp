@@ -69,26 +69,37 @@ ptree_find_local_by_key(const struct ptree_t* tree, const char* key)
     return NULL;
 }
 
+static void*
+ptree_find_by_key_recurse(const struct ptree_t* tree,
+                          const char* delim)
+{
+    char* token;
+    if((token = strtok(NULL, delim)))
+    {
+        uint32_t hash = hash_jenkins_oaat(token, strlen(token));
+        {
+            UNORDERED_VECTOR_FOR_EACH(&tree->children, struct ptree_t, child)
+            {
+                if(child->hash == hash)
+                    return ptree_find_by_key_recurse(child, delim);
+            }
+            return NULL;
+        }
+    } else
+        return tree->value;
+}
+
 void*
 ptree_find_by_key(const struct ptree_t* tree, const char* key)
 {
-    char* key_cpy;
-    char* key_cpy_cpy;
-    char* token;
+    /* prepare key for tokenisation */
+    void* result;
     const char* delim = ".";
-
-    /* first, tokenise key */
-    key_cpy = malloc_string(key);
-    key_cpy_cpy = key_cpy;
-    while((token = strtok(key_cpy_cpy, delim)))
-    {
-        uint32_t hash = hash_jenkins_oaat(token, strlen(token));
-        struct ptree_t child;
-        /*ptree_init_ptree(&child, key, value);*/
-        unordered_vector_push(&tree->children, &child);
-    }
-    
-    /* TODO */
+    char* key_iter = cat_strings(2, "n.", key); /* root key name is ignored, but must exist */
+    strtok(key_iter, delim);
+    result = ptree_find_by_key_recurse(tree, delim);
+    FREE(key_iter);
+    return result;
 }
 
 void
