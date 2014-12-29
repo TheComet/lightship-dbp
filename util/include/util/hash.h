@@ -6,4 +6,5 @@
  * @param[in] len The lenght of the data in bytes.
  * @return Returns a 32-bit hash of the string.
  */
-uint32_t hash_jenkins_oaat(const char* key, intptr_t len);
+uint32_t
+hash_jenkins_oaat(const char* key, intptr_t len);

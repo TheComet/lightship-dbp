@@ -3,7 +3,8 @@
 #include "util/pstdint.h"
 #include "glfw3.h"
 
-void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+void
+key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
     uint32_t k = (uint32_t)key;
     if(action == GLFW_PRESS)
@@ -16,12 +17,14 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
     }
 }
 
-void mouse_position_callback(GLFWwindow* window, double xpos, double ypos)
+void
+mouse_position_callback(GLFWwindow* window, double xpos, double ypos)
 {
     EVENT_FIRE2(evt_mouse_move, (uint32_t)xpos, (uint32_t)ypos);
 }
 
-void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
+void
+mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 {
     if(action == GLFW_PRESS)
     {
@@ -33,7 +36,8 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
     }
 }
 
-void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+void
+scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
     EVENT_FIRE2(evt_mouse_scroll, (uint32_t)xoffset, (uint32_t)yoffset);
 }

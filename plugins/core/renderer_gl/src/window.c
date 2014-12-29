@@ -10,7 +10,8 @@
 
 struct window_t g_window;
 
-char window_init(void)
+char
+window_init(void)
 {
     GLFWwindow* glfw_window;
     
@@ -57,7 +58,8 @@ char window_init(void)
     return 1;
 }
 
-void window_deinit(void)
+void
+window_deinit(void)
 {
     if(g_window.window)
         glfwDestroyWindow(g_window.window);

@@ -4,7 +4,8 @@
 
 struct lightship_api_t g_api;
 
-void api_init(void)
+void
+api_init(void)
 {
     memset(&g_api, 0, sizeof(struct lightship_api_t));
     

@@ -5,32 +5,37 @@
 #include <string.h>
 #include <stdio.h>
 
-struct ptree_t* ptree_create(const char* name, void* data)
+struct ptree_t*
+ptree_create(const char* name, void* data)
 {
     struct ptree_t* tree = (struct ptree_t*)MALLOC(sizeof(struct ptree_t));
     ptree_init_ptree(tree, name, data);
     return tree;
 }
 
-void ptree_init_ptree(struct ptree_t* tree, const char* name, void* data)
+void
+ptree_init_ptree(struct ptree_t* tree, const char* name, void* data)
 {
 #ifdef _DEBUG
-    tree->name = name;
+    tree->name = malloc_string(name);
 #endif
     tree->hash = hash_jenkins_oaat(name, strlen(name));
     tree->data = data;
     unordered_vector_init_vector(&tree->children, sizeof(struct ptree_t));
 }
 
-void ptree_destroy(struct ptree_t* tree)
+void
+ptree_destroy(struct ptree_t* tree)
 {
 }
 
-void ptree_add_node(struct ptree_t* tree, const char* name, void* data)
+void
+ptree_add_node(struct ptree_t* tree, const char* name, void* data)
 {
 }
 
-struct ptree_t* ptree_find_by_name(struct ptree_t* tree, const char* name)
+struct ptree_t*
+ptree_find_by_name(struct ptree_t* tree, const char* name)
 {
     char* name_cpy;
     char* name_cpy_cpy;
@@ -49,7 +54,8 @@ struct ptree_t* ptree_find_by_name(struct ptree_t* tree, const char* name)
     }
 }
 
-void ptree_print_impl(struct ptree_t* tree, uint32_t depth)
+void
+ptree_print_impl(struct ptree_t* tree, uint32_t depth)
 {
     /* indentation */
     uint32_t i;
@@ -64,13 +70,16 @@ void ptree_print_impl(struct ptree_t* tree, uint32_t depth)
 #endif
     
     /* print children */
-    UNORDERED_VECTOR_FOR_EACH(&tree->children, struct ptree_t, child)
     {
-        ptree_print_impl(child, depth+1);
+        UNORDERED_VECTOR_FOR_EACH(&tree->children, struct ptree_t, child)
+        {
+            ptree_print_impl(child, depth+1);
+        }
     }
 }
 
-void ptree_print(struct ptree_t* tree)
+void
+ptree_print(struct ptree_t* tree)
 {
     ptree_print_impl(tree, 0);
 }

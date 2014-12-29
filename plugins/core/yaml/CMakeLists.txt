@@ -88,6 +88,9 @@ target_link_libraries (plugin_yaml
 include_directories ("ext/yaml-0.1.5-cmake/include")
 target_link_libraries (plugin_yaml yaml)
 
+# yaml is built statically
+add_definitions (-DYAML_DECLARE_STATIC)
+
 ###############################################################################
 # install targets
 ###############################################################################

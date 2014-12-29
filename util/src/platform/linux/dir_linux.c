@@ -7,7 +7,8 @@
 #include "util/linked_list.h"
 #include "util/string.h"
 
-void get_directory_listing(struct list_t* list, const char* dir)
+void
+get_directory_listing(struct list_t* list, const char* dir)
 {
     DIR* dirp = NULL;
     struct dirent* fp;

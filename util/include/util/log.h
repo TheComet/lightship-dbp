@@ -25,7 +25,8 @@ struct log_t
  * @brief Initialises the log. Must be called before using any other log related
  * functions.
  */
-LIGHTSHIP_PUBLIC_API void llog_init(void);
+LIGHTSHIP_PUBLIC_API void
+llog_init(void);
 
 /*!
  * @brief Opens an indentation level of the log.
@@ -34,7 +35,8 @@ LIGHTSHIP_PUBLIC_API void llog_init(void);
  * amount, until llog_unindent() is called.
  * @param[in] indent_name The name of the new indentation level.
  */
-LIGHTSHIP_PUBLIC_API void llog_indent(const char* indent_name);
+LIGHTSHIP_PUBLIC_API void
+llog_indent(const char* indent_name);
 
 /*!
  * @brief Closes one indentation level of the log.
@@ -42,7 +44,8 @@ LIGHTSHIP_PUBLIC_API void llog_indent(const char* indent_name);
  * This causes every succeeding call to llog() to be indented one level less
  * than before. If the indent level is at 0, then nothing happens.
  */
-LIGHTSHIP_PUBLIC_API void llog_unindent(void);
+LIGHTSHIP_PUBLIC_API void
+llog_unindent(void);
 
 /*!
  * @brief Fires a log event with the specified information.
@@ -55,7 +58,8 @@ LIGHTSHIP_PUBLIC_API void llog_unindent(void);
  * together.
  * @param[in] strs... The strings to concatenate and send to the log.
  */
-LIGHTSHIP_PUBLIC_API void llog(log_level_t level, uint32_t num_strs, ...);
+LIGHTSHIP_PUBLIC_API void
+llog(log_level_t level, uint32_t num_strs, ...);
 
 EVENT_LISTENER1(on_llog_indent, const char* str);
 EVENT_LISTENER1(on_llog, struct log_t* arg);

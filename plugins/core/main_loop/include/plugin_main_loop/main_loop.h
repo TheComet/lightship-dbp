@@ -22,10 +22,17 @@ struct main_loop_t
     struct main_loop_statistics_t statistics;
 };
 
-void main_loop_start(void);
-void main_loop_stop(struct event_t* evt, void* args);
-void main_loop_reset_timer(void);
-int64_t main_loop_get_elapsed_time(void);
+void
+main_loop_start(void);
+
+void
+main_loop_stop(const struct event_t* evt, void* args);
+
+void
+main_loop_reset_timer(void);
+
+int64_t
+main_loop_get_elapsed_time(void);
 
 #ifdef _DEBUG
 #   include "util/event_api.h"

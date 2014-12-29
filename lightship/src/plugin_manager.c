@@ -13,6 +13,8 @@
 #include "util/memory.h"
 #include "util/log.h"
 
+static struct list_t g_plugins;
+
 /*!
  * @brief Evaluates whether the specified file is an acceptable plugin to load
  * based on the specified info and criteria.
@@ -21,9 +23,10 @@
  * @param[in] criteria The criteria to use.
  * @return Returns 1 if successful, 0 if otherwise.
  */
-static int plugin_version_acceptable(struct plugin_info_t* info,
-                                     const char* file,
-                                     plugin_search_criteria_t criteria);
+static char
+plugin_version_acceptable(const struct plugin_info_t* info,
+                          const char* file,
+                          const plugin_search_criteria_t criteria);
 
 /*!
  * @brief Scans the plugin directory for a suitable plugin to load.
@@ -32,17 +35,17 @@ static int plugin_version_acceptable(struct plugin_info_t* info,
  * @return Returns the full file name and relative path if a plugin was
  * matched. Returns NULL on failure.
  */
-static char* find_plugin(struct plugin_info_t* info,
-                         plugin_search_criteria_t criteria);
-
-static struct list_t g_plugins;
+static char*
+find_plugin(const struct plugin_info_t* info,
+            const plugin_search_criteria_t criteria);
 
 void plugin_manager_init(void)
 {
     list_init_list(&g_plugins);
 }
 
-void plugin_manager_deinit(void)
+void
+plugin_manager_deinit(void)
 {
     /* unload all plugins */
     LIST_FOR_EACH_ERASE_R(&g_plugins, struct plugin_t, plugin)
@@ -52,7 +55,9 @@ void plugin_manager_deinit(void)
     }
 }
 
-struct plugin_t* plugin_load(struct plugin_info_t* plugin_info, plugin_search_criteria_t criteria)
+struct plugin_t*
+plugin_load(const struct plugin_info_t* plugin_info,
+            const plugin_search_criteria_t criteria)
 {
     /* will contain the file name of the plugin if it is found. Must be FREE()'d */
     char* filename = NULL;
@@ -172,7 +177,8 @@ struct plugin_t* plugin_load(struct plugin_info_t* plugin_info, plugin_search_cr
     return NULL;
 }
 
-void plugin_unload(struct plugin_t* plugin)
+void
+plugin_unload(struct plugin_t* plugin)
 {
     void* module_handle;
     llog(LOG_INFO, 3, "unloading plugin \"", plugin->info.name, "\"");
@@ -197,7 +203,8 @@ void plugin_unload(struct plugin_t* plugin)
     list_erase_element(&g_plugins, plugin);
 }
 
-struct plugin_t* plugin_get_by_name(const char* name)
+struct plugin_t*
+plugin_get_by_name(const char* name)
 {
     LIST_FOR_EACH(&g_plugins, struct plugin_t, plugin)
     {
@@ -207,9 +214,10 @@ struct plugin_t* plugin_get_by_name(const char* name)
     return NULL;
 }
 
-static int plugin_version_acceptable(struct plugin_info_t* info,
-                        const char* file,
-                        plugin_search_criteria_t criteria)
+static char
+plugin_version_acceptable(const struct plugin_info_t* info,
+                          const char* file,
+                          const plugin_search_criteria_t criteria)
 {
     uint32_t major, minor, patch;
     if(!plugin_extract_version_from_string(file, &major, &minor, &patch))
@@ -241,7 +249,9 @@ static int plugin_version_acceptable(struct plugin_info_t* info,
     return 0;
 }
 
-static char* find_plugin(struct plugin_info_t* info, plugin_search_criteria_t criteria)
+static char*
+find_plugin(const struct plugin_info_t* info,
+            const plugin_search_criteria_t criteria)
 {
     /* local variables */
     char version_str[sizeof(int)*27+1];

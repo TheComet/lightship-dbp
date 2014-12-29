@@ -10,7 +10,8 @@
  * Must be called before calling any other functions related to the plugin
  * manager.
  */
-void plugin_manager_init(void);
+void
+plugin_manager_init(void);
 
 /*!
  * @brief Starts a loaded plugin.
@@ -26,7 +27,8 @@ void plugin_manager_init(void);
  * 
  * This will unload all plugins cleanly and clean up any memory being used.
  */
-void plugin_manager_deinit(void);
+void
+plugin_manager_deinit(void);
 
 /*!
  * @brief Loads the specified plugin.
@@ -59,14 +61,16 @@ void plugin_manager_deinit(void);
  * @return Returns NULL if unsuccessful, otherwise a pointer to the plugin is
  * returned.
  */
-struct plugin_t* plugin_load(struct plugin_info_t* plugin_info,
-                             plugin_search_criteria_t criteria);
+struct plugin_t*
+plugin_load(const struct plugin_info_t* plugin_info,
+            plugin_search_criteria_t criteria);
 
 /*!
  * @brief Unloads the specified plugin.
  * @param[in] plugin The plugin to unload.
  */
-void plugin_unload(struct plugin_t* plugin);
+void
+plugin_unload(struct plugin_t* plugin);
 
 /*!
  * @brief Searches all loaded plugins for a matching name.
@@ -74,6 +78,7 @@ void plugin_unload(struct plugin_t* plugin);
  * @return Returns the plugin if a matching name was found. Returns NULL on
  * failure.
  */
-struct plugin_t* plugin_get_by_name(const char* name);
+struct plugin_t*
+plugin_get_by_name(const char* name);
 
 #endif /* LIGHTSHIP_PLUGIN_MANAGER_H */

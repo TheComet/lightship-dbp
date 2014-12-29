@@ -11,7 +11,8 @@
  * etc...
  */
 
-void register_events(struct plugin_t* plugin)
+void
+register_events(const struct plugin_t* plugin)
 {
     /* 
      * evt_name_1 = event_create(plugin, "name_1");
@@ -20,7 +21,8 @@ void register_events(struct plugin_t* plugin)
      */
 }
 
-void register_event_listeners(struct plugin_t* plugin)
+void
+register_event_listeners(const struct plugin_t* plugin)
 {
     /*
      * event_register_listener(plugin, "something.event", on_callback_1);
