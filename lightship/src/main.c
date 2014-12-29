@@ -112,18 +112,6 @@ init(void)
     if(!start_core_plugins())
         return;
 
-    typedef uint32_t(*load_func)(const char*);
-    load_func load_s = (load_func)service_get("yaml.load");
-    uint32_t x = load_s("test.yml");
-    /*
-    typedef char*(*get_func)(uint32_t id, const char*);
-    get_func get_s = (get_func)service_get("yaml.get");
-    char* value = get_s(x, "hello");*/
-
-    typedef void(*destroy_func)(uint32_t);
-    destroy_func destroy_s = (destroy_func)service_get("yaml.destroy");
-    destroy_s(x);
-
     /* 
      * Try to get the main loop service and start running the game
      */
