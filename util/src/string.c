@@ -4,29 +4,33 @@
 #include "util/string.h"
 #include "util/memory.h"
 
-__inline static int safe_strlen(const char* str)
+static int
+safe_strlen(const char* str)
 {
     if(str)
         return strlen(str);
     return 0;
 }
 
-__inline static void safe_strcat(char* target, const char* source)
+static void
+safe_strcat(char* target, const char* source)
 {
     if(source)
         strcat(target, source);
 }
 
-__inline static void safe_strcpy(char* target, const char* source)
+static void
+safe_strcpy(char* target, const char* source)
 {
     if(source)
         strcpy(target, source);
 }
 
-LIGHTSHIP_PUBLIC_API void stdout_strings(int num_strs, ...)
+LIGHTSHIP_PUBLIC_API void
+stdout_strings(uint32_t num_strs, ...)
 {
-    int total_length = 0;
-    int i;
+    uint32_t total_length = 0;
+    uint32_t i;
     char* buffer;
     /* compute total length of all strings combined and allocate a buffer able
      * to contain all strings plus a null terminator */
@@ -49,10 +53,11 @@ LIGHTSHIP_PUBLIC_API void stdout_strings(int num_strs, ...)
     FREE(buffer);
 }
 
-LIGHTSHIP_PUBLIC_API void stderr_strings(int num_strs, ...)
+LIGHTSHIP_PUBLIC_API void
+stderr_strings(uint32_t num_strs, ...)
 {
-    int total_length = 0;
-    int i;
+    uint32_t total_length = 0;
+    uint32_t i;
     char* buffer;
     /* compute total length of all strings combined and allocate a buffer able
      * to contain all strings plus a null terminator */
@@ -75,10 +80,11 @@ LIGHTSHIP_PUBLIC_API void stderr_strings(int num_strs, ...)
     FREE(buffer);
 }
 
-char* cat_strings(int num_strs, ...)
+char*
+cat_strings(uint32_t num_strs, ...)
 {
-    int total_length = 0;
-    int i;
+    uint32_t total_length = 0;
+    uint32_t i;
     char* buffer;
 
     /* compute total length of all strings combined and allocate a buffer able
@@ -100,14 +106,16 @@ char* cat_strings(int num_strs, ...)
     return buffer;
 }
 
-char* malloc_string(const char* str)
+char*
+malloc_string(const char* str)
 {
     char* buffer = (char*)MALLOC((strlen(str)+1) * sizeof(char*));
     strcpy(buffer, str);
     return buffer;
 }
 
-int is_number(const char chr)
+char
+is_number(const char chr)
 {
     char* numbers = "0123456789";
     while(*numbers)

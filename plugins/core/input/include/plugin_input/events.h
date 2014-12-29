@@ -17,5 +17,8 @@ EVENT_H(evt_cancel)
 
 struct plugin_t;
 
-void register_events(struct plugin_t* plugin);
-void register_event_listeners(struct plugin_t* plugin);
+void
+register_events(const struct plugin_t* plugin);
+
+void
+register_event_listeners(const struct plugin_t* plugin);

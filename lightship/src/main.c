@@ -15,7 +15,8 @@ struct plugin_t* plugin_input = NULL;
 
 typedef void (*start_loop_func)(void); start_loop_func start;
 
-void load_core_plugins(void)
+void
+load_core_plugins(void)
 {
     struct plugin_info_t target;
     
@@ -60,7 +61,8 @@ void load_core_plugins(void)
     plugin_input = plugin_load(&target, PLUGIN_VERSION_MINIMUM);
 }
 
-char start_core_plugins(void)
+char
+start_core_plugins(void)
 {
     if(!plugin_main_loop || plugin_start(plugin_main_loop) == PLUGIN_FAILURE)
         return 0;
@@ -74,7 +76,8 @@ char start_core_plugins(void)
     return 1;
 }
 
-void init(void)
+void
+init(void)
 {
     /*
      * Services and events should be initialised before anything else, as they
@@ -132,7 +135,8 @@ void init(void)
         llog(LOG_FATAL, 1, "Failed to find service \"main_loop.start\". Cannot start.");
 }
 
-void deinit(void)
+void
+deinit(void)
 {
     plugin_manager_deinit();
     events_deinit();
@@ -140,7 +144,8 @@ void deinit(void)
 
 /*#include "util/ptree.h"*/
 
-int main(int argc, char** argv)
+int
+main(int argc, char** argv)
 {
     /* first thing - initialise memory management */
     memory_init();

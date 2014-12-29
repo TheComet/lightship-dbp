@@ -24,15 +24,15 @@ typedef void (*event_callback_func)();
  * @note The event listener must have the same signature as the fired event.
  */
 #define EVENT_LISTENER(name) \
-    void name(struct event_t* evt)
+    void name(const struct event_t* evt)
 #define EVENT_LISTENER1(name, arg) \
-    void name(struct event_t* evt, arg)
+    void name(const struct event_t* evt, arg)
 #define EVENT_LISTENER2(name, arg1, arg2) \
-    void name(struct event_t* evt, arg1, arg2)
+    void name(const struct event_t* evt, arg1, arg2)
 #define EVENT_LISTENER3(name, arg1, arg2, arg3) \
-    void name(struct event_t* evt, arg1, arg2, arg3)
+    void name(const struct event_t* evt, arg1, arg2, arg3)
 #define EVENT_LISTENER4(name, arg1, arg2, arg3, arg4) \
-    void name(struct event_t* evt, arg1, arg2, arg3, arg4)
+    void name(const struct event_t* evt, arg1, arg2, arg3, arg4)
 
 /* the actual function call to the listener */
 #define EVENT_FIRE_IMPL0(event) \
@@ -125,8 +125,6 @@ typedef void (*event_callback_func)();
                 EVENT_ITERATE_LISTENERS_END \
             REPORT_EVENT_FIRE_FAILURE
 
-/* TODO Remove the need to define externs by converting the fire functions into
- * function calls */
 #define EVENT_H(event) \
     extern struct event_t* event;
 

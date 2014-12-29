@@ -6,55 +6,62 @@
 #include <string.h>
 #include <stdlib.h>
 
+struct list_t g_events;
+EVENT_C(evt_log)
+EVENT_C(evt_log_indent)
+EVENT_C(evt_log_unindent)
+
 /*!
  * @brief Unregisters any listeners that belong to the specified namespace from
  * the specified event.
  * @param event The event to unregister the listeners from.
  * @param namespace The namespace to search for.
  */
-static void event_unregister_all_listeners_of_namespace(struct event_t* event,
-                                                        char* namespace);
+static void
+event_unregister_all_listeners_of_namespace(const struct event_t* event,
+                                            const char* namespace);
 
 /*!
  * @brief Returns the full name of the event using a plugin object and event name.
  * @note The returned string must be FREEd manually.
  */
-static char* event_get_full_name(struct plugin_t* plugin, const char* name);
+static char*
+event_get_full_name(const struct plugin_t* plugin, const char* name);
 
 /*!
  * @brief Returns the namespace name of the event using a plugin object.
  * @note The returned string must be FREEd manually.
  */
-static char* event_get_namespace_name(struct plugin_t* plugin);
+static char*
+event_get_namespace_name(const struct plugin_t* plugin);
 
 /*!
  * @brief Frees an event object.
  * @note This does not remove it from the list.
  */
-static void event_free(struct event_t* event);
+static void
+event_free(struct event_t* event);
 
 /*!
  * @brief Frees an event listener object.
  * @note This does not remove it from the list.
  */
-static void event_listener_free(struct event_listener_t* listener);
+static void
+event_listener_free(struct event_listener_t* listener);
 
 /*!
  * @brief Allocates and registers an event globally with the specified name.
  * @note No checks for duplicates are performed. This is an internal function.
- * @param full_name The full name of the event.
+ * @param[in] full_name The full name of the event.
  * @note The event object owns **full_name** after this call and will free it
  * when the event is destroyed.
  * @return The new event object.
  */
-static struct event_t* event_malloc_and_register(char* full_name);
+static struct event_t*
+event_malloc_and_register(char* full_name);
 
-struct list_t g_events;
-EVENT_C(evt_log)
-EVENT_C(evt_log_indent)
-EVENT_C(evt_log_unindent)
-
-void events_init(void)
+void
+events_init(void)
 {
     char* name;
     
@@ -73,7 +80,8 @@ void events_init(void)
     evt_log_unindent = event_malloc_and_register(name);
 }
 
-void events_deinit(void)
+void
+events_deinit(void)
 {
     LIST_FOR_EACH_ERASE(&g_events, struct event_t, event)
     {
@@ -82,8 +90,8 @@ void events_deinit(void)
     }
 }
 
-struct event_t* event_create(struct plugin_t* plugin,
-                             const char* name)
+struct event_t*
+event_create(const struct plugin_t* plugin, const char* name)
 {
 
     /* check for duplicate event names */
@@ -97,7 +105,8 @@ struct event_t* event_create(struct plugin_t* plugin,
     return event_malloc_and_register(full_name);
 }
 
-static struct event_t* event_malloc_and_register(char* full_name)
+static struct event_t*
+event_malloc_and_register(char* full_name)
 {
     /* create new event and register to global list of events */
     struct event_t* event = (struct event_t*)MALLOC(sizeof(struct event_t));
@@ -107,7 +116,8 @@ static struct event_t* event_malloc_and_register(char* full_name)
     return event;
 }
 
-char event_destroy(struct event_t* event_delete)
+char
+event_destroy(struct event_t* event_delete)
 {
     LIST_FOR_EACH(&g_events, struct event_t, event)
     {
@@ -121,8 +131,8 @@ char event_destroy(struct event_t* event_delete)
     return 0;
 }
 
-void event_destroy_plugin_event(struct plugin_t* plugin,
-                           const char* name)
+void
+event_destroy_plugin_event(const struct plugin_t* plugin, const char* name)
 {
     char* full_name = event_get_full_name(plugin, name);
 
@@ -140,7 +150,8 @@ void event_destroy_plugin_event(struct plugin_t* plugin,
     FREE(full_name);
 }
 
-void event_destroy_all_plugin_events(struct plugin_t* plugin)
+void
+event_destroy_all_plugin_events(const struct plugin_t* plugin)
 {
     char* namespace = event_get_namespace_name(plugin);
     int len = strlen(namespace);
@@ -155,7 +166,8 @@ void event_destroy_all_plugin_events(struct plugin_t* plugin)
     FREE(namespace);
 }
 
-struct event_t* event_get(const char* full_name)
+struct event_t*
+event_get(const char* full_name)
 {
     LIST_FOR_EACH(&g_events, struct event_t, event)
     {
@@ -165,7 +177,10 @@ struct event_t* event_get(const char* full_name)
     return NULL;
 }
 
-char event_register_listener(struct plugin_t* plugin, const char* full_name, event_callback_func callback)
+char
+event_register_listener(const struct plugin_t* plugin,
+                        const char* full_name,
+                        event_callback_func callback)
 {
     struct event_t* event;
     struct event_listener_t* new_listener;
@@ -202,7 +217,8 @@ char event_register_listener(struct plugin_t* plugin, const char* full_name, eve
     return 1;
 }
 
-char event_unregister_listener(const char* event_name, const char* plugin_name)
+char
+event_unregister_listener(const char* event_name, const char* plugin_name)
 {
     struct event_t* event = event_get(event_name);
     if(event == NULL)
@@ -223,7 +239,8 @@ char event_unregister_listener(const char* event_name, const char* plugin_name)
     return 0;
 }
 
-void event_unregister_all_listeners(struct event_t* event)
+void
+event_unregister_all_listeners(const struct event_t* event)
 {
     LIST_FOR_EACH_ERASE(event->listeners, struct event_listener_t, listener)
     {
@@ -232,7 +249,8 @@ void event_unregister_all_listeners(struct event_t* event)
     }
 }
 
-void event_unregister_all_listeners_of_plugin(struct plugin_t* plugin)
+void
+event_unregister_all_listeners_of_plugin(const struct plugin_t* plugin)
 {
     /* 
      * For every listener in every event, search for any listener that belongs
@@ -248,8 +266,9 @@ void event_unregister_all_listeners_of_plugin(struct plugin_t* plugin)
     FREE(namespace);
 }
 
-static void event_unregister_all_listeners_of_namespace(struct event_t* event,
-                                                        char* namespace)
+static void
+event_unregister_all_listeners_of_namespace(const struct event_t* event,
+                                            const char* namespace)
 {
     int len = strlen(namespace);
     {
@@ -264,17 +283,20 @@ static void event_unregister_all_listeners_of_namespace(struct event_t* event,
     }
 }
 
-static char* event_get_full_name(struct plugin_t* plugin, const char* name)
+static char*
+event_get_full_name(const struct plugin_t* plugin, const char* name)
 {
     return cat_strings(3, plugin->info.name, ".", name);
 }
 
-static char* event_get_namespace_name(struct plugin_t* plugin)
+static char*
+event_get_namespace_name(const struct plugin_t* plugin)
 {
     return cat_strings(2, plugin->info.name, ".");
 }
 
-static void event_free(struct event_t* event)
+static void
+event_free(struct event_t* event)
 {
     event_unregister_all_listeners(event);
     FREE(event->name); /* full_name must be FREEd manually, see event_create() */
@@ -282,7 +304,8 @@ static void event_free(struct event_t* event)
     FREE(event);
 }
 
-static void event_listener_free(struct event_listener_t* listener)
+static void
+event_listener_free(struct event_listener_t* listener)
 {
     FREE(listener->namespace);
     FREE(listener);

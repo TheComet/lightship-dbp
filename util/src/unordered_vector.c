@@ -12,28 +12,34 @@
  * insertion. Otherwise this parameter specifies the index of the element to
  * "evade" when re-allocating all other elements.
  */
-static void unordered_vector_expand(struct unordered_vector_t* vector, intptr_t insertion_index);
+static void
+unordered_vector_expand(struct unordered_vector_t* vector, 
+                        intptr_t insertion_index);
 
-struct unordered_vector_t* unordered_vector_create(const intptr_t element_size)
+struct unordered_vector_t*
+unordered_vector_create(const intptr_t element_size)
 {
     struct unordered_vector_t* vector = (struct unordered_vector_t*)MALLOC(sizeof(struct unordered_vector_t));
     unordered_vector_init_vector(vector, element_size);
     return vector;
 }
 
-void unordered_vector_init_vector(struct unordered_vector_t* vector, const intptr_t element_size)
+void
+unordered_vector_init_vector(struct unordered_vector_t* vector, const intptr_t element_size)
 {
     memset(vector, 0, sizeof(struct unordered_vector_t));
     vector->element_size = element_size;
 }
 
-void unordered_vector_destroy(struct unordered_vector_t* vector)
+void
+unordered_vector_destroy(struct unordered_vector_t* vector)
 {
     unordered_vector_clear(vector);
     FREE(vector);
 }
 
-void unordered_vector_clear(struct unordered_vector_t* vector)
+void
+unordered_vector_clear(struct unordered_vector_t* vector)
 {
     /* 
      * No need to free or overwrite existing memory, just reset the counter
@@ -42,7 +48,8 @@ void unordered_vector_clear(struct unordered_vector_t* vector)
     vector->count = 0;
 }
 
-void unordered_vector_clear_free(struct unordered_vector_t* vector)
+void
+unordered_vector_clear_free(struct unordered_vector_t* vector)
 {
     if(vector->data)
         FREE(vector->data);
@@ -51,7 +58,8 @@ void unordered_vector_clear_free(struct unordered_vector_t* vector)
     vector->capacity = 0;
 }
 
-void* unordered_vector_push_emplace(struct unordered_vector_t* vector)
+void*
+unordered_vector_push_emplace(struct unordered_vector_t* vector)
 {
     void* data;
     if(vector->count == vector->capacity)
@@ -61,12 +69,14 @@ void* unordered_vector_push_emplace(struct unordered_vector_t* vector)
     return data;
 }
 
-void unordered_vector_push(struct unordered_vector_t* vector, void* data)
+void
+unordered_vector_push(struct unordered_vector_t* vector, void* data)
 {
     memcpy(unordered_vector_push_emplace(vector), data, vector->element_size);
 }
 
-void* unordered_vector_pop(struct unordered_vector_t* vector)
+void*
+unordered_vector_pop(struct unordered_vector_t* vector)
 {
     if(!vector->count)
         return NULL;
@@ -75,7 +85,8 @@ void* unordered_vector_pop(struct unordered_vector_t* vector)
     return vector->data + (vector->element_size * vector->count);
 }
 
-void unordered_vector_erase_index(struct unordered_vector_t* vector, intptr_t index)
+void
+unordered_vector_erase_index(struct unordered_vector_t* vector, intptr_t index)
 {
     if(index >= vector->count)
         return;
@@ -92,7 +103,8 @@ void unordered_vector_erase_index(struct unordered_vector_t* vector, intptr_t in
     --(vector->count);
 }
 
-void unordered_vector_erase_element(struct unordered_vector_t* vector, void* element)
+void
+unordered_vector_erase_element(struct unordered_vector_t* vector, void* element)
 {
     /* copy last element to fill the gap, but only if it is not the last */
     if(element != vector->data + (vector->count-1) * vector->element_size)
@@ -104,14 +116,17 @@ void unordered_vector_erase_element(struct unordered_vector_t* vector, void* ele
     --vector->count;
 }
 
-void* unordered_vector_get_element(struct unordered_vector_t* vector, intptr_t index)
+void*
+unordered_vector_get_element(struct unordered_vector_t* vector, intptr_t index)
 {
     if(index >= vector->count)
         return NULL;
     return vector->data + (vector->element_size * index);
 }
 
-static void unordered_vector_expand(struct unordered_vector_t* vector, intptr_t insertion_index)
+static void
+unordered_vector_expand(struct unordered_vector_t* vector,
+                        intptr_t insertion_index)
 {
     intptr_t new_size;
     DATA_POINTER_TYPE* old_data;

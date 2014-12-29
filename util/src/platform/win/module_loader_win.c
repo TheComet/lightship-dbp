@@ -5,7 +5,8 @@
 #include "util/platform/win/error.h"
 #include "util/memory.h"
 
-void* module_open(const char* filename)
+void*
+module_open(const char* filename)
 {
     HINSTANCE handle = LoadLibrary(filename);
     if(handle == NULL)
@@ -20,7 +21,8 @@ void* module_open(const char* filename)
     return handle;
 }
 
-void* module_sym(void* handle, const char* symbol)
+void*
+module_sym(void* handle, const char* symbol)
 {
     FARPROC ptr;
 
@@ -37,7 +39,8 @@ void* module_sym(void* handle, const char* symbol)
     return (void*)ptr;
 }
 
-void module_close(void* handle)
+void
+module_close(void* handle)
 {
     FreeLibrary((HINSTANCE)handle);
 }

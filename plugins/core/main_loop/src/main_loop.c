@@ -21,7 +21,8 @@ static struct main_loop_t loop = {
     }
 };
 
-static char is_time_to_update(void)
+static char
+is_time_to_update(void)
 {
     int64_t elapsed_time = main_loop_get_elapsed_time();
 
@@ -55,7 +56,8 @@ static char is_time_to_update(void)
     return 1;
 }
 
-void main_loop_start(void)
+void
+main_loop_start(void)
 {
     main_loop_reset_timer();
     loop.is_looping = 1;
@@ -77,19 +79,22 @@ void main_loop_start(void)
     }
 }
 
-void main_loop_stop(struct event_t* evt, void* args)
+void
+main_loop_stop(const struct event_t* evt, void* args)
 {
     loop.is_looping = 0;
 }
 
-void main_loop_reset_timer(void)
+void
+main_loop_reset_timer(void)
 {
     loop.update_loop_counter = 0;
     loop.time_begin = get_time_in_microseconds();
     loop.statistics.last_update = 0;
 }
 
-int64_t main_loop_get_elapsed_time(void)
+int64_t
+main_loop_get_elapsed_time(void)
 {
     return get_time_in_microseconds() - loop.time_begin;
 }

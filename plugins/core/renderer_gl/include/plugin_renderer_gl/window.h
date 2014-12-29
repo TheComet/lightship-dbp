@@ -9,7 +9,10 @@ struct window_t
     struct GLFWwindow* window;
 };
 
-char window_init(void);
-void window_deinit(void);
+char
+window_init(void);
+
+void
+window_deinit(void);
 
 EVENT_LISTENER(on_render);

@@ -12,38 +12,45 @@
 
 static char g_log_indent = 0;
 
-__inline static int safe_strlen(const char* str)
+static int
+safe_strlen(const char* str)
 {
     if(str)
         return strlen(str);
     return 0;
 }
 
-__inline static void safe_strcat(char* target, const char* source)
+static void
+safe_strcat(char* target, const char* source)
 {
     if(source)
         strcat(target, source);
 }
 
-void llog_init(void)
+void
+llog_init(void)
 {
     event_register_listener(NULL, BUILTIN_NAMESPACE_NAME ".log", (event_callback_func)on_llog);
     event_register_listener(NULL, BUILTIN_NAMESPACE_NAME ".log_indent", (event_callback_func)on_llog_indent);
 }
 
-LIGHTSHIP_PUBLIC_API void llog_indent(const char* indent_name)
+LIGHTSHIP_PUBLIC_API void
+llog_indent(const char* indent_name)
 {
     EVENT_FIRE1(evt_log_indent, indent_name);
-    g_log_indent = 1;
+    ++g_log_indent;
 }
 
-LIGHTSHIP_PUBLIC_API void llog_unindent(void)
+LIGHTSHIP_PUBLIC_API void
+llog_unindent(void)
 {
     EVENT_FIRE(evt_log_unindent);
-    g_log_indent = 0;
+    if(g_log_indent)
+        --g_log_indent;
 }
 
-LIGHTSHIP_PUBLIC_API void llog(log_level_t level, uint32_t num_strs, ...)
+LIGHTSHIP_PUBLIC_API void
+llog(log_level_t level, uint32_t num_strs, ...)
 {
 #ifdef LOG_ENABLE_TIMESTAMPS
     time_t rawtime;
@@ -135,6 +142,7 @@ EVENT_LISTENER1(on_llog_indent, const char* str)
 EVENT_LISTENER1(on_llog, struct log_t* arg)
 {
     FILE* fp;
+    char i;
     
     /* determine output stream */
     switch(arg->level)
@@ -150,8 +158,7 @@ EVENT_LISTENER1(on_llog, struct log_t* arg)
             break;
     }
     
-    if(g_log_indent)
-        fprintf(fp, "    %s", arg->message);
-    else
-        fprintf(fp, "%s", arg->message);
+    for(i = 0; i != g_log_indent; ++i)
+        puts("    ");
+    fprintf(fp, "%s", arg->message);
 }

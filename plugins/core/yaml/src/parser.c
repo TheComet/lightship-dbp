@@ -17,12 +17,14 @@ typedef enum yaml_parser_states_e
 struct unordered_vector_t g_open_docs;
 static uint32_t GUID_counter = 1;
 
-void parser_init(void)
+void
+parser_init(void)
 {
     unordered_vector_init_vector(&g_open_docs, sizeof(struct yaml_doc_t*));
 }
 
-struct ptree_t* yaml_load_into_ptree(struct ptree_t* tree, yaml_parser_t* parser)
+struct ptree_t*
+yaml_load_into_ptree(struct ptree_t* tree, yaml_parser_t* parser)
 {
     yaml_token_t token;
     yaml_parser_states_e state;
@@ -101,11 +103,10 @@ struct ptree_t* yaml_load_into_ptree(struct ptree_t* tree, yaml_parser_t* parser
     yaml_token_delete(&token);
 }
 
-uint32_t yaml_load(const char* filename)
+uint32_t
+yaml_load(const char* filename)
 {
     FILE* fp;
-    unsigned char* text;
-    unsigned int file_size;
     struct yaml_doc_t* doc;
     struct ptree_t* tree;
     yaml_parser_t parser;
@@ -141,7 +142,8 @@ uint32_t yaml_load(const char* filename)
     return doc->ID;
 }
 
-char* yaml_get(uint32_t ID, const char* key)
+char*
+yaml_get(const uint32_t ID, const char* key)
 {
     /* get document object */
     struct yaml_doc_t* doc;
@@ -157,7 +159,8 @@ char* yaml_get(uint32_t ID, const char* key)
     
 }
 
-void yaml_destroy(const uint32_t ID)
+void
+yaml_destroy(const uint32_t ID)
 {
     UNORDERED_VECTOR_FOR_EACH(&g_open_docs, struct yaml_doc_t*, docp)
     {

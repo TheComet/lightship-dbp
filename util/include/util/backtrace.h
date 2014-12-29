@@ -12,6 +12,7 @@
  * @return Returns an array of char* arrays.
  * @note The returned array must be freed manually with FREE(returned_array).
  */
-LIGHTSHIP_PUBLIC_API char** get_backtrace(intptr_t* size);
+LIGHTSHIP_PUBLIC_API char**
+get_backtrace(intptr_t* size);
 
 #endif /* LIGHTSHIP_UTIL_BACKTRACE_H */

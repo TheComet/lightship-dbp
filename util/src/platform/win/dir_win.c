@@ -6,7 +6,8 @@
 #include "util/memory.h"
 #include "util/platform/win/error.h"
 
-void get_directory_listing(struct list_t* list, const char* dir)
+void
+get_directory_listing(struct list_t* list, const char* dir)
 {
     HANDLE fh;
     WIN32_FIND_DATA fd;
