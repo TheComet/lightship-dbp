@@ -65,7 +65,7 @@ free_debug(void* ptr)
     if(ptr)
         ++deallocations;
     else
-        fprintf(stderr, "Warning: free(NULL)");
+        fprintf(stderr, "Warning: free(NULL)\n");
     
     /* remove the memory location from the vector */
     if(!ignore_unordered_vector_malloc)

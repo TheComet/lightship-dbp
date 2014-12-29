@@ -9,8 +9,14 @@
 typedef enum yaml_parser_states_e
 {
     YAML_PARSER_STATE_NONE,
-    YAML_PARSER_STATE_KEY,
-    YAML_PARSER_STATE_VALUE,
+    YAML_PARSER_STATE_GET_KEY,
+    YAML_PARSER_STATE_GOT_KEY,
+    YAML_PARSER_STATE_GET_VALUE,
+    YAML_PARSER_STATE_PREPARE_NEW_DEPTH,
+    YAML_PARSER_STATE_GET_KEY_FOR_NEW_DEPTH,
+    YAML_PARSER_STATE_GOT_KEY_FOR_NEW_DEPTH,
+    YAML_PARSER_STATE_ENTER_NEW_DEPTH,
+    YAML_PARSER_STATE_RETURN,
     YAML_PARSER_STATE_ERROR
 } yaml_parser_states_e;
 
@@ -23,84 +29,231 @@ parser_init(void)
     unordered_vector_init_vector(&g_open_docs, sizeof(struct yaml_doc_t*));
 }
 
-struct ptree_t*
+char
 yaml_load_into_ptree(struct ptree_t* tree, yaml_parser_t* parser)
 {
     yaml_token_t token;
-    yaml_parser_states_e state;
+    yaml_parser_states_e state = YAML_PARSER_STATE_NONE;;
+    char* key = NULL;
 
     yaml_parser_scan(parser, &token);
     while(token.type != YAML_STREAM_END_TOKEN)
     {
-        char* key = NULL;
-        char state = YAML_PARSER_STATE_NONE;
         switch(token.type)
         {
             /* Stream start/end */
-            case YAML_STREAM_START_TOKEN: /*puts("STREAM START");*/ break;
-            case YAML_STREAM_END_TOKEN:   /*puts("STREAM END");  */ break;
-            /* Token types (read before actual token) */
-            case YAML_KEY_TOKEN:   state = YAML_PARSER_STATE_KEY; puts("(key token)"); break;
-            case YAML_VALUE_TOKEN: state = YAML_PARSER_STATE_VALUE; puts("(value token)"); break;
-            /* Block delimeters */
-            case YAML_BLOCK_SEQUENCE_START_TOKEN: puts("<b>Start Block (Sequence)</b>"); break;
-            case YAML_BLOCK_ENTRY_TOKEN:          puts("<b>Start Block (Entry)</b>");    break;
-            case YAML_BLOCK_END_TOKEN:            puts("<b>End block</b>");              break;
-            /* Data */
-            case YAML_BLOCK_MAPPING_START_TOKEN:  /*puts("[Block mapping]");         */   break;
-            case YAML_SCALAR_TOKEN: 
-                printf("scalar %s \n", token.data.scalar.value);
+            case YAML_STREAM_START_TOKEN:
+                break;
+            case YAML_STREAM_END_TOKEN:
+                break;
 
-                if(state == YAML_PARSER_STATE_KEY && key == NULL)
+            /* Token types (read before actual token) */
+            case YAML_KEY_TOKEN:
+
+                /* make sure last state slots in */
+                if(state != YAML_PARSER_STATE_NONE &&
+                   state != YAML_PARSER_STATE_PREPARE_NEW_DEPTH)
+                {
+                    llog(LOG_ERROR, 1, "got a new key token event before being able to match the last one with a value");
+                    state = YAML_PARSER_STATE_ERROR;
+                    break;
+                }
+                /* enter next state */
+                if(state == YAML_PARSER_STATE_NONE)
+                    state = YAML_PARSER_STATE_GET_KEY;
+                if(state == YAML_PARSER_STATE_PREPARE_NEW_DEPTH)
+                    state = YAML_PARSER_STATE_GET_KEY_FOR_NEW_DEPTH;
+                break;
+
+            case YAML_VALUE_TOKEN:
+
+                /* make sure last state slots in */
+                if(state != YAML_PARSER_STATE_GOT_KEY &&
+                   state != YAML_PARSER_STATE_GOT_KEY_FOR_NEW_DEPTH)
+                {
+                    llog(LOG_ERROR, 1, "got a new value token event before being able to match the last one with a key");
+                    state = YAML_PARSER_STATE_ERROR;
+                    break;
+                }
+                /* enter next state */
+                if(state == YAML_PARSER_STATE_GOT_KEY)
+                    state = YAML_PARSER_STATE_GET_VALUE;
+                if(state == YAML_PARSER_STATE_GOT_KEY_FOR_NEW_DEPTH)
+                    state = YAML_PARSER_STATE_ENTER_NEW_DEPTH;
+                break;
+
+            /* Block delimeters */
+            case YAML_BLOCK_SEQUENCE_START_TOKEN: 
+                break;
+            case YAML_BLOCK_ENTRY_TOKEN:
+                break;
+            case YAML_BLOCK_END_TOKEN:
+                puts("<b>End block</b>");
+                /* make sure state slots in */
+                if(state != YAML_PARSER_STATE_NONE)
+                {
+                    llog(LOG_ERROR, 1, "exiting block without getting a value");
+                    state = YAML_PARSER_STATE_ERROR;
+                    break;
+                }
+                /* new state */
+                state = YAML_PARSER_STATE_RETURN;
+                break;
+
+            /* Data */
+            case YAML_BLOCK_MAPPING_START_TOKEN:
+                /* make sure last state slots in */
+                if(state != YAML_PARSER_STATE_NONE &&
+                   state != YAML_PARSER_STATE_GET_VALUE &&
+                   state != YAML_PARSER_STATE_ENTER_NEW_DEPTH
+                )
+                {
+                    llog(LOG_ERROR, 1, "entering a new block without a key");
+                    state = YAML_PARSER_STATE_ERROR;
+                    break;
+                }
+                
+                /* check if time to enter new depth */
+                if(state == YAML_PARSER_STATE_ENTER_NEW_DEPTH)
+                {
+                    int result = yaml_load_into_ptree(ptree_add_node(tree, key, NULL), parser);
+                    FREE(key); key = NULL;
+                    if(result == 0)
+                    {
+                        state = YAML_PARSER_STATE_ERROR;
+                        break;
+                    }
+                    state = YAML_PARSER_STATE_NONE;
+                    break;
+                }
+                /* new state */
+                state = YAML_PARSER_STATE_PREPARE_NEW_DEPTH;
+
+                break;
+
+            case YAML_SCALAR_TOKEN: 
+
+                /* make sure last state slots in */
+                if(state != YAML_PARSER_STATE_GET_KEY &&
+                   state != YAML_PARSER_STATE_GET_VALUE &&
+                   state != YAML_PARSER_STATE_GET_KEY_FOR_NEW_DEPTH &&
+                   state != YAML_PARSER_STATE_ENTER_NEW_DEPTH)
+                {
+                    llog(LOG_ERROR, 1, "got a scalar token event without any key or value");
+                    state = YAML_PARSER_STATE_ERROR;
+                    break;
+                }
+                
+                if(state == YAML_PARSER_STATE_ENTER_NEW_DEPTH)
+                {
+                    int result = yaml_load_into_ptree(ptree_add_node(tree, key, NULL), parser);
+                    FREE(key); key = NULL;
+                    if(result == 0)
+                    {
+                        state = YAML_PARSER_STATE_ERROR;
+                        break;
+                    }
+                    state = YAML_PARSER_STATE_NONE;
+                    break;
+                }
+
+                /*
+                 * The last event was a key token event...
+                 */
+                if(state == YAML_PARSER_STATE_GET_KEY ||
+                   state == YAML_PARSER_STATE_GET_KEY_FOR_NEW_DEPTH)
                 {
                     /* 
-                     * If the tree has not yet been created, create it. If the
-                     * tree exists, search at the current depth for the key.
-                     * If the key exists, throw an error since duplicate keys
-                     * on the same depth are illegal. If the key doesn't exist,
-                     * create it.
-                     *
-                    char key_already_exists = 0;
-                    uint32_t hash = hash_jenkins_oaat(token.data.scalar.value, strlen(token.data.scalar.value));
+                     * If the tree exists, search at the current depth for the
+                     * key. If the key exists, throw an error since duplicate
+                     * keys on the same depth are illegal. If the key doesn't
+                     * exist, create it.
+                     */
                     if(tree)
                     {
-                        UNORDERED_VECTOR_FOR_EACH(&tree->children, struct ptree_t*, child)
+                        if(ptree_find_local_by_key(tree, token.data.scalar.value))
                         {
-                            if(hash == child->hash)
-                            {
-                                key_already_exists = 1;
-                                break;
-                            }
+                            llog(LOG_ERROR, 3, "Duplicate key found in same level of indentation: \"", token.data.scalar.value, "\"");
+                            state = YAML_PARSER_STATE_ERROR;
+                            break;
                         }
                     }
-                    else
-                    {
-                    }
-                    key = malloc_string(token.data.scalar.value);*/
+                    
+                    /*
+                     * Safe to create key. Cannot create tree (or tree node) yet
+                     * because we haven't received the value token event from
+                     * libyaml yet, so just malloc the string and save it
+                     * for later.
+                     */
+                    key = malloc_string(token.data.scalar.value);
+                    
+                    /* enter next state */
+                    if(state == YAML_PARSER_STATE_GET_KEY)
+                        state = YAML_PARSER_STATE_GOT_KEY;
+                    if(state == YAML_PARSER_STATE_GET_KEY_FOR_NEW_DEPTH)
+                        state = YAML_PARSER_STATE_GOT_KEY_FOR_NEW_DEPTH;
                 }
-                if(state == YAML_PARSER_STATE_VALUE && key != NULL)
-                    ;
+                
+                /*
+                 * The last event was a key token event...
+                 */
+                if(state == YAML_PARSER_STATE_GET_VALUE)
+                {
+                    char* value;
+                    
+                    /*
+                     * It is now safe to either create the tree if it doesn't
+                     * exist yet, or add a new node to the tree.
+                     */
+                    ptree_add_node(tree, key, malloc_string(token.data.scalar.value));
+                    
+                    /*
+                     * key is now no longer needed, free it for re-use.
+                     */
+                    FREE(key);
+                    key = NULL;
+                    
+                    /* enter next state */
+                    if(state == YAML_PARSER_STATE_GET_VALUE)
+                        state = YAML_PARSER_STATE_NONE;
+                }
+
                 break;
-            /* Others */
+            
+            /* unexpected token */
             default:
-                printf("Got token of type %d\n", token.type);
+                llog(LOG_ERROR, 2, "Got token of type", (char*)token.type);
                 state = YAML_PARSER_STATE_ERROR;
                 break;
         }
         
         /* error occurred, abort */
         if(state == YAML_PARSER_STATE_ERROR)
-        {
-            if(tree)
-                ptree_destroy(tree);
-            yaml_token_delete(&token);
-            return NULL;
-        }
+            break;
+        
+        /* return, break */
+        if(state == YAML_PARSER_STATE_RETURN)
+            break;
 
         yaml_token_delete(&token);
         yaml_parser_scan(parser, &token);
     }
+    
+    /* clean up */
     yaml_token_delete(&token);
+    if(key)
+        FREE(key);
+    
+    /* 
+     * Make sure state machine has returned to initial state, otherwise there
+     * has been an error
+     */
+    if(state != YAML_PARSER_STATE_NONE &&
+       state != YAML_PARSER_STATE_RETURN ||
+       state == YAML_PARSER_STATE_ERROR)
+        return 0;
+    
+    return 1;
 }
 
 uint32_t
@@ -122,17 +275,21 @@ yaml_load(const char* filename)
     /* parse file and load into dom tree */
     yaml_parser_initialize(&parser);
     yaml_parser_set_input_file(&parser, fp);
-    tree = yaml_load_into_ptree(NULL, &parser);
-    if(!tree)
+    tree = ptree_create("root", NULL);
+    if(!yaml_load_into_ptree(tree, &parser))
     {
         yaml_parser_delete(&parser);
         fclose(fp);
+        ptree_destroy(tree);
+        llog(LOG_ERROR, 1, "Syntax error: Failed to parse YAML file");
         return 0;
-    }
+    }else
+        ptree_print(tree);
 
     /* create doc object and initialise parser */
     doc = (struct yaml_doc_t*)MALLOC(sizeof(struct yaml_doc_t));
     doc->ID = GUID_counter++;
+    doc->dom = tree;
     unordered_vector_push(&g_open_docs, &doc);
     
     /* clean up */
@@ -155,8 +312,6 @@ yaml_get(const uint32_t ID, const char* key)
             break;
         }
     }
-
-    
 }
 
 void
@@ -167,8 +322,9 @@ yaml_destroy(const uint32_t ID)
         struct yaml_doc_t* doc = *docp; /* remember, what is in the vector is a pointer to the pointer of the yaml doc object */
         if(doc->ID == ID)
         {
+            ptree_destroy(doc->dom);
             FREE(doc);
-            unordered_vector_erase_element(&g_open_docs, doc);
+            unordered_vector_erase_element(&g_open_docs, docp);
             break;
         }
     }

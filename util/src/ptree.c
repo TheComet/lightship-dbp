@@ -6,52 +6,89 @@
 #include <stdio.h>
 
 struct ptree_t*
-ptree_create(const char* name, void* data)
+ptree_create(const char* key, void* value)
 {
     struct ptree_t* tree = (struct ptree_t*)MALLOC(sizeof(struct ptree_t));
-    ptree_init_ptree(tree, name, data);
+    ptree_init_ptree(tree, key, value);
     return tree;
 }
 
 void
-ptree_init_ptree(struct ptree_t* tree, const char* name, void* data)
+ptree_init_ptree(struct ptree_t* tree, const char* key, void* value)
 {
 #ifdef _DEBUG
-    tree->name = malloc_string(name);
+    tree->key = malloc_string(key);
 #endif
-    tree->hash = hash_jenkins_oaat(name, strlen(name));
-    tree->data = data;
+    tree->hash = hash_jenkins_oaat(key, strlen(key));
+    tree->value = value;
     unordered_vector_init_vector(&tree->children, sizeof(struct ptree_t));
+}
+
+static void
+ptree_destroy_recurse(struct ptree_t* tree)
+{
+    UNORDERED_VECTOR_FOR_EACH_ERASE(&tree->children, struct ptree_t, child)
+    {
+        ptree_destroy_recurse(child);
+    }
+    unordered_vector_clear_free(&tree->children);
+    if(tree->value)
+        FREE(tree->value);
+#ifdef _DEBUG
+    FREE(tree->key);
+#endif
 }
 
 void
 ptree_destroy(struct ptree_t* tree)
 {
-}
-
-void
-ptree_add_node(struct ptree_t* tree, const char* name, void* data)
-{
+    ptree_destroy_recurse(tree);
+    FREE(tree);
 }
 
 struct ptree_t*
-ptree_find_by_name(struct ptree_t* tree, const char* name)
+ptree_add_node(struct ptree_t* tree, const char* key, void* value)
 {
-    char* name_cpy;
-    char* name_cpy_cpy;
+    struct ptree_t child;
+    struct ptree_t* alloc;
+    ptree_init_ptree(&child, key, value);
+    alloc = (struct ptree_t*)unordered_vector_push_emplace(&tree->children);
+    memcpy(alloc, &child, sizeof(struct ptree_t));
+    return alloc;
+}
+
+void*
+ptree_find_local_by_key(const struct ptree_t* tree, const char* key)
+{
+    uint32_t hash = hash_jenkins_oaat(key, strlen(key));
+    UNORDERED_VECTOR_FOR_EACH(&tree->children, struct ptree_t, child)
+    {
+        if(hash == child->hash)
+            return child->value;
+    }
+    return NULL;
+}
+
+void*
+ptree_find_by_key(const struct ptree_t* tree, const char* key)
+{
+    char* key_cpy;
+    char* key_cpy_cpy;
     char* token;
     const char* delim = ".";
 
-    /* first, tokenise name */
-    name_cpy = malloc_string(name);
-    name_cpy_cpy = name_cpy;
-    while((token = strtok(name_cpy_cpy, delim)))
+    /* first, tokenise key */
+    key_cpy = malloc_string(key);
+    key_cpy_cpy = key_cpy;
+    while((token = strtok(key_cpy_cpy, delim)))
     {
         uint32_t hash = hash_jenkins_oaat(token, strlen(token));
         struct ptree_t child;
-        /*ptree_init_ptree(&child, name, data);*/
+        /*ptree_init_ptree(&child, key, value);*/
         unordered_vector_push(&tree->children, &child);
     }
+    
+    /* TODO */
 }
 
 void
@@ -64,7 +101,7 @@ ptree_print_impl(struct ptree_t* tree, uint32_t depth)
     
     /* print node info */
 #ifdef _DEBUG
-    printf("name: \"%s\", hash: %d\n", tree->name, tree->hash);
+    printf("key: \"%s\", hash: %d\n", tree->key, tree->hash);
 #else
     printf("hash: %d\n", tree->hash);
 #endif
