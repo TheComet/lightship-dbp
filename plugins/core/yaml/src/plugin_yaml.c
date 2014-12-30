@@ -50,5 +50,6 @@ PLUGIN_START()
 
 PLUGIN_STOP()
 {
+    parser_deinit();
     plugin_destroy(g_plugin);
 }
