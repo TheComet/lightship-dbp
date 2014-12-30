@@ -80,6 +80,8 @@ endif ()
 
 add_definitions (-DLIGHTSHIP_BUILDING_LIBRARY)
 
+find_program (D_COMPILER_LDC "ldc2")
+
 ###############################################################################
 # generate missing folders and files
 ###############################################################################
