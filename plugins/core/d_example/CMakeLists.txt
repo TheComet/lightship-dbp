@@ -27,8 +27,7 @@ file (GLOB plugin_d_example_SOURCES "src/*.d")
 add_custom_target (plugin_d_example
     COMMAND
         ${D_COMPILER}
-        -fPIC
-        -shared
+        ${D_GLOBAL_COMPILER_FLAGS}
         ${plugin_d_example_SOURCES}
         -L${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/${CMAKE_SHARED_LIBRARY_PREFIX}lightship_util${CMAKE_SHARED_LIBRARY_SUFFIX}
         -of"${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/${plugin_d_example_OUTPUT_NAME}${CMAKE_SHARED_LIBRARY_SUFFIX}"
