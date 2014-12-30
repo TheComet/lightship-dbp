@@ -52,3 +52,9 @@ install (
     DESTINATION
         "bin"
 )
+install (
+    DIRECTORY
+        "${CMAKE_CURRENT_LIST_DIR}/cfg"
+    DESTINATION
+        "bin"
+)

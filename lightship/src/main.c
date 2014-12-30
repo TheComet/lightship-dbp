@@ -25,7 +25,6 @@ load_core_plugins(void)
     struct ptree_t* dom;
     struct unordered_vector_t new_plugins;
     uint32_t doc_ID;
-    yaml_get_value_func get_value;
     
     unordered_vector_init_vector(&new_plugins, sizeof(struct plugin_t*));
 
@@ -33,7 +32,7 @@ load_core_plugins(void)
     doc_ID = ((yaml_load_func)service_get("yaml.load"))("cfg/core-plugins.yml");
     if(!doc_ID)
     {
-        llog(LOG_FATAL, 1, "Cannot load core plugins.");
+        llog(LOG_FATAL, 1, "Cannot load core plugins without config file.");
         return 0;
     }
     
@@ -44,7 +43,6 @@ load_core_plugins(void)
         llog(LOG_FATAL, 1, "Failed to get DOM");
         return 0;
     }
-    get_value = (yaml_get_value_func)service_get("yaml.get_value");
     
     /* load all plugins in DOM */
     {
@@ -112,7 +110,7 @@ load_core_plugins(void)
             }
         }
     }
-    
+
     /* clean up */
     ((yaml_destroy_func)service_get("yaml.destroy"))(doc_ID);
     unordered_vector_clear_free(&new_plugins);
@@ -173,11 +171,34 @@ init(void)
     /* 
      * Try to get the main loop service and start running the game
      */
-    start_loop_func start = (start_loop_func)service_get("main_loop.start");
-    if(start)
+    {
+        char* start_service_name;
+        start_loop_func start;
+        uint32_t doc_ID = ((yaml_load_func)service_get("yaml.load"))("cfg/entry-point.yml");
+        if(!doc_ID)
+        {
+            llog(LOG_FATAL, 1, "Cannot get main loop service");
+            return;
+        }
+        start_service_name = ((yaml_get_value_func)service_get("yaml.get_value"))(doc_ID, "service");
+        if(!start_service_name)
+        {
+            llog(LOG_FATAL, 1, "Cannot get value of \"service\" in \"cfg/entry-poing.yml\"");
+            ((yaml_destroy_func)service_get("yaml.destroy"))(doc_ID);
+            return;
+        }
+            
+
+        start = (start_loop_func)service_get(start_service_name);
+        ((yaml_destroy_func)service_get("yaml.destroy"))(doc_ID);
+        if(!start)
+        {
+            llog(LOG_FATAL, 3, "Cannot get main loop service \"", start_service_name, "\"");
+            return;
+        }
+
         start();
-    else
-        llog(LOG_FATAL, 1, "Failed to find service \"main_loop.start\". Cannot start.");
+    }
 }
 
 void
@@ -190,6 +211,10 @@ deinit(void)
 int
 main(int argc, char** argv)
 {
+    puts("=========================================");
+    puts("Starting lightship");
+    puts("=========================================");
+
     /* first thing - initialise memory management */
     memory_init();
 
