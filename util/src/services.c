@@ -10,8 +10,6 @@ struct list_t g_services;
 void
 services_init(void)
 {
-    char* name;
-    
     list_init_list(&g_services);
     
     /* ----------------------------
