@@ -26,7 +26,7 @@ file (GLOB plugin_d_example_SOURCES "src/*.d")
 
 add_custom_target (plugin_d_example
     COMMAND
-        ${D_COMPILER_LDC}
+        ${D_COMPILER}
         ${plugin_d_example_SOURCES}
         -L ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/${CMAKE_SHARED_LIBRARY_PREFIX}lightship_util${CMAKE_SHARED_LIBRARY_SUFFIX} 
         -shared 
@@ -46,4 +46,3 @@ add_custom_command (TARGET plugin_d_example POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
     "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/${plugin_d_example_OUTPUT_NAME}${CMAKE_SHARED_LIBRARY_SUFFIX}"
     "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/plugins/")
-
