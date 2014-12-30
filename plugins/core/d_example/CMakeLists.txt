@@ -27,16 +27,18 @@ file (GLOB plugin_d_example_SOURCES "src/*.d")
 add_custom_target (plugin_d_example
     COMMAND
         ${D_COMPILER}
+        -fPIC
+        -shared
         ${plugin_d_example_SOURCES}
-        -L ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/${CMAKE_SHARED_LIBRARY_PREFIX}lightship_util${CMAKE_SHARED_LIBRARY_SUFFIX} 
-        -shared 
-        -of="${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/${plugin_d_example_OUTPUT_NAME}${CMAKE_SHARED_LIBRARY_SUFFIX}"
+        -L${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/${CMAKE_SHARED_LIBRARY_PREFIX}lightship_util${CMAKE_SHARED_LIBRARY_SUFFIX}
+        -of"${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/${plugin_d_example_OUTPUT_NAME}${CMAKE_SHARED_LIBRARY_SUFFIX}"
     SOURCES
         ${plugin_d_example_SOURCES}
 )
 
 # ensure plugin is built before lightship
 add_dependencies (lightship plugin_d_example)
+add_dependencies (plugin_d_example lightship_util)
 
 ###############################################################################
 # copy plugin to plugins/ folder after build
