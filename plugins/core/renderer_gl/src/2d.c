@@ -22,8 +22,8 @@ GLuint line_2d_shader_id;
 GLuint line_2d_colour_uniform_location;
 GLfloat line_2d_colour[3];
 static struct vertex_2d_t line_2d_vertex_data[LINE_2D_NUM_VERTICES] = {
-    {-1.0, -1.0, 0.0},
-    {1.0, 1.0, 0.0}
+    {{-1.0, -1.0, 0.0}},
+    {{1.0, 1.0, 0.0}}
 };
 static GLubyte line_2d_index_data[LINE_2D_NUM_INDICES] = {
     0,
