@@ -78,7 +78,34 @@ if (CMAKE_BUILD_TYPE MATCHES Debug)
     )
 endif ()
 
+# library is being built (so dllexport gets defined on windows)
 add_definitions (-DLIGHTSHIP_BUILDING_LIBRARY)
+
+###############################################################################
+# D compiler
+###############################################################################
+
+if (NOT D_COMPILER)
+    find_program (D_COMPILER "ldc2")
+endif ()
+if (NOT D_COMPILER)
+    find_program (D_COMPILER "dmd")
+endif ()
+
+if (NOT D_COMPILER)
+    set (HAVE_D_COMPILER OFF)
+    message (WARNING "Could NOT find a D compiler. Maybe define -DD_COMPILER=<path_to_compiler>")
+    message (WARNING "D plugins will not be built.")
+else ()
+    set (HAVE_D_COMPILER ON)
+endif ()
+
+if (D_COMPILER MATCHES "ldc2")
+    set (D_GLOBAL_COMPILER_FLAGS -shared -relocation-model=pic)
+endif ()
+if (D_COMPILER MATCHES "dmd")
+    set (D_GLOBAL_COMPILER_FLAGS -shared -fPIC)
+endif ()
 
 ###############################################################################
 # generate missing folders and files
