@@ -1,10 +1,12 @@
 #include "plugin_renderer_gl/window.h"
 #include "plugin_renderer_gl/events.h"
 #include "plugin_renderer_gl/input.h"
+#include "plugin_renderer_gl/2d.h"
 #include "util/linked_list.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
 #include "GL/glew.h"
 #include "glfw3.h"
 
@@ -42,6 +44,7 @@ window_init(void)
         fprintf(stderr, "Failed to initialise GLEW\n");
         return 0;
     }
+    glClearColor(0.0, 0.0, 0.4, 0.0);
     
     /* ensure the escape key can be captured */
     glfwSetInputMode(glfw_window, GLFW_STICKY_KEYS, GL_TRUE);
@@ -69,6 +72,9 @@ EVENT_LISTENER(on_render)
 {
     /* render everything */
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    
+    draw_2d();
+    
     glfwSwapBuffers(g_window.window);
 
     glfwPollEvents();

@@ -5,8 +5,8 @@
 #include "plugin_renderer_gl/window.h"
 #include "plugin_renderer_gl/events.h"
 #include "plugin_renderer_gl/services.h"
+#include "plugin_renderer_gl/2d.h"
 
-#include "GL/glew.h"
 #include "glfw3.h"
 
 #include <stdio.h>
@@ -55,6 +55,9 @@ PLUGIN_START()
 
     if(!window_init())
         return PLUGIN_FAILURE;
+    
+    /* init graphics */
+    init_2d();
     
     register_event_listeners(g_plugin);
 
