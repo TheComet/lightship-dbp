@@ -49,15 +49,12 @@ yaml_load_into_ptree(struct ptree_t* tree, yaml_parser_t* parser)
         {
             /* Stream start/end */
             case YAML_STREAM_START_TOKEN:
-                puts("STREAM START");
                 break;
             case YAML_STREAM_END_TOKEN:
-                puts("STREAM END");
                 break;
 
             /* Token types (read before actual token) */
             case YAML_KEY_TOKEN:
-                puts("key token");
 
                 /* make sure last state slots in */
                 if(state != YAML_PARSER_STATE_NONE &&
@@ -75,7 +72,6 @@ yaml_load_into_ptree(struct ptree_t* tree, yaml_parser_t* parser)
                 break;
 
             case YAML_VALUE_TOKEN:
-                puts("(value token)");
 
                 /* make sure last state slots in */
                 if(state != YAML_PARSER_STATE_GOT_KEY &&
@@ -93,14 +89,11 @@ yaml_load_into_ptree(struct ptree_t* tree, yaml_parser_t* parser)
                 break;
 
             /* Block delimeters */
-            case YAML_BLOCK_SEQUENCE_START_TOKEN: 
-                puts("sequence start token");
+            case YAML_BLOCK_SEQUENCE_START_TOKEN:
                 break;
             case YAML_BLOCK_ENTRY_TOKEN:
-                puts("<block entry>");
                 break;
             case YAML_BLOCK_END_TOKEN:
-                puts("</block end>");
                 /* make sure state slots in */
                 if(state != YAML_PARSER_STATE_NONE)
                 {
@@ -114,7 +107,6 @@ yaml_load_into_ptree(struct ptree_t* tree, yaml_parser_t* parser)
 
             /* Data */
             case YAML_BLOCK_MAPPING_START_TOKEN:
-                puts("[mapping start]");
                 /* make sure last state slots in */
                 if(state != YAML_PARSER_STATE_NONE &&
                    state != YAML_PARSER_STATE_GET_VALUE &&
@@ -146,7 +138,6 @@ yaml_load_into_ptree(struct ptree_t* tree, yaml_parser_t* parser)
                 break;
 
             case YAML_SCALAR_TOKEN:
-                printf("scalar token: %s\n", token.data.scalar.value);
 
                 /* make sure last state slots in */
                 if(state != YAML_PARSER_STATE_GET_KEY &&
@@ -161,7 +152,7 @@ yaml_load_into_ptree(struct ptree_t* tree, yaml_parser_t* parser)
                 
                 if(state == YAML_PARSER_STATE_ENTER_NEW_DEPTH)
                 {
-                    int result = yaml_load_into_ptree(ptree_add_node(tree, key, NULL), parser);
+                    int result = yaml_load_into_ptree(ptree_add_node(tree, key, malloc_string((char*)token.data.scalar.value)), parser);
                     FREE(key); key = NULL;
                     if(result == 0)
                     {

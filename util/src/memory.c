@@ -102,7 +102,7 @@ memory_deinit(void)
                 printf("  un-freed memory at 0x%lx, size 0x%lx\n", info->location, info->size);
                 
                 dump = malloc(info->size + 1);
-                memcpy(dump, info->location, info->size);
+                memcpy(dump, (void*)info->location, info->size);
                 dump[info->size] = '\0';
                 printf("  string dump: %s\n", dump);
                 free(dump);
