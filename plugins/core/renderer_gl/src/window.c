@@ -73,9 +73,7 @@ EVENT_LISTENER(on_render)
 {
     /* render everything */
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    
     draw_2d();
-    
     glfwSwapBuffers(g_window.window);
 
     glfwPollEvents();
