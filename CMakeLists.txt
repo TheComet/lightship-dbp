@@ -85,14 +85,14 @@ add_definitions (-DLIGHTSHIP_BUILDING_LIBRARY)
 # D compiler
 ###############################################################################
 
-if (NOT D_COMPILER_LDC)
+if (NOT D_COMPILER)
     find_program (D_COMPILER "ldc2")
 endif ()
-if (NOT D_COMPILER_LDC)
+if (NOT D_COMPILER)
     find_program (D_COMPILER "dmd")
 endif ()
 
-if (NOT D_COMPILER_LDC)
+if (NOT D_COMPILER)
     set (HAVE_D_COMPILER OFF)
     message (WARNING "Could NOT find a D compiler. Maybe define -DD_COMPILER=<path_to_compiler>")
     message (WARNING "D pluings will not be built.")
