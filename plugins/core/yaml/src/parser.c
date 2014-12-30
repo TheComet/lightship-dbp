@@ -6,6 +6,9 @@
 #include "util/hash.h"
 #include "plugin_yaml/parser.h"
 
+struct unordered_vector_t g_open_docs;
+static uint32_t GUID_counter = 1;
+
 typedef enum yaml_parser_states_e
 {
     YAML_PARSER_STATE_NONE,
@@ -20,13 +23,16 @@ typedef enum yaml_parser_states_e
     YAML_PARSER_STATE_ERROR
 } yaml_parser_states_e;
 
-struct unordered_vector_t g_open_docs;
-static uint32_t GUID_counter = 1;
-
 void
 parser_init(void)
 {
     unordered_vector_init_vector(&g_open_docs, sizeof(struct yaml_doc_t*));
+}
+
+void
+parser_deinit(void)
+{
+    unordered_vector_clear_free(&g_open_docs);
 }
 
 char
@@ -43,12 +49,15 @@ yaml_load_into_ptree(struct ptree_t* tree, yaml_parser_t* parser)
         {
             /* Stream start/end */
             case YAML_STREAM_START_TOKEN:
+                puts("STREAM START");
                 break;
             case YAML_STREAM_END_TOKEN:
+                puts("STREAM END");
                 break;
 
             /* Token types (read before actual token) */
             case YAML_KEY_TOKEN:
+                puts("key token");
 
                 /* make sure last state slots in */
                 if(state != YAML_PARSER_STATE_NONE &&
@@ -66,6 +75,7 @@ yaml_load_into_ptree(struct ptree_t* tree, yaml_parser_t* parser)
                 break;
 
             case YAML_VALUE_TOKEN:
+                puts("(value token)");
 
                 /* make sure last state slots in */
                 if(state != YAML_PARSER_STATE_GOT_KEY &&
@@ -84,10 +94,13 @@ yaml_load_into_ptree(struct ptree_t* tree, yaml_parser_t* parser)
 
             /* Block delimeters */
             case YAML_BLOCK_SEQUENCE_START_TOKEN: 
+                puts("sequence start token");
                 break;
             case YAML_BLOCK_ENTRY_TOKEN:
+                puts("<block entry>");
                 break;
             case YAML_BLOCK_END_TOKEN:
+                puts("</block end>");
                 /* make sure state slots in */
                 if(state != YAML_PARSER_STATE_NONE)
                 {
@@ -101,6 +114,7 @@ yaml_load_into_ptree(struct ptree_t* tree, yaml_parser_t* parser)
 
             /* Data */
             case YAML_BLOCK_MAPPING_START_TOKEN:
+                puts("[mapping start]");
                 /* make sure last state slots in */
                 if(state != YAML_PARSER_STATE_NONE &&
                    state != YAML_PARSER_STATE_GET_VALUE &&
@@ -113,7 +127,8 @@ yaml_load_into_ptree(struct ptree_t* tree, yaml_parser_t* parser)
                 }
                 
                 /* check if time to enter new depth */
-                if(state == YAML_PARSER_STATE_ENTER_NEW_DEPTH)
+                if(state == YAML_PARSER_STATE_ENTER_NEW_DEPTH ||
+                   state == YAML_PARSER_STATE_GET_VALUE)
                 {
                     int result = yaml_load_into_ptree(ptree_add_node(tree, key, NULL), parser);
                     FREE(key); key = NULL;
@@ -130,7 +145,8 @@ yaml_load_into_ptree(struct ptree_t* tree, yaml_parser_t* parser)
 
                 break;
 
-            case YAML_SCALAR_TOKEN: 
+            case YAML_SCALAR_TOKEN:
+                printf("scalar token: %s\n", token.data.scalar.value);
 
                 /* make sure last state slots in */
                 if(state != YAML_PARSER_STATE_GET_KEY &&
@@ -203,7 +219,7 @@ yaml_load_into_ptree(struct ptree_t* tree, yaml_parser_t* parser)
                      * exist yet, or add a new node to the tree.
                      */
                     ptree_add_node(tree, key, malloc_string((char*)token.data.scalar.value));
-                    
+
                     /*
                      * key is now no longer needed, free it for re-use.
                      */
@@ -257,6 +273,17 @@ yaml_load_into_ptree(struct ptree_t* tree, yaml_parser_t* parser)
     return 1;
 }
 
+static struct yaml_doc_t*
+yaml_get_doc(uint32_t ID)
+{
+    UNORDERED_VECTOR_FOR_EACH(&g_open_docs, struct yaml_doc_t*, docp)
+    {
+        if((*docp)->ID == ID)
+            return *docp;
+    }
+    return NULL;
+}
+
 uint32_t
 yaml_load(const char* filename)
 {
@@ -299,43 +326,38 @@ yaml_load(const char* filename)
     return doc->ID;
 }
 
-char*
-yaml_get(const uint32_t ID, const char* key)
+struct ptree_t*
+yaml_get_dom(uint32_t ID)
 {
-    /* get document object */
-    struct yaml_doc_t* doc;
-    UNORDERED_VECTOR_FOR_EACH(&g_open_docs, struct yaml_doc_t*, docp)
-    {
-        if((*docp)->ID == ID)
-        {
-            doc = *docp;
-            break;
-        }
-    }
-    
-    /* Look up value in tree. */
+    struct yaml_doc_t* doc = yaml_get_doc(ID);
+    if(!doc)
+        return NULL;
+    return doc->dom;
+}
+
+char*
+yaml_get_value(const uint32_t ID, const char* key)
+{
+    struct yaml_doc_t* doc = yaml_get_doc(ID);
+    if(!doc)
+        return NULL;
     return (char*)ptree_find_by_key(doc->dom, key);
 }
 
 void
 yaml_destroy(const uint32_t ID)
 {
+    struct yaml_doc_t* doc;
     UNORDERED_VECTOR_FOR_EACH(&g_open_docs, struct yaml_doc_t*, docp)
     {
-        struct yaml_doc_t* doc = *docp; /* remember, what is in the vector is a pointer to the pointer of the yaml doc object */
+        doc = *docp;
         if(doc->ID == ID)
         {
             ptree_destroy(doc->dom);
             FREE(doc);
-            unordered_vector_erase_element(&g_open_docs, docp);
-            break;
+            unordered_vector_erase_index(&g_open_docs, (intptr_t)docp);
+
+            return;
         }
     }
-
-    /* 
-     * If the vector is now empty, also free the data it is holding so we don't
-     * have to explicitely clean up when the plugin unloads.
-     */
-    if(g_open_docs.count == 0)
-        unordered_vector_clear_free(&g_open_docs);
 }

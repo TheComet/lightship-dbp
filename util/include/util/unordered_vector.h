@@ -164,10 +164,4 @@ unordered_vector_get_element(struct unordered_vector_t*, intptr_t index);
         (DATA_POINTER_TYPE*)var != end_of_vector; \
         var = (var_type*)(((DATA_POINTER_TYPE*)var) + (vector)->element_size))
 
-#define UNORDERED_VECTOR_FOR_EACH_ERASE(vector, var_type, var) \
-    var_type* var; \
-    for(var = (var_type*)(vector)->data; \
-        (DATA_POINTER_TYPE*)var < (vector)->data + (vector)->count * (vector)->element_size; \
-        var = (var_type*)((DATA_POINTER_TYPE*)var) + (vector)->element_size)
-
 #endif /* LIGHTSHIP_UTIL_VECTOR_H */
