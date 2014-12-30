@@ -18,7 +18,7 @@ GLuint vao_2d;
 GLuint line_2d_vbo;
 GLuint line_2d_vio;
 static struct vertex_2d_t line_2d_vertex_data[LINE_2D_NUM_VERTICES] = {
-    {0.0, 0.0, 0.0},
+    {-1.0, -1.0, 0.0},
     {1.0, 1.0, 0.0}
 };
 static GLubyte line_2d_index_data[LINE_2D_NUM_INDICES] = {

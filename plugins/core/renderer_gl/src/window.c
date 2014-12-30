@@ -25,6 +25,7 @@ window_init(void)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); /* to make macOS happy */
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); /* don't want the old OpenGL */
+    glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
     
     /* window dimensions */
     g_window.width = 800;
