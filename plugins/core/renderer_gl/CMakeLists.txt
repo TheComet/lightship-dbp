@@ -85,6 +85,11 @@ add_custom_command (TARGET plugin_renderer_gl POST_BUILD
     "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/${plugin_renderer_gl_OUTPUT_NAME}${CMAKE_SHARED_LIBRARY_SUFFIX}"
     "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/plugins/")
 
+add_custom_command (TARGET plugin_renderer_gl POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    "${CMAKE_CURRENT_LIST_DIR}/fx"
+    "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/fx")
+
 ###############################################################################
 # GLFW
 ###############################################################################
@@ -128,4 +133,11 @@ install (
         "bin/plugins"
     RUNTIME DESTINATION
         "bin/plugins"
+)
+
+install (
+    DIRECTORY
+        "fx"
+    DESTINATION
+        "bin"
 )
