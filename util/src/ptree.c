@@ -27,7 +27,7 @@ ptree_init_ptree(struct ptree_t* tree, const char* key, void* value)
 static void
 ptree_destroy_recurse(struct ptree_t* tree)
 {
-    UNORDERED_VECTOR_FOR_EACH_ERASE(&tree->children, struct ptree_t, child)
+    UNORDERED_VECTOR_FOR_EACH(&tree->children, struct ptree_t, child)
     {
         ptree_destroy_recurse(child);
     }

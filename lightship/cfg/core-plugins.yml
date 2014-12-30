@@ -1,0 +1,12 @@
+loop:
+    name: main_loop
+    version: "0.0.1"
+    version_policy: minimum
+renderer:
+    name: renderer_gl
+    version: "0.0.1"
+    version_policy: minimum
+input:
+    name: input
+    version: "0.0.1"
+    version_policy: minimum

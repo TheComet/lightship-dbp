@@ -3,6 +3,7 @@
 #include "util/backtrace.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 #define BACKTRACE_OMIT_COUNT 2
 
@@ -97,7 +98,15 @@ memory_deinit(void)
         {
             UNORDERED_VECTOR_FOR_EACH(&report, struct report_info_t, info)
             {
+                char* dump;
                 printf("  un-freed memory at 0x%lx, size 0x%lx\n", info->location, info->size);
+                
+                dump = malloc(info->size + 1);
+                memcpy(dump, info->location, info->size);
+                dump[info->size] = '\0';
+                printf("  string dump: %s\n", dump);
+                free(dump);
+
 #ifdef MEMORY_ENABLE_BACKTRACE
                 printf("  Backtrace to where malloc() was called:\n");
                 for(i = BACKTRACE_OMIT_COUNT; i < info->backtrace_size; ++i)

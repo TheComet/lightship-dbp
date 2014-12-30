@@ -10,6 +10,7 @@ register_services(const struct plugin_t* plugin)
      * ---------------------------------------------------*/
 
     service_register(plugin, "load", (intptr_t)yaml_load);
-    service_register(plugin, "get", (intptr_t)yaml_get);
+    service_register(plugin, "get_value", (intptr_t)yaml_get_value);
+    service_register(plugin, "get_dom", (intptr_t)yaml_get_dom);
     service_register(plugin, "destroy", (intptr_t)yaml_destroy);
 }
