@@ -100,6 +100,13 @@ else ()
     set (HAVE_D_COMPILER ON)
 endif ()
 
+if (D_COMPILER MATCHES "ldc2")
+    set (D_GLOBAL_COMPILER_FLAGS -shared -relocation-model=pic)
+endif ()
+if (D_COMPILER MATCHES "dmd")
+    set (D_GLOBAL_COMPILER_FLAGS -shared -fPIC)
+endif ()
+
 ###############################################################################
 # generate missing folders and files
 ###############################################################################
