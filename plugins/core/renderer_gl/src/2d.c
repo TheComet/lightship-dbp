@@ -52,6 +52,7 @@ void line(float x1, float y1, float x2, float y2, uint32_t colour1, uint32_t col
     vertex->diffuse[1] = (float)((colour1 >> 16) & 0x000000FF) / 255.0;
     vertex->diffuse[2] = (float)((colour1 >>  8) & 0x000000FF) / 255.0;
     vertex->diffuse[3] = (float)((colour1 >>  0) & 0x000000FF) / 255.0;
+
     vertex = (struct vertex_2d_t*)unordered_vector_push_emplace(&g_current_batch->vertex_data);
     vertex->position[0] = x2;
     vertex->position[1] = y2;
