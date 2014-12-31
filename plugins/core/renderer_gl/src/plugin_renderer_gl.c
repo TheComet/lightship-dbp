@@ -58,9 +58,6 @@ PLUGIN_START()
     
     /* init graphics */
     init_2d();
-    batch_2d_begin();
-        line(-0.5, -1, 1, 1, 0xFF0000FF, 0x00FF00FF);
-    batch_2d_end();
     
     register_event_listeners(g_plugin);
 
