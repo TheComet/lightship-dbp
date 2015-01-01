@@ -1,9 +1,13 @@
 project ("plugin_renderer_gl" C)
 
 if (${CMAKE_C_COMPILER_ID} STREQUAL "GNU")
-    add_definitions (-fPIC)
+    if (NOT MINGW) # MinGW always builds position independent code
+        add_definitions (-fPIC)
+    endif ()
 elseif (${CMAKE_C_COMPILER_ID} STREQUAL "Clang")
-    add_definitions (-fPIC)
+    if (NOT MINGW) # MinGW always builds position independent code
+        add_definitions (-fPIC)
+    endif ()
 elseif (${CMAKE_C_COMPILER_ID} STREQUAL "Intel")
 elseif (${CMAKE_C_COMPILER_ID} STREQUAL "MSVC")
 endif ()

@@ -102,6 +102,6 @@ main_loop_get_elapsed_time(void)
 #ifdef _DEBUG
 EVENT_LISTENER2(on_stats, uint32_t render_frame_rate, uint32_t update_frame_rate)
 {
-    printf("render fps: %u, update fps: %u\n", render_frame_rate, update_frame_rate);
+    /*printf("render fps: %u, update fps: %u\n", render_frame_rate, update_frame_rate);*/
 }
 #endif

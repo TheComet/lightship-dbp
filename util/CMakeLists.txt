@@ -78,7 +78,7 @@ if (${BUILD_TYPE} STREQUAL "SHARED")
         TARGETS
             lightship_util
         LIBRARY DESTINATION
-            "bin"
+            "lib"
         RUNTIME DESTINATION
             "bin"
     )

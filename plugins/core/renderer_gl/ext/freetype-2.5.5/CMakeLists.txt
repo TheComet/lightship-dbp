@@ -86,7 +86,7 @@ else ()
   endif ()
 endif ()
 
-project(freetype)
+project(freetype C)
 
 if (BUILD_FRAMEWORK)
   if (NOT "${CMAKE_GENERATOR}" STREQUAL "Xcode")

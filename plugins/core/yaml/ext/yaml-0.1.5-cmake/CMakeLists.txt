@@ -59,11 +59,15 @@ add_definitions (-DHAVE_CONFIG_H)
 
 if (${CMAKE_C_COMPILER_ID} STREQUAL "GNU")
     if (NOT BUILD_SHARED)
-        add_definitions (-fPIC)
+        if (NOT MINGW) # MinGW always builds position independent code
+            add_definitions (-fPIC)
+        endif ()
     endif ()
 elseif (${CMAKE_C_COMPILER_ID} STREQUAL "Clang")
     if (NOT BUILD_SHARED)
-        add_definitions (-fPIC)
+        if (NOT MINGW) # MinGW always builds position independent code
+            add_definitions (-fPIC)
+        endif ()
     endif ()
 elseif (${CMAKE_C_COMPILER_ID} STREQUAL "Intel")
 elseif (${CMAKE_C_COMPILER_ID} STREQUAL "MSVC")
