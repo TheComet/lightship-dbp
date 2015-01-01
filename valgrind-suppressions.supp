@@ -1,0 +1,15 @@
+{
+	shit
+	obj:/usr/lib64/valgrind/vgpreload_memcheck-amd64-linux.so
+	obj:/usr/lib64/libX11.so.6.3.0
+	obj:/usr/lib64/opengl/nvidia/lib/libGL.so.343.36
+	obj:/usr/lib64/libnvidia-glcore.so.343.36
+	fun:_dl_open
+	fun:_glfwCreateWindow
+	fun:_XlcCreateLocaleDataBase
+	fun:_XlcCreateDefaultCharSet
+	fun:_XrmInternalStringToQuark
+	fun:_XlcAddCT
+	fun:_XlcCreateLocaleDataBase
+	fun:_XlcAddCharSet
+}
