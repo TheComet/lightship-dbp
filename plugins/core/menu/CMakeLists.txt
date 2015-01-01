@@ -1,4 +1,4 @@
-project ("plugin_@NAME@" C)
+project ("plugin_menu" C)
 
 ###############################################################################
 # compiler flags for this project
@@ -16,62 +16,62 @@ endif ()
 # generate config.h for this plugin
 ###############################################################################
 
-set (PLUGIN_@NAME_CAPS@_VERSION_MAJOR 0)
-set (PLUGIN_@NAME_CAPS@_VERSION_MINOR 0)
-set (PLUGIN_@NAME_CAPS@_VERSION_PATCH 1)
-set (PLUGIN_@NAME_CAPS@_NAME "@NAME@")
-set (PLUGIN_@NAME_CAPS@_CATEGORY "unknown")
-set (PLUGIN_@NAME_CAPS@_AUTHOR "unknown")
-set (PLUGIN_@NAME_CAPS@_DESCRIPTION "unknown")
-set (PLUGIN_@NAME_CAPS@_WEBSITE "unknown")
-set (PLUGIN_@NAME_CAPS@_VERSION_STRING
-    "${PLUGIN_@NAME_CAPS@_VERSION_MAJOR}.${PLUGIN_@NAME_CAPS@_VERSION_MINOR}.${PLUGIN_@NAME_CAPS@_VERSION_PATCH}")
+set (PLUGIN_MENU_VERSION_MAJOR 0)
+set (PLUGIN_MENU_VERSION_MINOR 0)
+set (PLUGIN_MENU_VERSION_PATCH 1)
+set (PLUGIN_MENU_NAME "menu")
+set (PLUGIN_MENU_CATEGORY "gui")
+set (PLUGIN_MENU_AUTHOR "TheComet")
+set (PLUGIN_MENU_DESCRIPTION "Menu management plugin")
+set (PLUGIN_MENU_WEBSITE "https://github.com/TheComet93")
+set (PLUGIN_MENU_VERSION_STRING
+    "${PLUGIN_MENU_VERSION_MAJOR}.${PLUGIN_MENU_VERSION_MINOR}.${PLUGIN_MENU_VERSION_PATCH}")
 
-configure_file ("include/plugin_@NAME@/config.h.in"
-                "${CMAKE_CURRENT_BINARY_DIR}/include/plugin_@NAME@/config.h")
+configure_file ("include/plugin_menu/config.h.in"
+                "${CMAKE_CURRENT_BINARY_DIR}/include/plugin_menu/config.h")
 include_directories ("${CMAKE_CURRENT_BINARY_DIR}/include")
 
 ###############################################################################
 # source files and library definition
 ###############################################################################
 
-set (plugin_@NAME@_OUTPUT_NAME
-    "plugin_@NAME@-${PLUGIN_@NAME_CAPS@_VERSION_STRING}")
+set (plugin_menu_OUTPUT_NAME
+    "plugin_menu-${PLUGIN_MENU_VERSION_STRING}")
 
-file (GLOB plugin_@NAME@_HEADERS "include/plugin_@NAME@/*.h")
-file (GLOB plugin_@NAME@_SOURCES "src/*.c")
+file (GLOB plugin_menu_HEADERS "include/plugin_menu/*.h")
+file (GLOB plugin_menu_SOURCES "src/*.c")
 
 include_directories ("include")
 
-add_library (plugin_@NAME@ SHARED
-    ${plugin_@NAME@_HEADERS}
-    ${plugin_@NAME@_SOURCES}
+add_library (plugin_menu SHARED
+    ${plugin_menu_HEADERS}
+    ${plugin_menu_SOURCES}
 )
 
 # adjust output name to not have the "lib" prefix and insert version number
-set_target_properties (plugin_@NAME@
+set_target_properties (plugin_menu
     PROPERTIES
         PREFIX ""
-    OUTPUT_NAME "plugin_@NAME@-${PLUGIN_@NAME_CAPS@_VERSION_STRING}"
+    OUTPUT_NAME "plugin_menu-${PLUGIN_MENU_VERSION_STRING}"
 )
 
 # ensure plugin is built before lightship
-add_dependencies (lightship plugin_@NAME@)
+add_dependencies (lightship plugin_menu)
 
 ###############################################################################
 # copy plugin to plugins/ folder after build
 ###############################################################################
 
-add_custom_command (TARGET plugin_@NAME@ POST_BUILD
+add_custom_command (TARGET plugin_menu POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
-    "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/${plugin_@NAME@_OUTPUT_NAME}${CMAKE_SHARED_LIBRARY_SUFFIX}"
+    "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/${plugin_menu_OUTPUT_NAME}${CMAKE_SHARED_LIBRARY_SUFFIX}"
     "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/plugins/")
 
 ###############################################################################
 # link lightship utility static library
 ###############################################################################
 
-target_link_libraries (plugin_@NAME@
+target_link_libraries (plugin_menu
     lightship_util
 )
 
@@ -85,7 +85,7 @@ target_link_libraries (plugin_@NAME@
 
 install (
     TARGETS
-        plugin_@NAME@
+        plugin_menu
     LIBRARY DESTINATION
         "bin/plugins"
     RUNTIME DESTINATION
