@@ -159,6 +159,6 @@ EVENT_LISTENER1(on_llog, struct log_t* arg)
     }
     
     for(i = 0; i != g_log_indent; ++i)
-        printf("    ");
+        fprintf(fp, "    ");
     fprintf(fp, "%s", arg->message);
 }
