@@ -82,29 +82,37 @@ endif ()
 add_definitions (-DLIGHTSHIP_BUILDING_LIBRARY)
 
 ###############################################################################
-# D compiler
+# D compiler (experimental)
 ###############################################################################
 
-if (NOT D_COMPILER)
-    find_program (D_COMPILER "ldc2")
-endif ()
-if (NOT D_COMPILER)
-    find_program (D_COMPILER "dmd")
-endif ()
+option (ENABLE_DLANG "Enable D-language based plugins" OFF)
 
-if (NOT D_COMPILER)
-    set (HAVE_D_COMPILER OFF)
-    message (WARNING "Could NOT find a D compiler. Maybe define -DD_COMPILER=<path_to_compiler>")
-    message (WARNING "D plugins will not be built.")
+if(ENABLE_DLANG)
+
+    if (NOT D_COMPILER)
+        find_program (D_COMPILER "ldc2")
+    endif ()
+    if (NOT D_COMPILER)
+        find_program (D_COMPILER "dmd")
+    endif ()
+
+    if (NOT D_COMPILER)
+        set (HAVE_D_COMPILER OFF)
+        message (WARNING "Could NOT find a D compiler. Maybe define -DD_COMPILER=<path_to_compiler>")
+        message (WARNING "D plugins will not be built.")
+    else ()
+        set (HAVE_D_COMPILER ON)
+    endif ()
+
+    if (D_COMPILER MATCHES "ldc2")
+        set (D_GLOBAL_COMPILER_FLAGS -shared -relocation-model=pic)
+    endif ()
+    if (D_COMPILER MATCHES "dmd")
+        set (D_GLOBAL_COMPILER_FLAGS -shared -fPIC)
+    endif ()
+    
 else ()
-    set (HAVE_D_COMPILER ON)
-endif ()
-
-if (D_COMPILER MATCHES "ldc2")
-    set (D_GLOBAL_COMPILER_FLAGS -shared -relocation-model=pic)
-endif ()
-if (D_COMPILER MATCHES "dmd")
-    set (D_GLOBAL_COMPILER_FLAGS -shared -fPIC)
+    set (ENABLE_DLANG OFF)
 endif ()
 
 ###############################################################################
