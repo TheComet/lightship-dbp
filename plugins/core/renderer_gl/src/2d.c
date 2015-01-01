@@ -1,79 +1,129 @@
+#include <stdio.h>
 #include "plugin_renderer_gl/2d.h"
 #include "plugin_renderer_gl/shader.h"
 
 #include "GL/glew.h"
 #include "glfw3.h"
 
-GLuint g_vao_2d; /* vao for 2d objects */
 GLuint g_line_shader_id;
-struct batch_t* g_current_batch = NULL;
-struct unordered_vector_t g_batches;
+struct shapes_t* g_current_shapes = NULL;
+struct unordered_vector_t g_shapes_collection;
+
+static uint32_t guid_counter = 1;
+
+#define printOpenGLError() printOglError(__FILE__, __LINE__)
+
+int printOglError(char *file, int line)
+{
+
+    GLenum glErr;
+    int    retCode = 0;
+
+    glErr = glGetError();
+    if (glErr != GL_NO_ERROR)
+    {
+        printf("glError in file %s @ line %d: %s\n",
+                 file, line, gluErrorString(glErr));
+        retCode = 1;
+    }
+    return retCode;
+}
+
+static struct shapes_t* shapes_get(uint32_t ID)
+{
+    UNORDERED_VECTOR_FOR_EACH(&g_shapes_collection, struct shapes_t, shapes)
+    {
+        if(shapes->ID == ID)
+            return shapes;
+    }
+    return NULL;
+}
 
 void init_2d(void)
 {
-    /* setup VAO for 2d draw calls */
-    glGenVertexArrays(1, &g_vao_2d);
-    
     /* load shaders */
     g_line_shader_id = load_shader("fx/line_2d");
     
-    unordered_vector_init_vector(&g_batches, sizeof(struct batch_t));
+    unordered_vector_init_vector(&g_shapes_collection, sizeof(struct shapes_t));
 }
 
 void deinit_2d(void)
 {
-    UNORDERED_VECTOR_FOR_EACH(&g_batches, struct batch_t, batch)
+    UNORDERED_VECTOR_FOR_EACH(&g_shapes_collection, struct shapes_t, shapes)
     {
-        unordered_vector_clear_free(&batch->vertex_data);
+        glDeleteBuffers(1, &shapes->vbo);
+        glDeleteBuffers(1, &shapes->vio);
+        unordered_vector_clear_free(&shapes->vertex_data);
+        unordered_vector_clear_free(&shapes->index_data);
     }
-    unordered_vector_clear_free(&g_batches);
+    unordered_vector_clear_free(&g_shapes_collection);
 }
 
-void batch_2d_begin(void)
+void shapes_2d_begin(void)
 {
-    if(g_current_batch)
+    if(g_current_shapes)
         return;
 
-    g_current_batch = (struct batch_t*)unordered_vector_push_emplace(&g_batches);
-    unordered_vector_init_vector(&g_current_batch->vertex_data, sizeof(struct vertex_2d_t));
+    g_current_shapes = (struct shapes_t*)unordered_vector_push_emplace(&g_shapes_collection);
+    unordered_vector_init_vector(&g_current_shapes->vertex_data, sizeof(struct vertex_2d_t));
+    unordered_vector_init_vector(&g_current_shapes->index_data,  sizeof(INDEX_DATA_TYPE));
+    g_current_shapes->visible = 1;
 }
 
 void line(float x1, float y1, float x2, float y2, uint32_t colour1, uint32_t colour2)
 {
     struct vertex_2d_t* vertex;
-    if(!g_current_batch)
+    INDEX_DATA_TYPE* index;
+
+    if(!g_current_shapes)
         return;
     
-    /* add two new vertices to the batch */
-    vertex = (struct vertex_2d_t*)unordered_vector_push_emplace(&g_current_batch->vertex_data);
+    /* add two new vertices and indices to the shapes */
+    vertex = (struct vertex_2d_t*)unordered_vector_push_emplace(&g_current_shapes->vertex_data);
     vertex->position[0] = x1;
     vertex->position[1] = y1;
     vertex->diffuse[0] = (float)((colour1 >> 24) & 0x000000FF) / 255.0;
     vertex->diffuse[1] = (float)((colour1 >> 16) & 0x000000FF) / 255.0;
     vertex->diffuse[2] = (float)((colour1 >>  8) & 0x000000FF) / 255.0;
     vertex->diffuse[3] = (float)((colour1 >>  0) & 0x000000FF) / 255.0;
+    index = (INDEX_DATA_TYPE*)unordered_vector_push_emplace(&g_current_shapes->index_data);
+    *index = g_current_shapes->vertex_data.count - 1;
 
-    vertex = (struct vertex_2d_t*)unordered_vector_push_emplace(&g_current_batch->vertex_data);
+    vertex = (struct vertex_2d_t*)unordered_vector_push_emplace(&g_current_shapes->vertex_data);
     vertex->position[0] = x2;
     vertex->position[1] = y2;
     vertex->diffuse[0] = (float)((colour2 >> 24) & 0x000000FF) / 255.0;
     vertex->diffuse[1] = (float)((colour2 >> 16) & 0x000000FF) / 255.0;
     vertex->diffuse[2] = (float)((colour2 >>  8) & 0x000000FF) / 255.0;
     vertex->diffuse[3] = (float)((colour2 >>  0) & 0x000000FF) / 255.0;
+    index = (INDEX_DATA_TYPE*)unordered_vector_push_emplace(&g_current_shapes->index_data);
+    *index = g_current_shapes->vertex_data.count - 1;
 }
 
-void batch_2d_end(void)
+uint32_t shapes_2d_end(void)
 {
-    if(!g_current_batch)
-        return;
+    uint32_t ID;
+
+    /* current shapes must be active */
+    if(!g_current_shapes)
+        return 0;
     
-    glBindVertexArray(g_vao_2d);
-        glGenBuffers(1, &g_current_batch->vbo);
-        glBindBuffer(GL_ARRAY_BUFFER, g_current_batch->vbo);
+    /* give this shapes a uinque ID */
+    ID = guid_counter++;
+    g_current_shapes->ID = ID;
+    
+    /* generate VAO, VBO, VIO, and set up render state */
+    glGenVertexArrays(1, &g_current_shapes->vao);
+    glBindVertexArray(g_current_shapes->vao);
+        /* generate VBO for vertex data */
+        glGenBuffers(1, &g_current_shapes->vbo);
+        glBindBuffer(GL_ARRAY_BUFFER, g_current_shapes->vbo);
+            /* copy vertex data into VBO */
             glBufferData(GL_ARRAY_BUFFER,
-                         g_current_batch->vertex_data.count * sizeof(struct vertex_2d_t),
-                         g_current_batch->vertex_data.data,
-                         GL_STATIC_DRAW);
+                        g_current_shapes->vertex_data.count * sizeof(struct vertex_2d_t),
+                        g_current_shapes->vertex_data.data,
+                        GL_STATIC_DRAW);
+            /* set up position and diffuse vertex attributes */
             glEnableVertexAttribArray(0);
             glVertexAttribPointer(0,                      /* attribute 0 */
                                   2,                      /* size, position[2] */
@@ -88,19 +138,48 @@ void batch_2d_end(void)
                                   GL_FALSE,               /* normalise? */
                                   sizeof(struct vertex_2d_t),
                                   (void*)offsetof(struct vertex_2d_t, diffuse));
+        /* generate VBO for index data */
+        glGenBuffers(1, &g_current_shapes->vio);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_current_shapes->vio);
+            /* copy index data into VBO */
+            glBufferData(GL_ELEMENT_ARRAY_BUFFER,
+                        g_current_shapes->index_data.count * sizeof(INDEX_DATA_TYPE),
+                        g_current_shapes->index_data.data,
+                        GL_STATIC_DRAW);
+        /* use shader for 2D shapes */
         glUseProgram(g_line_shader_id);
+    glBindVertexArray(0);
     
-    g_current_batch = NULL;
+    g_current_shapes = NULL;
+
+    return ID;
+}
+
+void shapes_hide(uint32_t ID)
+{
+    struct shapes_t* shapes = shapes_get(ID);
+    if(!shapes)
+        return;
+    shapes->visible = 0;
+}
+
+void shapes_show(uint32_t ID)
+{
+    struct shapes_t* shapes = shapes_get(ID);
+    if(!shapes)
+        return;
+    shapes->visible = 1;
 }
 
 void draw_2d(void)
 {
-    glBindVertexArray(g_vao_2d);
+
+    UNORDERED_VECTOR_FOR_EACH(&g_shapes_collection, struct shapes_t, shapes)
     {
-        UNORDERED_VECTOR_FOR_EACH(&g_batches, struct batch_t, batch)
-        {
-            glBindBuffer(GL_ARRAY_BUFFER, batch->vbo);
-                glDrawArrays(GL_LINES, 0, batch->vertex_data.count);
-        }
+        if(!shapes->visible)
+            continue;
+        glBindVertexArray(shapes->vao);
+        glDrawElements(GL_LINES, shapes->index_data.count, GL_UNSIGNED_SHORT, NULL);
     }
+    glBindVertexArray(0);
 }

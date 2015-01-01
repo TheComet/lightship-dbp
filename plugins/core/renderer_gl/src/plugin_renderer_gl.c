@@ -58,7 +58,7 @@ PLUGIN_START()
     
     /* init graphics */
     init_2d();
-    
+
     register_event_listeners(g_plugin);
 
     return PLUGIN_SUCCESS;
