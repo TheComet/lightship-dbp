@@ -1,0 +1,9 @@
+main-screen:
+    button:
+        text: "Test"
+        position:
+            x: 0.0
+            y: 0.5
+        size:
+            x: 0.1
+            y: 0.03

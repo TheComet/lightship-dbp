@@ -114,7 +114,25 @@ shapes_2d_end(void)
 }
 
 void
-line_2d(float x1, float y1, float x2, float y2, uint32_t colour1, uint32_t colour2)
+shapes_2d_destroy(uint32_t ID)
+{
+    UNORDERED_VECTOR_FOR_EACH(&g_shapes_collection, struct shapes_t, shapes)
+    {
+        if(shapes->ID == ID)
+        {
+            glDeleteBuffers(1, &shapes->vbo);
+            glDeleteBuffers(1, &shapes->vio);
+            glDeleteBuffers(1, &shapes->vao);
+            unordered_vector_clear_free(&shapes->vertex_data);
+            unordered_vector_clear_free(&shapes->index_data);
+            unordered_vector_erase_element(&g_shapes_collection, shapes);
+            return;
+        }
+    }
+}
+
+void
+line_2d(float x1, float y1, float x2, float y2, uint32_t colour)
 {
     struct vertex_2d_t* vertex;
     INDEX_DATA_TYPE* index;
@@ -126,22 +144,34 @@ line_2d(float x1, float y1, float x2, float y2, uint32_t colour1, uint32_t colou
     vertex = (struct vertex_2d_t*)unordered_vector_push_emplace(&g_current_shapes->vertex_data);
     vertex->position[0] = x1;
     vertex->position[1] = y1;
-    vertex->diffuse[0] = (float)((colour1 >> 24) & 0x000000FF) / 255.0;
-    vertex->diffuse[1] = (float)((colour1 >> 16) & 0x000000FF) / 255.0;
-    vertex->diffuse[2] = (float)((colour1 >>  8) & 0x000000FF) / 255.0;
-    vertex->diffuse[3] = (float)((colour1 >>  0) & 0x000000FF) / 255.0;
+    vertex->diffuse[0] = (float)((colour >> 24) & 0x000000FF) / 255.0;
+    vertex->diffuse[1] = (float)((colour >> 16) & 0x000000FF) / 255.0;
+    vertex->diffuse[2] = (float)((colour >>  8) & 0x000000FF) / 255.0;
+    vertex->diffuse[3] = (float)((colour >>  0) & 0x000000FF) / 255.0;
     index = (INDEX_DATA_TYPE*)unordered_vector_push_emplace(&g_current_shapes->index_data);
     *index = g_current_shapes->vertex_data.count - 1;
 
     vertex = (struct vertex_2d_t*)unordered_vector_push_emplace(&g_current_shapes->vertex_data);
     vertex->position[0] = x2;
     vertex->position[1] = y2;
-    vertex->diffuse[0] = (float)((colour2 >> 24) & 0x000000FF) / 255.0;
-    vertex->diffuse[1] = (float)((colour2 >> 16) & 0x000000FF) / 255.0;
-    vertex->diffuse[2] = (float)((colour2 >>  8) & 0x000000FF) / 255.0;
-    vertex->diffuse[3] = (float)((colour2 >>  0) & 0x000000FF) / 255.0;
+    vertex->diffuse[0] = (float)((colour >> 24) & 0x000000FF) / 255.0;
+    vertex->diffuse[1] = (float)((colour >> 16) & 0x000000FF) / 255.0;
+    vertex->diffuse[2] = (float)((colour >>  8) & 0x000000FF) / 255.0;
+    vertex->diffuse[3] = (float)((colour >>  0) & 0x000000FF) / 255.0;
     index = (INDEX_DATA_TYPE*)unordered_vector_push_emplace(&g_current_shapes->index_data);
     *index = g_current_shapes->vertex_data.count - 1;
+}
+
+void
+box_2d(float x1, float y1, float x2, float y2, uint32_t colour)
+{
+    if(!g_current_shapes)
+        return;
+    
+    line_2d(x1, y1, x2, y1, colour);
+    line_2d(x2, y1, x2, y2, colour);
+    line_2d(x2, y2, x1, y2, colour);
+    line_2d(x1, y2, x1, y1, colour);
 }
 
 void
