@@ -18,6 +18,7 @@ char text_init(void)
         llog(LOG_ERROR, 1, "Failed to initialise freetype");
         return 1;
     }
+    return 0;
 }
 
 void text_deinit(void)
