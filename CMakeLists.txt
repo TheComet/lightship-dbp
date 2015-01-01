@@ -88,6 +88,7 @@ add_definitions (-DLIGHTSHIP_BUILDING_LIBRARY)
 option (ENABLE_DLANG "Enable D-language based plugins" OFF)
 
 if(ENABLE_DLANG)
+    set( D_PLUGIN_IMPORT_DIRECTORY "${CMAKE_SOURCE_DIR}/util/include/util/d_api/" )
 
     if (NOT D_COMPILER)
         find_program (D_COMPILER "ldc2")
