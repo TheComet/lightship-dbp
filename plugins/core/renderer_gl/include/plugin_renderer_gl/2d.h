@@ -25,36 +25,42 @@ struct shapes_t
  * @brief Initialises 2D sub-system. Call this before calling any other 2D 
  * related calls.
  */
-void init_2d(void);
+void
+init_2d(void);
 
 /*!
  * @brief De-inits 2D subsystem. Cleans up all buffers.
  */
-void deinit_2d(void);
+void
+deinit_2d(void);
 
 /*!
  * @brief Begin drawing a collection of shapes.
  */
-void shapes_2d_begin(void);
+void
+shapes_2d_begin(void);
 
 /*!
  * @brief End drawing a collection of shapes.
  * @return Returns a unique ID for this shape. This can be used to reference it
  * later.
  */
-uint32_t shapes_2d_end(void);
+uint32_t
+shapes_2d_end(void);
 
 /*!
  * @brief Hides the specified shape of shapes.
  * @param ID The unique ID of the shape to hide.
  */
-void shapes_hide(uint32_t ID);
+void
+shapes_hide(uint32_t ID);
 
 /*!
  * @brief Shows the specified shape of shapes.
  * @param ID The unique ID of the shape to show.
  */
-void shapes_show(uint32_t ID);
+void
+shapes_show(uint32_t ID);
 
 /*!
  * @brief Adds a line to the shape.
@@ -64,9 +70,11 @@ void shapes_show(uint32_t ID);
  * @param x2 Ending X coordinate of line in GL screen space.
  * @param y2 Ending X coordinate of line in GL screen space.
  */
-void line(float x1, float y1, float x2, float y2, uint32_t colour1, uint32_t colour2);
+void
+line_2d(float x1, float y1, float x2, float y2, uint32_t colour1, uint32_t colour2);
 
 /*!
- * @brief Draws all shapees.
+ * @brief Draws all shapes.
  */
-void draw_2d(void);
+void
+draw_2d(void);

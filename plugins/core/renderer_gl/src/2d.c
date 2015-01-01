@@ -11,25 +11,8 @@ struct unordered_vector_t g_shapes_collection;
 
 static uint32_t guid_counter = 1;
 
-#define printOpenGLError() printOglError(__FILE__, __LINE__)
-
-int printOglError(char *file, int line)
-{
-
-    GLenum glErr;
-    int    retCode = 0;
-
-    glErr = glGetError();
-    if (glErr != GL_NO_ERROR)
-    {
-        printf("glError in file %s @ line %d: %s\n",
-                 file, line, gluErrorString(glErr));
-        retCode = 1;
-    }
-    return retCode;
-}
-
-static struct shapes_t* shapes_get(uint32_t ID)
+static struct shapes_t*
+shapes_get(uint32_t ID)
 {
     UNORDERED_VECTOR_FOR_EACH(&g_shapes_collection, struct shapes_t, shapes)
     {
@@ -39,7 +22,8 @@ static struct shapes_t* shapes_get(uint32_t ID)
     return NULL;
 }
 
-void init_2d(void)
+void
+init_2d(void)
 {
     /* load shaders */
     g_line_shader_id = load_shader("fx/line_2d");
@@ -47,19 +31,22 @@ void init_2d(void)
     unordered_vector_init_vector(&g_shapes_collection, sizeof(struct shapes_t));
 }
 
-void deinit_2d(void)
+void
+deinit_2d(void)
 {
     UNORDERED_VECTOR_FOR_EACH(&g_shapes_collection, struct shapes_t, shapes)
     {
         glDeleteBuffers(1, &shapes->vbo);
         glDeleteBuffers(1, &shapes->vio);
+        glDeleteBuffers(1, &shapes->vao);
         unordered_vector_clear_free(&shapes->vertex_data);
         unordered_vector_clear_free(&shapes->index_data);
     }
     unordered_vector_clear_free(&g_shapes_collection);
 }
 
-void shapes_2d_begin(void)
+void
+shapes_2d_begin(void)
 {
     if(g_current_shapes)
         return;
@@ -70,37 +57,8 @@ void shapes_2d_begin(void)
     g_current_shapes->visible = 1;
 }
 
-void line(float x1, float y1, float x2, float y2, uint32_t colour1, uint32_t colour2)
-{
-    struct vertex_2d_t* vertex;
-    INDEX_DATA_TYPE* index;
-
-    if(!g_current_shapes)
-        return;
-    
-    /* add two new vertices and indices to the shapes */
-    vertex = (struct vertex_2d_t*)unordered_vector_push_emplace(&g_current_shapes->vertex_data);
-    vertex->position[0] = x1;
-    vertex->position[1] = y1;
-    vertex->diffuse[0] = (float)((colour1 >> 24) & 0x000000FF) / 255.0;
-    vertex->diffuse[1] = (float)((colour1 >> 16) & 0x000000FF) / 255.0;
-    vertex->diffuse[2] = (float)((colour1 >>  8) & 0x000000FF) / 255.0;
-    vertex->diffuse[3] = (float)((colour1 >>  0) & 0x000000FF) / 255.0;
-    index = (INDEX_DATA_TYPE*)unordered_vector_push_emplace(&g_current_shapes->index_data);
-    *index = g_current_shapes->vertex_data.count - 1;
-
-    vertex = (struct vertex_2d_t*)unordered_vector_push_emplace(&g_current_shapes->vertex_data);
-    vertex->position[0] = x2;
-    vertex->position[1] = y2;
-    vertex->diffuse[0] = (float)((colour2 >> 24) & 0x000000FF) / 255.0;
-    vertex->diffuse[1] = (float)((colour2 >> 16) & 0x000000FF) / 255.0;
-    vertex->diffuse[2] = (float)((colour2 >>  8) & 0x000000FF) / 255.0;
-    vertex->diffuse[3] = (float)((colour2 >>  0) & 0x000000FF) / 255.0;
-    index = (INDEX_DATA_TYPE*)unordered_vector_push_emplace(&g_current_shapes->index_data);
-    *index = g_current_shapes->vertex_data.count - 1;
-}
-
-uint32_t shapes_2d_end(void)
+uint32_t
+shapes_2d_end(void)
 {
     uint32_t ID;
 
@@ -155,7 +113,39 @@ uint32_t shapes_2d_end(void)
     return ID;
 }
 
-void shapes_hide(uint32_t ID)
+void
+line_2d(float x1, float y1, float x2, float y2, uint32_t colour1, uint32_t colour2)
+{
+    struct vertex_2d_t* vertex;
+    INDEX_DATA_TYPE* index;
+
+    if(!g_current_shapes)
+        return;
+    
+    /* add two new vertices and indices to the shapes */
+    vertex = (struct vertex_2d_t*)unordered_vector_push_emplace(&g_current_shapes->vertex_data);
+    vertex->position[0] = x1;
+    vertex->position[1] = y1;
+    vertex->diffuse[0] = (float)((colour1 >> 24) & 0x000000FF) / 255.0;
+    vertex->diffuse[1] = (float)((colour1 >> 16) & 0x000000FF) / 255.0;
+    vertex->diffuse[2] = (float)((colour1 >>  8) & 0x000000FF) / 255.0;
+    vertex->diffuse[3] = (float)((colour1 >>  0) & 0x000000FF) / 255.0;
+    index = (INDEX_DATA_TYPE*)unordered_vector_push_emplace(&g_current_shapes->index_data);
+    *index = g_current_shapes->vertex_data.count - 1;
+
+    vertex = (struct vertex_2d_t*)unordered_vector_push_emplace(&g_current_shapes->vertex_data);
+    vertex->position[0] = x2;
+    vertex->position[1] = y2;
+    vertex->diffuse[0] = (float)((colour2 >> 24) & 0x000000FF) / 255.0;
+    vertex->diffuse[1] = (float)((colour2 >> 16) & 0x000000FF) / 255.0;
+    vertex->diffuse[2] = (float)((colour2 >>  8) & 0x000000FF) / 255.0;
+    vertex->diffuse[3] = (float)((colour2 >>  0) & 0x000000FF) / 255.0;
+    index = (INDEX_DATA_TYPE*)unordered_vector_push_emplace(&g_current_shapes->index_data);
+    *index = g_current_shapes->vertex_data.count - 1;
+}
+
+void
+shapes_hide(uint32_t ID)
 {
     struct shapes_t* shapes = shapes_get(ID);
     if(!shapes)
@@ -163,7 +153,8 @@ void shapes_hide(uint32_t ID)
     shapes->visible = 0;
 }
 
-void shapes_show(uint32_t ID)
+void
+shapes_show(uint32_t ID)
 {
     struct shapes_t* shapes = shapes_get(ID);
     if(!shapes)
@@ -171,7 +162,8 @@ void shapes_show(uint32_t ID)
     shapes->visible = 1;
 }
 
-void draw_2d(void)
+void
+draw_2d(void)
 {
 
     UNORDERED_VECTOR_FOR_EACH(&g_shapes_collection, struct shapes_t, shapes)
