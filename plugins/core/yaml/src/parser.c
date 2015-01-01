@@ -26,7 +26,7 @@ typedef enum yaml_parser_states_e
 void
 parser_init(void)
 {
-    unordered_vector_init_vector(&g_open_docs, sizeof(struct yaml_doc_t*));
+    unordered_vector_init_vector(&g_open_docs, sizeof(struct yaml_doc_t));
 }
 
 void
@@ -267,10 +267,10 @@ yaml_load_into_ptree(struct ptree_t* tree, yaml_parser_t* parser)
 static struct yaml_doc_t*
 yaml_get_doc(uint32_t ID)
 {
-    UNORDERED_VECTOR_FOR_EACH(&g_open_docs, struct yaml_doc_t*, docp)
+    UNORDERED_VECTOR_FOR_EACH(&g_open_docs, struct yaml_doc_t, doc)
     {
-        if((*docp)->ID == ID)
-            return *docp;
+        if(doc->ID == ID)
+            return doc;
     }
     return NULL;
 }
@@ -305,10 +305,9 @@ yaml_load(const char* filename)
     }
     
     /* create doc object and initialise parser */
-    doc = (struct yaml_doc_t*)MALLOC(sizeof(struct yaml_doc_t));
+    doc = (struct yaml_doc_t*)unordered_vector_push_emplace(&g_open_docs);
     doc->ID = GUID_counter++;
     doc->dom = tree;
-    unordered_vector_push(&g_open_docs, &doc);
     
     /* clean up */
     yaml_parser_delete(&parser);
@@ -338,15 +337,12 @@ yaml_get_value(const uint32_t ID, const char* key)
 void
 yaml_destroy(const uint32_t ID)
 {
-    struct yaml_doc_t* doc;
-    UNORDERED_VECTOR_FOR_EACH(&g_open_docs, struct yaml_doc_t*, docp)
+    UNORDERED_VECTOR_FOR_EACH(&g_open_docs, struct yaml_doc_t, doc)
     {
-        doc = *docp;
         if(doc->ID == ID)
         {
             ptree_destroy(doc->dom);
-            FREE(doc);
-            unordered_vector_erase_index(&g_open_docs, (intptr_t)docp);
+            unordered_vector_erase_element(&g_open_docs, doc);
 
             return;
         }
