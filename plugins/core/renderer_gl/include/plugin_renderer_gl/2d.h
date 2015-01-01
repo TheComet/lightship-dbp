@@ -48,6 +48,9 @@ shapes_2d_begin(void);
 uint32_t
 shapes_2d_end(void);
 
+void
+shapes_2d_destroy(uint32_t ID);
+
 /*!
  * @brief Hides the specified shape of shapes.
  * @param ID The unique ID of the shape to hide.
@@ -71,7 +74,10 @@ shapes_show(uint32_t ID);
  * @param y2 Ending X coordinate of line in GL screen space.
  */
 void
-line_2d(float x1, float y1, float x2, float y2, uint32_t colour1, uint32_t colour2);
+line_2d(float x1, float y1, float x2, float y2, uint32_t colour);
+
+void
+box_2d(float x1, float y1, float x2, float y2, uint32_t colour);
 
 /*!
  * @brief Draws all shapes.
