@@ -29,6 +29,7 @@ add_custom_target (plugin_d_example
         ${D_COMPILER}
         ${D_GLOBAL_COMPILER_FLAGS}
         ${plugin_d_example_SOURCES}
+        -I=${D_PLUGIN_IMPORT_DIRECTORY}
         -L${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/${CMAKE_SHARED_LIBRARY_PREFIX}lightship_util${CMAKE_SHARED_LIBRARY_SUFFIX}
         -of"${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/${plugin_d_example_OUTPUT_NAME}${CMAKE_SHARED_LIBRARY_SUFFIX}"
     SOURCES
