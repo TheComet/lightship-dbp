@@ -57,7 +57,7 @@ A playable prototype exists and can be
 downloaded [here](http://forum.thegamecreators.com/?m=forum_view&t=195801&b=8).
 
 The prototype was written in DarkBASIC Pro and demonstrates the main game 
-mechanics. The DBPro source code can be downloaded [here](https://bitbucket.org/TheComet/lightship).
+mechanics. The DBPro source code can be downloaded [here](https://bitbucket.org/TheComet/lightship/downloads).
 
 ![slow down power up](http://i.imgur.com/euHzZuR.png)
 
