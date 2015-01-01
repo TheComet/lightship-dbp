@@ -6,6 +6,7 @@
 #include "plugin_renderer_gl/events.h"
 #include "plugin_renderer_gl/services.h"
 #include "plugin_renderer_gl/2d.h"
+#include "plugin_renderer_gl/text.h"
 
 #include "glfw3.h"
 
@@ -58,6 +59,7 @@ PLUGIN_START()
     
     /* init graphics */
     init_2d();
+    text_init();
 
     register_event_listeners(g_plugin);
 
@@ -66,6 +68,7 @@ PLUGIN_START()
 
 PLUGIN_STOP()
 {
+    text_deinit();
     deinit_2d();
     window_deinit();
 

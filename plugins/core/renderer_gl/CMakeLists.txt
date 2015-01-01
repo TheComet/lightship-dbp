@@ -115,6 +115,13 @@ message (STATUS "GL: ${OPENGL_INCLUDE_DIR}")
 message (STATUS "GL: ${OPENGL_LIBRARIES}")
 
 ###############################################################################
+# freetype
+###############################################################################
+
+include_directories ("ext/freetype-2.5.5/include")
+target_link_libraries (plugin_renderer_gl freetype)
+
+###############################################################################
 # link lightship utility static library
 ###############################################################################
 
