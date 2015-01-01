@@ -14,3 +14,13 @@ register_services(const struct plugin_t* plugin)
      */
 
 }
+
+char
+get_required_services(void)
+{
+    return 1;
+}
+
+void get_optional_services(void)
+{
+}
