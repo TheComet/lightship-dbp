@@ -2,11 +2,15 @@
 #include <string.h>
 #include <stdlib.h>
 #include "lightship/plugin_manager.h"
+#include "lightship/api.h"
+#include "plugin_yaml/services.h"
 #include "util/services.h"
 #include "util/events.h"
 #include "util/config.h"
 #include "util/plugin.h"
 #include "util/linked_list.h"
+#include "util/unordered_vector.h"
+#include "util/ptree.h"
 #include "util/string.h"
 #include "util/module_loader.h"
 #include "util/dir.h"
@@ -14,6 +18,11 @@
 #include "util/log.h"
 
 static struct list_t g_plugins;
+
+static yaml_load_func yaml_load;
+static yaml_destroy_func yaml_destroy;
+static yaml_get_dom_func yaml_get_dom;
+static yaml_get_value_func yaml_get_value;
 
 /*!
  * @brief Evaluates whether the specified file is an acceptable plugin to load
@@ -39,9 +48,19 @@ static char*
 find_plugin(const struct plugin_info_t* info,
             const plugin_search_criteria_t criteria);
 
-void plugin_manager_init(void)
+void
+plugin_manager_init(void)
 {
     list_init_list(&g_plugins);
+}
+
+void
+plugin_manager_get_services(void)
+{
+    yaml_load = (yaml_load_func)service_get("yaml.load");
+    yaml_destroy = (yaml_destroy_func)service_get("yaml.destroy");
+    yaml_get_dom = (yaml_get_dom_func)service_get("yaml.get_dom");
+    yaml_get_value = (yaml_get_value_func)service_get("yaml.get_value");
 }
 
 void
@@ -177,6 +196,104 @@ plugin_load(const struct plugin_info_t* plugin_info,
     return NULL;
 }
 
+char
+load_plugins_from_yaml(const char* filename)
+{
+    struct plugin_info_t target;
+    struct ptree_t* dom;
+    struct unordered_vector_t new_plugins;
+    uint32_t doc_ID;
+    
+    unordered_vector_init_vector(&new_plugins, sizeof(struct plugin_t*));
+
+    /* try to load YAML file */
+    doc_ID = ((yaml_load_func)service_get("yaml.load"))(filename);
+    if(!doc_ID)
+        return 0;
+    
+    /* get DOM and get_value service */
+    dom = yaml_get_dom(doc_ID);
+    if(!dom)
+    {
+        llog(LOG_FATAL, 1, "Failed to get DOM");
+        yaml_destroy(doc_ID);
+        return 0;
+    }
+    
+    /* load all plugins in DOM */
+    {
+        UNORDERED_VECTOR_FOR_EACH(&dom->children, struct ptree_t, child)
+        {
+            char* name;
+            char* version;
+            char* policy;
+            struct plugin_t* plugin;
+            plugin_search_criteria_t criteria;
+            
+            /* extract information from tree */
+            name = ptree_find_by_key(child, "name");
+            version = ptree_find_by_key(child, "version");
+            policy = ptree_find_by_key(child, "version_policy");
+            if(!name)
+            {
+                llog(LOG_ERROR, 1, "Key \"name\" isn't defined for plugin");
+                continue;
+            }
+            if(!version)
+            {
+                llog(LOG_ERROR, 1, "Key \"version\" isn't defined for plugin");
+                continue;
+            }
+            if(!policy)
+            {
+                llog(LOG_WARNING, 1, "Key \"version_policy\" isn't defined for plugin. Using default \"minimum\"");
+                policy = "minimum";
+            }
+            target.name = name;
+            if(!plugin_extract_version_from_string(version,
+                                                &target.version.major,
+                                                &target.version.minor,
+                                                &target.version.patch))
+            {
+                llog(LOG_ERROR, 1, "Version string of plugin \"", name, "\" is invalid. Should be major.minor.patch");
+                continue;
+            }
+            if(strncmp("minimum", policy, 7) == 0)
+                criteria = PLUGIN_VERSION_MINIMUM;
+            else if(strncmp("exact", policy, 5) == 0)
+                criteria = PLUGIN_VERSION_EXACT;
+            else
+            {
+                llog(LOG_ERROR, 3, "Invalid policy \"", policy, "\"");
+                continue;
+            }
+            
+            /* load plugin */
+            plugin = plugin_load(&target, criteria);
+            if(!plugin)
+                continue;
+            unordered_vector_push(&new_plugins, &plugin);
+        }
+    }
+
+    /* start plugins */
+    {
+        UNORDERED_VECTOR_FOR_EACH(&new_plugins, struct plugin_t*, pluginp)
+        {
+            if(!plugin_start(*pluginp))
+            {
+                llog(LOG_ERROR, 3, "Failed to start plugin \"", (*pluginp)->info.name, "\", unloading...");
+                plugin_unload(*pluginp);
+            }
+        }
+    }
+
+    /* clean up */
+    yaml_destroy(doc_ID);
+    unordered_vector_clear_free(&new_plugins);
+    return 1;
+}
+
 void
 plugin_unload(struct plugin_t* plugin)
 {
@@ -269,7 +386,6 @@ find_plugin(const struct plugin_info_t* info,
     
     /* 
      * Get list of files in various plugin directories.
-     * TODO load from config file
      */
     list = list_create();
 #if defined(LIGHTSHIP_PLATFORM_WINDOWS)

@@ -37,10 +37,7 @@ target_link_libraries (lightship
 )
 create_vcproj_userfile (lightship)
 
-add_custom_command (TARGET lightship POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-    "${CMAKE_CURRENT_LIST_DIR}/cfg"
-    "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/cfg")
+include_directories ("${CMAKE_SOURCE_DIR}/plugins/core/yaml/include")
 
 ###############################################################################
 # install targets
@@ -56,5 +53,5 @@ install (
     DIRECTORY
         "${CMAKE_CURRENT_LIST_DIR}/cfg"
     DESTINATION
-        "bin"
+        "share"
 )
