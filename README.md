@@ -6,10 +6,32 @@ and OpenGL.
 Features
 --------
 + Plugin API allowing high modability of the game.
++ OpenGL 3.3
 + Events and services based communications system supporting advanced features 
   like event interception and service discovery, making it possible for plugins 
   to re-define game mechanics on the fly.
-+ OpenGL 3.3
+
+How to Build
+------------
+The tools you will need to build this project are:
++ [CMake](http://www.cmake.org/).
++ A C89 compliant C compiler.
++ [Git](http://git-scm.com/) (if you want to make to make updating the code easy).
+
+**Windows MSVC Developers** should start the "Visual Studio Command Prompt" from the
+start menu instead of CMD. It sets the required environment variables. If you are
+using MSYS then you can use regular CMD (or bash).
+
+The general procedure is as follows:
++ Make a new directory called *build*.
++ cd into that directory with your command prompt/terminal/whatever.
++ Type ```cmake ..``` (Two dots are important)
+
+Depending on what platform you're on, there will now be Visual Studio project
+files, Makefiles, or whatever your default compiler needs inside the *build*
+directory. So go in there and open them up. *nix users now type *make* to build.
+
+Set the target "lightship" as the executable target and build. You're good to go.
 
 Concept
 -------
@@ -57,7 +79,7 @@ A playable prototype exists and can be
 downloaded [here](http://forum.thegamecreators.com/?m=forum_view&t=195801&b=8).
 
 The prototype was written in DarkBASIC Pro and demonstrates the main game 
-mechanics.
+mechanics. The DBPro source code can be downloaded [here](https://bitbucket.org/TheComet/lightship/downloads).
 
 ![slow down power up](http://i.imgur.com/euHzZuR.png)
 
