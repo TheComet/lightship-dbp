@@ -23,6 +23,7 @@ start menu instead of CMD. It sets the required environment variables. If you ar
 using MSYS then you can use regular CMD (or bash).
 
 The general procedure is as follows:
++ Go into the source directory of lightship (where this README is located).
 + Make a new directory called *build*.
 + cd into that directory with your command prompt/terminal/whatever.
 + Type ```cmake ..``` (Two dots are important)
