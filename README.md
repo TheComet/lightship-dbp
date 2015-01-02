@@ -16,6 +16,7 @@ How to Build
 The tools you will need to build this project are:
 + [CMake](http://www.cmake.org/).
 + A C89 compliant C compiler.
++ [Make](http://www.gnu.org/software/make/) (If you're on Mac/linux).
 + [Git](http://git-scm.com/) (if you want to make to make updating the code easy).
 
 **Windows MSVC Developers** should start the "Visual Studio Command Prompt" from the
@@ -30,7 +31,7 @@ The general procedure is as follows:
 
 Depending on what platform you're on, there will now be Visual Studio project
 files, Makefiles, or whatever your default compiler needs inside the *build*
-directory. So go in there and open them up. *nix users now type *make* to build.
+directory. So go in there and open them up. Linux/Mac users now type *make* to build.
 
 Set the target "lightship" as the executable target and build. You're good to go.
 
