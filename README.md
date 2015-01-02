@@ -84,6 +84,9 @@ The prototype was written in DarkBASIC Pro and demonstrates the main game
 mechanics. The DBPro source code can be downloaded [here](https://bitbucket.org/TheComet/lightship/downloads).
 
 [![Lightship online test](http://img.youtube.com/vi/M-5yaHqDP8o/0.jpg)](http://www.youtube.com/watch?v=M-5yaHqDP8o)
+<a href="http://www.youtube.com/watch?feature=player_embedded&v=M-5yaHqDP8o
+" target="_blank"><img src="http://img.youtube.com/vi/M-5yaHqDP8o/0.jpg" 
+alt="IMAGE ALT TEXT HERE" width="240" height="180" border="10" /></a>
 
 ![slow down power up](http://i.imgur.com/euHzZuR.png)
 
