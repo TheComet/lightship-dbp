@@ -49,12 +49,10 @@ ptree_destroy(struct ptree_t* tree)
 struct ptree_t*
 ptree_add_node(struct ptree_t* tree, const char* key, void* value)
 {
-    struct ptree_t child;
-    struct ptree_t* alloc;
-    ptree_init_ptree(&child, key, value);
-    alloc = (struct ptree_t*)unordered_vector_push_emplace(&tree->children);
-    memcpy(alloc, &child, sizeof(struct ptree_t));
-    return alloc;
+    struct ptree_t* child;
+    child = (struct ptree_t*)unordered_vector_push_emplace(&tree->children);
+    ptree_init_ptree(child, key, value);
+    return child;
 }
 
 void*

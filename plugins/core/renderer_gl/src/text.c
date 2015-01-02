@@ -3,7 +3,9 @@
 #include "ft2build.h"
 #include FT_FREETYPE_H
 
-FT_Library g_lib;
+static FT_Error error;
+static FT_Library g_lib;
+static FT_Face g_face;
 
 int z_verbose = 0;
 void z_error(/* should be const */char* message)
@@ -13,11 +15,14 @@ void z_error(/* should be const */char* message)
 
 char text_init(void)
 {
-    if(FT_Init_FreeType(&g_lib))
+    error = FT_Init_FreeType(&g_lib);
+    if(error)
     {
         llog(LOG_ERROR, 1, "Failed to initialise freetype");
         return 1;
     }
+    
+    /*error = FT_New_Face(g_lib, "*/
 }
 
 void text_deinit(void)

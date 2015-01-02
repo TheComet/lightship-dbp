@@ -13,6 +13,9 @@
 void
 plugin_manager_init(void);
 
+void
+plugin_manager_get_services(void);
+
 /*!
  * @brief Starts a loaded plugin.
  * 
@@ -64,6 +67,9 @@ plugin_manager_deinit(void);
 struct plugin_t*
 plugin_load(const struct plugin_info_t* plugin_info,
             plugin_search_criteria_t criteria);
+
+char
+load_plugins_from_yaml(const char* filename);
 
 /*!
  * @brief Unloads the specified plugin.
