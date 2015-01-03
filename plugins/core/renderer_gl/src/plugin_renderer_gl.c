@@ -50,7 +50,7 @@ PLUGIN_START()
     /* initialise GLFW */
     if(!glfwInit())
     {
-        fprintf(stderr, "Error: failed to initialise glfw\n");
+        llog(LOG_ERROR, 1, "Failed to initialise glfw\n");
         return PLUGIN_FAILURE;
     }
 
