@@ -85,7 +85,7 @@ if (BUILD_HOST STREQUAL "game.pixelcloud.ch")
     endif ()
     if (CROSS_COMPILE_x86_64-pc-mingw32)
         generate_cross_arch ("Windows"
-                            "x86_64-pc-mingw64"
+                            "x86_64-pc-mingw32"
                             "/usr/bin/x86_64-w64-mingw32-gcc"
                             "/usr/bin/x86_64-w64-mingw32-windres"
                             "/usr/bin/x86_64-w64-mingw32")
