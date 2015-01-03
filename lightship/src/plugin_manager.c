@@ -203,6 +203,7 @@ load_plugins_from_yaml(const char* filename)
     struct ptree_t* dom;
     struct unordered_vector_t new_plugins;
     uint32_t doc_ID;
+	char success = 1;
     
     unordered_vector_init_vector(&new_plugins, sizeof(struct plugin_t*));
 
@@ -284,6 +285,7 @@ load_plugins_from_yaml(const char* filename)
             {
                 llog(LOG_ERROR, 3, "Failed to start plugin \"", (*pluginp)->info.name, "\", unloading...");
                 plugin_unload(*pluginp);
+				success = 0;
             }
         }
     }
@@ -291,7 +293,7 @@ load_plugins_from_yaml(const char* filename)
     /* clean up */
     yaml_destroy(doc_ID);
     unordered_vector_clear_free(&new_plugins);
-    return 1;
+    return success;
 }
 
 void
