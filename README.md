@@ -3,8 +3,6 @@ lightship
 A cross-platform multi-player 3D arcade game implemented entirely in plain C 
 and OpenGL.
 
-
-
 Features
 --------
 + Plugin API allowing high modability of the game.
