@@ -3,6 +3,7 @@
 #include "plugin_renderer_gl/input.h"
 #include "plugin_renderer_gl/2d.h"
 #include "util/linked_list.h"
+#include "util/log.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
