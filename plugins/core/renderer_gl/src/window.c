@@ -35,14 +35,14 @@ window_init(void)
     glfw_window = glfwCreateWindow(g_window.width, g_window.height, "Light Ship", NULL, NULL);
     if(glfw_window == NULL)
     {
-        fprintf(stderr, "Error: Failed to open glfw window. If you have an Intel GPU, they are not 3.3 compatible.\n");
+        llog(LOG_ERROR, 1, "Failed to open glfw window. If you have an Intel GPU, they are not 3.3 compatible.");
         return 0;
     }
     glfwMakeContextCurrent(glfw_window); /* initialise GLEW */
     glewExperimental = 1; /* needed in core profile */
     if(glewInit() != GLEW_OK)
     {
-        fprintf(stderr, "Failed to initialise GLEW\n");
+        llog(LOG_ERROR, 1, "Failed to initialise GLEW\n");
         return 0;
     }
     glClearColor(0.0, 0.0, 0.4, 0.0);
