@@ -7,6 +7,7 @@
 mkdir build && cd build
 cmake -DCMAKE_BUILD_TYPE=Release \
 	-DBUILD_HOST="game.pixelcloud.ch" \
+	-DMAKE_ARGS=-j9 \
 	-DCROSS_COMPILE_x86_64-pc-mingw32=ON \
 	-Dx86_64-pc-mingw32_INSTALL_PREFIX=$(pwd)/../dist/x86_64-pc-mingw32 \
 	-DCMAKE_INSTALL_PREFIX=$(pwd)/../dist/x86_64-pc-linux-gnu \
