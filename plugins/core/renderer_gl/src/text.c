@@ -50,13 +50,13 @@ char text_init(void)
     }
     FREE(ttf_filename);
     
-    /* set default size 9 */
+    /* set default size 9 *
     error = FT_Set_Char_Size(&g_face, 0, 9*64, 300, 300);
     if(error)
     {
         llog(LOG_ERROR, 1, "Failed to set the character size to 9");
         return 0;
-    }
+    }*/
     
     
 

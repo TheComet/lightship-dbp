@@ -30,6 +30,11 @@ endif ()
 
 option (LOG_ENABLE_TIMESTAMPS "Whether or not to prefix log messages with timestamps" ON)
 
+# disable backtraces on Windows, as those aren't implemented yet
+if (WIN32)
+    set (MEMORY_ENABLE_BACKTRACE 0)
+endif ()
+
 configure_file ("include/util/config.h.in"
                 "include/util/config.h")
 execute_process (COMMAND cmake -E copy
