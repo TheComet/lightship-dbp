@@ -1,7 +1,7 @@
 #include "util/hash.h"
 
 uint32_t
-hash_jenkins_oaat(const char* key, intptr_t len)
+hash_jenkins_oaat(const char* key, uint32_t len)
 {
     uint32_t hash, i;
     for(hash = i = 0; i != len; ++i)
