@@ -5,8 +5,9 @@
 
 # build everything
 mkdir build && cd build
-cmake -DCMAKE_BUILD_TYPE=Release \
+cmake -DCMAKE_BUILD_TYPE=Debug \
 	-DCROSS_COMPILE_i486-pc-mingw32=ON \
+	-DMAKE_ARGS=-j5 \
 	-Di486-pc-mingw32_INSTALL_PREFIX=$(pwd)/../dist/i486-pc-mingw32 \
 	-DCROSS_COMPILE_x86_64-pc-mingw32=ON \
 	-Dx86_64-pc-mingw32_INSTALL_PREFIX=$(pwd)/../dist/x86_64-pc-mingw32 \
