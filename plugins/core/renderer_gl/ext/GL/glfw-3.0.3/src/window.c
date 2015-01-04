@@ -31,7 +31,7 @@
 #include <string.h>
 #include <stdlib.h>
 #if defined(_MSC_VER)
- #include <util/memoryh>
+#include "util/memory.h"
 #endif
 
 
