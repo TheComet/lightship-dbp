@@ -1,4 +1,5 @@
 #include <GL/glew.h>
+#include "util/memory.h"
 
 #if defined(_WIN32)
 #  include <GL/wglew.h>
@@ -106,7 +107,7 @@ void* NSGLGetProcAddress (const GLubyte *name)
 #endif
   }
   /* prepend a '_' for the Unix C symbol mangling convention */
-  symbolName = malloc(strlen((const char*)name) + 2);
+  symbolName = MALLOC(strlen((const char*)name) + 2);
   strcpy(symbolName+1, (const char*)name);
   symbolName[0] = '_';
   symbol = NULL;

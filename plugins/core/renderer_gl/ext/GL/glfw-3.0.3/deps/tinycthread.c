@@ -348,7 +348,7 @@ static void * _thrd_wrapper_function(void * aArg)
 #if defined(_TTHREAD_WIN32_)
   return res;
 #else
-  pres = malloc(sizeof(int));
+  pres = MALLOC(sizeof(int));
   if (pres != NULL)
   {
     *(int*)pres = res;
@@ -361,7 +361,7 @@ int thrd_create(thrd_t *thr, thrd_start_t func, void *arg)
 {
   /* Fill out the thread startup information (passed to the thread wrapper,
      which will eventually free it) */
-  _thread_start_info* ti = (_thread_start_info*)malloc(sizeof(_thread_start_info));
+  _thread_start_info* ti = (_thread_start_info*)MALLOC(sizeof(_thread_start_info));
   if (ti == NULL)
   {
     return thrd_nomem;
@@ -419,7 +419,7 @@ void thrd_exit(int res)
 #if defined(_TTHREAD_WIN32_)
   ExitThread(res);
 #else
-  void *pres = malloc(sizeof(int));
+  void *pres = MALLOC(sizeof(int));
   if (pres != NULL)
   {
     *(int*)pres = res;
