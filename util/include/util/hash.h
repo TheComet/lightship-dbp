@@ -7,4 +7,4 @@
  * @return Returns a 32-bit hash of the string.
  */
 uint32_t
-hash_jenkins_oaat(const char* key, intptr_t len);
+hash_jenkins_oaat(const char* key, uint32_t len);

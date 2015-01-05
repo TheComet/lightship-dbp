@@ -202,7 +202,7 @@ static char* read_file_content(const char* filename)
         size = fseek(fd, 0, SEEK_END);
         (void) fseek(fd, 0, SEEK_SET);
 
-        result = malloc(size + 1);
+        result = MALLOC(size + 1);
         result[size] = '\0';
         if (fread(result, size, 1, fd) != 1)
         {

@@ -30,7 +30,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <limits.h>
-#include <malloc.h>
+#include <util/memory.h>
 
 // These constants are missing on MinGW
 #ifndef EDS_ROTATEDMODE

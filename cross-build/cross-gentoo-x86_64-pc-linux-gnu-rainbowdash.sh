@@ -9,7 +9,7 @@ LINUX64=lightship-$1-$2-x86_64-pc-linux-gnu
 
 # build everything
 mkdir build && cd build
-cmake -DCMAKE_BUILD_TYPE=Release \
+cmake -DCMAKE_BUILD_TYPE=Debug \
 	-DCROSS_COMPILE_i486-pc-mingw32=ON \
 	-DMAKE_ARGS=-j5 \
 	-Di486-pc-mingw32_INSTALL_PREFIX=$(pwd)/../dist/$WIN32 \
