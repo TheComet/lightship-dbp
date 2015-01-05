@@ -32,7 +32,7 @@
 #include <limits.h>
 
 #if defined(_MSC_VER)
- #include <malloc.h>
+ #include <util/memory.h>
  #define strdup _strdup
 #endif
 

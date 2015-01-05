@@ -88,7 +88,9 @@ free_debug(void* ptr)
 void
 memory_deinit(void)
 {
+#ifdef MEMORY_ENABLE_BACKTRACE
     intptr_t i;
+#endif
     --allocations; /* this is the single allocation still held by the report vector */
     printf("=========================================\n");
     printf("Memory Report\n");

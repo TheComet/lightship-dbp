@@ -28,7 +28,7 @@
 #include "internal.h"
 
 #include <stdlib.h>
-#include <malloc.h>
+#include <util/memory.h>
 #include <windowsx.h>
 
 #define _GLFW_KEY_INVALID -2

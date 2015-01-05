@@ -60,7 +60,10 @@ PLUGIN_START()
     
     /* init graphics */
     init_2d();
-    text_init();
+    if(!text_init())
+        return PLUGIN_FAILURE;
+    /*if(!text_load_font("ttf/DejaVuSans.ttf"))
+        return PLUGIN_FAILURE;*/
 
     register_event_listeners(g_plugin);
 
