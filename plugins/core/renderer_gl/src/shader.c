@@ -3,6 +3,7 @@
 #include "util/log.h"
 #include "util/string.h"
 #include <stdio.h>
+#include <string.h>
 
 #include "GL/glew.h"
 
@@ -18,8 +19,6 @@ void check_shader(GLuint shader_ID)
     glGetShaderInfoLog(shader_ID, info_log_length, NULL, message);
     if(result == GL_FALSE)
         llog(LOG_ERROR, 1, message);
-    else
-        llog(LOG_INFO, 1, message);
     FREE(message);
 }
 
@@ -64,8 +63,6 @@ void check_program(GLuint program_ID)
     glGetProgramInfoLog(program_ID, info_log_length, NULL, message);
     if(result == GL_FALSE)
         llog(LOG_ERROR, 1, message);
-    else
-        llog(LOG_INFO, 1, message);
     FREE(message);
 }
 

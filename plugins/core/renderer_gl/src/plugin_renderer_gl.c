@@ -8,12 +8,16 @@
 #include "plugin_renderer_gl/services.h"
 #include "plugin_renderer_gl/2d.h"
 #include "plugin_renderer_gl/text.h"
-
 #include "glfw3.h"
-
 #include <stdio.h>
 
-struct plugin_t* g_plugin = NULL;
+static struct plugin_t* g_plugin = NULL;
+static struct font_t* g_font = NULL;
+static const wchar_t* g_default_characters =
+L"abcdefghijklmnopqrstuvwxyz"
+L"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+L"1234567890"
+L" +-*/!?'^\"$%&()[]{}#@~";
 
 void
 set_plugin_info(void)
@@ -62,8 +66,9 @@ PLUGIN_START()
     init_2d();
     if(!text_init())
         return PLUGIN_FAILURE;
-    /*if(!text_load_font("ttf/DejaVuSans.ttf"))
-        return PLUGIN_FAILURE;*/
+    if(!(g_font = text_load_font("ttf/DejaVuSans.ttf")))
+        return PLUGIN_FAILURE;
+    text_load_characters(g_font, g_default_characters);
 
     register_event_listeners(g_plugin);
 
