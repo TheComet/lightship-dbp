@@ -2,7 +2,7 @@ option (CROSS_COMPILE_i486-pc-mingw32 "cross compile for windows i486" OFF)
 option (CROSS_COMPILE_i586-pc-mingw32 "cross compile for windows i586" OFF)
 option (CROSS_COMPILE_x86_64-pc-mingw32 "cross compile for windows x86_64" OFF)
 set (BUILD_HOST "rainbowdash" CACHE STRING "The name of the computer doing the building")
-set (MAKE_ARGS "-j5" CACHE STRING "Arguments to pass to make")
+set (MAKE_ARGS -j5 CACHE STRING "Arguments to pass to make")
 
 file (WRITE "toolchains/.gitignore" "*")
 
