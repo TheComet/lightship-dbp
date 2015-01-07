@@ -5,9 +5,9 @@
 #include "GL/glew.h"
 #include "glfw3.h"
 
-GLuint g_line_shader_id;
-struct shapes_t* g_current_shapes = NULL;
-struct unordered_vector_t g_shapes_collection;
+static GLuint g_line_shader_id;
+static struct shapes_t* g_current_shapes = NULL;
+static struct unordered_vector_t g_shapes_collection;
 
 static uint32_t guid_counter = 1;
 
@@ -25,9 +25,8 @@ shapes_get(uint32_t ID)
 void
 init_2d(void)
 {
-    /* load shaders */
     g_line_shader_id = load_shader("fx/line_2d");
-    
+
     unordered_vector_init_vector(&g_shapes_collection, sizeof(struct shapes_t));
 }
 
@@ -38,7 +37,7 @@ deinit_2d(void)
     {
         glDeleteBuffers(1, &shapes->vbo);
         glDeleteBuffers(1, &shapes->vio);
-        glDeleteBuffers(1, &shapes->vao);
+        glDeleteVertexArrays(1, &shapes->vao);
         unordered_vector_clear_free(&shapes->vertex_data);
         unordered_vector_clear_free(&shapes->index_data);
     }
@@ -98,6 +97,7 @@ shapes_2d_end(void)
                                   GL_FALSE,               /* normalise? */
                                   sizeof(struct vertex_2d_t),
                                   (void*)offsetof(struct vertex_2d_t, diffuse));
+
         /* generate VBO for index data */
         glGenBuffers(1, &g_current_shapes->vio);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_current_shapes->vio);
@@ -106,8 +106,6 @@ shapes_2d_end(void)
                         g_current_shapes->index_data.count * sizeof(INDEX_DATA_TYPE),
                         g_current_shapes->index_data.data,
                         GL_STATIC_DRAW);
-        /* use shader for 2D shapes */
-        glUseProgram(g_line_shader_id);
     glBindVertexArray(0);
     
     g_current_shapes = NULL;
@@ -124,7 +122,7 @@ shapes_2d_destroy(uint32_t ID)
         {
             glDeleteBuffers(1, &shapes->vbo);
             glDeleteBuffers(1, &shapes->vio);
-            glDeleteBuffers(1, &shapes->vao);
+            glDeleteVertexArrays(1, &shapes->vao);
             unordered_vector_clear_free(&shapes->vertex_data);
             unordered_vector_clear_free(&shapes->index_data);
             unordered_vector_erase_element(&g_shapes_collection, shapes);
@@ -197,7 +195,7 @@ shapes_show(uint32_t ID)
 void
 draw_2d(void)
 {
-
+    glUseProgram(g_line_shader_id);
     UNORDERED_VECTOR_FOR_EACH(&g_shapes_collection, struct shapes_t, shapes)
     {
         if(!shapes->visible)

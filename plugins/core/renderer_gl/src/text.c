@@ -54,7 +54,6 @@ char text_init(void)
         return 0;
     }
     
-    /* load shader for text */
     g_text_shader_id = load_shader("fx/text_2d");
     
     /* init global vector for storing all loaded fonts */
@@ -123,11 +122,6 @@ struct font_t* text_load_font(const char* filename)
             llog(LOG_ERROR, 1, "Failed to set the character size to 9");
             break;
         }
-
-        /*
-         * If the program reaches this point, it means loading the font was
-         * successful.
-         */
         
         /* generate VAO, VBO, VIO, and Texture buffer */
         glGenVertexArrays(1, &font->gl.vao);
@@ -135,36 +129,40 @@ struct font_t* text_load_font(const char* filename)
             glGenBuffers(1, &font->gl.vbo);
             glBindBuffer(GL_ARRAY_BUFFER, font->gl.vbo);
                 glBufferData(GL_ARRAY_BUFFER, 4*sizeof(struct text_vertex_t), vertices, GL_STATIC_DRAW);
-                glEnableVertexAttribArray(0);
-                glVertexAttribPointer(0,
-                                      2,
-                                      GL_FLOAT,
-                                      GL_FALSE,
-                                      sizeof(struct text_vertex_t),
-                                      (void*)offsetof(struct text_vertex_t, position));
-                glEnableVertexAttribArray(1);
-                glVertexAttribPointer(1,
-                                      2,
-                                      GL_FLOAT,
-                                      GL_FALSE,
-                                      sizeof(struct text_vertex_t),
-                                      (void*)offsetof(struct text_vertex_t, tex_coord));
-                glEnableVertexAttribArray(2);
-                glVertexAttribPointer(2,
-                                      4,
-                                      GL_FLOAT,
-                                      GL_FALSE,
-                                      sizeof(struct text_vertex_t),
-                                      (void*)offsetof(struct text_vertex_t, diffuse));
+                    glEnableVertexAttribArray(0);
+                    glVertexAttribPointer(0,                /* attribute 0 */
+                                          2,                /* size, position[2] */
+                                          GL_FLOAT,         /* type */
+                                          GL_FALSE,         /* normalise? */
+                                          sizeof(struct text_vertex_t),
+                                          (void*)offsetof(struct text_vertex_t, position));
+                    glEnableVertexAttribArray(1);
+                    glVertexAttribPointer(1,                /* attribute 1 */
+                                          2,                /* size, tex_coord[2] */
+                                          GL_FLOAT,         /* type */
+                                          GL_FALSE,         /* normalise? */
+                                          sizeof(struct text_vertex_t),
+                                          (void*)offsetof(struct text_vertex_t, tex_coord));
+                    glEnableVertexAttribArray(2);
+                    glVertexAttribPointer(2,                /* attribute 2 */
+                                          4,                /* size, diffuse[4] */
+                                          GL_FLOAT,         /* type */
+                                          GL_FALSE,         /* normalise? */
+                                          sizeof(struct text_vertex_t),
+                                          (void*)offsetof(struct text_vertex_t, diffuse));
             glGenBuffers(1, &font->gl.vio);
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, font->gl.vio);
                 glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6*sizeof(GLushort), indices, GL_STATIC_DRAW);
-            /*glGenTextures(1, &font->gl.tex);
+            glGenTextures(1, &font->gl.tex);
             glBindTexture(GL_TEXTURE_2D, font->gl.tex);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);*/
-            glUseProgram(g_text_shader_id);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glBindVertexArray(0);
         
+        /*
+         * If the program reaches this point, it means loading the font was
+         * successful.
+         */
+
         /* clean up and return */
         FREE(ttf_filename);
         return font;
@@ -322,10 +320,13 @@ void text_load_atlass(struct font_t* font, const wchar_t* characters)
 
 void text_draw(void)
 {
-    UNORDERED_VECTOR_FOR_EACH(&g_fonts, struct font_t, font)
+    glUseProgram(g_text_shader_id);
     {
-        glBindVertexArray(font->gl.vao);
+        UNORDERED_VECTOR_FOR_EACH(&g_fonts, struct font_t, font)
+        {
+            glBindVertexArray(font->gl.vao);
             glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, NULL);
+        }
     }
     glBindVertexArray(0);
 }
