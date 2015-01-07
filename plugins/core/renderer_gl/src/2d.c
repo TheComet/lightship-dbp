@@ -42,6 +42,8 @@ deinit_2d(void)
         unordered_vector_clear_free(&shapes->vertex_data);
         unordered_vector_clear_free(&shapes->index_data);
     }
+    
+    glDeleteProgram(g_line_shader_id);
     unordered_vector_clear_free(&g_shapes_collection);
 }
 
@@ -201,7 +203,7 @@ draw_2d(void)
         if(!shapes->visible)
             continue;
         glBindVertexArray(shapes->vao);
-        glDrawElements(GL_LINES, shapes->index_data.count, GL_UNSIGNED_SHORT, NULL);
+            glDrawElements(GL_LINES, shapes->index_data.count, GL_UNSIGNED_SHORT, NULL);
     }
     glBindVertexArray(0);
 }

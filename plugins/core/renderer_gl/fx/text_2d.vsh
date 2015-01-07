@@ -1,22 +1,27 @@
 #version 330 core
 
 // ----------------------------------------------------------------------------
-// vertex input data
+// map vertex attributes
 // ----------------------------------------------------------------------------
 
-in vec3 line_colour;
+layout (location = 0) in vec2 vertexPosition_modelSpace;
+layout (location = 1) in vec2 texCoord_vertex;
+layout (location = 2) in vec4 colourDiffuse_vertex;
 
 // ----------------------------------------------------------------------------
-// output data
+// fragment output data
 // ----------------------------------------------------------------------------
 
-out vec3 colour;
+out vec2 texCoord_fragment;
+out vec4 colourDiffuse_fragment;
 
 // ----------------------------------------------------------------------------
-// fragment shader main
+// vertex shader main
 // ----------------------------------------------------------------------------
 
 void main()
 {
-    colour = line_colour;
+    texCoord_fragment = texCoord_vertex;
+    colourDiffuse_fragment = colourDiffuse_vertex;
+    gl_Position = vec4(vertexPosition_modelSpace, 0.0, 1.0);
 }
