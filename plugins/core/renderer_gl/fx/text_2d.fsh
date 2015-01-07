@@ -4,7 +4,8 @@
 // vertex input data
 // ----------------------------------------------------------------------------
 
-in vec3 line_colour;
+in vec2 texCoord_fragment;
+in vec4 colourDiffuse_fragment;
 
 // ----------------------------------------------------------------------------
 // output data
@@ -13,10 +14,16 @@ in vec3 line_colour;
 out vec3 colour;
 
 // ----------------------------------------------------------------------------
+// samplers
+// ----------------------------------------------------------------------------
+
+uniform sampler2D glyphSampler;
+
+// ----------------------------------------------------------------------------
 // fragment shader main
 // ----------------------------------------------------------------------------
 
 void main()
 {
-    colour = line_colour;
+    colour = texture(glyphSampler, texCoord_fragment).rgb;
 }
