@@ -119,25 +119,11 @@ struct font_t* text_load_font(const char* filename)
             break;
         }
         
-        static struct text_vertex_t vertices[4] = {
-            {{-1,-1}, {0,0}, {1,1,1,1}},
-            {{-1, 1}, {0,1}, {1,1,1,1}},
-            {{ 1,-1}, {1,0}, {1,1,1,1}},
-            {{ 1, 1}, {1,1}, {1,1,1,1}}
-        };
-        
-        static GLushort indices[6] = {
-            0, 3, 1,
-            0, 2, 3
-        };
-        
         /* generate VAO, VBO, VIO, and Texture buffer */
-        printOpenGLError();
         glGenVertexArrays(1, &font->gl.vao);
         glBindVertexArray(font->gl.vao);
             glGenBuffers(1, &font->gl.vbo);
             glBindBuffer(GL_ARRAY_BUFFER, font->gl.vbo);
-                glBufferData(GL_ARRAY_BUFFER, 4*sizeof(struct text_vertex_t), vertices, GL_STATIC_DRAW);
                 glEnableVertexAttribArray(0);
                 glVertexAttribPointer(0,                /* attribute 0 */
                                       2,                /* size, position[2] */
@@ -161,11 +147,10 @@ struct font_t* text_load_font(const char* filename)
                                       (void*)offsetof(struct text_vertex_t, diffuse));
             glGenBuffers(1, &font->gl.vio);
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, font->gl.vio);
-                glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6*sizeof(GLushort), indices, GL_STATIC_DRAW);
-            glGenTextures(1, &font->gl.tex);printOpenGLError();
-            glBindTexture(GL_TEXTURE_2D, font->gl.tex);printOpenGLError();
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);printOpenGLError();
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);printOpenGLError();
+            glGenTextures(1, &font->gl.tex);
+            glBindTexture(GL_TEXTURE_2D, font->gl.tex);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glBindVertexArray(0);
         
         /*
@@ -232,18 +217,28 @@ void text_load_atlass(struct font_t* font, const wchar_t* characters)
     const wchar_t* iterator;
     FT_Error error;
     unsigned int pen;
-    unsigned int tex_width, tex_height;
+    unsigned int tex_width, tex_height, glyph_offset_y;
     GLuint* buffer = NULL;
     
     /*
-     * First, find the glyph with the maximum height and accumulate all advance
-     * spacings. This determines the dimensions of the atlass.
+     * First, we need to:
+     *   + find the glyph with the maximum height.
+     *   + find the glyph with the maximum vertical Y bearing.
+     *   + accumulate all advance spacings.
+     * This will be used to determine the dimensions of the atlass as well as
+     * the correct Y offsets of each glyph when rendering to the atlass.
+     * 
      * Report any missing glyphs to the log.
      */
     tex_width = 0;
     tex_height = 0;
+    glyph_offset_y = 0;
     for(iterator = characters; *iterator; ++iterator)
     {
+        unsigned int height;
+        unsigned int offset;
+        unsigned int min_advance;
+
         error = FT_Load_Char(font->face, *iterator, FT_LOAD_RENDER);
         if(error)
         {
@@ -254,14 +249,24 @@ void text_load_atlass(struct font_t* font, const wchar_t* characters)
             continue;
         }
         
-        if(tex_height < font->face->glyph->bitmap.rows)
-            tex_height = font->face->glyph->bitmap.rows;
-        tex_width += TO_PIXELS(font->face->glyph->advance.x);
+        /* offset */
+        offset = TO_PIXELS(font->face->glyph->metrics.horiBearingY);
+        if(glyph_offset_y < offset)
+            glyph_offset_y = offset;
+        
+        /* width */
+        min_advance = 2;
+        tex_width += TO_PIXELS(font->face->glyph->advance.x) + min_advance;
+        
+        /* height */
+        height = font->face->glyph->bitmap.rows;
+        if(tex_height < height)
+            tex_height = height;
     }
 
     /*
      * With the maximum width and height determined, calculate the width and
-     * height of the target texture atlass.
+     * height of the target texture atlass and allocate memory for it.
      */
     tex_width = to_nearest_pow2(tex_width);
     tex_height = to_nearest_pow2(tex_height);
@@ -274,28 +279,30 @@ void text_load_atlass(struct font_t* font, const wchar_t* characters)
     pen = 0;
     for(iterator = characters; *iterator; ++iterator)
     {
+        GLubyte* bmp_ptr;
+        unsigned int bmp_width, bmp_height, x, y;
 
         /* load rendered character, ignore any errors as they were already reported earlier */
         error = FT_Load_Char(font->face, *iterator, FT_LOAD_RENDER);
         if(error)
             continue;
         
+        bmp_ptr = (GLubyte*)font->face->glyph->bitmap.buffer;
+        bmp_width = font->face->glyph->bitmap.width;
+        bmp_height = font->face->glyph->bitmap.rows;
+        
         /* need to convert whatever pixel mode bitmap has to RGBA */
         switch(font->face->glyph->bitmap.pixel_mode)
         {
-            GLubyte* bmp_ptr;
-            unsigned int bmp_width, bmp_height, x, y;
-    
             /* 8-bit pixel modes */
             case FT_PIXEL_MODE_GRAY:
             case FT_PIXEL_MODE_LCD:
             case FT_PIXEL_MODE_LCD_V:
-                bmp_ptr = (GLubyte*)font->face->glyph->bitmap.buffer;
-                bmp_width = font->face->glyph->bitmap.width;
-                bmp_height = font->face->glyph->bitmap.rows;
                 for(y = 0; y != bmp_height; ++y)
                 {
-                    GLuint* buffer_ptr = buffer + y*tex_width + pen;
+                    unsigned int offset_y = y+glyph_offset_y-TO_PIXELS(font->face->glyph->metrics.horiBearingY);
+                    GLuint* buffer_ptr = buffer + offset_y * tex_width + pen;
+
                     for(x = 0; x != bmp_width; ++x)
                     {
                         /* convert single byte to RGBA, set A to 0xFF */
@@ -314,9 +321,12 @@ void text_load_atlass(struct font_t* font, const wchar_t* characters)
                 break;
         }
 
-        pen += TO_PIXELS(font->face->glyph->advance.x);
+        pen += TO_PIXELS(font->face->glyph->advance.x) + 2;
     }
     
+    /*
+     * Hand atlass to OpenGL and clean up.
+     */
     glBindVertexArray(font->gl.vao);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tex_width, tex_height, 0, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, buffer);
     glBindVertexArray(0);
@@ -325,13 +335,16 @@ void text_load_atlass(struct font_t* font, const wchar_t* characters)
 
 void text_draw(void)
 {
+    /*glEnable(GL_BLEND);*/
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glUseProgram(g_text_shader_id);
     {
         UNORDERED_VECTOR_FOR_EACH(&g_fonts, struct font_t, font)
         {
-            glBindVertexArray(font->gl.vao);printOpenGLError();
-                glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, NULL);
+            glBindVertexArray(font->gl.vao);
+                /* TODO draw VBO */
         }
     }
+    glDisable(GL_BLEND);
     glBindVertexArray(0);
 }
