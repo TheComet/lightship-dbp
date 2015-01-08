@@ -7,6 +7,7 @@
 #include "glfw3.h"
 #include <wchar.h>
 #include <math.h>
+#include FT_BITMAP_H
 
 static FT_Library g_lib;
 static struct unordered_vector_t g_fonts;
@@ -40,6 +41,13 @@ int printOglError(char *file, int line)
         retCode = 1;
     }
     return retCode;
+}
+
+static GLuint to_nearest_pow2(GLuint value)
+{
+    GLuint nearest = 2;
+    while((nearest <<= 1) < value);
+    return nearest;
 }
 
 char text_init(void)
@@ -156,8 +164,8 @@ struct font_t* text_load_font(const char* filename)
                 glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6*sizeof(GLushort), indices, GL_STATIC_DRAW);
             glGenTextures(1, &font->gl.tex);printOpenGLError();
             glBindTexture(GL_TEXTURE_2D, font->gl.tex);printOpenGLError();
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);printOpenGLError();
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);printOpenGLError();
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);printOpenGLError();
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);printOpenGLError();
         glBindVertexArray(0);
         
         /*
@@ -223,21 +231,20 @@ void text_load_atlass(struct font_t* font, const wchar_t* characters)
 {
     const wchar_t* iterator;
     FT_Error error;
-    unsigned int num_characters_sqrt;
-    unsigned int tex_size;
-    unsigned int max_glyph_size = 0;
+    unsigned int pen;
+    unsigned int tex_width, tex_height;
+    GLubyte* buffer = NULL;
     
     /*
-     * First, find the glyph with the maximum width and the glyph with the
-     * maximum height. This determines the horizontal spacing of the glyphs
-     * on the atlass.
+     * First, find the glyph with the maximum height and accumulate all advance
+     * spacings. This determines the dimensions of the atlass.
      * Report any missing glyphs to the log.
      */
+    tex_width = 0;
+    tex_height = 0;
     for(iterator = characters; *iterator; ++iterator)
     {
-        error = FT_Load_Glyph(font->face,
-                              FT_Get_Char_Index(font->face, *iterator),
-                              FT_LOAD_NO_BITMAP);
+        error = FT_Load_Char(font->face, *iterator, FT_LOAD_RENDER);
         if(error)
         {
             char* buffer[sizeof(wchar_t)+1];
@@ -247,79 +254,43 @@ void text_load_atlass(struct font_t* font, const wchar_t* characters)
             continue;
         }
         
-        if(font->face->glyph->metrics.width > max_glyph_size)
-            max_glyph_size = font->face->glyph->metrics.width;
-        if(font->face->glyph->metrics.height > max_glyph_size)
-            max_glyph_size = font->face->glyph->metrics.height;
+        if(tex_height < font->face->glyph->bitmap.rows)
+            tex_height = font->face->glyph->bitmap.rows;
+        tex_width += TO_PIXELS(font->face->glyph->advance.x);
     }
-    
-    max_glyph_size = TO_PIXELS(max_glyph_size);
+
+    /*
+     * With the maximum width and height determined, calculate the width and
+     * height of the target texture atlass.
+     */
+    tex_width = to_nearest_pow2(tex_width);
+    tex_height = to_nearest_pow2(tex_height);
     
     /*
-     * With the maximum width determined, calculate the width and height of the
-     * target texture, then generate it.
+     * Render glyphs onto atlass
      */
-    num_characters_sqrt = (unsigned int)ceil(sqrt((double)wcslen(characters)));
-    tex_size = 32;
-    while(num_characters_sqrt * max_glyph_size < tex_size)
-        tex_size <<= 1;
+    pen = 0;
     glBindVertexArray(font->gl.vao);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tex_width, tex_height, 0, GL_RED, GL_UNSIGNED_BYTE, NULL);
+    for(iterator = characters; *iterator; ++iterator)
     {
-        unsigned int current_x = 0;
-        unsigned int current_y = 0;
-        char* buffer = NULL;
 
-        buffer = (unsigned char*)malloc(3 * tex_size * tex_size * sizeof(char*));
-        memset(buffer, 255, 3 * tex_size * tex_size * sizeof(char*));
-        glBindTexture(GL_TEXTURE_2D, font->gl.tex);
-        glTexImage2D(GL_TEXTURE_2D,
-                     0,
-                     GL_RGBA,
-                     tex_size,
-                     tex_size,
-                     0,
-                     GL_BGR,
-                     GL_UNSIGNED_BYTE,
-                     buffer);printOpenGLError();
-        free(buffer);
+        /* load rendered character, ignore errors and continue as they were already reported earlier */
+        error = FT_Load_Char(font->face, *iterator, FT_LOAD_RENDER);
+        if(error)
+            continue;
 
-        /* copy all glyphs into texture */
-        for(iterator = characters; *iterator; ++iterator)
+        FT_Bitmap_Convert(g_lib, &font->face->glyph->bitmap, &font->face->glyph->bitmap, 1);
+        
+        if(font->face->glyph->bitmap.pixel_mode == FT_PIXEL_MODE_GRAY)
         {
-            /* 
-             * Load glyph into slot, ignore errors as they were already
-             * reported in the first pass
-             */
-            error = FT_Load_Glyph(font->face,
-                              FT_Get_Char_Index(font->face, *iterator),
-                              FT_LOAD_DEFAULT);
-            if(error)
-                continue;
-            
-            /* if no bitmap was loaded, do so now */
-            if(font->face->glyph->format != FT_GLYPH_FORMAT_BITMAP)
-            {
-                error = FT_Render_Glyph(font->face->glyph, FT_RENDER_MODE_NORMAL);
-                if(error)
-                {
-                    char* buffer[sizeof(wchar_t)+1];
-                    memcpy(buffer, iterator, sizeof(wchar_t));
-                    buffer[sizeof(wchar_t)] = '\0';
-                    llog(LOG_ERROR, 3, "Failed to render glyph \"", buffer, "\"");
-                    continue;
-                }
-            }
-            
-            /* copy into openGL texture */
-            glTexSubImage2D(GL_TEXTURE_2D,
-                            0,
-                            current_x,
-                            current_y,
-                            font->face->glyph->bitmap.width,
-                            font->face->glyph->bitmap.rows,
-                            GL_BGRA,
-                            GL_UNSIGNED_BYTE,
-                            font->face->glyph->bitmap.buffer);printOpenGLError();
+        glTexSubImage2D(GL_TEXTURE_2D, 0,
+                        pen, 0,
+                        font->face->glyph->bitmap.width, font->face->glyph->bitmap.rows,
+                        GL_RED, GL_UNSIGNED_BYTE,
+                        font->face->glyph->bitmap.buffer);
+
+        pen += TO_PIXELS(font->face->glyph->advance.x)*2;
         }
     }
     glBindVertexArray(0);
@@ -332,7 +303,6 @@ void text_draw(void)
         UNORDERED_VECTOR_FOR_EACH(&g_fonts, struct font_t, font)
         {
             glBindVertexArray(font->gl.vao);printOpenGLError();
-                glBindTexture(GL_TEXTURE_2D, font->gl.tex);printOpenGLError();
                 glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, NULL);
         }
     }
