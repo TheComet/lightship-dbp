@@ -233,7 +233,7 @@ void text_load_atlass(struct font_t* font, const wchar_t* characters)
     FT_Error error;
     unsigned int pen;
     unsigned int tex_width, tex_height;
-    GLubyte* buffer = NULL;
+    GLuint* buffer = NULL;
     
     /*
      * First, find the glyph with the maximum height and accumulate all advance
@@ -265,35 +265,62 @@ void text_load_atlass(struct font_t* font, const wchar_t* characters)
      */
     tex_width = to_nearest_pow2(tex_width);
     tex_height = to_nearest_pow2(tex_height);
+    buffer = (GLuint*)MALLOC(tex_width * tex_height * sizeof(GLuint));
+    memset(buffer, 0xFFFFFF00, tex_width * tex_height * sizeof(GLuint));
     
     /*
      * Render glyphs onto atlass
      */
     pen = 0;
-    glBindVertexArray(font->gl.vao);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tex_width, tex_height, 0, GL_RED, GL_UNSIGNED_BYTE, NULL);
     for(iterator = characters; *iterator; ++iterator)
     {
 
-        /* load rendered character, ignore errors and continue as they were already reported earlier */
+        /* load rendered character, ignore any errors as they were already reported earlier */
         error = FT_Load_Char(font->face, *iterator, FT_LOAD_RENDER);
         if(error)
             continue;
-
-        FT_Bitmap_Convert(g_lib, &font->face->glyph->bitmap, &font->face->glyph->bitmap, 1);
         
-        if(font->face->glyph->bitmap.pixel_mode == FT_PIXEL_MODE_GRAY)
+        /* need to convert whatever pixel mode bitmap has to RGBA */
+        switch(font->face->glyph->bitmap.pixel_mode)
         {
-        glTexSubImage2D(GL_TEXTURE_2D, 0,
-                        pen, 0,
-                        font->face->glyph->bitmap.width, font->face->glyph->bitmap.rows,
-                        GL_RED, GL_UNSIGNED_BYTE,
-                        font->face->glyph->bitmap.buffer);
-
-        pen += TO_PIXELS(font->face->glyph->advance.x)*2;
+            GLubyte* bmp_ptr;
+            unsigned int bmp_width, bmp_height, x, y;
+    
+            /* 8-bit pixel modes */
+            case FT_PIXEL_MODE_GRAY:
+            case FT_PIXEL_MODE_LCD:
+            case FT_PIXEL_MODE_LCD_V:
+                bmp_ptr = (GLubyte*)font->face->glyph->bitmap.buffer;
+                bmp_width = font->face->glyph->bitmap.width;
+                bmp_height = font->face->glyph->bitmap.rows;
+                for(y = 0; y != bmp_height; ++y)
+                {
+                    GLuint* buffer_ptr = buffer + y*tex_width + pen;
+                    for(x = 0; x != bmp_width; ++x)
+                    {
+                        /* convert single byte to RGBA, set A to 0xFF */
+                        GLuint target_colour = *bmp_ptr++;
+                        *buffer_ptr++ = (target_colour <<  8) |
+                                        (target_colour << 16) |
+                                        (target_colour << 24) |
+                                        0x000000FF;
+                    }
+                }
+                break;
+            
+            /* other pixel modes */
+            default:
+                llog(LOG_ERROR, 1, "Glyph bitmap has unsupported format (conversion to RGBA needs implementing)");
+                break;
         }
+
+        pen += TO_PIXELS(font->face->glyph->advance.x);
     }
+    
+    glBindVertexArray(font->gl.vao);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tex_width, tex_height, 0, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, buffer);
     glBindVertexArray(0);
+    FREE(buffer);
 }
 
 void text_draw(void)
