@@ -1,11 +1,11 @@
-#ifndef LIGHTSHIP_UTIL_UNORDERED_VECTOR_H
-#define LIGHTSHIP_UTIL_UNORDERED_VECTOR_H
+#ifndef LIGHTSHIP_UTIL_ORDERED_VECTOR_H
+#define LIGHTSHIP_UTIL_ORDERED_VECTOR_H
 
 #include "util/pstdint.h"
 #include "util/config.h"
 
 #define DATA_POINTER_TYPE unsigned char
-struct unordered_vector_t
+struct ordered_vector_t
 {
     intptr_t element_size;       /* how large one element is in bytes */
     intptr_t capacity;           /* how many elements actually fit into the allocated space */
@@ -19,8 +19,8 @@ struct unordered_vector_t
  * the vector to store. Typically one would pass sizeof(my_data_type).
  * @return Returns the newly created vector object.
  */
-LIGHTSHIP_PUBLIC_API struct unordered_vector_t*
-unordered_vector_create(const intptr_t element_size);
+LIGHTSHIP_PUBLIC_API struct ordered_vector_t*
+ordered_vector_create(const intptr_t element_size);
 
 /*!
  * @brief Initialises an existing vector object.
@@ -31,7 +31,7 @@ unordered_vector_create(const intptr_t element_size);
  * want the vector to store. Typically one would pass sizeof(my_data_type).
  */
 LIGHTSHIP_PUBLIC_API void
-unordered_vector_init_vector(struct unordered_vector_t* vector,
+ordered_vector_init_vector(struct ordered_vector_t* vector,
                              const intptr_t element_size);
 
 /*!
@@ -40,29 +40,29 @@ unordered_vector_init_vector(struct unordered_vector_t* vector,
  * @param[in] vector The vector to destroy.
  */
 LIGHTSHIP_PUBLIC_API void
-unordered_vector_destroy(struct unordered_vector_t* vector);
+ordered_vector_destroy(struct ordered_vector_t* vector);
 
 /*!
  * @brief Erases all elements in a vector.
  * @note This does not actually erase the underlying memory, it simply resets
  * the element counter. If you wish to FREE the underlying memory, see
- * unordered_vector_clear_FREE().
+ * ordered_vector_clear_FREE().
  * @param[in] vector The vector to clear.
  */
 LIGHTSHIP_PUBLIC_API void
-unordered_vector_clear(struct unordered_vector_t* vector);
+ordered_vector_clear(struct ordered_vector_t* vector);
 
 /*!
  * @brief Erases all elements in a vector and FREEs their memory.
  * @param[in] vector The vector to clear.
  */
 LIGHTSHIP_PUBLIC_API void
-unordered_vector_clear_free(struct unordered_vector_t* vector);
+ordered_vector_clear_free(struct ordered_vector_t* vector);
 
 /*!
  * @brief Gets the number of elements that have been inserted into the vector.
  */
-#define unordered_vector_count(x) ((x)->count)
+#define ordered_vector_count(x) ((x)->count)
 
 /*!
  * @brief Inserts (copies) a new element at the head of the vector.
@@ -70,14 +70,14 @@ unordered_vector_clear_free(struct unordered_vector_t* vector);
  * implementation expands the allocated memory by a factor of 2 every time a
  * re-allocation occurs to cut down on the frequency of re-allocations.
  * @note If you do not wish to copy data into the vector, but merely make
- * space, see unordered_vector_push_emplace().
+ * space, see ordered_vector_push_emplace().
  * @param[in] vector The vector to push into.
  * @param[in] data The data to copy into the vector. It is assumed that
  * sizeof(data) is equal to what was specified when the vector was first
  * created. If this is not the case then it could cause undefined behaviour.
  */
 LIGHTSHIP_PUBLIC_API void
-unordered_vector_push(struct unordered_vector_t* vector, void* data);
+ordered_vector_push(struct ordered_vector_t* vector, void* data);
 
 /*!
  * @brief Allocates space for a new element at the head of the vector, but does
@@ -91,7 +91,7 @@ unordered_vector_push(struct unordered_vector_t* vector, void* data);
  * warning and use with caution.
  */
 LIGHTSHIP_PUBLIC_API void*
-unordered_vector_push_emplace(struct unordered_vector_t* vector);
+ordered_vector_push_emplace(struct ordered_vector_t* vector);
 
 /*!
  * @brief Removes an element from the head of the vector.
@@ -104,17 +104,17 @@ unordered_vector_push_emplace(struct unordered_vector_t* vector);
  * If there are no elements to pop, NULL is returned.
  */
 LIGHTSHIP_PUBLIC_API void* 
-unordered_vector_pop(struct unordered_vector_t* vector);
+ordered_vector_pop(struct ordered_vector_t* vector);
 
 /*!
  * @brief Erases the specified element from the vector.
  * @note This causes all elements with indices greater than **index** to be
  * re-allocated (shifted 1 element down) so the vector remains contiguous.
  * @param[in] index The position of the element in the vector to erase. The index
- * ranges from **0** to **unordered_vector_count()-1**.
+ * ranges from **0** to **ordered_vector_count()-1**.
  */
 LIGHTSHIP_PUBLIC_API void
-unordered_vector_erase_index(struct unordered_vector_t* vector, intptr_t index);
+ordered_vector_erase_index(struct ordered_vector_t* vector, intptr_t index);
 
 /*!
  * @brief Removes the element in the vector pointed to by **element**.
@@ -122,8 +122,8 @@ unordered_vector_erase_index(struct unordered_vector_t* vector, intptr_t index);
  * @param[in] element A pointer to an element within the vector.
  */
 LIGHTSHIP_PUBLIC_API void
-unordered_vector_erase_element(struct unordered_vector_t* vector, 
-                               void* element);
+ordered_vector_erase_element(struct ordered_vector_t* vector,
+                             DATA_POINTER_TYPE* element);
 
 /*!
  * @brief Gets a pointer to the specified element in the vector.
@@ -133,20 +133,20 @@ unordered_vector_erase_element(struct unordered_vector_t* vector,
  * function.
  * @param[in] vector The vector to get the element from.
  * @param[in] index The index of the element to get. The index ranges from
- * **0** to **unordered_vector_count()-1**.
+ * **0** to **ordered_vector_count()-1**.
  * @return [in] A pointer to the element. See warning and use with caution.
  * If the specified element doesn't exist (index out of bounds), NULL is
  * returned.
  */
 LIGHTSHIP_PUBLIC_API void*
-unordered_vector_get_element(struct unordered_vector_t*, intptr_t index);
+ordered_vector_get_element(struct ordered_vector_t*, intptr_t index);
 
 /*!
  * @brief Convenient macro for iterating a vector's elements.
  * 
  * Example:
  * @code
- * unordered_vector_t* someVector = (a vector containing elements of type "struct bar")
+ * ordered_vector_t* someVector = (a vector containing elements of type "struct bar")
  * LIST_FOR_EACH(someList, struct bar, element)
  * {
  *     do_something_with(element);  ("element" is now of type "struct bar*")
@@ -164,4 +164,4 @@ unordered_vector_get_element(struct unordered_vector_t*, intptr_t index);
         (DATA_POINTER_TYPE*)var != end_of_vector; \
         var = (var_type*)(((DATA_POINTER_TYPE*)var) + (vector)->element_size))
 
-#endif /* LIGHTSHIP_UTIL_UNORDERED_VECTOR_H */
+#endif /* LIGHTSHIP_UTIL_ORDERED_VECTOR_H */

@@ -196,12 +196,14 @@ void
 draw_2d(void)
 {
     glUseProgram(g_line_shader_id);
-    UNORDERED_VECTOR_FOR_EACH(&g_shapes_collection, struct shapes_t, shapes)
     {
-        if(!shapes->visible)
-            continue;
-        glBindVertexArray(shapes->vao);
-            glDrawElements(GL_LINES, shapes->index_data.count, GL_UNSIGNED_SHORT, NULL);
+        UNORDERED_VECTOR_FOR_EACH(&g_shapes_collection, struct shapes_t, shapes)
+        {
+            if(!shapes->visible)
+                continue;
+            glBindVertexArray(shapes->vao);
+                glDrawElements(GL_LINES, shapes->index_data.count, GL_UNSIGNED_SHORT, NULL);
+        }
     }
     glBindVertexArray(0);
 }
