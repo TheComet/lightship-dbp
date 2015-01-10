@@ -106,6 +106,9 @@ ordered_vector_push_emplace(struct ordered_vector_t* vector);
 LIGHTSHIP_PUBLIC_API void* 
 ordered_vector_pop(struct ordered_vector_t* vector);
 
+void* ordered_vector_insert_emplace(struct ordered_vector_t* vector, intptr_t index);
+void ordered_vector_insert(struct ordered_vector_t* vector, intptr_t index, void* data);
+
 /*!
  * @brief Erases the specified element from the vector.
  * @note This causes all elements with indices greater than **index** to be
@@ -157,7 +160,7 @@ ordered_vector_get_element(struct ordered_vector_t*, intptr_t index);
  * @param[in] var The name of a temporary variable you'd like to use within the
  * for-loop to reference the current element.
  */
-#define UNORDERED_VECTOR_FOR_EACH(vector, var_type, var) \
+#define ORDERED_VECTOR_FOR_EACH(vector, var_type, var) \
     var_type* var; \
     DATA_POINTER_TYPE* end_of_vector = (vector)->data + (vector)->count * (vector)->element_size; \
     for(var = (var_type*)(vector)->data; \

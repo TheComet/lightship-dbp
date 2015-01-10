@@ -85,9 +85,11 @@ ordered_vector_pop(struct ordered_vector_t* vector)
     return vector->data + (vector->element_size * vector->count);
 }
 
-void ordered_vector_insert(struct ordered_vector_t* vector, intptr_t index, void* data)
+void*
+ordered_vector_insert_emplace(struct ordered_vector_t* vector, intptr_t index)
 {
     intptr_t offset;
+    void* data;
 
     /* 
      * Normally the last valid index is (capacity-1), but in this case it's valid
@@ -110,10 +112,15 @@ void ordered_vector_insert(struct ordered_vector_t* vector, intptr_t index, void
                 total_size - offset);
     }
 
-    /* copy new element into the specified index */
-    offset = vector->element_size * index;
-    memcpy(vector->data + offset, data, vector->element_size);
+    /* return pointer to memory of new element */
     ++vector->count;
+    return (void*)vector->data + index * vector->element_size;
+}
+
+void
+ordered_vector_insert(struct ordered_vector_t* vector, intptr_t index, void* data)
+{
+    memcpy(ordered_vector_insert_emplace(vector, index), data, vector->element_size);
 }
 
 void
