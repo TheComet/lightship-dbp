@@ -5,7 +5,7 @@
 
 /*!
  * @brief Expands the underlying memory.
- * 
+ *
  * This implementation will expand the memory by a factor of 2 each time this
  * is called. All elements are copied into the new section of memory.
  * @param [in] insertion_index Set to -1 if no space should be made for element
@@ -13,7 +13,7 @@
  * "evade" when re-allocating all other elements.
  */
 static void
-ordered_vector_expand(struct ordered_vector_t* vector, 
+ordered_vector_expand(struct ordered_vector_t* vector,
                         intptr_t insertion_index);
 
 struct ordered_vector_t*
@@ -41,7 +41,7 @@ ordered_vector_destroy(struct ordered_vector_t* vector)
 void
 ordered_vector_clear(struct ordered_vector_t* vector)
 {
-    /* 
+    /*
      * No need to free or overwrite existing memory, just reset the counter
      * and let future insertions overwrite
      */
@@ -89,15 +89,14 @@ void*
 ordered_vector_insert_emplace(struct ordered_vector_t* vector, intptr_t index)
 {
     intptr_t offset;
-    void* data;
 
-    /* 
+    /*
      * Normally the last valid index is (capacity-1), but in this case it's valid
      * because it's possible the user will want to insert at the very end of
      * the vector.
      */
     if(index > vector->count)
-        return;
+        return NULL;
 
     /* re-allocate? */
     if(vector->count == vector->capacity)
@@ -114,7 +113,7 @@ ordered_vector_insert_emplace(struct ordered_vector_t* vector, intptr_t index)
 
     /* return pointer to memory of new element */
     ++vector->count;
-    return (void*)vector->data + index * vector->element_size;
+    return (void*)(vector->data + index * vector->element_size);
 }
 
 void
@@ -128,7 +127,7 @@ ordered_vector_erase_index(struct ordered_vector_t* vector, intptr_t index)
 {
     if(index >= vector->count)
         return;
-    
+
     if(index == vector->count - 1)
         /* last element doesn't require memory shifting, just pop it */
         ordered_vector_pop(vector);
@@ -151,8 +150,8 @@ ordered_vector_erase_element(struct ordered_vector_t* vector, DATA_POINTER_TYPE*
     if(element != last_element)
     {
         memmove(element,    /* target is to overwrite the element */
-                element + vector->element_size, /* read everything from next element */
-                last_element - element - vector->element_size );
+                element + 1, /* read everything from next element */
+                last_element - element - 1);
     }
     --vector->count;
 }
@@ -175,10 +174,10 @@ ordered_vector_expand(struct ordered_vector_t* vector,
 
     /* expand by factor 2 */
     new_size = vector->capacity << 1;
-    
-    /* 
+
+    /*
      * If vector hasn't allocated anything yet, allocate the first two elements
-     * and return 
+     * and return
      */
     if(new_size == 0)
     {
@@ -191,11 +190,11 @@ ordered_vector_expand(struct ordered_vector_t* vector,
     /* prepare for reallocating data */
     old_data = vector->data;
     new_data = (DATA_POINTER_TYPE*)MALLOC(vector->element_size * new_size);
-    
+
     /* if no insertion index is required, copy all data to new memory */
     if(insertion_index == -1 || insertion_index >= new_size)
         memcpy(new_data, old_data, vector->element_size * vector->count);
-    
+
     /* keep space for one element at the insertion index */
     else
     {

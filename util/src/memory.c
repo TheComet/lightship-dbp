@@ -1,5 +1,5 @@
 #include "util/memory.h"
-#include "util/unordered_vector.h"
+#include "util/map.h"
 #include "util/backtrace.h"
 #include <stdlib.h>
 #include <stdio.h>
@@ -10,8 +10,8 @@
 #ifdef MEMORY_ENABLE_MEMORY_REPORT
 static intptr_t allocations = 0;
 static intptr_t deallocations = 0;
-static intptr_t ignore_unordered_vector_malloc = 0;
-static struct unordered_vector_t report;
+static intptr_t ignore_map_malloc = 0;
+static struct map_t report;
 
 struct report_info_t
 {
@@ -28,8 +28,8 @@ memory_init(void)
 {
     allocations = 0;
     deallocations = 0;
-    ignore_unordered_vector_malloc = 0;
-    unordered_vector_init_vector(&report, sizeof(struct report_info_t));
+    ignore_map_malloc = 0;
+    map_init_map(&report);
 }
 
 void*
@@ -43,17 +43,17 @@ malloc_debug(intptr_t size)
      * Record allocation info in vector. Call to vector may allocate memory,
      * so set flag to ignore the call to malloc() when inserting.
      */
-    if(!ignore_unordered_vector_malloc)
+    if(!ignore_map_malloc)
     {
-        struct report_info_t info;
-        info.location = (intptr_t)p;
-        info.size = size;
+        struct report_info_t* info = (struct report_info_t*)malloc(sizeof(struct report_info_t));;
+        info->location = (intptr_t)p;
+        info->size = size;
 #ifdef MEMORY_ENABLE_BACKTRACE
-        info.backtrace = get_backtrace(&info.backtrace_size);
+        info->backtrace = get_backtrace(&info->backtrace_size);
 #endif
-        ignore_unordered_vector_malloc = 1;
-        unordered_vector_push(&report, &info);
-        ignore_unordered_vector_malloc = 0;
+        ignore_map_malloc = 1;
+        map_insert(&report, info->location, info);
+        ignore_map_malloc = 0;
     }
 
     return p;
@@ -69,19 +69,18 @@ free_debug(void* ptr)
         fprintf(stderr, "Warning: free(NULL)\n");
     
     /* remove the memory location from the vector */
-    if(!ignore_unordered_vector_malloc)
+    if(!ignore_map_malloc)
     {
-        UNORDERED_VECTOR_FOR_EACH(&report, struct report_info_t, info)
+        struct report_info_t* info = (struct report_info_t*)map_find(&report, (intptr_t)ptr);
+        if(info)
         {
-            if(info->location == (intptr_t)ptr)
-            {
 #ifdef MEMORY_ENABLE_BACKTRACE
-                free(info->backtrace);
+            free(info->backtrace);
 #endif
-                unordered_vector_erase_element(&report, info);
-                break;
-            }
-        }
+            map_erase(&report, (intptr_t)ptr);
+            free(info);
+        }else
+            printf("HORRIBLE HORRIBLE ERROR, WHAT THE FUCK THIS SHOULD NEVER HAPPEN\n");
     }
 }
 
@@ -95,14 +94,15 @@ memory_deinit(void)
     printf("=========================================\n");
     printf("Memory Report\n");
     printf("=========================================\n");
-    if(unordered_vector_count(&report) != 0)
+    if(map_count(&report) != 0)
     {
         {
-            UNORDERED_VECTOR_FOR_EACH(&report, struct report_info_t, info)
+            MAP_FOR_EACH(&report, struct report_info_t, info)
             {
                 char* dump;
                 printf("  un-freed memory at 0x%lx, size 0x%lx\n", info->location, info->size);
                 
+                /* print a string dump of the unfreed data */
                 dump = malloc(info->size + 1);
                 memcpy(dump, (void*)info->location, info->size);
                 dump[info->size] = '\0';
@@ -116,6 +116,7 @@ memory_deinit(void)
                 free(info->backtrace);
                 printf("  -----------------------------------------\n");
 #endif
+                free(info);
             }
         }
         printf("=========================================\n");
@@ -125,7 +126,7 @@ memory_deinit(void)
     printf("memory leaks: %lu\n", (allocations > deallocations ? allocations - deallocations : deallocations - allocations));
     printf("=========================================\n");
     ++allocations; /* this is the single allocation still held by the report vector */
-    unordered_vector_clear_free(&report);
+    map_clear(&report);
 }
 #else /* MEMORY_ENABLE_MEMORY_REPORT */
 
