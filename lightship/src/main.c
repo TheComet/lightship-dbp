@@ -13,6 +13,8 @@
 #include "util/pstdint.h"
 #include "plugin_yaml/services.h"
 
+#include "util/map.h"
+
 #ifdef _DEBUG
 static const char* yml_core_plugins = "../../lightship/cfg/core-plugins.yml";
 static const char* yml_entry_point = "../../lightship/cfg/entry-point.yml";
