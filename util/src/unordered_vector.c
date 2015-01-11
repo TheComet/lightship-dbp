@@ -92,7 +92,7 @@ unordered_vector_erase_index(struct unordered_vector_t* vector, intptr_t index)
         return;
     
     /* no need to copy memory if erasing the last index */
-    if(index < vector->count)
+    if(index + 1 < vector->count)
     {
         /* copy last element to fill the gap */
         memcpy(vector->data + vector->element_size * index,    /* target is to overwrite the element specified by index */
