@@ -34,7 +34,7 @@ ordered_vector_init_vector(struct ordered_vector_t* vector, const intptr_t eleme
 void
 ordered_vector_destroy(struct ordered_vector_t* vector)
 {
-    ordered_vector_clear(vector);
+    ordered_vector_clear_free(vector);
     FREE(vector);
 }
 

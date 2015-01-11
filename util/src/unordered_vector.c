@@ -34,7 +34,7 @@ unordered_vector_init_vector(struct unordered_vector_t* vector, const intptr_t e
 void
 unordered_vector_destroy(struct unordered_vector_t* vector)
 {
-    unordered_vector_clear(vector);
+    unordered_vector_clear_free(vector);
     FREE(vector);
 }
 
