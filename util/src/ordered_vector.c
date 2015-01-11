@@ -106,8 +106,8 @@ ordered_vector_insert_emplace(struct ordered_vector_t* vector, intptr_t index)
         /* shift all elements up by one to make space for insertion */
         intptr_t total_size = vector->count * vector->element_size;
         offset = vector->element_size * index;
-        memmove((intptr_t)vector->data + offset + vector->element_size,
-                (intptr_t)vector->data + offset,
+        memmove((void*)((intptr_t)vector->data + offset + vector->element_size),
+                (void*)((intptr_t)vector->data + offset),
                 total_size - offset);
     }
 
@@ -136,8 +136,8 @@ ordered_vector_erase_index(struct ordered_vector_t* vector, intptr_t index)
         /* shift memory right after the specified element down by one element */
         intptr_t offset = vector->element_size * index;  /* offset to the element being erased in bytes */
         intptr_t total_size = vector->element_size * vector->count; /* total current size in bytes */
-        memmove((intptr_t)vector->data + offset,   /* target is to overwrite the element specified by index */
-                (intptr_t)vector->data + offset + vector->element_size,    /* copy beginning from one element ahead of element to be erased */
+        memmove((void*)((intptr_t)vector->data + offset),   /* target is to overwrite the element specified by index */
+                (void*)((intptr_t)vector->data + offset + vector->element_size),    /* copy beginning from one element ahead of element to be erased */
                 total_size - offset - vector->element_size);     /* copying number of elements after element to be erased */
         --vector->count;
     }
@@ -150,7 +150,7 @@ ordered_vector_erase_element(struct ordered_vector_t* vector, void* element)
     if(element != (void*)last_element)
     {
         memmove(element,    /* target is to overwrite the element */
-                (intptr_t)element + vector->element_size, /* read everything from next element */
+                (void*)((intptr_t)element + vector->element_size), /* read everything from next element */
                 last_element - (intptr_t)element);
     }
     --vector->count;
@@ -203,8 +203,8 @@ ordered_vector_expand(struct ordered_vector_t* vector,
         intptr_t total_size = vector->element_size * vector->count;
         memcpy(new_data, old_data, offset);
         /* copy the remaining amount of old data shifted one element ahead */
-        memcpy((intptr_t)new_data + offset + vector->element_size,
-               (intptr_t)old_data + offset,
+        memcpy((void*)((intptr_t)new_data + offset + vector->element_size),
+               (void*)((intptr_t)old_data + offset),
                total_size - offset);
     }
     vector->data = new_data;
