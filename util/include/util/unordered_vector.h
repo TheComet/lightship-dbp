@@ -4,6 +4,8 @@
 #include "util/pstdint.h"
 #include "util/config.h"
 
+C_HEADER_BEGIN
+
 #define DATA_POINTER_TYPE unsigned char
 struct unordered_vector_t
 {
@@ -163,5 +165,7 @@ unordered_vector_get_element(struct unordered_vector_t*, intptr_t index);
     for(var = (var_type*)(vector)->data; \
         (DATA_POINTER_TYPE*)var != end_of_vector; \
         var = (var_type*)(((DATA_POINTER_TYPE*)var) + (vector)->element_size))
+        
+C_HEADER_END
 
 #endif /* LIGHTSHIP_UTIL_UNORDERED_VECTOR_H */
