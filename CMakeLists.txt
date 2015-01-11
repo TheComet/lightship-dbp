@@ -60,26 +60,31 @@ endforeach( OUTPUTCONFIG CMAKE_CONFIGURATION_TYPES )
 ###############################################################################
 
 if (${CMAKE_C_COMPILER_ID} STREQUAL "GNU")
+    set (DEFINE_CMD -D)
 elseif (${CMAKE_C_COMPILER_ID} STREQUAL "Clang")
+    set (DEFINE_CMD -D)
 elseif (${CMAKE_C_COMPILER_ID} STREQUAL "Intel")
 elseif (${CMAKE_C_COMPILER_ID} STREQUAL "MSVC")
-    add_definitions (/D "_CRT_SECURE_NO_WARNINGS")
+    set (DEFINE_CMD /D)
+    add_definitions (/D _CRT_SECURE_NO_WARNINGS)
     if (CMAKE_BUILD_TYPE MATCHES Debug)
+        STRING(REGEX REPLACE "/MDd" "" CMAKE_C_FLAGS_DEBUG ${CMAKE_C_FLAGS_DEBUG})
         add_definitions (/MTd)
-    else ()
+    elseif (CMAKE_BUILD_TYPE MATCHES Release)
+        STRING(REGEX REPLACE "/MD" "" CMAKE_C_FLAGS_RELEASE ${CMAKE_C_FLAGS_RELEASE})
         add_definitions (/MT)
     endif ()
 endif ()
 
 if (CMAKE_BUILD_TYPE MATCHES Debug)
     add_definitions(
-        -D_DEBUG
-        -DDEBUG
+        ${DEFINE_CMD}_DEBUG
+        ${DEFINE_CMD}DEBUG
     )
 endif ()
 
 # library is being built (so dllexport gets defined on windows)
-add_definitions (-DLIGHTSHIP_BUILDING_LIBRARY)
+add_definitions (${DEFINE_CMD}LIGHTSHIP_BUILDING_LIBRARY)
 
 ###############################################################################
 # D compiler (experimental)
@@ -115,6 +120,12 @@ if(ENABLE_DLANG)
 else ()
     set (ENABLE_DLANG OFF)
 endif ()
+
+###############################################################################
+# Project name
+###############################################################################
+
+
 
 ###############################################################################
 # generate missing folders and files
