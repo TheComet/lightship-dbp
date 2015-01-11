@@ -128,6 +128,8 @@ file (WRITE "${CMAKE_SOURCE_DIR}/util/include/util/.gitignore" "config.h")
 # Dependency settings
 ###############################################################################
 
+option (BUILD_TESTS "Whether or not to build unit tests (note: requires C++)" OFF)
+
 include_directories ("lightship/include")
 include_directories ("util/include")
 
@@ -135,3 +137,7 @@ add_subdirectory ("lightship")
 add_subdirectory ("plugins")
 add_subdirectory ("util")
 add_subdirectory ("cross-compile")
+
+if (BUILD_TESTS)
+    add_subdirectory ("tests")
+endif ()

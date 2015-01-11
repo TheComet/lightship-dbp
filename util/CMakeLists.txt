@@ -74,6 +74,20 @@ add_library (lightship_util ${BUILD_TYPE}
 )
 
 ###############################################################################
+# dynamic linker
+###############################################################################
+
+if (${PLATFORM} MATCHES "LINUX")
+    set (DYNAMIC_LINKER_LIBRARY "dl")
+elseif (${PLATFORM} MATCHES "MAC")
+    set (DYNAMIC_LINKER_LIBRARY "dl")
+endif ()
+
+target_link_libraries (lightship_util
+    ${DYNAMIC_LINKER_LIBRARY}
+)
+
+###############################################################################
 # install targets
 ###############################################################################
 
