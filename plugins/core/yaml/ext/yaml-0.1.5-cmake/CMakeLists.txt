@@ -51,7 +51,7 @@ set (PACKAGE_VERSION "${YAML_VERSION_STRING}")
 configure_file ("include/yaml/config.h.in"
                 "include/yaml/config.h")
 include_directories ("${CMAKE_BINARY_DIR}/plugins/core/yaml/ext/yaml-0.1.5-cmake/include")
-add_definitions (-DHAVE_CONFIG_H)
+add_definitions (${DEFINE_CMD}HAVE_CONFIG_H)
 
 ###############################################################################
 # compiler definitions and flags
@@ -75,10 +75,10 @@ endif ()
 
 if (BUILD_SHARED)
     set (BUILD_TYPE SHARED)
-    add_definitions (-DYAML_DECLARE_EXPORT)
+    add_definitions (${DEFINE_CMD}YAML_DECLARE_EXPORT)
 else ()
     set (BUILD_TYPE STATIC)
-    add_definitions (-DYAML_DECLARE_STATIC)
+    add_definitions (${DEFINE_CMD}YAML_DECLARE_STATIC)
 endif ()
 
 ###############################################################################
