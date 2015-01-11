@@ -33,9 +33,9 @@ service_register(const struct plugin_t* plugin,
         FREE(full_name);
         return 0;
     }
-    
+
     service_malloc_and_register(full_name, exec);
-    
+
     return 1;
 }
 
@@ -59,7 +59,7 @@ service_unregister(const struct plugin_t* plugin,
     /* remove service from list */
     full_name = cat_strings(3, plugin->info.name, ".", name);
     {
-        LIST_FOR_EACH_ERASE(&g_services, struct service_t, service)
+        LIST_FOR_EACH(&g_services, struct service_t, service)
         {
             if(strcmp(service->name, full_name) == 0)
             {

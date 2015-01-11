@@ -64,7 +64,7 @@ unordered_vector_push_emplace(struct unordered_vector_t* vector)
     void* data;
     if(vector->count == vector->capacity)
         unordered_vector_expand(vector, -1);
-    data = vector->data + (vector->element_size * vector->count);
+    data = (void*)((intptr_t)vector->data + (vector->element_size * vector->count));
     ++(vector->count);
     return data;
 }
@@ -82,7 +82,7 @@ unordered_vector_pop(struct unordered_vector_t* vector)
         return NULL;
 
     --(vector->count);
-    return vector->data + (vector->element_size * vector->count);
+    return (void*)((intptr_t)vector->data + (vector->element_size * vector->count));
 }
 
 void
@@ -96,7 +96,7 @@ unordered_vector_erase_index(struct unordered_vector_t* vector, intptr_t index)
     {
         /* copy last element to fill the gap */
         memcpy(vector->data + vector->element_size * index,    /* target is to overwrite the element specified by index */
-            vector->data + (vector->count-1) * vector->element_size, /* last element */
+            (void*)((intptr_t)vector->data + (vector->count-1) * vector->element_size), /* last element */
             vector->element_size);
     }
     
@@ -110,7 +110,7 @@ unordered_vector_erase_element(struct unordered_vector_t* vector, void* element)
     if(element != vector->data + (vector->count-1) * vector->element_size)
     {
         memcpy(element,    /* target is to overwrite the element */
-            vector->data + (vector->count-1) * vector->element_size, /* last element */
+            (void*)((intptr_t)vector->data + (vector->count-1) * vector->element_size), /* last element */
             vector->element_size);
     }
     --vector->count;
@@ -163,8 +163,8 @@ unordered_vector_expand(struct unordered_vector_t* vector,
         intptr_t total_size = vector->element_size * vector->count;
         memcpy(new_data, old_data, offset);
         /* copy the remaining amount of old data shifted one element ahead */
-        memcpy(new_data + offset + vector->element_size,
-               old_data + offset,
+        memcpy((void*)((intptr_t)new_data + offset + vector->element_size),
+               (void*)((intptr_t)old_data + offset),
                total_size - offset);
     }
     vector->data = new_data;

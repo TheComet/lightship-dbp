@@ -125,8 +125,7 @@ ordered_vector_erase_index(struct ordered_vector_t* vector, intptr_t index);
  * @param[in] element A pointer to an element within the vector.
  */
 LIGHTSHIP_PUBLIC_API void
-ordered_vector_erase_element(struct ordered_vector_t* vector,
-                             DATA_POINTER_TYPE* element);
+ordered_vector_erase_element(struct ordered_vector_t* vector, void* element);
 
 /*!
  * @brief Gets a pointer to the specified element in the vector.
