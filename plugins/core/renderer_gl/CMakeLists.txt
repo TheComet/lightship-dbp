@@ -17,11 +17,10 @@ if(MSVC AND NOT "${MSVC_VERSION}" LESS 1400)
 endif()
 
 add_definitions(
-    -DTW_STATIC
-    -DTW_NO_LIB_PRAGMA
-    -DTW_NO_DIRECT3D
-    -DGLEW_STATIC
-    -D_CRT_SECURE_NO_WARNINGS
+    ${DEFINE_CMD}TW_STATIC
+    ${DEFINE_CMD}TW_NO_LIB_PRAGMA
+    ${DEFINE_CMD}TW_NO_DIRECT3D
+    ${DEFINE_CMD}GLEW_STATIC
 )
 
 # needs to be added before setting additional compiler flags
