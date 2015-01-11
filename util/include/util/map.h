@@ -46,13 +46,10 @@ map_print(struct map_t* map);
 #endif
 
 #define MAP_FOR_EACH(map, var_type, var) \
-    struct map_key_value_t* key_value; \
+    intptr_t map_internal_i; \
     var_type* var; \
-    DATA_POINTER_TYPE* end_of_vector = (map)->vector.data + (map)->vector.count * sizeof(struct map_key_value_t); \
-    for(key_value = (struct map_key_value_t*)(map)->vector.data; \
-        (DATA_POINTER_TYPE*)var != end_of_vector; \
-        key_value = (struct map_key_value_t*)(((DATA_POINTER_TYPE*)var) + sizeof(struct map_key_value_t)), \
-        var = (var_type*)key_value->value)
+    for(map_internal_i = 0; i != (map)->vector.count; ++i, \
+        var = ((struct map_key_value_t*)(map)->vector.data)[i].value)
 
 #define MAP_ERASE_IN_FOR_LOOP(map, element) \
     ordered_vector_erase_element((map)->vector, element);
