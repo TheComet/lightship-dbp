@@ -76,7 +76,8 @@ void text_deinit(void)
         text_destroy_font((struct font_t*)g_fonts.data);
     unordered_vector_clear_free(&g_fonts);
 
-    glDeleteProgram(g_text_shader_id);
+	if(g_text_shader_id)
+		glDeleteProgram(g_text_shader_id);
 
     FT_Done_FreeType(g_lib);
 }
