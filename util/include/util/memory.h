@@ -4,6 +4,8 @@
 #include "util/pstdint.h"
 #include "util/config.h"
 
+C_HEADER_BEGIN
+
 #ifdef MEMORY_ENABLE_MEMORY_REPORT
 #   define MALLOC malloc_debug
 #   define FREE free_debug
@@ -46,5 +48,7 @@ malloc_debug(intptr_t size);
 LIGHTSHIP_PUBLIC_API void
 free_debug(void* ptr);
 #endif
+
+C_HEADER_END
 
 #endif /* LIGHTSHIP_UTIL_MEMORY_H */
