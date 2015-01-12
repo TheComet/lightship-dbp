@@ -17,8 +17,10 @@ int printOglError(char *file, int line)
     glErr = glGetError();
     if (glErr != GL_NO_ERROR)
     {
-        llog(LOG_ERROR, 4, "glError in file %s @ line %d: %s\n",
-                 file, line, gluErrorString(glErr));
+        char line_str[16];
+        sprintf(line_str, "%d", line);
+        llog(LOG_ERROR, 6, "glError in file ", file, " @ line ",
+             line_str, ": ", gluErrorString(glErr));
         retCode = 1;
     }
     return retCode;

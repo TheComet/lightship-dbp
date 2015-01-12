@@ -117,7 +117,7 @@ memory_deinit(void)
     if(report.vector.count != 0)
     {
         {
-            MAP_FOR_EACH(&report, struct report_info_t, info)
+            MAP_FOR_EACH(&report, struct report_info_t, key, info)
             {
                 char* dump;
                 printf("  un-freed memory at 0x%lx, size 0x%lx\n", info->location, info->size);

@@ -1,8 +1,6 @@
 #include "GL/glew.h"
 #include "util/unordered_vector.h"
 
-#define INDEX_DATA_TYPE GLushort
-
 /* vertex type for 2d objects */
 struct vertex_2d_t
 {
