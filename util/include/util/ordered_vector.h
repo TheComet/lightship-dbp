@@ -108,8 +108,11 @@ ordered_vector_push_emplace(struct ordered_vector_t* vector);
 LIGHTSHIP_PUBLIC_API void* 
 ordered_vector_pop(struct ordered_vector_t* vector);
 
-void* ordered_vector_insert_emplace(struct ordered_vector_t* vector, intptr_t index);
-void ordered_vector_insert(struct ordered_vector_t* vector, intptr_t index, void* data);
+LIGHTSHIP_PUBLIC_API void*
+ordered_vector_insert_emplace(struct ordered_vector_t* vector, intptr_t index);
+
+LIGHTSHIP_PUBLIC_API void
+ordered_vector_insert(struct ordered_vector_t* vector, intptr_t index, void* data);
 
 /*!
  * @brief Erases the specified element from the vector.
