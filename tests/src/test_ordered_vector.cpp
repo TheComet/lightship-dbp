@@ -159,7 +159,7 @@ TEST(NAME, get_element_random_access)
     ordered_vector_destroy(vec);
 }
 
-TEST(NAME, popping_keeps_existing_elements_in_tact)
+TEST(NAME, popping_preserves_existing_elements)
 {
     struct ordered_vector_t* vec = ordered_vector_create(sizeof(int));
     *(int*)ordered_vector_push_emplace(vec) = 53;
@@ -175,7 +175,7 @@ TEST(NAME, popping_keeps_existing_elements_in_tact)
     ordered_vector_destroy(vec);
 }
 
-TEST(NAME, erasing_by_index_keeps_existing_elements_in_tact)
+TEST(NAME, erasing_by_index_preserves_existing_elements)
 {
     struct ordered_vector_t* vec = ordered_vector_create(sizeof(int));
     *(int*)ordered_vector_push_emplace(vec) = 53;
@@ -195,7 +195,7 @@ TEST(NAME, erasing_by_index_keeps_existing_elements_in_tact)
     ordered_vector_destroy(vec);
 }
 
-TEST(NAME, erasing_by_element_keeps_existing_elements_in_tact)
+TEST(NAME, erasing_by_element_preserves_existing_elements)
 {
     struct ordered_vector_t* vec = ordered_vector_create(sizeof(int));
     *(int*)ordered_vector_push_emplace(vec) = 53;
@@ -233,5 +233,123 @@ TEST(NAME, erase_invalid_index)
     ordered_vector_erase_index(vec, 1);
     ordered_vector_erase_index(vec, 0);
     ordered_vector_erase_index(vec, 0);
+    ordered_vector_destroy(vec);
+}
+
+/* ========================================================================= */
+/* EVERYTHING ABOVE THIS POINT IS IDENTICAL TO unordered_vector              */
+/* ========================================================================= */
+/* EVERYTHING BELOW THIS POINT IS UNIQUE TO ordered_vector                   */
+/* ========================================================================= */
+
+TEST(NAME, inserting_preserves_existing_elements)
+{
+    struct ordered_vector_t* vec = ordered_vector_create(sizeof(int));
+    *(int*)ordered_vector_push_emplace(vec) = 53;
+    *(int*)ordered_vector_push_emplace(vec) = 24;
+    *(int*)ordered_vector_push_emplace(vec) = 73;
+    *(int*)ordered_vector_push_emplace(vec) = 43;
+    *(int*)ordered_vector_push_emplace(vec) = 65;
+    
+    int x = 68;
+    ordered_vector_insert(vec, 2, &x); /* middle insertion */
+    
+    ASSERT_EQ(53, *(int*)ordered_vector_get_element(vec, 0));
+    ASSERT_EQ(24, *(int*)ordered_vector_get_element(vec, 1));
+    ASSERT_EQ(68, *(int*)ordered_vector_get_element(vec, 2));
+    ASSERT_EQ(73, *(int*)ordered_vector_get_element(vec, 3));
+    ASSERT_EQ(43, *(int*)ordered_vector_get_element(vec, 4));
+    ASSERT_EQ(65, *(int*)ordered_vector_get_element(vec, 5));
+    
+    x = 16;
+    ordered_vector_insert(vec, 0, &x); /* beginning insertion */
+    
+    ASSERT_EQ(16, *(int*)ordered_vector_get_element(vec, 0));
+    ASSERT_EQ(53, *(int*)ordered_vector_get_element(vec, 1));
+    ASSERT_EQ(24, *(int*)ordered_vector_get_element(vec, 2));
+    ASSERT_EQ(68, *(int*)ordered_vector_get_element(vec, 3));
+    ASSERT_EQ(73, *(int*)ordered_vector_get_element(vec, 4));
+    ASSERT_EQ(43, *(int*)ordered_vector_get_element(vec, 5));
+    ASSERT_EQ(65, *(int*)ordered_vector_get_element(vec, 6));
+    
+    x = 82;
+    ordered_vector_insert(vec, 7, &x); /* end insertion */
+    
+    ASSERT_EQ(16, *(int*)ordered_vector_get_element(vec, 0));
+    ASSERT_EQ(53, *(int*)ordered_vector_get_element(vec, 1));
+    ASSERT_EQ(24, *(int*)ordered_vector_get_element(vec, 2));
+    ASSERT_EQ(68, *(int*)ordered_vector_get_element(vec, 3));
+    ASSERT_EQ(73, *(int*)ordered_vector_get_element(vec, 4));
+    ASSERT_EQ(43, *(int*)ordered_vector_get_element(vec, 5));
+    ASSERT_EQ(65, *(int*)ordered_vector_get_element(vec, 6));
+    ASSERT_EQ(82, *(int*)ordered_vector_get_element(vec, 7));
+    
+    x = 37;
+    ordered_vector_insert(vec, 7, &x); /* end insertion */
+    
+    ASSERT_EQ(16, *(int*)ordered_vector_get_element(vec, 0));
+    ASSERT_EQ(53, *(int*)ordered_vector_get_element(vec, 1));
+    ASSERT_EQ(24, *(int*)ordered_vector_get_element(vec, 2));
+    ASSERT_EQ(68, *(int*)ordered_vector_get_element(vec, 3));
+    ASSERT_EQ(73, *(int*)ordered_vector_get_element(vec, 4));
+    ASSERT_EQ(43, *(int*)ordered_vector_get_element(vec, 5));
+    ASSERT_EQ(65, *(int*)ordered_vector_get_element(vec, 6));
+    ASSERT_EQ(37, *(int*)ordered_vector_get_element(vec, 7));
+    ASSERT_EQ(82, *(int*)ordered_vector_get_element(vec, 8));
+    
+    ordered_vector_destroy(vec);
+}
+
+TEST(NAME, insert_emplacing_preserves_existing_elements)
+{
+    struct ordered_vector_t* vec = ordered_vector_create(sizeof(int));
+    *(int*)ordered_vector_push_emplace(vec) = 53;
+    *(int*)ordered_vector_push_emplace(vec) = 24;
+    *(int*)ordered_vector_push_emplace(vec) = 73;
+    *(int*)ordered_vector_push_emplace(vec) = 43;
+    *(int*)ordered_vector_push_emplace(vec) = 65;
+
+    *(int*)ordered_vector_insert_emplace(vec, 2) = 68; /* middle insertion */
+    
+    ASSERT_EQ(53, *(int*)ordered_vector_get_element(vec, 0));
+    ASSERT_EQ(24, *(int*)ordered_vector_get_element(vec, 1));
+    ASSERT_EQ(68, *(int*)ordered_vector_get_element(vec, 2));
+    ASSERT_EQ(73, *(int*)ordered_vector_get_element(vec, 3));
+    ASSERT_EQ(43, *(int*)ordered_vector_get_element(vec, 4));
+    ASSERT_EQ(65, *(int*)ordered_vector_get_element(vec, 5));
+
+    *(int*)ordered_vector_insert_emplace(vec, 0) = 16; /* beginning insertion */
+    
+    ASSERT_EQ(16, *(int*)ordered_vector_get_element(vec, 0));
+    ASSERT_EQ(53, *(int*)ordered_vector_get_element(vec, 1));
+    ASSERT_EQ(24, *(int*)ordered_vector_get_element(vec, 2));
+    ASSERT_EQ(68, *(int*)ordered_vector_get_element(vec, 3));
+    ASSERT_EQ(73, *(int*)ordered_vector_get_element(vec, 4));
+    ASSERT_EQ(43, *(int*)ordered_vector_get_element(vec, 5));
+    ASSERT_EQ(65, *(int*)ordered_vector_get_element(vec, 6));
+
+    *(int*)ordered_vector_insert_emplace(vec, 7) = 82; /* end insertion */
+    
+    ASSERT_EQ(16, *(int*)ordered_vector_get_element(vec, 0));
+    ASSERT_EQ(53, *(int*)ordered_vector_get_element(vec, 1));
+    ASSERT_EQ(24, *(int*)ordered_vector_get_element(vec, 2));
+    ASSERT_EQ(68, *(int*)ordered_vector_get_element(vec, 3));
+    ASSERT_EQ(73, *(int*)ordered_vector_get_element(vec, 4));
+    ASSERT_EQ(43, *(int*)ordered_vector_get_element(vec, 5));
+    ASSERT_EQ(65, *(int*)ordered_vector_get_element(vec, 6));
+    ASSERT_EQ(82, *(int*)ordered_vector_get_element(vec, 7));
+
+    *(int*)ordered_vector_insert_emplace(vec, 7) = 37; /* end insertion */
+    
+    ASSERT_EQ(16, *(int*)ordered_vector_get_element(vec, 0));
+    ASSERT_EQ(53, *(int*)ordered_vector_get_element(vec, 1));
+    ASSERT_EQ(24, *(int*)ordered_vector_get_element(vec, 2));
+    ASSERT_EQ(68, *(int*)ordered_vector_get_element(vec, 3));
+    ASSERT_EQ(73, *(int*)ordered_vector_get_element(vec, 4));
+    ASSERT_EQ(43, *(int*)ordered_vector_get_element(vec, 5));
+    ASSERT_EQ(65, *(int*)ordered_vector_get_element(vec, 6));
+    ASSERT_EQ(37, *(int*)ordered_vector_get_element(vec, 7));
+    ASSERT_EQ(82, *(int*)ordered_vector_get_element(vec, 8));
+    
     ordered_vector_destroy(vec);
 }

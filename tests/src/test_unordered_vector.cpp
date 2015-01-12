@@ -159,7 +159,7 @@ TEST(NAME, get_element_random_access)
     unordered_vector_destroy(vec);
 }
 
-TEST(NAME, popping_keeps_existing_elements_in_tact)
+TEST(NAME, popping_preserves_existing_elements)
 {
     struct unordered_vector_t* vec = unordered_vector_create(sizeof(int));
     *(int*)unordered_vector_push_emplace(vec) = 53;
@@ -175,7 +175,7 @@ TEST(NAME, popping_keeps_existing_elements_in_tact)
     unordered_vector_destroy(vec);
 }
 
-TEST(NAME, erasing_by_index_keeps_existing_elements_in_tact)
+TEST(NAME, erasing_by_index_preserves_existing_elements)
 {
     struct unordered_vector_t* vec = unordered_vector_create(sizeof(int));
     *(int*)unordered_vector_push_emplace(vec) = 53;
@@ -195,7 +195,7 @@ TEST(NAME, erasing_by_index_keeps_existing_elements_in_tact)
     unordered_vector_destroy(vec);
 }
 
-TEST(NAME, erasing_by_element_keeps_existing_elements_in_tact)
+TEST(NAME, erasing_by_element_preserves_existing_elements)
 {
     struct unordered_vector_t* vec = unordered_vector_create(sizeof(int));
     *(int*)unordered_vector_push_emplace(vec) = 53;
