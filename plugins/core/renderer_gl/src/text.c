@@ -15,8 +15,10 @@ static GLuint g_text_shader_id;
 
 #ifdef _DEBUG
 static const char* ttf_prefix = "../../plugins/core/renderer_gl/";
+static const char* text_shader_file = "../../plugins/core/renderer_gl/fx/text_2d";
 #else
 static const char* ttf_prefix = "./";
+static const char* text_shader_file = "plugins/core/renderer_gl/fx/text_2d";
 #endif
 
 int z_verbose = 0;
@@ -62,7 +64,7 @@ char text_init(void)
         return 0;
     }
     
-    g_text_shader_id = load_shader("fx/text_2d");
+    g_text_shader_id = load_shader(text_shader_file);
     
     /* init global vector for storing all loaded fonts */
     unordered_vector_init_vector(&g_fonts, sizeof(struct font_t));
