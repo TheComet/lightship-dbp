@@ -86,11 +86,11 @@ init(void)
      */
     if(!load_plugins_from_yaml(yml_core_plugins))
         return;
-    /*{
+    {
     typedef uint32_t (*button_create_func)(const char*, float, float, float, float);
     uint32_t id = ((button_create_func)service_get("menu.button_create"))("test", 0.0, 0.0, 0.3, 0.1);
     ((button_create_func)service_get("menu.button_create"))("test2", 0.0, 0.3, 0.3, 0.1);
-    }*/
+    }
     /* 
      * Try to get the main loop service and start running the game
      */

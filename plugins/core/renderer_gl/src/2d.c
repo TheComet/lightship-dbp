@@ -8,8 +8,13 @@
 static GLuint g_line_shader_id;
 static struct shapes_t* g_current_shapes = NULL;
 static struct unordered_vector_t g_shapes_collection;
-
 static uint32_t guid_counter = 1;
+
+#ifdef _DEBUG
+static const char* two_d_shader_file = "../../plugins/core/renderer_gl/fx/line_2d";
+#else
+static const char* two_d_shader_file = "plugins/core/renderer_gl/fx/line_2d";
+#endif
 
 static struct shapes_t*
 shapes_get(uint32_t ID)
@@ -25,7 +30,7 @@ shapes_get(uint32_t ID)
 void
 init_2d(void)
 {
-    g_line_shader_id = load_shader("fx/line_2d");
+    g_line_shader_id = load_shader(two_d_shader_file);
 
     unordered_vector_init_vector(&g_shapes_collection, sizeof(struct shapes_t));
 }
