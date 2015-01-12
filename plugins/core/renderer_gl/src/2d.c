@@ -13,7 +13,7 @@ static uint32_t guid_counter = 1;
 #ifdef _DEBUG
 static const char* two_d_shader_file = "../../plugins/core/renderer_gl/fx/line_2d";
 #else
-static const char* two_d_shader_file = "plugins/core/renderer_gl/fx/line_2d";
+static const char* two_d_shader_file = "fx/line_2d";
 #endif
 
 static struct shapes_t*

@@ -18,7 +18,7 @@ static const char* ttf_prefix = "../../plugins/core/renderer_gl/";
 static const char* text_shader_file = "../../plugins/core/renderer_gl/fx/text_2d";
 #else
 static const char* ttf_prefix = "./";
-static const char* text_shader_file = "plugins/core/renderer_gl/fx/text_2d";
+static const char* text_shader_file = "fx/text_2d";
 #endif
 
 int z_verbose = 0;
