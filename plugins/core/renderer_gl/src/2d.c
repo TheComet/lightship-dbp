@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "plugin_renderer_gl/2d.h"
 #include "plugin_renderer_gl/shader.h"
+#include "plugin_renderer_gl/glutils.h"
 
 #include "GL/glew.h"
 #include "glfw3.h"
@@ -40,15 +41,15 @@ deinit_2d(void)
 {
     UNORDERED_VECTOR_FOR_EACH(&g_shapes_collection, struct shapes_t, shapes)
     {
-        glDeleteBuffers(1, &shapes->vbo);
-        glDeleteBuffers(1, &shapes->vio);
-        glDeleteVertexArrays(1, &shapes->vao);
-        unordered_vector_clear_free(&shapes->vertex_data);
-        unordered_vector_clear_free(&shapes->index_data);
+        glDeleteBuffers(1, &shapes->vbo);printOpenGLError();
+        glDeleteBuffers(1, &shapes->vio);printOpenGLError();
+        glDeleteVertexArrays(1, &shapes->vao);printOpenGLError();
+        unordered_vector_clear_free(&shapes->vertex_data);printOpenGLError();
+        unordered_vector_clear_free(&shapes->index_data);printOpenGLError();
     }
     
 	if(g_line_shader_id)
-		glDeleteProgram(g_line_shader_id);
+		glDeleteProgram(g_line_shader_id);printOpenGLError();
     unordered_vector_clear_free(&g_shapes_collection);
 }
 
@@ -78,41 +79,41 @@ shapes_2d_end(void)
     g_current_shapes->ID = ID;
     
     /* generate VAO, VBO, VIO, and set up render state */
-    glGenVertexArrays(1, &g_current_shapes->vao);
-    glBindVertexArray(g_current_shapes->vao);
+    glGenVertexArrays(1, &g_current_shapes->vao);printOpenGLError();
+    glBindVertexArray(g_current_shapes->vao);printOpenGLError();
         /* generate VBO for vertex data */
-        glGenBuffers(1, &g_current_shapes->vbo);
+        glGenBuffers(1, &g_current_shapes->vbo);printOpenGLError();
         glBindBuffer(GL_ARRAY_BUFFER, g_current_shapes->vbo);
             /* copy vertex data into VBO */
             glBufferData(GL_ARRAY_BUFFER,
                         g_current_shapes->vertex_data.count * sizeof(struct vertex_2d_t),
                         g_current_shapes->vertex_data.data,
-                        GL_STATIC_DRAW);
+                        GL_STATIC_DRAW);printOpenGLError();
             /* set up position and diffuse vertex attributes */
-            glEnableVertexAttribArray(0);
+            glEnableVertexAttribArray(0);printOpenGLError();
             glVertexAttribPointer(0,                      /* attribute 0 */
                                   2,                      /* size, position[2] */
                                   GL_FLOAT,               /* type */
                                   GL_FALSE,               /* normalise? */
                                   sizeof(struct vertex_2d_t),
-                                  (void*)offsetof(struct vertex_2d_t, position));
+                                  (void*)offsetof(struct vertex_2d_t, position));printOpenGLError();
             glEnableVertexAttribArray(1);
             glVertexAttribPointer(1,                      /* attribute 1 */
                                   4,                      /* diffuse[4] */
                                   GL_FLOAT,               /* type */
                                   GL_FALSE,               /* normalise? */
                                   sizeof(struct vertex_2d_t),
-                                  (void*)offsetof(struct vertex_2d_t, diffuse));
+                                  (void*)offsetof(struct vertex_2d_t, diffuse));printOpenGLError();
 
         /* generate VBO for index data */
-        glGenBuffers(1, &g_current_shapes->vio);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_current_shapes->vio);
+        glGenBuffers(1, &g_current_shapes->vio);printOpenGLError();
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_current_shapes->vio);printOpenGLError();
             /* copy index data into VBO */
             glBufferData(GL_ELEMENT_ARRAY_BUFFER,
                         g_current_shapes->index_data.count * sizeof(INDEX_DATA_TYPE),
                         g_current_shapes->index_data.data,
-                        GL_STATIC_DRAW);
-    glBindVertexArray(0);
+                        GL_STATIC_DRAW);printOpenGLError();
+    glBindVertexArray(0);printOpenGLError();
     
     g_current_shapes = NULL;
 
@@ -126,9 +127,9 @@ shapes_2d_destroy(uint32_t ID)
     {
         if(shapes->ID == ID)
         {
-            glDeleteBuffers(1, &shapes->vbo);
-            glDeleteBuffers(1, &shapes->vio);
-            glDeleteVertexArrays(1, &shapes->vao);
+            glDeleteBuffers(1, &shapes->vbo);printOpenGLError();
+            glDeleteBuffers(1, &shapes->vio);printOpenGLError();
+            glDeleteVertexArrays(1, &shapes->vao);printOpenGLError();
             unordered_vector_clear_free(&shapes->vertex_data);
             unordered_vector_clear_free(&shapes->index_data);
             unordered_vector_erase_element(&g_shapes_collection, shapes);
@@ -201,14 +202,14 @@ shapes_show(uint32_t ID)
 void
 draw_2d(void)
 {
-    glUseProgram(g_line_shader_id);
+    glUseProgram(g_line_shader_id);printOpenGLError();
     {
         UNORDERED_VECTOR_FOR_EACH(&g_shapes_collection, struct shapes_t, shapes)
         {
             if(!shapes->visible)
                 continue;
-            glBindVertexArray(shapes->vao);
-                glDrawElements(GL_LINES, shapes->index_data.count, GL_UNSIGNED_SHORT, NULL);
+            glBindVertexArray(shapes->vao);printOpenGLError();
+                glDrawElements(GL_LINES, shapes->index_data.count, GL_UNSIGNED_SHORT, NULL);printOpenGLError();
         }
     }
     glBindVertexArray(0);

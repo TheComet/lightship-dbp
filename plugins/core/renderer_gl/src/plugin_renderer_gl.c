@@ -62,6 +62,9 @@ PLUGIN_START()
     if(!window_init())
         return PLUGIN_FAILURE;
     
+    /* clear any GL errors caused by glfw and glew */
+    glGetError();
+
     /* init graphics */
     init_2d();
     if(!text_init())
