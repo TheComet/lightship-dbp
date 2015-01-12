@@ -4,5 +4,7 @@
 #   define printOpenGLError()
 #endif
 
+#define INDEX_DATA_TYPE GLushort
+
 void z_error(/* should be const */char* message);
 int printOglError(char *file, int line);

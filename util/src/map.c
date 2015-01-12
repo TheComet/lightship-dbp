@@ -85,6 +85,15 @@ map_insert(struct map_t* map, intptr_t hash, void* value)
     emplaced_data->value = value;
 }
 
+void
+map_set(struct map_t* map, intptr_t hash, void* value)
+{
+    struct map_key_value_t* data = map_find_lower_bound(map, hash);
+    if(!data)
+        return;
+    data->value = value;
+}
+
 void*
 map_erase(struct map_t* map, intptr_t hash)
 {

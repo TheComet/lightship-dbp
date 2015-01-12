@@ -57,6 +57,9 @@ map_destroy(struct map_t* map);
 LIGHTSHIP_PUBLIC_API void
 map_insert(struct map_t* map, intptr_t hash, void* value);
 
+LIGHTSHIP_PUBLIC_API void
+map_set(struct map_t* map, intptr_t hash, void* value);
+
 /*!
  * @brief Looks for an element in the map and returns it if found.
  * @note Complexity is O(log2(n)).
@@ -117,12 +120,17 @@ map_print(struct map_t* map);
  * @param[in] var The name to give the variable pointing to the current
  * element.
  */
-#define MAP_FOR_EACH(map, var_type, var) \
+#define MAP_FOR_EACH(map, var_type, hash_n, var) \
     intptr_t map_internal_i; \
+    intptr_t hash_n; \
     var_type* var; \
-    for(map_internal_i = 0, var = ((struct map_key_value_t*)(map)->vector.data)[map_internal_i].value; \
+    for(map_internal_i = 0, \
+            hash_n = ((struct map_key_value_t*)(map)->vector.data)[map_internal_i].hash, \
+            var  = ((struct map_key_value_t*)(map)->vector.data)[map_internal_i].value; \
         map_internal_i != (map)->vector.count; \
-        ++map_internal_i, var = ((struct map_key_value_t*)(map)->vector.data)[map_internal_i].value)
+        ++map_internal_i, \
+            hash_n = ((struct map_key_value_t*)(map)->vector.data)[map_internal_i].hash, \
+            var  = ((struct map_key_value_t*)(map)->vector.data)[map_internal_i].value)
 
 #define MAP_ERASE_IN_FOR_LOOP(map, element) \
     ordered_vector_erase_element((map)->vector, element);
