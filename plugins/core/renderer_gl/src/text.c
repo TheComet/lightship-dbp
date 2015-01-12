@@ -1,5 +1,6 @@
 #include "plugin_renderer_gl/text.h"
 #include "plugin_renderer_gl/shader.h"
+#include "plugin_renderer_gl/glutils.h"
 #include "util/log.h"
 #include "util/memory.h"
 #include "util/unordered_vector.h"
@@ -20,30 +21,6 @@ static const char* text_shader_file = "../../plugins/core/renderer_gl/fx/text_2d
 static const char* ttf_prefix = "./";
 static const char* text_shader_file = "fx/text_2d";
 #endif
-
-int z_verbose = 0;
-void z_error(/* should be const */char* message)
-{
-    llog(LOG_ERROR, 1, message);
-}
-
-#define printOpenGLError() printOglError(__FILE__, __LINE__)
-
-int printOglError(char *file, int line)
-{
-
-    GLenum glErr;
-    int    retCode = 0;
-
-    glErr = glGetError();
-    if (glErr != GL_NO_ERROR)
-    {
-        printf("glError in file %s @ line %d: %s\n",
-                 file, line, gluErrorString(glErr));
-        retCode = 1;
-    }
-    return retCode;
-}
 
 static GLuint to_nearest_pow2(GLuint value)
 {
@@ -78,8 +55,8 @@ void text_deinit(void)
         text_destroy_font((struct font_t*)g_fonts.data);
     unordered_vector_clear_free(&g_fonts);
 
-	if(g_text_shader_id)
-		glDeleteProgram(g_text_shader_id);
+    if(g_text_shader_id)
+        glDeleteProgram(g_text_shader_id);printOpenGLError();
 
     FT_Done_FreeType(g_lib);
 }
@@ -123,38 +100,38 @@ struct font_t* text_load_font(const char* filename)
         }
         
         /* generate VAO, VBO, VIO, and Texture buffer */
-        glGenVertexArrays(1, &font->gl.vao);
-        glBindVertexArray(font->gl.vao);
-            glGenBuffers(1, &font->gl.vbo);
-            glBindBuffer(GL_ARRAY_BUFFER, font->gl.vbo);
-                glEnableVertexAttribArray(0);
+        glGenVertexArrays(1, &font->gl.vao);printOpenGLError();
+        glBindVertexArray(font->gl.vao);printOpenGLError();
+            glGenBuffers(1, &font->gl.vbo);printOpenGLError();
+            glBindBuffer(GL_ARRAY_BUFFER, font->gl.vbo);printOpenGLError();
+                glEnableVertexAttribArray(0);printOpenGLError();
                 glVertexAttribPointer(0,                /* attribute 0 */
                                       2,                /* size, position[2] */
                                       GL_FLOAT,         /* type */
                                       GL_FALSE,         /* normalise? */
                                       sizeof(struct text_vertex_t),
-                                      (void*)offsetof(struct text_vertex_t, position));
-                glEnableVertexAttribArray(1);
+                                      (void*)offsetof(struct text_vertex_t, position));printOpenGLError();
+                glEnableVertexAttribArray(1);printOpenGLError();
                 glVertexAttribPointer(1,                /* attribute 1 */
                                       2,                /* size, tex_coord[2] */
                                       GL_FLOAT,         /* type */
                                       GL_FALSE,         /* normalise? */
                                       sizeof(struct text_vertex_t),
-                                      (void*)offsetof(struct text_vertex_t, tex_coord));
-                glEnableVertexAttribArray(2);
+                                      (void*)offsetof(struct text_vertex_t, tex_coord));printOpenGLError();
+                glEnableVertexAttribArray(2);printOpenGLError();
                 glVertexAttribPointer(2,                /* attribute 2 */
                                       4,                /* size, diffuse[4] */
                                       GL_FLOAT,         /* type */
                                       GL_FALSE,         /* normalise? */
                                       sizeof(struct text_vertex_t),
-                                      (void*)offsetof(struct text_vertex_t, diffuse));
-            glGenBuffers(1, &font->gl.vio);
-            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, font->gl.vio);
-            glGenTextures(1, &font->gl.tex);
+                                      (void*)offsetof(struct text_vertex_t, diffuse));printOpenGLError();
+            glGenBuffers(1, &font->gl.vio);printOpenGLError();
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, font->gl.vio);printOpenGLError();
+            glGenTextures(1, &font->gl.tex);printOpenGLError();
             glBindTexture(GL_TEXTURE_2D, font->gl.tex);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glBindVertexArray(0);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);printOpenGLError();
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);printOpenGLError();
+        glBindVertexArray(0);printOpenGLError();
         
         /*
          * If the program reaches this point, it means loading the font was
@@ -177,10 +154,10 @@ struct font_t* text_load_font(const char* filename)
 
 void text_destroy_font(struct font_t* font)
 {
-    glDeleteTextures(1, &font->gl.tex);
-    glDeleteBuffers(1, &font->gl.vio);
-    glDeleteBuffers(1, &font->gl.vbo);
-    glDeleteVertexArrays(1, &font->gl.vao);
+    glDeleteTextures(1, &font->gl.tex);printOpenGLError();
+    glDeleteBuffers(1, &font->gl.vio);printOpenGLError();
+    glDeleteBuffers(1, &font->gl.vbo);printOpenGLError();
+    glDeleteVertexArrays(1, &font->gl.vao);printOpenGLError();
     FT_Done_Face(font->face);
     unordered_vector_clear_free(&font->atlass.loaded_charcodes);
     unordered_vector_erase_element(&g_fonts, font);
@@ -330,24 +307,24 @@ void text_load_atlass(struct font_t* font, const wchar_t* characters)
     /*
      * Hand atlass to OpenGL and clean up.
      */
-    glBindVertexArray(font->gl.vao);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tex_width, tex_height, 0, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, buffer);
-    glBindVertexArray(0);
+    glBindVertexArray(font->gl.vao);printOpenGLError();
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tex_width, tex_height, 0, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, buffer);printOpenGLError();
+    glBindVertexArray(0);printOpenGLError();
     FREE(buffer);
 }
 
 void text_draw(void)
 {
     /*glEnable(GL_BLEND);*/
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glUseProgram(g_text_shader_id);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);printOpenGLError();
+    glUseProgram(g_text_shader_id);printOpenGLError();
     {
         UNORDERED_VECTOR_FOR_EACH(&g_fonts, struct font_t, font)
         {
-            glBindVertexArray(font->gl.vao);
+            glBindVertexArray(font->gl.vao);printOpenGLError();
                 /* TODO draw VBO */
         }
     }
-    glDisable(GL_BLEND);
-    glBindVertexArray(0);
+    glDisable(GL_BLEND);printOpenGLError();
+    glBindVertexArray(0);printOpenGLError();
 }
