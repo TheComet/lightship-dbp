@@ -5,6 +5,8 @@
 #include "util/pstdint.h"
 #include "util/config.h"
 
+C_HEADER_BEGIN
+
 /*!
  * @brief Concatenates n number of strings and prints it to stdout.
  * @param[in] num_strs The number of strings that should be concatenated.
@@ -46,5 +48,7 @@ malloc_string(const char* str);
  */
 LIGHTSHIP_PUBLIC_API char
 is_number(const char chr);
+
+C_HEADER_END
 
 #endif /* LIGHTSHIP_UTIL_STRING_H */
