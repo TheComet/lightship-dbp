@@ -50,8 +50,9 @@ map_print(struct map_t* map);
 #define MAP_FOR_EACH(map, var_type, var) \
     intptr_t map_internal_i; \
     var_type* var; \
-    for(map_internal_i = 0; map_internal_i != (map)->vector.count; ++map_internal_i, \
-        var = ((struct map_key_value_t*)(map)->vector.data)[map_internal_i].value)
+    for(map_internal_i = 0, var = ((struct map_key_value_t*)(map)->vector.data)[map_internal_i].value; \
+        map_internal_i != (map)->vector.count; \
+        ++map_internal_i, var = ((struct map_key_value_t*)(map)->vector.data)[map_internal_i].value)
 
 #define MAP_ERASE_IN_FOR_LOOP(map, element) \
     ordered_vector_erase_element((map)->vector, element);
