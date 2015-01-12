@@ -1,5 +1,5 @@
 #include "util/memory.h"
-#include "util/unordered_vector.h"
+#include "util/map.h"
 #include "util/backtrace.h"
 #include <stdlib.h>
 #include <stdio.h>
@@ -11,7 +11,7 @@
 static intptr_t allocations = 0;
 static intptr_t deallocations = 0;
 static intptr_t ignore_map_malloc = 0;
-static struct unordered_vector_t report;
+static struct map_t report;
 
 struct report_info_t
 {
@@ -29,7 +29,7 @@ memory_init(void)
     allocations = 0;
     deallocations = 0;
     ignore_map_malloc = 0;
-    unordered_vector_init_vector(&report, sizeof(struct report_info_t*));
+    map_init_map(&report);
 }
 
 void*
@@ -52,7 +52,7 @@ malloc_debug(intptr_t size)
         info->backtrace = get_backtrace(&info->backtrace_size);
 #endif
         ignore_map_malloc = 1;
-        unordered_vector_push(&report, &info);
+        map_insert(&report, (intptr_t)p, info);
         ignore_map_malloc = 0;
     }
 
@@ -67,18 +67,15 @@ free_debug(void* ptr)
     {
         /*struct report_info_t* info = (struct report_info_t*)map_find(&report, (intptr_t)ptr);*/
         int success = 0;
-        UNORDERED_VECTOR_FOR_EACH(&report, struct report_info_t*, info)
+        struct report_info_t* info = map_find(&report, (intptr_t)ptr);
+        if(info)
         {
-            if((*info)->location == (intptr_t)ptr)
-            {
 #ifdef MEMORY_ENABLE_BACKTRACE
-                free((*info)->backtrace);
+            free(info->backtrace);
 #endif
-                free(*info);
-                unordered_vector_erase_element(&report, info);
-                success = 1;
-                break;
-            }
+            map_erase(&report, (intptr_t)info->location);
+            free(info);
+            success = 1;
         }
 
         if(!success)
@@ -117,29 +114,29 @@ memory_deinit(void)
     printf("=========================================\n");
     printf("Memory Report\n");
     printf("=========================================\n");
-    if(unordered_vector_count(&report) != 0)
+    if(report.vector.count != 0)
     {
         {
-            UNORDERED_VECTOR_FOR_EACH(&report, struct report_info_t*, info)
+            MAP_FOR_EACH(&report, struct report_info_t, info)
             {
                 char* dump;
-                printf("  un-freed memory at 0x%lx, size 0x%lx\n", (*info)->location, (*info)->size);
+                printf("  un-freed memory at 0x%lx, size 0x%lx\n", info->location, info->size);
                 
                 /* print a string dump of the unfreed data */
-                dump = malloc((*info)->size + 1);
-                memcpy(dump, (void*)(*info)->location, (*info)->size);
-                dump[(*info)->size] = '\0';
+                dump = malloc(info->size + 1);
+                memcpy(dump, (void*)info->location, info->size);
+                dump[info->size] = '\0';
                 printf("  string dump: %s\n", dump);
                 free(dump);
 
 #ifdef MEMORY_ENABLE_BACKTRACE
                 printf("  Backtrace to where malloc() was called:\n");
-                for(i = BACKTRACE_OMIT_COUNT; i < (*info)->backtrace_size; ++i)
-                    printf("      %s\n", (*info)->backtrace[i]);
-                free((*info)->backtrace);
+                for(i = BACKTRACE_OMIT_COUNT; i < info->backtrace_size; ++i)
+                    printf("      %s\n", info->backtrace[i]);
+                free(info->backtrace);
                 printf("  -----------------------------------------\n");
 #endif
-                free(*info);
+                free(info);
             }
         }
         printf("=========================================\n");
@@ -150,7 +147,7 @@ memory_deinit(void)
     printf("=========================================\n");
     ++allocations; /* this is the single allocation still held by the report vector */
     ignore_map_malloc = 1;
-    unordered_vector_clear_free(&report);
+    map_clear(&report);
 }
 #else /* MEMORY_ENABLE_MEMORY_REPORT */
 
