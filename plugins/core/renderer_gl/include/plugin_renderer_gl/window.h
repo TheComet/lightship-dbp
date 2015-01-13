@@ -15,4 +15,10 @@ window_init(void);
 void
 window_deinit(void);
 
+int
+window_width(void);
+
+int
+window_height(void);
+
 EVENT_LISTENER(on_render);
