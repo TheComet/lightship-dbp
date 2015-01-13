@@ -40,7 +40,7 @@ struct font_t
     FT_Face face;
     struct text_gl_t gl;
     struct map_t char_map;  /* maps character codes to instances of text_char_info_t */
-    struct map_t static_text_map;
+    struct map_t static_text_map; /* maps IDs to strings of text that are currently in the static buffer */
 };
 
 /*!
@@ -93,7 +93,7 @@ text_load_characters(struct font_t* font, const wchar_t* characters);
 void
 text_load_atlass(struct font_t* font, const wchar_t* characters);
 
-void
+intptr_t
 text_add_static(struct font_t* font, GLfloat x, GLfloat y, const wchar_t* str);
 
 /*!

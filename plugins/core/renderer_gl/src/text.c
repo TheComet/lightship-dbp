@@ -355,7 +355,7 @@ text_load_atlass(struct font_t* font, const wchar_t* characters)
     FREE(buffer);
 }
 
-void
+intptr_t
 text_add_static(struct font_t* font, GLfloat x, GLfloat y, const wchar_t* str)
 {
     struct unordered_vector_t vertex_buffer;
@@ -365,11 +365,18 @@ text_add_static(struct font_t* font, GLfloat x, GLfloat y, const wchar_t* str)
     GLfloat space_dist;
     const wchar_t* iterator;
     INDEX_DATA_TYPE base_index;
-    
+
+    /* copy new string into map */
+    {
+        const wchar_t* str_buffer = 
+            (const wchar_t*)MALLOC((wcslen(str) + 1) * sizeof(wchar_t));
+        map_insert(&font->static_text_map, map_find_unused_key(&font->static_text_map), str_buffer);
+    }
+
     /* set current x coordinate */
     x_coord = x;
     base_index = 0; /*font->static_text_map.vector.count;*/
-    
+
     /* distance between characters */
     dist_between_chars = 3.0 / (GLfloat)window_width();
     space_dist = 20.0 / (GLfloat)window_width();
@@ -383,6 +390,13 @@ text_add_static(struct font_t* font, GLfloat x, GLfloat y, const wchar_t* str)
     {
         struct text_char_info_t* info;
         struct text_vertex_t* vertex;
+        
+        /* the space character requires some extra attention */
+        if(wcsncmp(iterator, L" ", 1) == 0)
+        {
+            x_coord += space_dist;
+            continue;
+        }
 
         /* lookup character info */
         info = (struct text_char_info_t*)map_find(&font->char_map, (intptr_t)*iterator);
@@ -394,10 +408,6 @@ text_add_static(struct font_t* font, GLfloat x, GLfloat y, const wchar_t* str)
             llog(LOG_ERROR, 3, "Failed to look up character: \"", buffer, "\"");
             continue;
         }
-        
-        /* the space requires some extra attention */
-        if(wcsncmp(iterator, L" ", 1) == 0)
-            info->width = space_dist;
 
         /* top left vertex */
         vertex = (struct text_vertex_t*)unordered_vector_push_emplace(&vertex_buffer);

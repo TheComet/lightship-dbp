@@ -119,14 +119,18 @@ memory_deinit(void)
         {
             MAP_FOR_EACH(&report, struct report_info_t, key, info)
             {
-                char* dump;
-                printf("  un-freed memory at 0x%lx, size 0x%lx\n", info->location, info->size);
+                char *dump, *dump_iterator;
+                printf("  un-freed memory at %p, size %p\n", info->location, info->size);
                 
-                /* print a string dump of the unfreed data */
+                /* print a string and hex dump of the unfreed data */
                 dump = malloc(info->size + 1);
                 memcpy(dump, (void*)info->location, info->size);
                 dump[info->size] = '\0';
                 printf("  string dump: %s\n", dump);
+                printf("  hex dump:");
+                for(dump_iterator = dump; *dump_iterator; ++dump_iterator)
+                    printf(" %x", (unsigned char)*dump_iterator);
+                printf("\n");
                 free(dump);
 
 #ifdef MEMORY_ENABLE_BACKTRACE
