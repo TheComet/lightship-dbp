@@ -23,5 +23,5 @@ void main()
 {
     texCoord_fragment = texCoord_vertex;
     colourDiffuse_fragment = colourDiffuse_vertex;
-    gl_Position = vec4(vertexPosition_modelSpace*4, 0.0, 1.0);
+    gl_Position = vec4(vertexPosition_modelSpace, 0.0, 1.0);
 }

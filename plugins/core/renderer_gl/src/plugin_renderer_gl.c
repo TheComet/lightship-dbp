@@ -72,7 +72,7 @@ PLUGIN_START()
     if(!(g_font = text_load_font("ttf/DejaVuSans.ttf")))
         return PLUGIN_FAILURE;
     text_load_characters(g_font, g_default_characters);
-    text_add_static(g_font, 0, 0, L"this is a test");
+    text_add_static(g_font, -0.5, 0.7, L"Hello World, this is some text");
 
     register_event_listeners(g_plugin);
 

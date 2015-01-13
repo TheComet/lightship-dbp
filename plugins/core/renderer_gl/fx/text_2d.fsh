@@ -11,7 +11,7 @@ in vec4 colourDiffuse_fragment;
 // output data
 // ----------------------------------------------------------------------------
 
-out vec3 colour;
+out vec4 colour;
 
 // ----------------------------------------------------------------------------
 // samplers
@@ -25,5 +25,6 @@ uniform sampler2D glyphSampler;
 
 void main()
 {
-    colour = texture(glyphSampler, texCoord_fragment).rgb;
+    colour = texture(glyphSampler, texCoord_fragment);
+    colour.w = dot(colour.rgb, vec3(1.0/3.0));
 }
