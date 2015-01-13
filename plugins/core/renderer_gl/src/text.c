@@ -1,6 +1,7 @@
 #include "plugin_renderer_gl/text.h"
 #include "plugin_renderer_gl/shader.h"
 #include "plugin_renderer_gl/glutils.h"
+#include "plugin_renderer_gl/window.h"
 #include "util/log.h"
 #include "util/memory.h"
 #include "util/unordered_vector.h"
@@ -332,9 +333,12 @@ text_load_atlass(struct font_t* font, const wchar_t* characters)
         character = (struct text_char_info_t*)MALLOC(sizeof(struct text_char_info_t));
         character->uv_left = (GLfloat)(pen         ) / (GLfloat)tex_width;
         character->uv_top  = (GLfloat)(bmp_offset_y) / (GLfloat)tex_height;
-        /* save width and height in screen space */
+        /* save width and height in texture space */
         character->uv_width  = (GLfloat)bmp_width  / (GLfloat)tex_width;
         character->uv_height = (GLfloat)bmp_height / (GLfloat)tex_height;
+        /* save width and height in screen space */
+        character->width  = (GLfloat)bmp_width  * 2.0 / ((GLfloat)window_width());
+        character->height = (GLfloat)bmp_height * 2.0 / ((GLfloat)window_height());
         map_set(&font->char_map, (intptr_t)*iterator, character);
         
         /* advance pen */
@@ -355,11 +359,13 @@ text_add_static(struct font_t* font, GLfloat x, GLfloat y, const wchar_t* str)
 {
     struct unordered_vector_t vertex_buffer;
     struct unordered_vector_t index_buffer;
+    GLfloat x_coord;
     const wchar_t* iterator;
     intptr_t base_index;
     
-    /* base index */
-    base_index = font->static_text_map.vector.count - 1;
+    /* set current x coordinate and base index for new indices */
+    x_coord = x;
+    base_index = font->static_text_map.vector.count;
     
     /* generate new vertices and insert into static text vertex buffer */
     unordered_vector_init_vector(&vertex_buffer, sizeof(struct text_vertex_t));
@@ -376,11 +382,16 @@ text_add_static(struct font_t* font, GLfloat x, GLfloat y, const wchar_t* str)
             llog(LOG_ERROR, 1, "Failed to look up character");
             continue;
         }
+        
+        info->uv_left = 0;
+        info->uv_top = 0;
+        info->uv_width = 1;
+        info->uv_height = 1;
 
         /* top left vertex */
         vertex = (struct text_vertex_t*)unordered_vector_push_emplace(&vertex_buffer);
-        vertex->position[0]  = x;
-        vertex->position[1]  = y + info->uv_height*2;
+        vertex->position[0]  = x_coord;
+        vertex->position[1]  = y + info->height;
         vertex->tex_coord[0] = info->uv_left;
         vertex->tex_coord[1] = info->uv_top;
         vertex->diffuse[0]   = 1.0;
@@ -390,8 +401,8 @@ text_add_static(struct font_t* font, GLfloat x, GLfloat y, const wchar_t* str)
         
         /* top right vertex */
         vertex = (struct text_vertex_t*)unordered_vector_push_emplace(&vertex_buffer);
-        vertex->position[0]  = x + info->uv_width*2;
-        vertex->position[1]  = y + info->uv_height*2;
+        vertex->position[0]  = x_coord + info->width;
+        vertex->position[1]  = y + info->height;
         vertex->tex_coord[0] = info->uv_left + info->uv_width;
         vertex->tex_coord[1] = info->uv_top;
         vertex->diffuse[0]   = 1.0;
@@ -401,7 +412,7 @@ text_add_static(struct font_t* font, GLfloat x, GLfloat y, const wchar_t* str)
         
         /* bottom left vertex */
         vertex = (struct text_vertex_t*)unordered_vector_push_emplace(&vertex_buffer);
-        vertex->position[0]  = x;
+        vertex->position[0]  = x_coord;
         vertex->position[1]  = y;
         vertex->tex_coord[0] = info->uv_left;
         vertex->tex_coord[1] = info->uv_top + info->uv_height;
@@ -412,7 +423,7 @@ text_add_static(struct font_t* font, GLfloat x, GLfloat y, const wchar_t* str)
         
         /* bottom right vertex */
         vertex = (struct text_vertex_t*)unordered_vector_push_emplace(&vertex_buffer);
-        vertex->position[0]  = x + info->uv_width*2;
+        vertex->position[0]  = x_coord + info->width;
         vertex->position[1]  = y;
         vertex->tex_coord[0] = info->uv_left + info->uv_width;
         vertex->tex_coord[1] = info->uv_top + info->uv_height;
@@ -428,11 +439,15 @@ text_add_static(struct font_t* font, GLfloat x, GLfloat y, const wchar_t* str)
         *(INDEX_DATA_TYPE*)unordered_vector_push_emplace(&index_buffer) = base_index + 1;
         *(INDEX_DATA_TYPE*)unordered_vector_push_emplace(&index_buffer) = base_index + 2;
         *(INDEX_DATA_TYPE*)unordered_vector_push_emplace(&index_buffer) = base_index + 3;
+    
+        x_coord += info->width;
+        base_index += 6;
     }
     
     /* upload to GPU */
     glBindVertexArray(font->gl.vao);
         glBufferData(GL_ARRAY_BUFFER, vertex_buffer.count * sizeof(struct text_vertex_t), vertex_buffer.data, GL_STATIC_DRAW);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, index_buffer.count * sizeof(INDEX_DATA_TYPE), index_buffer.data, GL_STATIC_DRAW);
     glBindVertexArray(0);
     
     /* set number of indices */
@@ -453,7 +468,7 @@ text_draw(void)
         UNORDERED_VECTOR_FOR_EACH(&g_fonts, struct font_t, font)
         {
             glBindVertexArray(font->gl.vao);printOpenGLError();
-                glDrawElements(GL_TRIANGLES, font->gl.static_text_num_indices, GL_UNSIGNED_SHORT, NULL);printOpenGLError();
+                glDrawElements(GL_LINES, font->gl.static_text_num_indices, GL_UNSIGNED_SHORT, NULL);printOpenGLError();
         }
     }
     glDisable(GL_BLEND);printOpenGLError();

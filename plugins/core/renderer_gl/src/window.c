@@ -71,6 +71,17 @@ window_deinit(void)
         glfwDestroyWindow(g_window.window);
 }
 
+int
+window_width(void)
+{
+    return g_window.width;
+}
+
+int window_height(void)
+{
+    return g_window.height;
+}
+
 EVENT_LISTENER(on_render)
 {
     /* render everything */
