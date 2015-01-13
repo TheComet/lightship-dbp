@@ -337,8 +337,9 @@ text_load_atlass(struct font_t* font, const wchar_t* characters)
         character->uv_width  = (GLfloat)bmp_width  / (GLfloat)tex_width;
         character->uv_height = (GLfloat)bmp_height / (GLfloat)tex_height;
         /* save width and height in screen space */
-        character->width  = (GLfloat)bmp_width  * 2.0 / ((GLfloat)window_width());
-        character->height = (GLfloat)bmp_height * 2.0 / ((GLfloat)window_height());
+        character->width  = (GLfloat)bmp_width  * 2.0 / (GLfloat)window_width();
+        character->height = (GLfloat)bmp_height * 2.0 / (GLfloat)window_height();
+        character->bearing_y = (GLfloat)bmp_offset_y * 2.0 / (GLfloat)window_height();
         map_set(&font->char_map, (intptr_t)*iterator, character);
         
         /* advance pen */
@@ -387,21 +388,21 @@ text_add_static(struct font_t* font, GLfloat x, GLfloat y, const wchar_t* str)
         info = (struct text_char_info_t*)map_find(&font->char_map, (intptr_t)*iterator);
         if(!info)
         {
-            llog(LOG_ERROR, 1, "Failed to look up character");
+            char* buffer[sizeof(wchar_t)+1];
+            memcpy(buffer, iterator, sizeof(wchar_t));
+            buffer[sizeof(wchar_t)] = '\0';
+            llog(LOG_ERROR, 3, "Failed to look up character: \"", buffer, "\"");
             continue;
         }
         
         /* the space requires some extra attention */
         if(wcsncmp(iterator, L" ", 1) == 0)
-        {
-            x_coord += space_dist;
-            continue;
-        }
+            info->width = space_dist;
 
         /* top left vertex */
         vertex = (struct text_vertex_t*)unordered_vector_push_emplace(&vertex_buffer);
         vertex->position[0]  = x_coord;
-        vertex->position[1]  = y + info->height;
+        vertex->position[1]  = y - info->bearing_y;
         vertex->tex_coord[0] = info->uv_left;
         vertex->tex_coord[1] = info->uv_top;
         vertex->diffuse[0]   = 1.0;
@@ -412,7 +413,7 @@ text_add_static(struct font_t* font, GLfloat x, GLfloat y, const wchar_t* str)
         /* top right vertex */
         vertex = (struct text_vertex_t*)unordered_vector_push_emplace(&vertex_buffer);
         vertex->position[0]  = x_coord + info->width;
-        vertex->position[1]  = y + info->height;
+        vertex->position[1]  = y - info->bearing_y;
         vertex->tex_coord[0] = info->uv_left + info->uv_width;
         vertex->tex_coord[1] = info->uv_top;
         vertex->diffuse[0]   = 1.0;
@@ -423,7 +424,7 @@ text_add_static(struct font_t* font, GLfloat x, GLfloat y, const wchar_t* str)
         /* bottom left vertex */
         vertex = (struct text_vertex_t*)unordered_vector_push_emplace(&vertex_buffer);
         vertex->position[0]  = x_coord;
-        vertex->position[1]  = y;
+        vertex->position[1]  = y - info->bearing_y - info->height;
         vertex->tex_coord[0] = info->uv_left;
         vertex->tex_coord[1] = info->uv_top + info->uv_height;
         vertex->diffuse[0]   = 1.0;
@@ -434,7 +435,7 @@ text_add_static(struct font_t* font, GLfloat x, GLfloat y, const wchar_t* str)
         /* bottom right vertex */
         vertex = (struct text_vertex_t*)unordered_vector_push_emplace(&vertex_buffer);
         vertex->position[0]  = x_coord + info->width;
-        vertex->position[1]  = y;
+        vertex->position[1]  = y - info->bearing_y - info->height;
         vertex->tex_coord[0] = info->uv_left + info->uv_width;
         vertex->tex_coord[1] = info->uv_top + info->uv_height;
         vertex->diffuse[0]   = 1.0;
