@@ -66,6 +66,23 @@ map_find(struct map_t* map, intptr_t hash)
     return data->value;
 }
 
+intptr_t
+map_find_unused_key(struct map_t* map)
+{
+    intptr_t i = 0;
+    
+    if(map_count(map) == 0)
+        return i;
+    
+    MAP_FOR_EACH(map, void, key, value)
+    {
+        if(i != key)
+            break;
+        ++i;
+    }
+    return i;
+}
+
 void
 map_insert(struct map_t* map, intptr_t hash, void* value)
 {

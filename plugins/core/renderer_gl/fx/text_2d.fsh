@@ -27,4 +27,5 @@ void main()
 {
     colour = texture(glyphSampler, texCoord_fragment);
     colour.w = dot(colour.rgb, vec3(1.0/3.0));
+    colour *= colourDiffuse_fragment;
 }

@@ -72,6 +72,15 @@ LIGHTSHIP_PUBLIC_API void*
 map_find(struct map_t* map, intptr_t hash);
 
 /*!
+ * @brief Returns a key that does not yet exist in the map.
+ * @note Complexity is O(n)
+ * @param[in] map The map to generate a key from.
+ * @return Returns a key that does not yet exist in the map.
+ */
+LIGHTSHIP_PUBLIC_API intptr_t
+map_find_unused_key(struct map_t* map);
+
+/*!
  * @brief Erases the specified element from the map.
  * @note Complexity is O(log2(n))
  * @param[in] map The map to erase from.

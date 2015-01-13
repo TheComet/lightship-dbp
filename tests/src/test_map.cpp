@@ -267,3 +267,58 @@ TEST(NAME, inserting_duplicate_keys_doesnt_replace_existing_elements)
     
     map_destroy(map);
 }
+
+TEST(NAME, generating_keys_do_not_conflict_with_existing_ascending_keys)
+{
+    intptr_t key;
+    struct map_t* map = map_create();
+    map_insert(map, 0, NULL);
+    map_insert(map, 1, NULL);
+    map_insert(map, 2, NULL);
+    map_insert(map, 3, NULL);
+    map_insert(map, 5, NULL);
+    key = map_find_unused_key(map);
+    ASSERT_NE(0, key);
+    ASSERT_NE(1, key);
+    ASSERT_NE(2, key);
+    ASSERT_NE(3, key);
+    ASSERT_NE(5, key);
+    map_destroy(map);
+}
+
+TEST(NAME, map_generating_keys_do_not_conflict_with_existing_descending_keys)
+{
+        intptr_t key;
+    struct map_t* map = map_create();
+    map_insert(map, 5, NULL);
+    map_insert(map, 3, NULL);
+    map_insert(map, 2, NULL);
+    map_insert(map, 1, NULL);
+    map_insert(map, 0, NULL);
+    key = map_find_unused_key(map);
+    ASSERT_NE(0, key);
+    ASSERT_NE(1, key);
+    ASSERT_NE(2, key);
+    ASSERT_NE(3, key);
+    ASSERT_NE(5, key);
+    map_destroy(map);
+}
+
+
+TEST(NAME, map_generating_keys_do_not_conflict_with_existing_random_keys)
+{
+    intptr_t key;
+    struct map_t* map = map_create();
+    map_insert(map, 2387, NULL);
+    map_insert(map, 28, NULL);
+    map_insert(map, 358, NULL);
+    map_insert(map, 183, NULL);
+    map_insert(map, 38, NULL);
+    key = map_find_unused_key(map);
+    ASSERT_NE(2387, key);
+    ASSERT_NE(28, key);
+    ASSERT_NE(358, key);
+    ASSERT_NE(183, key);
+    ASSERT_NE(38, key);
+    map_destroy(map);
+}
