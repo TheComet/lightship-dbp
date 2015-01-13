@@ -298,7 +298,7 @@ text_load_atlass(struct font_t* font, const wchar_t* characters)
         bmp_ptr = (GLubyte*)font->face->glyph->bitmap.buffer;
         bmp_width = font->face->glyph->bitmap.width;
         bmp_height = font->face->glyph->bitmap.rows;
-        bmp_offset_y = glyph_offset_y-TO_PIXELS(font->face->glyph->metrics.horiBearingY);
+        bmp_offset_y = glyph_offset_y - TO_PIXELS(font->face->glyph->metrics.horiBearingY);
         
         /* need to convert whatever pixel mode bitmap has to RGBA */
         switch(font->face->glyph->bitmap.pixel_mode)
@@ -360,16 +360,24 @@ text_add_static(struct font_t* font, GLfloat x, GLfloat y, const wchar_t* str)
     struct unordered_vector_t vertex_buffer;
     struct unordered_vector_t index_buffer;
     GLfloat x_coord;
+    GLfloat dist_between_chars;
+    GLfloat space_dist;
     const wchar_t* iterator;
-    intptr_t base_index;
+    INDEX_DATA_TYPE base_index;
     
-    /* set current x coordinate and base index for new indices */
+    /* set current x coordinate */
     x_coord = x;
-    base_index = font->static_text_map.vector.count;
+    base_index = 0; /*font->static_text_map.vector.count;*/
     
-    /* generate new vertices and insert into static text vertex buffer */
+    /* distance between characters */
+    dist_between_chars = 3.0 / (GLfloat)window_width();
+    space_dist = 20.0 / (GLfloat)window_width();
+
+    /* init vertex and index buffers */
     unordered_vector_init_vector(&vertex_buffer, sizeof(struct text_vertex_t));
     unordered_vector_init_vector(&index_buffer, sizeof(INDEX_DATA_TYPE));
+    
+    /* generate new vertices and insert into static text vertex buffer */
     for(iterator = str; *iterator; ++iterator)
     {
         struct text_char_info_t* info;
@@ -383,10 +391,12 @@ text_add_static(struct font_t* font, GLfloat x, GLfloat y, const wchar_t* str)
             continue;
         }
         
-        info->uv_left = 0;
-        info->uv_top = 0;
-        info->uv_width = 1;
-        info->uv_height = 1;
+        /* the space requires some extra attention */
+        if(wcsncmp(iterator, L" ", 1) == 0)
+        {
+            x_coord += space_dist;
+            continue;
+        }
 
         /* top left vertex */
         vertex = (struct text_vertex_t*)unordered_vector_push_emplace(&vertex_buffer);
@@ -440,8 +450,8 @@ text_add_static(struct font_t* font, GLfloat x, GLfloat y, const wchar_t* str)
         *(INDEX_DATA_TYPE*)unordered_vector_push_emplace(&index_buffer) = base_index + 2;
         *(INDEX_DATA_TYPE*)unordered_vector_push_emplace(&index_buffer) = base_index + 3;
     
-        x_coord += info->width;
-        base_index += 6;
+        x_coord += info->width + dist_between_chars;
+        base_index += 4;
     }
     
     /* upload to GPU */
@@ -461,14 +471,14 @@ text_add_static(struct font_t* font, GLfloat x, GLfloat y, const wchar_t* str)
 void
 text_draw(void)
 {
-    /*glEnable(GL_BLEND);*/
+    glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);printOpenGLError();
     glUseProgram(g_text_shader_id);printOpenGLError();
     {
         UNORDERED_VECTOR_FOR_EACH(&g_fonts, struct font_t, font)
         {
             glBindVertexArray(font->gl.vao);printOpenGLError();
-                glDrawElements(GL_LINES, font->gl.static_text_num_indices, GL_UNSIGNED_SHORT, NULL);printOpenGLError();
+                glDrawElements(GL_TRIANGLES, font->gl.static_text_num_indices, GL_UNSIGNED_SHORT, NULL);printOpenGLError();
         }
     }
     glDisable(GL_BLEND);printOpenGLError();
