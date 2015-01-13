@@ -71,9 +71,6 @@ map_find_unused_key(struct map_t* map)
 {
     intptr_t i = 0;
     
-    if(map_count(map) == 0)
-        return i;
-    
     MAP_FOR_EACH(map, void, key, value)
     {
         if(i != key)
