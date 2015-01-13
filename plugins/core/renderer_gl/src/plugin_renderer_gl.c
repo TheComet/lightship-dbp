@@ -17,7 +17,7 @@ static const wchar_t* g_default_characters =
 L"abcdefghijklmnopqrstuvwxyz"
 L"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 L"1234567890"
-L" +-*/!?'^\"$%&()[]{}#@~";
+L" +-*/!?'^\"$%&()[]{}#@~,.";
 
 void
 set_plugin_info(void)
@@ -72,7 +72,7 @@ PLUGIN_START()
     if(!(g_font = text_load_font("ttf/DejaVuSans.ttf")))
         return PLUGIN_FAILURE;
     text_load_characters(g_font, g_default_characters);
-    text_add_static(g_font, -0.5, 0.7, L"Hello World, this is some text");
+    text_add_static(g_font, -0.5, 0.95, L"Hello World, testing text");
 
     register_event_listeners(g_plugin);
 

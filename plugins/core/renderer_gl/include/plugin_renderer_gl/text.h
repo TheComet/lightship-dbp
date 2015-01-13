@@ -32,6 +32,7 @@ struct text_char_info_t
     GLfloat uv_height;
     GLfloat width;
     GLfloat height;
+    GLfloat bearing_y;
 };
 
 struct font_t
