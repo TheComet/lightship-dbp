@@ -21,4 +21,4 @@ window_width(void);
 int
 window_height(void);
 
-EVENT_LISTENER(on_render);
+EVENT_LISTENER0(on_render);

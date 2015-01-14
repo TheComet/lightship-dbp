@@ -44,7 +44,7 @@ llog_indent(const char* indent_name)
 LIGHTSHIP_PUBLIC_API void
 llog_unindent(void)
 {
-    EVENT_FIRE(evt_log_unindent);
+    EVENT_FIRE0(evt_log_unindent);
     if(g_log_indent)
         --g_log_indent;
 }

@@ -82,7 +82,7 @@ int window_height(void)
     return g_window.height;
 }
 
-EVENT_LISTENER(on_render)
+EVENT_LISTENER0(on_render)
 {
     /* render everything */
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -95,6 +95,6 @@ EVENT_LISTENER(on_render)
     /* fire close window event */
     if(glfwWindowShouldClose(g_window.window) != 0)
     {
-        EVENT_FIRE(evt_close_window)
+        EVENT_FIRE0(evt_close_window)
     }
 }

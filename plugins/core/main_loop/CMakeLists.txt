@@ -35,6 +35,7 @@ set (plugin_main_loop_OUTPUT_NAME
 
 file (GLOB plugin_main_loop_HEADERS "include/plugin_main_loop/*.h")
 file (GLOB plugin_main_loop_SOURCES "src/*.c")
+set (plugin_main_loop_HEADERS ${plugin_main_loop_HEADERS} "include/plugin_main_loop.h")
 
 include_directories ("include")
 

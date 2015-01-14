@@ -46,9 +46,10 @@ struct font_t
 struct text_string_instance_t
 {
     struct font_t* font;
+    wchar_t* text;
     GLfloat x;
     GLfloat y;
-    wchar_t* text;
+    char is_centered;
 };
 
 /*!
@@ -122,9 +123,11 @@ text_load_atlass(struct font_t* font, const wchar_t* characters);
  * delete the string from the static buffer.
  */
 intptr_t
-text_add_static_string(struct font_t* font, GLfloat x, GLfloat y, const wchar_t* str);
+text_add_static_string(struct font_t* font, char centered, GLfloat x, GLfloat y, const wchar_t* str);
 intptr_t
 text_add_static_string_wrapper(uint32_t font_id, float x, float y, const wchar_t* str);
+intptr_t
+text_add_static_center_string_wrapper(uint32_t font_id, float x, float y, const wchar_t* str);
 
 /*!
  * @brief Destroys a text string from the static vertex buffer.

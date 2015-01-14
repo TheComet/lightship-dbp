@@ -1,7 +1,6 @@
 #include "plugin_main_loop/main_loop.h"
 #include "plugin_main_loop/events.h"
 #include "lightship/api.h"
-#include "util/event_api.h"
 #include "util/log.h"
 #include "util/time.h"
 #include <stdio.h>
@@ -66,12 +65,12 @@ main_loop_start(void)
         int updates = 0;
         
         /* dispatch render event */
-        EVENT_FIRE(evt_render)
+        EVENT_FIRE0(evt_render)
         
         /* dispatch game loop event */
         while(is_time_to_update())
         {
-            EVENT_FIRE(evt_update);
+            EVENT_FIRE0(evt_update);
             if(++updates >= 10) /* don't allow more than 10 update loops without
                                    a render update */
                 break;
@@ -80,7 +79,7 @@ main_loop_start(void)
 }
 
 void
-main_loop_stop(const struct event_t* evt, void* args)
+main_loop_stop(void)
 {
     loop.is_looping = 0;
 }
@@ -97,6 +96,11 @@ int64_t
 main_loop_get_elapsed_time(void)
 {
     return get_time_in_microseconds() - loop.time_begin;
+}
+
+EVENT_LISTENER0(on_main_loop_stop)
+{
+    main_loop_stop();
 }
 
 #ifdef _DEBUG

@@ -6,5 +6,5 @@ void
 register_services(struct plugin_t* plugin)
 {
     service_register(plugin, "start", (intptr_t)main_loop_start);
-    service_register(plugin, "stop", (intptr_t)main_loop_stop);
+    service_register(plugin, "stop",  (intptr_t)main_loop_stop);
 }
