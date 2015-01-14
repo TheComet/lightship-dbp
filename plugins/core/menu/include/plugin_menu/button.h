@@ -12,7 +12,8 @@ struct button_t
 {
     uint32_t ID;
     uint32_t shapes_normal_ID;
-    char* text;
+    intptr_t text_ID;
+    wchar_t* text;
     struct vec2_t pos;
     struct vec2_t size;
 };

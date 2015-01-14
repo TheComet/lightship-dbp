@@ -18,6 +18,7 @@ extern line_2d_func line_2d;
 extern box_2d_func box_2d;
 
 extern text_load_font_func text_load_font;
+extern text_destroy_font_func text_destroy_font;
 extern text_load_characters_func text_load_characters;
 extern text_add_static_center_string_func text_add_static_center_string;
 extern text_destroy_static_string_func text_destroy_static_string;

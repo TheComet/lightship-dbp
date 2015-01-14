@@ -30,6 +30,8 @@ target_link_libraries (lightship
 create_vcproj_userfile (lightship)
 
 include_directories ("${CMAKE_SOURCE_DIR}/plugins/core/yaml/include")
+include_directories ("${CMAKE_SOURCE_DIR}/plugins/core/menu/include")
+include_directories ("${CMAKE_SOURCE_DIR}/plugins/core/renderer_gl/include")
 
 ###############################################################################
 # install targets

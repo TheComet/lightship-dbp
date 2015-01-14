@@ -48,8 +48,8 @@ deinit_2d(void)
         unordered_vector_clear_free(&shapes->index_data);printOpenGLError();
     }
     
-	if(g_line_shader_id)
-		glDeleteProgram(g_line_shader_id);printOpenGLError();
+    if(g_line_shader_id)
+        glDeleteProgram(g_line_shader_id);printOpenGLError();
     unordered_vector_clear_free(&g_shapes_collection);
 }
 

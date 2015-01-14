@@ -23,10 +23,8 @@ L"1234567890"
 L" +-*/!?'^\"$%&()[]{}#@~,.";
 
 #ifdef _DEBUG
-static const char* ttf_prefix = "../../plugins/core/renderer_gl/";
 static const char* text_shader_file = "../../plugins/core/renderer_gl/fx/text_2d";
 #else
-static const char* ttf_prefix = "./";
 static const char* text_shader_file = "fx/text_2d";
 #endif
 
@@ -140,7 +138,6 @@ struct font_t*
 text_load_font(const char* filename, uint32_t char_size)
 {
     FT_Error error;
-    char* ttf_filename;
     struct font_t* font;
     
     /* create new font object */
@@ -149,23 +146,20 @@ text_load_font(const char* filename, uint32_t char_size)
     map_init_map(&font->char_map);
     map_init_map(&font->static_text_map);
     
-    /* add path prefix to filename */
-    ttf_filename = cat_strings(2, ttf_prefix, filename);
-    
     /* if the program breaks from this for-loop, something went wrong. */
     for(;;)
     {
 
         /* load face */
-        error = FT_New_Face(g_lib, ttf_filename, 0, &font->face);
+        error = FT_New_Face(g_lib, filename, 0, &font->face);
         if(error == FT_Err_Unknown_File_Format)
         {
-            llog(LOG_ERROR, 3, "The font file \"", ttf_filename, "\" could be opened and read, but it appears that its font format is unsupported");
+            llog(LOG_ERROR, 3, "The font file \"", filename, "\" could be opened and read, but it appears that its font format is unsupported");
             break;
         }
         else if(error)
         {
-            llog(LOG_ERROR, 3, "Failed to open font file \"", ttf_filename, "\"");
+            llog(LOG_ERROR, 3, "Failed to open font file \"", filename, "\"");
             break;
         }
         
@@ -217,7 +211,6 @@ text_load_font(const char* filename, uint32_t char_size)
          */
 
         /* clean up and return */
-        FREE(ttf_filename);
         return font;
     }
 
@@ -225,7 +218,6 @@ text_load_font(const char* filename, uint32_t char_size)
      * If the program reaches this point, it means something went wrong.
      * Clean up and return.
      */
-    FREE(ttf_filename);
     unordered_vector_erase_element(&g_fonts, font);
     return NULL;
 }
@@ -640,8 +632,8 @@ text_draw(void)
                 glDrawElements(GL_TRIANGLES, font->gl.static_text_num_indices, GL_UNSIGNED_SHORT, NULL);printOpenGLError();
         }
     }
-    glDisable(GL_BLEND);printOpenGLError();
     glBindVertexArray(0);printOpenGLError();
+    glDisable(GL_BLEND);printOpenGLError();
 }
 
 /* ------------------------------------------------------------------------- */

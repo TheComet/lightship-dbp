@@ -11,7 +11,9 @@
 #include "util/log.h"
 #include "util/string.h"
 #include "util/pstdint.h"
-#include "plugin_yaml/services.h"
+#include "plugin_yaml.h"
+#include "plugin_menu.h"
+#include "plugin_renderer_gl.h"
 
 #include "util/map.h"
 
@@ -87,9 +89,24 @@ init(void)
     if(!load_plugins_from_yaml(yml_core_plugins))
         return;
     {
-    typedef uint32_t (*button_create_func)(const char*, float, float, float, float);
-    uint32_t id = ((button_create_func)service_get("menu.button_create"))("test", 0.0, 0.0, 0.3, 0.1);
-    ((button_create_func)service_get("menu.button_create"))("test2", 0.0, 0.3, 0.3, 0.1);
+        button_create_func button_create = ((button_create_func)service_get("menu.button_create"));
+        text_load_font_func text_load_font = ((text_load_font_func)service_get("renderer_gl.text_load_font"));
+        text_load_characters_func text_load_characters = ((text_load_characters_func)service_get("renderer_gl.text_load_characters"));
+        text_add_static_center_string_func text_add_static_center_string = ((text_add_static_center_string_func)service_get("renderer_gl.text_add_static_center_string"));
+        
+
+        
+        
+        uint32_t font = text_load_font("../../plugins/core/menu/ttf/DejaVuSans.ttf", 9);
+        text_load_characters(font, NULL);
+        
+        text_add_static_center_string(font, 0, 0, L"test");
+        text_add_static_center_string(font, 0, 0.1, L"test");
+        /*button_create("test2", 0.0, 0.3, 0.3, 0.1);*/
+        button_create("test", 0.0, 0.0, 0.3, 0.1);
+        button_create("test", 0.0, 0.0, 0.3, 0.1);
+        button_create("test", 0.0, 0.0, 0.3, 0.1);
+        text_add_static_center_string(font, 0, 0, L"test");
     }
     /* 
      * Try to get the main loop service and start running the game
