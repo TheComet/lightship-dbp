@@ -66,6 +66,15 @@ map_find(struct map_t* map, intptr_t hash)
     return data->value;
 }
 
+char
+map_key_exists(struct map_t* map, intptr_t hash)
+{
+    struct map_key_value_t* data = map_find_lower_bound(map, hash);
+    if(data && data->hash == hash)
+        return 1;
+    return 0;
+}
+
 intptr_t
 map_find_unused_key(struct map_t* map)
 {
@@ -103,9 +112,8 @@ void
 map_set(struct map_t* map, intptr_t hash, void* value)
 {
     struct map_key_value_t* data = map_find_lower_bound(map, hash);
-    if(!data)
-        return;
-    data->value = value;
+    if(data && data->hash == hash)
+        data->value = value;
 }
 
 void*
@@ -142,7 +150,7 @@ map_print(struct map_t* map)
     {
         ORDERED_VECTOR_FOR_EACH(&map->vector, struct map_key_value_t, item)
         {
-            printf("hash: %ld, value (ptr): %ld\n", item->hash, item->value);
+            printf("hash: %ld, value (ptr): %p\n", item->hash, (void*)item->value);
             i++;
         }
         printf("items in map: %d\n", i);

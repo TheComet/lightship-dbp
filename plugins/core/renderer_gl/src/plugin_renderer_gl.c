@@ -49,7 +49,7 @@ PLUGIN_INIT()
 
     return g_plugin;
 }
-
+#include "util/memory.h"
 PLUGIN_START()
 {
     /* initialise GLFW */
@@ -67,12 +67,14 @@ PLUGIN_START()
 
     /* init graphics */
     init_2d();
+
     if(!text_init())
         return PLUGIN_FAILURE;
     if(!(g_font = text_load_font("ttf/DejaVuSans.ttf")))
         return PLUGIN_FAILURE;
+
     text_load_characters(g_font, g_default_characters);
-    text_add_static(g_font, -0.5, 0.95, L"Hello World, testing text");
+    text_add_static_string(g_font, 0.0, 0.0, L"Hello World, testing text");
 
     register_event_listeners(g_plugin);
 

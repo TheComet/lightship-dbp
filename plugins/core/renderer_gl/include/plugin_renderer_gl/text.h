@@ -40,7 +40,15 @@ struct font_t
     FT_Face face;
     struct text_gl_t gl;
     struct map_t char_map;  /* maps character codes to instances of text_char_info_t */
-    struct map_t static_text_map; /* maps IDs to strings of text that are currently in the static buffer */
+    struct map_t static_text_map; /* maps IDs to instances of text_string_instance_t */
+};
+
+struct text_string_instance_t
+{
+    struct font_t* font;
+    GLfloat x;
+    GLfloat y;
+    wchar_t* text;
 };
 
 /*!
@@ -93,8 +101,38 @@ text_load_characters(struct font_t* font, const wchar_t* characters);
 void
 text_load_atlass(struct font_t* font, const wchar_t* characters);
 
+/*!
+ * @brief Adds a new text string to the static vertex buffer.
+ * 
+ * The static buffer takes longer to re-generate, but is very cheap to render
+ * once generated.
+ * @param font The font to use for the text string.
+ * @param x The x-coordinate in GL screen space of the first letter.
+ * @param y The y-coordinate in GL screen space of the top of the first letter.
+ * @param str The wchar_t* string to add. If NULL is specified, the static
+ * buffer is re-generated but nothing is added.
+ * @return Returns the ID for the string being added. This can be used to later
+ * delete the string from the static buffer.
+ */
 intptr_t
-text_add_static(struct font_t* font, GLfloat x, GLfloat y, const wchar_t* str);
+text_add_static_string(struct font_t* font, GLfloat x, GLfloat y, const wchar_t* str);
+
+/*!
+ * @brief Destroys a text string from the static vertex buffer.
+ * 
+ * The static buffer takes longer to re-generate, but is very cheap to render
+ * once generated.
+ * @param font The font the vertex buffer belongs to.
+ * @param ID The unique identifier returned by text_add_static_string().
+ */
+void
+text_destroy_static_string(struct font_t* font, intptr_t ID);
+
+/*!
+ * @brief Destroys all static strings from the font.
+ */
+void
+text_destroy_all_static_strings(struct font_t* font);
 
 /*!
  * @brief The draw call. Draws all existing text to the screen.

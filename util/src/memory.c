@@ -73,7 +73,7 @@ free_debug(void* ptr)
 #ifdef MEMORY_ENABLE_BACKTRACE
             free(info->backtrace);
 #endif
-            map_erase(&report, (intptr_t)info->location);
+            map_erase(&report, info->location);
             free(info);
             success = 1;
         }
@@ -120,7 +120,7 @@ memory_deinit(void)
             MAP_FOR_EACH(&report, struct report_info_t, key, info)
             {
                 char *dump, *dump_iterator;
-                printf("  un-freed memory at %p, size %p\n", info->location, info->size);
+                printf("  un-freed memory at %p, size %p\n", (void*)info->location, (void*)info->size);
                 
                 /* print a string and hex dump of the unfreed data */
                 dump = malloc(info->size + 1);
