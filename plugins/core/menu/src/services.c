@@ -7,11 +7,17 @@ yaml_load_func yaml_load;
 yaml_get_value_func yaml_get_value;
 yaml_get_dom_func yaml_get_dom;
 yaml_destroy_func yaml_destroy;
+
 shapes_2d_begin_func shapes_2d_begin;
 shapes_2d_end_func shapes_2d_end;
 shapes_2d_destroy_func shapes_2d_destroy;
 line_2d_func line_2d;
 box_2d_func box_2d;
+
+text_load_font_func text_load_font;
+text_load_characters_func text_load_characters;
+text_add_static_center_string_func text_add_static_center_string;
+text_destroy_static_string_func text_destroy_static_string;
 
 void
 register_services(const struct plugin_t* plugin)
@@ -44,6 +50,14 @@ get_required_services(void)
     if(!(line_2d = (line_2d_func)service_get("renderer_gl.line_2d")))
         return 0;
     if(!(box_2d = (box_2d_func)service_get("renderer_gl.box_2d")))
+        return 0;
+    if(!(text_load_font = (text_load_font_func)service_get("renderer_gl.text_load_font")))
+        return 0;
+    if(!(text_load_characters = (text_load_characters_func)service_get("renderer_gl.text_load_characters")))
+        return 0;
+    if(!(text_add_static_center_string = (text_add_static_center_string_func)service_get("renderer_gl.text_add_static_center_string")))
+        return 0;
+    if(!(text_destroy_static_string = (text_destroy_static_string_func)service_get("renderer_gl.text_destroy_static_string")))
         return 0;
     return 1;
 }

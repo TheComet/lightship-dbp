@@ -40,6 +40,7 @@ set (plugin_input_OUTPUT_NAME
 
 file (GLOB plugin_input_HEADERS "include/plugin_input/*.h")
 file (GLOB plugin_input_SOURCES "src/*.c")
+set (plugin_input_HEADERS ${plugin_input_HEADERS} "include/plugin_input.h")
 
 include_directories ("include")
 include_directories ("../renderer_gl/ext/GL/glfw-3.0.3/include/GLFW/")

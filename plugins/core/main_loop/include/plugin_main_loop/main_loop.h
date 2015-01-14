@@ -1,4 +1,5 @@
 #include "util/pstdint.h"
+#include "util/event_api.h"
 
 struct event_t;
 struct event_args;
@@ -26,13 +27,15 @@ void
 main_loop_start(void);
 
 void
-main_loop_stop(const struct event_t* evt, void* args);
+main_loop_stop(void);
 
 void
 main_loop_reset_timer(void);
 
 int64_t
 main_loop_get_elapsed_time(void);
+
+EVENT_LISTENER0(on_main_loop_stop);
 
 #ifdef _DEBUG
 #   include "util/event_api.h"

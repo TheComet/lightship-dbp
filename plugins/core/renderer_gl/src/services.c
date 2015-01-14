@@ -15,6 +15,7 @@ register_services(const struct plugin_t* plugin)
     service_register(plugin, "text_destroy_font",               (intptr_t)text_destroy_font_wrapper);
     service_register(plugin, "text_load_characters",            (intptr_t)text_load_characters_wrapper);
     service_register(plugin, "text_add_static_string",          (intptr_t)text_add_static_string_wrapper);
+    service_register(plugin, "text_add_static_center_string",   (intptr_t)text_add_static_center_string_wrapper);
     service_register(plugin, "text_destroy_static_string",      (intptr_t)text_destroy_static_string_wrapper);
     service_register(plugin, "text_destroy_all_static_strings", (intptr_t)text_destroy_all_static_strings_wrapper);
 }

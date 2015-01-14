@@ -40,6 +40,7 @@ set (plugin_menu_OUTPUT_NAME
 
 file (GLOB plugin_menu_HEADERS "include/plugin_menu/*.h")
 file (GLOB plugin_menu_SOURCES "src/*.c")
+set (plugin_menu_HEADERS ${plugin_menu_HEADERS} "include/plugin_menu.h")
 
 include_directories ("include")
 
@@ -76,8 +77,11 @@ target_link_libraries (plugin_menu
 )
 
 ###############################################################################
-# other libs...
+# dependent on renderer_gl and yaml
 ###############################################################################
+
+include_directories ("${CMAKE_SOURCE_DIR}/plugins/core/renderer_gl/include")
+include_directories ("${CMAKE_SOURCE_DIR}/plugins/core/yaml/include")
 
 ###############################################################################
 # install targets

@@ -69,7 +69,7 @@ text_convert_text_to_vbo(struct font_t* font,
  * @param str The string to copy into the instance.
  */
 static struct text_string_instance_t*
-text_create_string_instance(struct font_t* font, GLfloat x, GLfloat y, const wchar_t* str)
+text_create_string_instance(struct font_t* font, char centered, GLfloat x, GLfloat y, const wchar_t* str)
 {
     struct text_string_instance_t* instance;
     wchar_t* str_buffer;
@@ -77,9 +77,10 @@ text_create_string_instance(struct font_t* font, GLfloat x, GLfloat y, const wch
     wcscpy(str_buffer, str);
     instance = (struct text_string_instance_t*)MALLOC(sizeof(struct text_string_instance_t));
     instance->font = font;
+    instance->text = str_buffer;
     instance->x = x;
     instance->y = y;
-    instance->text = str_buffer;
+    instance->is_centered = centered;
     
     return instance;
 }
@@ -445,7 +446,7 @@ text_load_atlass(struct font_t* font, const wchar_t* characters)
 
 /* ------------------------------------------------------------------------- */
 intptr_t
-text_add_static_string(struct font_t* font, GLfloat x, GLfloat y, const wchar_t* str)
+text_add_static_string(struct font_t* font, char centered, GLfloat x, GLfloat y, const wchar_t* str)
 {
     struct unordered_vector_t vertex_buffer;
     struct unordered_vector_t index_buffer;
@@ -455,7 +456,7 @@ text_add_static_string(struct font_t* font, GLfloat x, GLfloat y, const wchar_t*
     if(str)
     {
         struct text_string_instance_t* str_instance;
-        str_instance = text_create_string_instance(font, x, y, str);
+        str_instance = text_create_string_instance(font, centered, x, y, str);
         text_key = map_find_unused_key(&font->static_text_map);
         map_insert(&font->static_text_map, text_key, str_instance);
     }
@@ -497,7 +498,7 @@ text_destroy_static_string(struct font_t* font, intptr_t ID)
     if(instance)
     {
         text_destroy_string_instance(instance);
-        text_add_static_string(font, 0, 0, NULL);
+        text_add_static_string(font, 0, 0, 0, NULL);
     }
 }
 
@@ -678,7 +679,17 @@ text_add_static_string_wrapper(uint32_t font_id, float x, float y, const wchar_t
     intptr_t ret = -1;
     struct font_t* font = map_find(&g_wrapper_fonts, font_id);
     if(font)
-        ret = text_add_static_string(font, x, y, str);
+        ret = text_add_static_string(font, 0, x, y, str);
+    return ret;
+}
+
+intptr_t
+text_add_static_center_string_wrapper(uint32_t font_id, float x, float y, const wchar_t* str)
+{
+    intptr_t ret = -1;
+    struct font_t* font = map_find(&g_wrapper_fonts, font_id);
+    if(font)
+        ret = text_add_static_string(font, 1, x, y, str);
     return ret;
 }
 

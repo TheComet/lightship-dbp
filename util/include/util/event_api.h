@@ -23,7 +23,7 @@ typedef void (*event_callback_func)();
  * @param[in] arg... The arguments to receive from the event.
  * @note The event listener must have the same signature as the fired event.
  */
-#define EVENT_LISTENER(name) \
+#define EVENT_LISTENER0(name) \
     void name(const struct event_t* evt)
 #define EVENT_LISTENER1(name, arg) \
     void name(const struct event_t* evt, arg)
@@ -33,6 +33,20 @@ typedef void (*event_callback_func)();
     void name(const struct event_t* evt, arg1, arg2, arg3)
 #define EVENT_LISTENER4(name, arg1, arg2, arg3, arg4) \
     void name(const struct event_t* evt, arg1, arg2, arg3, arg4)
+
+/*!
+ * @brief Generates an event listener function signature typedef.
+ */
+#define EVENT_LISTENER_TYPEDEF0(name) \
+    typedef void (*name)(const struct event_t*);
+#define EVENT_LISTENER_TYPEDEF1(name, arg) \
+    typedef void (*name)(const struct event_t*, arg);
+#define EVENT_LISTENER_TYPEDEF2(name, arg1, arg2) \
+    typedef void (*name)(const struct event_t*, arg1, arg2);
+#define EVENT_LISTENER_TYPEDEF3(name, arg1, arg2, arg3) \
+    typedef void (*name)(const struct event_t*, arg1, arg2, arg3);
+#define EVENT_LISTENER_TYPEDEF4(name, arg1, arg2, arg3, arg4) \
+    typedef void (*name)(const struct event_t*, arg1, arg2, arg3, arg4);
 
 /* the actual function call to the listener */
 #define EVENT_FIRE_IMPL0(event) \
@@ -94,7 +108,7 @@ typedef void (*event_callback_func)();
  * and be registered with the host program with event_register().
  * @param[in] args... The arguments to fire along with the event.
  */
-#define EVENT_FIRE(event) \
+#define EVENT_FIRE0(event) \
             IF_EVENT_VALID(event) \
                 EVENT_ITERATE_LISTENERS_BEGIN(event) \
                     EVENT_FIRE_IMPL0(event) \
@@ -125,9 +139,25 @@ typedef void (*event_callback_func)();
                 EVENT_ITERATE_LISTENERS_END \
             REPORT_EVENT_FIRE_FAILURE
 
+/*!
+ * @brief Declare an event in a header file.
+ * @param even The event name. Should match an event name defined using
+ * EVENT_C() in a source file.
+@code
+EVENT_H(evt_foo);
+@endcode
+ */
 #define EVENT_H(event) \
     extern struct event_t* event;
 
+/*!
+ * @brief Define an event in a source file.
+ * @param event The event name. Should match an event name declared using
+ * EVENT_H() in a header file.
+@code
+EVENT_C(evt_foo);
+@endcode
+ */
 #define EVENT_C(event) \
     struct event_t* event = (void*)0;
 
