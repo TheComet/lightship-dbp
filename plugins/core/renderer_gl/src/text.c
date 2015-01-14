@@ -13,7 +13,14 @@
 
 static FT_Library g_lib;
 static struct unordered_vector_t g_fonts;
+static struct map_t g_wrapper_fonts;
 static GLuint g_text_shader_id;
+
+static const wchar_t* g_default_characters =
+L"abcdefghijklmnopqrstuvwxyz"
+L"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+L"1234567890"
+L" +-*/!?'^\"$%&()[]{}#@~,.";
 
 #ifdef _DEBUG
 static const char* ttf_prefix = "../../plugins/core/renderer_gl/";
@@ -23,6 +30,11 @@ static const char* ttf_prefix = "./";
 static const char* text_shader_file = "fx/text_2d";
 #endif
 
+/*!
+ * @brief Rounds a number up to the nearest power of 2.
+ * @param value The value to round up.
+ * @return The rounded value.
+ */
 static GLuint
 to_nearest_pow2(GLuint value)
 {
@@ -31,6 +43,16 @@ to_nearest_pow2(GLuint value)
     return nearest;
 }
 
+/*!
+ * @brief Takes a string, generates vertex and index data, and appends it to
+ * the respective buffers.
+ * @param font The font to use to generate the data from.
+ * @param x The x coordinate of the string in GL screen space.
+ * @param y The y coordinate of the string in GL screen space.
+ * @param vertex_buffer The unsigned_vector to append vertices to.
+ * @param index_buffer The unsigned_vector to append indices to.
+ * @param str The wide character string to generate the data from.
+ */
 static void
 text_convert_text_to_vbo(struct font_t* font,
                               GLfloat x,
@@ -39,6 +61,13 @@ text_convert_text_to_vbo(struct font_t* font,
                               struct unordered_vector_t* index_buffer,
                               const wchar_t* str);
 
+/*!
+ * @brief Creates a new text_string_instance_t object.
+ * @param font The font to create the instance for.
+ * @param x X coordinate in GL screen space of the string.
+ * @param y Y coordiante in GL screen space of the string.
+ * @param str The string to copy into the instance.
+ */
 static struct text_string_instance_t*
 text_create_string_instance(struct font_t* font, GLfloat x, GLfloat y, const wchar_t* str)
 {
@@ -55,6 +84,10 @@ text_create_string_instance(struct font_t* font, GLfloat x, GLfloat y, const wch
     return instance;
 }
 
+/*!
+ * @brief Destroys a text_string_instance_t object.
+ * @param instance The instance to destroy.
+ */
 static void
 text_destroy_string_instance(struct text_string_instance_t* instance)
 {
@@ -62,6 +95,7 @@ text_destroy_string_instance(struct text_string_instance_t* instance)
     FREE(instance);
 }
 
+/* ------------------------------------------------------------------------- */
 char
 text_init(void)
 {
@@ -79,13 +113,17 @@ text_init(void)
     
     /* init global vector for storing all loaded fonts */
     unordered_vector_init_vector(&g_fonts, sizeof(struct font_t));
+    map_init_map(&g_wrapper_fonts);
     
     return 1;
 }
 
+/* ------------------------------------------------------------------------- */
 void
 text_deinit(void)
 {
+    map_clear(&g_wrapper_fonts);
+
     while(g_fonts.count)
         text_destroy_font((struct font_t*)g_fonts.data);
     unordered_vector_clear_free(&g_fonts);
@@ -96,8 +134,9 @@ text_deinit(void)
     FT_Done_FreeType(g_lib);
 }
 
+/* ------------------------------------------------------------------------- */
 struct font_t*
-text_load_font(const char* filename)
+text_load_font(const char* filename, uint32_t char_size)
 {
     FT_Error error;
     char* ttf_filename;
@@ -129,11 +168,11 @@ text_load_font(const char* filename)
             break;
         }
         
-        /* set default size 9 */
-        error = FT_Set_Char_Size(font->face, 0, TO_26DOT6(9), 300, 300);
+        /* set character size */
+        error = FT_Set_Char_Size(font->face, TO_26DOT6(char_size), 0, 300, 300);
         if(error)
         {
-            llog(LOG_ERROR, 1, "Failed to set the character size to 9");
+            llog(LOG_ERROR, 1, "Failed to set the character size");
             break;
         }
         
@@ -190,6 +229,7 @@ text_load_font(const char* filename)
     return NULL;
 }
 
+/* ------------------------------------------------------------------------- */
 void
 text_destroy_font(struct font_t* font)
 {
@@ -219,12 +259,17 @@ text_destroy_font(struct font_t* font)
     unordered_vector_erase_element(&g_fonts, font);
 }
 
+/* ------------------------------------------------------------------------- */
 void
 text_load_characters(struct font_t* font, const wchar_t* characters)
 {
     const wchar_t* iterator;
     const wchar_t* null_terminator = L'\0';
     struct unordered_vector_t sorted_chars;
+    
+    /* if characters are NULL, use default set */
+    if(!characters)
+        characters = g_default_characters;
 
     /* filter list to eliminate duplicates */
     for(iterator = characters; *iterator; ++iterator)
@@ -253,6 +298,7 @@ text_load_characters(struct font_t* font, const wchar_t* characters)
     unordered_vector_clear_free(&sorted_chars);
 }
 
+/* ------------------------------------------------------------------------- */
 void
 text_load_atlass(struct font_t* font, const wchar_t* characters)
 {
@@ -357,6 +403,8 @@ text_load_atlass(struct font_t* font, const wchar_t* characters)
                                         (target_colour << 16) |
                                         (target_colour << 24) |
                                         0x000000FF;
+                                        
+                        /* TODO remove */
                         if((GLuint)buffer_ptr - (GLuint)buffer >= tex_width * tex_height * sizeof(GLuint))
                             printf("oh shit\n");
                     }
@@ -374,12 +422,12 @@ text_load_atlass(struct font_t* font, const wchar_t* characters)
         char_info->uv_left = (GLfloat)(pen         ) / (GLfloat)tex_width;
         char_info->uv_top  = (GLfloat)(bmp_offset_y) / (GLfloat)tex_height;
         /* save width and height in texture space */
-        char_info->uv_width  = (GLfloat)bmp_width  / (GLfloat)tex_width;
-        char_info->uv_height = (GLfloat)bmp_height / (GLfloat)tex_height;
+        char_info->uv_width  = (GLfloat)bmp_width    / (GLfloat)tex_width;
+        char_info->uv_height = (GLfloat)bmp_height   / (GLfloat)tex_height;
         /* save width and height in screen space */
-        char_info->width  = (GLfloat)bmp_width  * 2.0 / (GLfloat)window_width();
-        char_info->height = (GLfloat)bmp_height * 2.0 / (GLfloat)window_height();
-        char_info->bearing_y = (GLfloat)bmp_offset_y * 2.0 / (GLfloat)window_height();
+        char_info->width     = (GLfloat)bmp_width    / (GLfloat)window_width();
+        char_info->height    = (GLfloat)bmp_height   / (GLfloat)window_height();
+        char_info->bearing_y = (GLfloat)bmp_offset_y / (GLfloat)window_height();
         map_set(&font->char_map, (intptr_t)*iterator, char_info);
 
         /* advance pen */
@@ -395,6 +443,7 @@ text_load_atlass(struct font_t* font, const wchar_t* characters)
     FREE(buffer);
 }
 
+/* ------------------------------------------------------------------------- */
 intptr_t
 text_add_static_string(struct font_t* font, GLfloat x, GLfloat y, const wchar_t* str)
 {
@@ -439,6 +488,7 @@ text_add_static_string(struct font_t* font, GLfloat x, GLfloat y, const wchar_t*
     return text_key;
 }
 
+/* ------------------------------------------------------------------------- */
 void
 text_destroy_static_string(struct font_t* font, intptr_t ID)
 {
@@ -451,6 +501,7 @@ text_destroy_static_string(struct font_t* font, intptr_t ID)
     }
 }
 
+/* ------------------------------------------------------------------------- */
 void
 text_destroy_all_static_strings(struct font_t* font)
 {
@@ -471,6 +522,7 @@ text_destroy_all_static_strings(struct font_t* font)
     font->gl.static_text_num_indices = 0;
 }
 
+/* ------------------------------------------------------------------------- */
 static void
 text_convert_text_to_vbo(struct font_t* font,
                               GLfloat x,
@@ -573,6 +625,7 @@ text_convert_text_to_vbo(struct font_t* font,
     }
 }
 
+/* ------------------------------------------------------------------------- */
 void
 text_draw(void)
 {
@@ -588,4 +641,59 @@ text_draw(void)
     }
     glDisable(GL_BLEND);printOpenGLError();
     glBindVertexArray(0);printOpenGLError();
+}
+
+/* ------------------------------------------------------------------------- */
+/* WRAPPERS */
+/* ------------------------------------------------------------------------- */
+uint32_t
+text_load_font_wrapper(const char* filename, uint32_t char_size)
+{
+    uint32_t key;
+    struct font_t* font = text_load_font(filename, char_size);
+    key = map_find_unused_key(&g_wrapper_fonts);
+    map_insert(&g_wrapper_fonts, key, font);
+    return key;
+}
+
+void
+text_destroy_font_wrapper(uint32_t font_id)
+{
+    struct font_t* font = map_erase(&g_wrapper_fonts, font_id);
+    if(font)
+        text_destroy_font(font);
+}
+
+void
+text_load_characters_wrapper(uint32_t font_id, const wchar_t* characters)
+{
+    struct font_t* font = map_find(&g_wrapper_fonts, font_id);
+    if(font)
+        text_load_characters(font, characters);
+}
+
+intptr_t
+text_add_static_string_wrapper(uint32_t font_id, float x, float y, const wchar_t* str)
+{
+    intptr_t ret = -1;
+    struct font_t* font = map_find(&g_wrapper_fonts, font_id);
+    if(font)
+        ret = text_add_static_string(font, x, y, str);
+    return ret;
+}
+
+void
+text_destroy_static_string_wrapper(uint32_t font_id, intptr_t ID)
+{
+    struct font_t* font = map_find(&g_wrapper_fonts, font_id);
+    if(font)
+        text_destroy_static_string(font, ID);
+}
+
+void
+text_destroy_all_static_strings_wrapper(uint32_t font_id)
+{
+    struct font_t* font = map_find(&g_wrapper_fonts, font_id);
+    if(font)
+        text_destroy_all_static_strings(font);
 }

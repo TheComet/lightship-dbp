@@ -12,12 +12,6 @@
 #include <stdio.h>
 
 static struct plugin_t* g_plugin = NULL;
-static struct font_t* g_font = NULL;
-static const wchar_t* g_default_characters =
-L"abcdefghijklmnopqrstuvwxyz"
-L"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-L"1234567890"
-L" +-*/!?'^\"$%&()[]{}#@~,.";
 
 void
 set_plugin_info(void)
@@ -70,11 +64,6 @@ PLUGIN_START()
 
     if(!text_init())
         return PLUGIN_FAILURE;
-    if(!(g_font = text_load_font("ttf/DejaVuSans.ttf")))
-        return PLUGIN_FAILURE;
-
-    text_load_characters(g_font, g_default_characters);
-    text_add_static_string(g_font, -0.4, 0.9, L"Hello World, testing text");
 
     register_event_listeners(g_plugin);
 

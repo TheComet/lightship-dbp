@@ -70,7 +70,9 @@ text_deinit(void);
  * @return A new font object which can be used for later text related calls.
  */
 struct font_t*
-text_load_font(const char* filename);
+text_load_font(const char* filename, uint32_t char_size);
+uint32_t
+text_load_font_wrapper(const char* filename, uint32_t char_size);
 
 /*!
  * @brief Destroys and unloads the specified font.
@@ -78,6 +80,8 @@ text_load_font(const char* filename);
  */
 void
 text_destroy_font(struct font_t* font);
+void
+text_destroy_font_wrapper(uint32_t font_id);
 
 /*!
  * @brief Loads all characters specified.
@@ -90,9 +94,12 @@ text_destroy_font(struct font_t* font);
  * @param[in] font The font object to load characters for.
  * @param[in] characters The characters to load.
  * @note Use wide characters by specifying an "L", e.g. L"abcde..."
+ * @note Use NULL to load the default set of characters.
  */
 void
 text_load_characters(struct font_t* font, const wchar_t* characters);
+void
+text_load_characters_wrapper(uint32_t font_id, const wchar_t* characters);
 
 /*!
  * @brief Generates and uploads an atlass to the GPU.
@@ -116,6 +123,8 @@ text_load_atlass(struct font_t* font, const wchar_t* characters);
  */
 intptr_t
 text_add_static_string(struct font_t* font, GLfloat x, GLfloat y, const wchar_t* str);
+intptr_t
+text_add_static_string_wrapper(uint32_t font_id, float x, float y, const wchar_t* str);
 
 /*!
  * @brief Destroys a text string from the static vertex buffer.
@@ -127,12 +136,16 @@ text_add_static_string(struct font_t* font, GLfloat x, GLfloat y, const wchar_t*
  */
 void
 text_destroy_static_string(struct font_t* font, intptr_t ID);
+void
+text_destroy_static_string_wrapper(uint32_t font_id, intptr_t ID);
 
 /*!
  * @brief Destroys all static strings from the font.
  */
 void
 text_destroy_all_static_strings(struct font_t* font);
+void
+text_destroy_all_static_strings_wrapper(uint32_t font_id);
 
 /*!
  * @brief The draw call. Draws all existing text to the screen.
