@@ -3,13 +3,24 @@
 #include "util/unordered_vector.h"
 #include "util/memory.h"
 #include "util/string.h"
+#include <string.h>
+#include <wchar.h>
 
-struct unordered_vector_t g_buttons;
-
+static struct unordered_vector_t g_buttons;
 static uint32_t guid_counter = 1;
+static uint32_t font_id = -1;
+
+#ifdef _DEBUG
+static const char* ttf_filename = "../../plugins/core/menu/ttf/DejaVuSans.ttf";
+#else
+static const char* ttf_filename = "ttf/DejaVuSans.ttf";
+#endif
 
 void button_init(void)
 {
+    /* load font and characters */
+    
+    
     unordered_vector_init_vector(&g_buttons, sizeof(struct button_t));
 }
 
@@ -17,6 +28,8 @@ void button_deinit(void)
 {
     button_destroy_all();
     unordered_vector_clear_free(&g_buttons);
+    
+    text_destroy_font(font_id);;
 }
 
 static struct button_t* button_get(uint32_t ID)
@@ -31,19 +44,31 @@ static struct button_t* button_get(uint32_t ID)
 
 uint32_t button_create(const char* text, float x, float y, float width, float height)
 {
+    uint32_t len;
     struct button_t* btn = (struct button_t*)unordered_vector_push_emplace(&g_buttons);
     btn->ID = guid_counter++;
-    btn->text = malloc_string(text);
     btn->pos.x = x;
     btn->pos.y = y;
     btn->size.x = width;
     btn->size.y = height;
+    
+    /* copy wchar_t string into button object */
+    len = (strlen(text)+1) * sizeof(wchar_t);
+    btn->text = (wchar_t*)MALLOC(len);
+    swprintf(btn->text, len, L"%s", text);
 
+    /* draw box */
     shapes_2d_begin();
         box_2d(x-width*0.5, y-height*0.5, x+width*0.5, y+height*0.5, BUTTON_COLOUR_NORMAL);
     btn->shapes_normal_ID = shapes_2d_end();
     
-    
+    /* add text to button *
+    if(font_id == -1)
+    {
+        font_id = text_load_font(ttf_filename, 9);
+        text_load_characters(font_id, NULL);
+    }
+    btn->text_ID = text_add_static_center_string(font_id, 0, 0, L"test");*/
 
     return btn->ID;
 }

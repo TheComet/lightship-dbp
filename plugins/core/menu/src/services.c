@@ -15,6 +15,7 @@ line_2d_func line_2d;
 box_2d_func box_2d;
 
 text_load_font_func text_load_font;
+text_destroy_font_func text_destroy_font;
 text_load_characters_func text_load_characters;
 text_add_static_center_string_func text_add_static_center_string;
 text_destroy_static_string_func text_destroy_static_string;
@@ -52,6 +53,8 @@ get_required_services(void)
     if(!(box_2d = (box_2d_func)service_get("renderer_gl.box_2d")))
         return 0;
     if(!(text_load_font = (text_load_font_func)service_get("renderer_gl.text_load_font")))
+        return 0;
+    if(!(text_destroy_font = (text_destroy_font_func)service_get("renderer_gl.text_destroy_font")))
         return 0;
     if(!(text_load_characters = (text_load_characters_func)service_get("renderer_gl.text_load_characters")))
         return 0;

@@ -144,7 +144,6 @@ install (
 install (
     DIRECTORY
         "fx"
-        "ttf"
     DESTINATION
         "bin"
 )

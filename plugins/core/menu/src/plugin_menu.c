@@ -6,7 +6,7 @@
 #include "plugin_menu/events.h"   /* plugin events */
 #include "plugin_menu/button.h"
 
-struct plugin_t* g_plugin = NULL;
+static struct plugin_t* g_plugin = NULL;
 
 void
 create_and_init_plugin(void)
@@ -37,7 +37,6 @@ PLUGIN_INIT()
     create_and_init_plugin();
     register_services(g_plugin);
     register_events(g_plugin);
-    button_init();
     return g_plugin;
 }
 
@@ -48,11 +47,14 @@ PLUGIN_START()
     get_optional_services();
     register_event_listeners(g_plugin);
 
+    button_init();
+
     return PLUGIN_SUCCESS;
 }
 
 PLUGIN_STOP()
 {
+    /* de-init */
     button_deinit();
     plugin_destroy(g_plugin);
 }

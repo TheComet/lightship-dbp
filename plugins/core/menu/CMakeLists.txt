@@ -95,3 +95,10 @@ install (
     RUNTIME DESTINATION
         "bin/plugins"
 )
+
+install (
+    DIRECTORY
+        "ttf"
+    DESTINATION
+        "bin"
+)
