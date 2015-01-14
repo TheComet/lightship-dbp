@@ -285,7 +285,7 @@ load_plugins_from_yaml(const char* filename)
             {
                 llog(LOG_ERROR, 3, "Failed to start plugin \"", (*pluginp)->info.name, "\", unloading...");
                 plugin_unload(*pluginp);
-				success = 0;
+                success = 0;
             }
         }
     }

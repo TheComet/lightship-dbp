@@ -31,6 +31,37 @@ to_nearest_pow2(GLuint value)
     return nearest;
 }
 
+static void
+text_convert_text_to_vbo(struct font_t* font,
+                              GLfloat x,
+                              GLfloat y,
+                              struct unordered_vector_t* vertex_buffer,
+                              struct unordered_vector_t* index_buffer,
+                              const wchar_t* str);
+
+static struct text_string_instance_t*
+text_create_string_instance(struct font_t* font, GLfloat x, GLfloat y, const wchar_t* str)
+{
+    struct text_string_instance_t* instance;
+    wchar_t* str_buffer;
+    str_buffer = (wchar_t*)MALLOC((wcslen(str) + 1) * sizeof(wchar_t));
+    wcscpy(str_buffer, str);
+    instance = (struct text_string_instance_t*)MALLOC(sizeof(struct text_string_instance_t));
+    instance->font = font;
+    instance->x = x;
+    instance->y = y;
+    instance->text = str_buffer;
+    
+    return instance;
+}
+
+static void
+text_destroy_string_instance(struct text_string_instance_t* instance)
+{
+    FREE(instance->text);
+    FREE(instance);
+}
+
 char
 text_init(void)
 {
@@ -99,7 +130,7 @@ text_load_font(const char* filename)
         }
         
         /* set default size 9 */
-        error = FT_Set_Char_Size(font->face, 0, TO_26DOT6(9), 300, 300);
+        error = FT_Set_Char_Size(font->face, 0, TO_26DOT6(2), 300, 300);
         if(error)
         {
             llog(LOG_ERROR, 1, "Failed to set the character size to 9");
@@ -162,26 +193,29 @@ text_load_font(const char* filename)
 void
 text_destroy_font(struct font_t* font)
 {
-    if(map_count(&font->static_text_map))
-    {
-        MAP_FOR_EACH(&font->static_text_map, wchar_t, key, value)
-        {
-            FREE(value);
-        }
-        map_clear(&font->static_text_map);
-    }
+    /* destroy static text map */
+    text_destroy_all_static_strings(font);
+
+    /* destroy character map */
     {
         MAP_FOR_EACH(&font->char_map, struct text_char_info_t, key, value)
         {
-            FREE(value);
+            if(value)
+                FREE(value);
         }
         map_clear(&font->char_map);
     }
+    
+    /* clean up GL stuff */
     glDeleteTextures(1, &font->gl.tex);printOpenGLError();
     glDeleteBuffers(1, &font->gl.vio);printOpenGLError();
     glDeleteBuffers(1, &font->gl.vbo);printOpenGLError();
     glDeleteVertexArrays(1, &font->gl.vao);printOpenGLError();
+    
+    /* clean up freetype stuff */
     FT_Done_Face(font->face);
+    
+    /* finally, destroy font object */
     unordered_vector_erase_element(&g_fonts, font);
 }
 
@@ -195,8 +229,7 @@ text_load_characters(struct font_t* font, const wchar_t* characters)
     /* filter list to eliminate duplicates */
     for(iterator = characters; *iterator; ++iterator)
     {
-        wchar_t* character = map_find(&font->char_map, (intptr_t)*iterator);
-        if(character)
+        if(map_key_exists(&font->char_map, (intptr_t)*iterator))
             continue;
 
         /* add character to character map */
@@ -208,10 +241,12 @@ text_load_characters(struct font_t* font, const wchar_t* characters)
     {
         MAP_FOR_EACH(&font->char_map, void, key, value)
         {
+            /* XXX is wchar_t guaranteed to be smaller than intptr_t? */
             unordered_vector_push(&sorted_chars, &key);
         }
         unordered_vector_push(&sorted_chars, &null_terminator);
     }
+
     if(sorted_chars.count > 1)
         text_load_atlass(font, (wchar_t*)sorted_chars.data);
     
@@ -288,7 +323,7 @@ text_load_atlass(struct font_t* font, const wchar_t* characters)
     {
         GLubyte* bmp_ptr;
         unsigned int bmp_width, bmp_height, bmp_offset_y, x, y;
-        struct text_char_info_t* character;
+        struct text_char_info_t* char_info;
 
         /* load rendered character, ignore any errors as they were already reported earlier */
         error = FT_Load_Char(font->face, *iterator, FT_LOAD_RENDER);
@@ -328,19 +363,19 @@ text_load_atlass(struct font_t* font, const wchar_t* characters)
                 llog(LOG_ERROR, 1, "Glyph bitmap has unsupported format (conversion to RGBA needs implementing)");
                 break;
         }
-        
+
         /* save offsets as UV data */
-        character = (struct text_char_info_t*)MALLOC(sizeof(struct text_char_info_t));
-        character->uv_left = (GLfloat)(pen         ) / (GLfloat)tex_width;
-        character->uv_top  = (GLfloat)(bmp_offset_y) / (GLfloat)tex_height;
+        char_info = (struct text_char_info_t*)MALLOC(sizeof(struct text_char_info_t));
+        char_info->uv_left = (GLfloat)(pen         ) / (GLfloat)tex_width;
+        char_info->uv_top  = (GLfloat)(bmp_offset_y) / (GLfloat)tex_height;
         /* save width and height in texture space */
-        character->uv_width  = (GLfloat)bmp_width  / (GLfloat)tex_width;
-        character->uv_height = (GLfloat)bmp_height / (GLfloat)tex_height;
+        char_info->uv_width  = (GLfloat)bmp_width  / (GLfloat)tex_width;
+        char_info->uv_height = (GLfloat)bmp_height / (GLfloat)tex_height;
         /* save width and height in screen space */
-        character->width  = (GLfloat)bmp_width  * 2.0 / (GLfloat)window_width();
-        character->height = (GLfloat)bmp_height * 2.0 / (GLfloat)window_height();
-        character->bearing_y = (GLfloat)bmp_offset_y * 2.0 / (GLfloat)window_height();
-        map_set(&font->char_map, (intptr_t)*iterator, character);
+        char_info->width  = (GLfloat)bmp_width  * 2.0 / (GLfloat)window_width();
+        char_info->height = (GLfloat)bmp_height * 2.0 / (GLfloat)window_height();
+        char_info->bearing_y = (GLfloat)bmp_offset_y * 2.0 / (GLfloat)window_height();
+        map_set(&font->char_map, (intptr_t)*iterator, char_info);
         
         /* advance pen */
         pen += TO_PIXELS(font->face->glyph->advance.x) + 2;
@@ -356,36 +391,103 @@ text_load_atlass(struct font_t* font, const wchar_t* characters)
 }
 
 intptr_t
-text_add_static(struct font_t* font, GLfloat x, GLfloat y, const wchar_t* str)
+text_add_static_string(struct font_t* font, GLfloat x, GLfloat y, const wchar_t* str)
 {
     struct unordered_vector_t vertex_buffer;
     struct unordered_vector_t index_buffer;
-    GLfloat x_coord;
-    GLfloat dist_between_chars;
-    GLfloat space_dist;
-    const wchar_t* iterator;
-    INDEX_DATA_TYPE base_index;
+    intptr_t text_key;
 
-    /* copy new string into map */
+    /* create new string instance and insert into map */
+    if(str)
     {
-        const wchar_t* str_buffer = 
-            (const wchar_t*)MALLOC((wcslen(str) + 1) * sizeof(wchar_t));
-        map_insert(&font->static_text_map, map_find_unused_key(&font->static_text_map), str_buffer);
+        struct text_string_instance_t* str_instance;
+        str_instance = text_create_string_instance(font, x, y, str);
+        text_key = map_find_unused_key(&font->static_text_map);
+        map_insert(&font->static_text_map, text_key, str_instance);
     }
-
-    /* set current x coordinate */
-    x_coord = x;
-    base_index = 0; /*font->static_text_map.vector.count;*/
-
-    /* distance between characters */
-    dist_between_chars = 3.0 / (GLfloat)window_width();
-    space_dist = 20.0 / (GLfloat)window_width();
 
     /* init vertex and index buffers */
     unordered_vector_init_vector(&vertex_buffer, sizeof(struct text_vertex_t));
     unordered_vector_init_vector(&index_buffer, sizeof(INDEX_DATA_TYPE));
+
+    /* convert all strings in static text map to vertex and index data */
+    {
+        MAP_FOR_EACH(&font->static_text_map, struct text_string_instance_t, key, value)
+        {
+            text_convert_text_to_vbo(font, value->x, value->y, &vertex_buffer, &index_buffer, value->text);
+        }
+    }
+
+    /* upload to GPU */
+    glBindVertexArray(font->gl.vao);
+        glBufferData(GL_ARRAY_BUFFER, vertex_buffer.count * sizeof(struct text_vertex_t), vertex_buffer.data, GL_STATIC_DRAW);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, index_buffer.count * sizeof(INDEX_DATA_TYPE), index_buffer.data, GL_STATIC_DRAW);
+    glBindVertexArray(0);
     
-    /* generate new vertices and insert into static text vertex buffer */
+    /* set number of indices */
+    font->gl.static_text_num_indices = index_buffer.count;
+    
+    /* clean up */
+    unordered_vector_clear_free(&vertex_buffer);
+    unordered_vector_clear_free(&index_buffer);
+    
+    return text_key;
+}
+
+void
+text_destroy_static_string(struct font_t* font, intptr_t ID)
+{
+    struct text_string_instance_t* instance;
+    instance = (struct text_string_instance_t*)map_erase(&font->static_text_map, ID);
+    if(instance)
+    {
+        text_destroy_string_instance(instance);
+        text_add_static_string(font, 0, 0, NULL);
+    }
+}
+
+void
+text_destroy_all_static_strings(struct font_t* font)
+{
+    /* destroy all elements in map */
+    MAP_FOR_EACH(&font->static_text_map, struct text_string_instance_t, key, value)
+    {
+        text_destroy_string_instance(value);
+    }
+    map_clear(&font->static_text_map);
+    
+    /* clear vertices on GPU */
+    glBindVertexArray(font->gl.vao);
+        glBufferData(GL_ARRAY_BUFFER, 0, NULL, GL_STATIC_DRAW);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, 0, NULL, GL_STATIC_DRAW);
+    glBindVertexArray(0);
+    
+    /* reset index counter */
+    font->gl.static_text_num_indices = 0;
+}
+
+static void
+text_convert_text_to_vbo(struct font_t* font,
+                              GLfloat x,
+                              GLfloat y,
+                              struct unordered_vector_t* vertex_buffer,
+                              struct unordered_vector_t* index_buffer,
+                              const wchar_t* str)
+{
+    const wchar_t* iterator;
+    GLfloat dist_between_chars;
+    GLfloat space_dist;
+    GLfloat x_coord;
+    INDEX_DATA_TYPE base_index;
+    
+    x_coord = x;
+    base_index = vertex_buffer->count;
+    
+    /* distance between characters */
+    dist_between_chars = 3.0 / (GLfloat)window_width();
+    space_dist = 20.0 / (GLfloat)window_width();
+    
+    /* generate new vertices and insert into text vertex buffer */
     for(iterator = str; *iterator; ++iterator)
     {
         struct text_char_info_t* info;
@@ -410,7 +512,7 @@ text_add_static(struct font_t* font, GLfloat x, GLfloat y, const wchar_t* str)
         }
 
         /* top left vertex */
-        vertex = (struct text_vertex_t*)unordered_vector_push_emplace(&vertex_buffer);
+        vertex = (struct text_vertex_t*)unordered_vector_push_emplace(vertex_buffer);
         vertex->position[0]  = x_coord;
         vertex->position[1]  = y - info->bearing_y;
         vertex->tex_coord[0] = info->uv_left;
@@ -421,7 +523,7 @@ text_add_static(struct font_t* font, GLfloat x, GLfloat y, const wchar_t* str)
         vertex->diffuse[3]   = 1.0;
         
         /* top right vertex */
-        vertex = (struct text_vertex_t*)unordered_vector_push_emplace(&vertex_buffer);
+        vertex = (struct text_vertex_t*)unordered_vector_push_emplace(vertex_buffer);
         vertex->position[0]  = x_coord + info->width;
         vertex->position[1]  = y - info->bearing_y;
         vertex->tex_coord[0] = info->uv_left + info->uv_width;
@@ -432,7 +534,7 @@ text_add_static(struct font_t* font, GLfloat x, GLfloat y, const wchar_t* str)
         vertex->diffuse[3]   = 1.0;
         
         /* bottom left vertex */
-        vertex = (struct text_vertex_t*)unordered_vector_push_emplace(&vertex_buffer);
+        vertex = (struct text_vertex_t*)unordered_vector_push_emplace(vertex_buffer);
         vertex->position[0]  = x_coord;
         vertex->position[1]  = y - info->bearing_y - info->height;
         vertex->tex_coord[0] = info->uv_left;
@@ -443,7 +545,7 @@ text_add_static(struct font_t* font, GLfloat x, GLfloat y, const wchar_t* str)
         vertex->diffuse[3]   = 1.0;
         
         /* bottom right vertex */
-        vertex = (struct text_vertex_t*)unordered_vector_push_emplace(&vertex_buffer);
+        vertex = (struct text_vertex_t*)unordered_vector_push_emplace(vertex_buffer);
         vertex->position[0]  = x_coord + info->width;
         vertex->position[1]  = y - info->bearing_y - info->height;
         vertex->tex_coord[0] = info->uv_left + info->uv_width;
@@ -454,29 +556,16 @@ text_add_static(struct font_t* font, GLfloat x, GLfloat y, const wchar_t* str)
         vertex->diffuse[3]   = 1.0;
         
         /* generate indices */
-        *(INDEX_DATA_TYPE*)unordered_vector_push_emplace(&index_buffer) = base_index + 0;
-        *(INDEX_DATA_TYPE*)unordered_vector_push_emplace(&index_buffer) = base_index + 2;
-        *(INDEX_DATA_TYPE*)unordered_vector_push_emplace(&index_buffer) = base_index + 1;
-        *(INDEX_DATA_TYPE*)unordered_vector_push_emplace(&index_buffer) = base_index + 1;
-        *(INDEX_DATA_TYPE*)unordered_vector_push_emplace(&index_buffer) = base_index + 2;
-        *(INDEX_DATA_TYPE*)unordered_vector_push_emplace(&index_buffer) = base_index + 3;
+        *(INDEX_DATA_TYPE*)unordered_vector_push_emplace(index_buffer) = base_index + 0;
+        *(INDEX_DATA_TYPE*)unordered_vector_push_emplace(index_buffer) = base_index + 2;
+        *(INDEX_DATA_TYPE*)unordered_vector_push_emplace(index_buffer) = base_index + 1;
+        *(INDEX_DATA_TYPE*)unordered_vector_push_emplace(index_buffer) = base_index + 1;
+        *(INDEX_DATA_TYPE*)unordered_vector_push_emplace(index_buffer) = base_index + 2;
+        *(INDEX_DATA_TYPE*)unordered_vector_push_emplace(index_buffer) = base_index + 3;
     
         x_coord += info->width + dist_between_chars;
         base_index += 4;
     }
-    
-    /* upload to GPU */
-    glBindVertexArray(font->gl.vao);
-        glBufferData(GL_ARRAY_BUFFER, vertex_buffer.count * sizeof(struct text_vertex_t), vertex_buffer.data, GL_STATIC_DRAW);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, index_buffer.count * sizeof(INDEX_DATA_TYPE), index_buffer.data, GL_STATIC_DRAW);
-    glBindVertexArray(0);
-    
-    /* set number of indices */
-    font->gl.static_text_num_indices = index_buffer.count;
-    
-    /* clean up */
-    unordered_vector_clear_free(&vertex_buffer);
-    unordered_vector_clear_free(&index_buffer);
 }
 
 void

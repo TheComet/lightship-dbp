@@ -67,9 +67,21 @@ map_set(struct map_t* map, intptr_t hash, void* value);
  * @param[in] hash The key to search for.
  * @return Returns the data associated with the specified key. If the key is
  * not found in the map, then NULL is returned.
+ * @note Potential pitfall: The value could be NULL even if the key was found,
+ * as NULL is a valid thing for a value to be. If you are checking to see if a
+ * key exists, use map_key_exists() instead.
  */
 LIGHTSHIP_PUBLIC_API void*
 map_find(struct map_t* map, intptr_t hash);
+
+/*!
+ * @brief Returns 1 if the specified key exists, 0 if otherwise.
+ * @param map The map to find the key in.
+ * @param key The key to search for.
+ * @return 1 if the key was found, 0 if the key was not found.
+ */
+LIGHTSHIP_PUBLIC_API char
+map_key_exists(struct map_t* map, intptr_t hash);
 
 /*!
  * @brief Returns a key that does not yet exist in the map.
