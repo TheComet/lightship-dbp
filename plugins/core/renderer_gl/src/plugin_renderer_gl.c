@@ -74,7 +74,7 @@ PLUGIN_START()
         return PLUGIN_FAILURE;
 
     text_load_characters(g_font, g_default_characters);
-    text_add_static_string(g_font, 0.0, 0.0, L"Hello World, testing text");
+    text_add_static_string(g_font, -0.4, 0.9, L"Hello World, testing text");
 
     register_event_listeners(g_plugin);
 
