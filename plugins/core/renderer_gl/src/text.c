@@ -260,7 +260,12 @@ text_load_atlass(struct font_t* font, const wchar_t* characters)
     FT_Error error;
     unsigned int pen;
     unsigned int tex_width, tex_height, glyph_offset_y;
+    unsigned int min_advance;
     GLuint* buffer = NULL;
+    
+    /* the number of pixels to place between each glyph */
+    /* TODO for some reason this isn't actually true with all glyphs. Who knows why. */
+    min_advance = 2;
     
     /*
      * First, we need to:
@@ -279,7 +284,6 @@ text_load_atlass(struct font_t* font, const wchar_t* characters)
     {
         unsigned int height;
         unsigned int offset;
-        unsigned int min_advance;
 
         error = FT_Load_Char(font->face, *iterator, FT_LOAD_RENDER);
         if(error)
@@ -297,7 +301,6 @@ text_load_atlass(struct font_t* font, const wchar_t* characters)
             glyph_offset_y = offset;
         
         /* width */
-        min_advance = 2;
         tex_width += TO_PIXELS(font->face->glyph->advance.x) + min_advance;
         
         /* height */
@@ -311,10 +314,10 @@ text_load_atlass(struct font_t* font, const wchar_t* characters)
      * height of the target texture atlass and allocate memory for it.
      */
     tex_width = to_nearest_pow2(tex_width);
-    tex_height = to_nearest_pow2(tex_height);
+    tex_height = to_nearest_pow2(tex_height + glyph_offset_y);
     buffer = (GLuint*)MALLOC(tex_width * tex_height * sizeof(GLuint));
     memset(buffer, 0xFFFFFF00, tex_width * tex_height * sizeof(GLuint));
-    
+
     /*
      * Render glyphs onto atlass
      */
@@ -354,10 +357,12 @@ text_load_atlass(struct font_t* font, const wchar_t* characters)
                                         (target_colour << 16) |
                                         (target_colour << 24) |
                                         0x000000FF;
+                        if((GLuint)buffer_ptr - (GLuint)buffer >= tex_width * tex_height * sizeof(GLuint))
+                            printf("oh shit\n");
                     }
                 }
                 break;
-            
+
             /* other pixel modes */
             default:
                 llog(LOG_ERROR, 1, "Glyph bitmap has unsupported format (conversion to RGBA needs implementing)");
@@ -376,11 +381,11 @@ text_load_atlass(struct font_t* font, const wchar_t* characters)
         char_info->height = (GLfloat)bmp_height * 2.0 / (GLfloat)window_height();
         char_info->bearing_y = (GLfloat)bmp_offset_y * 2.0 / (GLfloat)window_height();
         map_set(&font->char_map, (intptr_t)*iterator, char_info);
-        
+
         /* advance pen */
-        pen += TO_PIXELS(font->face->glyph->advance.x) + 2;
+        pen += TO_PIXELS(font->face->glyph->advance.x) + min_advance;
     }
-    
+
     /*
      * Hand atlass to OpenGL and clean up.
      */
