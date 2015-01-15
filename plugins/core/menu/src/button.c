@@ -62,9 +62,12 @@ uint32_t button_create(const char* text, float x, float y, float width, float he
     shapes_2d_begin();
         box_2d(x-width*0.5, y-height*0.5, x+width*0.5, y+height*0.5, BUTTON_COLOUR_NORMAL);
     btn->shapes_normal_ID = shapes_2d_end();
-    
+
     /* add text to button */
-    btn->text_ID = text_add_static_center_string(font_id, 0, 0, btn->text);
+    /* TODO centering code for text */
+    /* TODO instead of passing the raw string, add way to pass a "string instance"
+     * which can specify the font and size of the string. */
+    btn->text_ID = text_add_static_center_string(font_id, x, y+0.02, btn->text);
 
     return btn->ID;
 }

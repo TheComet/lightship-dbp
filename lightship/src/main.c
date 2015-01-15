@@ -90,19 +90,10 @@ init(void)
         return;
     {
         button_create_func button_create = ((button_create_func)service_get("menu.button_create"));
-        text_load_font_func text_load_font = ((text_load_font_func)service_get("renderer_gl.text_load_font"));
-        text_load_characters_func text_load_characters = ((text_load_characters_func)service_get("renderer_gl.text_load_characters"));
-        text_add_static_center_string_func text_add_static_center_string = ((text_add_static_center_string_func)service_get("renderer_gl.text_add_static_center_string"));
-        
 
-        
-        uint32_t font = text_load_font("../../plugins/core/menu/ttf/DejaVuSans.ttf", 9);
-        text_load_characters(font, NULL);
-        button_create("test", 0.0, 0.0, 0.3, 0.1);
-        text_add_static_center_string(font, 0, 0, L"test");
-        button_create("test", 0.0, 0.0, 0.3, 0.1);
-        button_create("test", 0.0, 0.0, 0.3, 0.1);
-        text_add_static_center_string(font, 0, 0, L"test");
+        button_create("Host", 0.0, 0.2, 0.3, 0.1);
+        button_create("Join", 0.0, 0.0, 0.3, 0.1);
+        button_create("Quit", 0.0, -0.2, 0.3, 0.1);
 
     }
     /* 
