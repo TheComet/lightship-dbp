@@ -1,4 +1,5 @@
 #include "util/pstdint.h"
+#include <wchar.h>
 
 typedef void    (*shapes_2d_begin_func)                 (void);
 typedef uint32_t(*shapes_2d_end_func)                   (void);
