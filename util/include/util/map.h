@@ -145,12 +145,11 @@ map_print(struct map_t* map);
     intptr_t map_internal_i; \
     intptr_t hash_n; \
     var_type* var; \
-    if((map)->vector.count) \
-        for(map_internal_i = 0; \
-            map_internal_i != (map)->vector.count && \
-                ((hash_n = ((struct map_key_value_t*)(map)->vector.data)[map_internal_i].hash) || 1) && \
-                ((var  = (var_type*)((struct map_key_value_t*)(map)->vector.data)[map_internal_i].value) || 1); \
-            ++map_internal_i)
+    for(map_internal_i = 0; \
+        map_internal_i != (map)->vector.count && \
+            ((hash_n = ((struct map_key_value_t*)(map)->vector.data)[map_internal_i].hash) || 1) && \
+            ((var  = (var_type*)((struct map_key_value_t*)(map)->vector.data)[map_internal_i].value) || 1); \
+        ++map_internal_i)
 
 C_HEADER_END
 
