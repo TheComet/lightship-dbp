@@ -46,7 +46,6 @@ struct font_t
 
 struct text_string_instance_t
 {
-    struct font_t* font;
     wchar_t* text;
     GLfloat x;
     GLfloat y;
