@@ -7,7 +7,6 @@
 #include "util/unordered_vector.h"
 #include "util/string.h"
 #include "glfw3.h"
-#include <wchar.h>
 #include <math.h>
 #include FT_BITMAP_H
 
@@ -459,8 +458,19 @@ text_add_static_string(struct font_t* font, char centered, GLfloat x, GLfloat y,
 
     /* convert all strings in static text map to vertex and index data */
     {
-        MAP_FOR_EACH(&font->static_text_map, struct text_string_instance_t, key, value)
+        /*MAP_FOR_EACH(&font->static_text_map, struct text_string_instance_t, key, value)*/
+        intptr_t map_internal_i;
+        intptr_t hash_n;
+        struct text_string_instance_t* value;
+        if(font->static_text_map.vector.count)
+            for(map_internal_i = 0;
+                map_internal_i != font->static_text_map.vector.count &&
+                    (((hash_n = ((struct map_key_value_t*)font->static_text_map.vector.data)[map_internal_i].hash) &&
+                    (value  = (struct text_string_instance_t*)((struct map_key_value_t*)font->static_text_map.vector.data)[map_internal_i].value)) || 1);
+                ++map_internal_i)
         {
+            hash_n = ((struct map_key_value_t*)font->static_text_map.vector.data)[map_internal_i].hash;
+            value  = ((struct text_string_instance_t*)((struct map_key_value_t*)font->static_text_map.vector.data)[map_internal_i].value);
             text_convert_text_to_vbo(font, value->x, value->y, &vertex_buffer, &index_buffer, value->text);
         }
     }

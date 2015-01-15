@@ -322,3 +322,49 @@ TEST(NAME, map_generating_keys_do_not_conflict_with_existing_random_keys)
     ASSERT_NE(38, key);
     map_destroy(map);
 }
+
+TEST(NAME, map_iterate_with_no_items)
+{
+    struct map_t* map = map_create();
+    {
+        int counter = 0;
+        MAP_FOR_EACH(map, int, key, value)
+        {
+            ++counter;
+        }
+        ASSERT_EQ(0, counter);
+    }
+    map_destroy(map);
+}
+
+TEST(NAME, map_iterate_5_random_items)
+{
+    struct map_t* map = map_create();
+
+    int a=79579, b=235, c=347, d=124, e=457;
+    map_insert(map, 243, &a);
+    map_insert(map, 256, &b);
+    map_insert(map, 456, &c);
+    map_insert(map, 468, &d);
+    map_insert(map, 969, &e);
+    
+    {
+        int counter = 0;
+        MAP_FOR_EACH(map, int, key, value)
+        {
+            switch(counter)
+            {
+                case 0 : ASSERT_EQ(243, key); ASSERT_EQ(a, *value); break;
+                case 1 : ASSERT_EQ(256, key); ASSERT_EQ(b, *value); break;
+                case 2 : ASSERT_EQ(456, key); ASSERT_EQ(c, *value); break;
+                case 3 : ASSERT_EQ(468, key); ASSERT_EQ(d, *value); break;
+                case 4 : ASSERT_EQ(969, key); ASSERT_EQ(e, *value); break;
+                default: ASSERT_EQ(0, 1); break;
+            }
+            ++counter;
+        }
+        ASSERT_EQ(5, counter);
+    }
+    
+    map_destroy(map);
+}

@@ -146,16 +146,14 @@ map_print(struct map_t* map);
     intptr_t hash_n; \
     var_type* var; \
     if((map)->vector.count) \
-        for(map_internal_i = 0, \
-                hash_n = ((struct map_key_value_t*)(map)->vector.data)[map_internal_i].hash, \
-                var  = ((struct map_key_value_t*)(map)->vector.data)[map_internal_i].value; \
-            map_internal_i != (map)->vector.count; \
-            ++map_internal_i, \
-                hash_n = ((struct map_key_value_t*)(map)->vector.data)[map_internal_i].hash, \
-                var  = ((struct map_key_value_t*)(map)->vector.data)[map_internal_i].value)
+        for(map_internal_i = 0; \
+            map_internal_i != (map)->vector.count && \
+                (((hash_n = ((struct map_key_value_t*)(map)->vector.data)[map_internal_i].hash) && \
+                  (var  = (var_type*)((struct map_key_value_t*)(map)->vector.data)[map_internal_i].value)) || 1); \
+            ++map_internal_i)
 
 #define MAP_ERASE_IN_FOR_LOOP(map, element) \
-    ordered_vector_erase_element((map)->vector, element);
+    ordered_vector_erase_element(&(map)->vector, element);
 
 C_HEADER_END
 

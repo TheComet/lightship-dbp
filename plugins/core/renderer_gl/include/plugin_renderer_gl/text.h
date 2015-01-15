@@ -3,6 +3,7 @@
 #include "util/unordered_vector.h"
 #include "util/map.h"
 #include <GL/glew.h>
+#include <wchar.h>
 
 #define PIXEL_FORMAT 64
 #define TO_26DOT6(x) (x*PIXEL_FORMAT)

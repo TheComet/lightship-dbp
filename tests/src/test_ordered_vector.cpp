@@ -33,15 +33,19 @@ TEST(NAME, push_increments_count_and_causes_realloc_by_factor_2)
 {
     struct ordered_vector_t* vec = ordered_vector_create(sizeof(int));
     int x = 9;
+
     ordered_vector_push(vec, &x);
     ASSERT_EQ(2, vec->capacity);
     ASSERT_EQ(1, vec->count);
+
     ordered_vector_push(vec, &x);
     ASSERT_EQ(2, vec->capacity);
     ASSERT_EQ(2, vec->count);
+
     ordered_vector_push(vec, &x);
     ASSERT_EQ(4, vec->capacity);
     ASSERT_EQ(3, vec->count);
+
     ordered_vector_destroy(vec);
 }
 
