@@ -44,19 +44,15 @@ to_nearest_pow2(GLuint value)
  * @brief Takes a string, generates vertex and index data, and appends it to
  * the respective buffers.
  * @param font The font to use to generate the data from.
- * @param x The x coordinate of the string in GL screen space.
- * @param y The y coordinate of the string in GL screen space.
+ * @param string_instance Information about the string to create.
  * @param vertex_buffer The unsigned_vector to append vertices to.
  * @param index_buffer The unsigned_vector to append indices to.
- * @param str The wide character string to generate the data from.
  */
 static void
 text_convert_text_to_vbo(struct font_t* font,
-                              GLfloat x,
-                              GLfloat y,
-                              struct unordered_vector_t* vertex_buffer,
-                              struct unordered_vector_t* index_buffer,
-                              const wchar_t* str);
+                         struct text_string_instance_t* string_instance,
+                         struct unordered_vector_t* vertex_buffer,
+                         struct unordered_vector_t* index_buffer);
 
 /*!
  * @brief Creates a new text_string_instance_t object.
@@ -73,7 +69,6 @@ text_create_string_instance(struct font_t* font, char centered, GLfloat x, GLflo
     str_buffer = (wchar_t*)MALLOC((wcslen(str) + 1) * sizeof(wchar_t));
     wcscpy(str_buffer, str);
     instance = (struct text_string_instance_t*)MALLOC(sizeof(struct text_string_instance_t));
-    instance->font = font;
     instance->text = str_buffer;
     instance->x = x;
     instance->y = y;
@@ -225,12 +220,6 @@ text_load_font(const char* filename, uint32_t char_size)
 void
 text_destroy_font(struct font_t* font)
 {
-    /* clean up GL stuff */
-    glDeleteTextures(1, &font->gl.tex);printOpenGLError();
-    glDeleteBuffers(1, &font->gl.vio);printOpenGLError();
-    glDeleteBuffers(1, &font->gl.vbo);printOpenGLError();
-    glDeleteVertexArrays(1, &font->gl.vao);printOpenGLError();
-    
     /* destroy static text map */
     text_destroy_all_static_strings(font);
 
@@ -243,6 +232,12 @@ text_destroy_font(struct font_t* font)
         }
         map_clear(&font->char_map);
     }
+    
+    /* clean up GL stuff */
+    glDeleteTextures(1, &font->gl.tex);printOpenGLError();
+    glDeleteBuffers(1, &font->gl.vio);printOpenGLError();
+    glDeleteBuffers(1, &font->gl.vbo);printOpenGLError();
+    glDeleteVertexArrays(1, &font->gl.vao);printOpenGLError();
     
     /* clean up freetype stuff */
     FT_Done_Face(font->face);
@@ -461,7 +456,7 @@ text_add_static_string(struct font_t* font, char centered, GLfloat x, GLfloat y,
     {
         MAP_FOR_EACH(&font->static_text_map, struct text_string_instance_t, key, value)
         {
-            text_convert_text_to_vbo(font, value->x, value->y, &vertex_buffer, &index_buffer, value->text);
+            text_convert_text_to_vbo(font, value, &vertex_buffer, &index_buffer);
         }
     }
 
@@ -521,27 +516,67 @@ text_destroy_all_static_strings(struct font_t* font)
 /* ------------------------------------------------------------------------- */
 static void
 text_convert_text_to_vbo(struct font_t* font,
-                              GLfloat x,
-                              GLfloat y,
-                              struct unordered_vector_t* vertex_buffer,
-                              struct unordered_vector_t* index_buffer,
-                              const wchar_t* str)
+                         struct text_string_instance_t* string_instance,
+                         struct unordered_vector_t* vertex_buffer,
+                         struct unordered_vector_t* index_buffer)
 {
     const wchar_t* iterator;
     GLfloat dist_between_chars;
     GLfloat space_dist;
-    GLfloat x_coord;
+    GLfloat x, y;
     INDEX_DATA_TYPE base_index;
     
-    x_coord = x;
+    /* get offset so index data can be appended */
     base_index = vertex_buffer->count;
     
     /* distance between characters */
     dist_between_chars = 3.0 / (GLfloat)window_width();
     space_dist = 20.0 / (GLfloat)window_width();
     
+    /* 
+     * If text is centered, figure out total width and set x coordinate
+     * accordingly. Otherwise just use x and y values passed in. */
+    if(string_instance->is_centered)
+    {
+        x = 0;
+        for(iterator = string_instance->text; *iterator; ++iterator)
+        {
+            struct text_char_info_t* info;
+
+            /* the space character requires some extra attention */
+            if(wcsncmp(iterator, L" ", 1) == 0)
+            {
+                x += space_dist;
+                continue;
+            }
+            
+            /* lookup character info */
+            info = (struct text_char_info_t*)map_find(&font->char_map, (intptr_t)*iterator);
+            if(!info)
+            {
+                char* buffer[sizeof(wchar_t)+1];
+                memcpy(buffer, iterator, sizeof(wchar_t));
+                buffer[sizeof(wchar_t)] = '\0';
+                llog(LOG_ERROR, 3, "Failed to look up character: \"", buffer, "\"");
+                continue;
+            }
+            
+            /* advance */
+            x += info->width + dist_between_chars;
+        }
+        
+        /* x is now the total width of the string in GL screen space. */
+        x = string_instance->x - (x / 2.0);
+        y = string_instance->y;
+    }
+    else
+    {
+        x = string_instance->x;
+        y = string_instance->y;
+    }
+    
     /* generate new vertices and insert into text vertex buffer */
-    for(iterator = str; *iterator; ++iterator)
+    for(iterator = string_instance->text; *iterator; ++iterator)
     {
         struct text_char_info_t* info;
         struct text_vertex_t* vertex;
@@ -549,7 +584,7 @@ text_convert_text_to_vbo(struct font_t* font,
         /* the space character requires some extra attention */
         if(wcsncmp(iterator, L" ", 1) == 0)
         {
-            x_coord += space_dist;
+            x += space_dist;
             continue;
         }
 
@@ -566,7 +601,7 @@ text_convert_text_to_vbo(struct font_t* font,
 
         /* top left vertex */
         vertex = (struct text_vertex_t*)unordered_vector_push_emplace(vertex_buffer);
-        vertex->position[0]  = x_coord;
+        vertex->position[0]  = x;
         vertex->position[1]  = y - info->bearing_y;
         vertex->tex_coord[0] = info->uv_left;
         vertex->tex_coord[1] = info->uv_top;
@@ -577,7 +612,7 @@ text_convert_text_to_vbo(struct font_t* font,
         
         /* top right vertex */
         vertex = (struct text_vertex_t*)unordered_vector_push_emplace(vertex_buffer);
-        vertex->position[0]  = x_coord + info->width;
+        vertex->position[0]  = x + info->width;
         vertex->position[1]  = y - info->bearing_y;
         vertex->tex_coord[0] = info->uv_left + info->uv_width;
         vertex->tex_coord[1] = info->uv_top;
@@ -588,7 +623,7 @@ text_convert_text_to_vbo(struct font_t* font,
         
         /* bottom left vertex */
         vertex = (struct text_vertex_t*)unordered_vector_push_emplace(vertex_buffer);
-        vertex->position[0]  = x_coord;
+        vertex->position[0]  = x;
         vertex->position[1]  = y - info->bearing_y - info->height;
         vertex->tex_coord[0] = info->uv_left;
         vertex->tex_coord[1] = info->uv_top + info->uv_height;
@@ -599,7 +634,7 @@ text_convert_text_to_vbo(struct font_t* font,
         
         /* bottom right vertex */
         vertex = (struct text_vertex_t*)unordered_vector_push_emplace(vertex_buffer);
-        vertex->position[0]  = x_coord + info->width;
+        vertex->position[0]  = x + info->width;
         vertex->position[1]  = y - info->bearing_y - info->height;
         vertex->tex_coord[0] = info->uv_left + info->uv_width;
         vertex->tex_coord[1] = info->uv_top + info->uv_height;
@@ -616,7 +651,7 @@ text_convert_text_to_vbo(struct font_t* font,
         *(INDEX_DATA_TYPE*)unordered_vector_push_emplace(index_buffer) = base_index + 2;
         *(INDEX_DATA_TYPE*)unordered_vector_push_emplace(index_buffer) = base_index + 3;
     
-        x_coord += info->width + dist_between_chars;
+        x += info->width + dist_between_chars;
         base_index += 4;
     }
 }

@@ -19,7 +19,8 @@ static const char* ttf_filename = "ttf/DejaVuSans.ttf";
 void button_init(void)
 {
     /* load font and characters */
-    
+    font_id = text_load_font(ttf_filename, 9);
+    text_load_characters(font_id, NULL);
     
     unordered_vector_init_vector(&g_buttons, sizeof(struct button_t));
 }
@@ -62,13 +63,8 @@ uint32_t button_create(const char* text, float x, float y, float width, float he
         box_2d(x-width*0.5, y-height*0.5, x+width*0.5, y+height*0.5, BUTTON_COLOUR_NORMAL);
     btn->shapes_normal_ID = shapes_2d_end();
     
-    /* add text to button *
-    if(font_id == -1)
-    {
-        font_id = text_load_font(ttf_filename, 9);
-        text_load_characters(font_id, NULL);
-    }
-    btn->text_ID = text_add_static_center_string(font_id, 0, 0, L"test");*/
+    /* add text to button */
+    btn->text_ID = text_add_static_center_string(font_id, 0, 0, btn->text);
 
     return btn->ID;
 }
