@@ -96,16 +96,14 @@ init(void)
         
 
         
-        
         uint32_t font = text_load_font("../../plugins/core/menu/ttf/DejaVuSans.ttf", 9);
         text_load_characters(font, NULL);
         button_create("test", 0.0, 0.0, 0.3, 0.1);
         text_add_static_center_string(font, 0, 0, L"test");
-        text_add_static_center_string(font, 0, 0.1, L"test");
-        button_create("test", 0.0, 0.0, 0.3, 0.1);
         button_create("test", 0.0, 0.0, 0.3, 0.1);
         button_create("test", 0.0, 0.0, 0.3, 0.1);
         text_add_static_center_string(font, 0, 0, L"test");
+
     }
     /* 
      * Try to get the main loop service and start running the game
