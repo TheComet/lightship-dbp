@@ -209,8 +209,9 @@ draw_2d(void)
             if(!shapes->visible)
                 continue;
             glBindVertexArray(shapes->vao);printOpenGLError();
+                glBindBuffer(GL_ARRAY_BUFFER, shapes->vbo);
                 glDrawElements(GL_LINES, shapes->index_data.count, GL_UNSIGNED_SHORT, NULL);printOpenGLError();
+            glBindVertexArray(0);
         }
     }
-    glBindVertexArray(0);
 }

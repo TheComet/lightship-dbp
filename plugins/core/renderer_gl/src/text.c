@@ -225,6 +225,12 @@ text_load_font(const char* filename, uint32_t char_size)
 void
 text_destroy_font(struct font_t* font)
 {
+    /* clean up GL stuff */
+    glDeleteTextures(1, &font->gl.tex);printOpenGLError();
+    glDeleteBuffers(1, &font->gl.vio);printOpenGLError();
+    glDeleteBuffers(1, &font->gl.vbo);printOpenGLError();
+    glDeleteVertexArrays(1, &font->gl.vao);printOpenGLError();
+    
     /* destroy static text map */
     text_destroy_all_static_strings(font);
 
@@ -237,12 +243,6 @@ text_destroy_font(struct font_t* font)
         }
         map_clear(&font->char_map);
     }
-    
-    /* clean up GL stuff */
-    glDeleteTextures(1, &font->gl.tex);printOpenGLError();
-    glDeleteBuffers(1, &font->gl.vio);printOpenGLError();
-    glDeleteBuffers(1, &font->gl.vbo);printOpenGLError();
-    glDeleteVertexArrays(1, &font->gl.vao);printOpenGLError();
     
     /* clean up freetype stuff */
     FT_Done_Face(font->face);
@@ -430,7 +430,8 @@ text_load_atlass(struct font_t* font, const wchar_t* characters)
      * Hand atlass to OpenGL and clean up.
      */
     glBindVertexArray(font->gl.vao);printOpenGLError();
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tex_width, tex_height, 0, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, buffer);printOpenGLError();
+        glBindTexture(GL_TEXTURE_2D, font->gl.tex);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tex_width, tex_height, 0, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, buffer);printOpenGLError();
     glBindVertexArray(0);printOpenGLError();
     FREE(buffer);
 }
@@ -458,26 +459,16 @@ text_add_static_string(struct font_t* font, char centered, GLfloat x, GLfloat y,
 
     /* convert all strings in static text map to vertex and index data */
     {
-        /*MAP_FOR_EACH(&font->static_text_map, struct text_string_instance_t, key, value)*/
-        intptr_t map_internal_i;
-        intptr_t hash_n;
-        struct text_string_instance_t* value;
-        if(font->static_text_map.vector.count)
-            for(map_internal_i = 0;
-                map_internal_i != font->static_text_map.vector.count &&
-                    (((hash_n = ((struct map_key_value_t*)font->static_text_map.vector.data)[map_internal_i].hash) &&
-                    (value  = (struct text_string_instance_t*)((struct map_key_value_t*)font->static_text_map.vector.data)[map_internal_i].value)) || 1);
-                ++map_internal_i)
+        MAP_FOR_EACH(&font->static_text_map, struct text_string_instance_t, key, value)
         {
-            hash_n = ((struct map_key_value_t*)font->static_text_map.vector.data)[map_internal_i].hash;
-            value  = ((struct text_string_instance_t*)((struct map_key_value_t*)font->static_text_map.vector.data)[map_internal_i].value);
             text_convert_text_to_vbo(font, value->x, value->y, &vertex_buffer, &index_buffer, value->text);
         }
     }
 
     /* upload to GPU */
     glBindVertexArray(font->gl.vao);
-        glBufferData(GL_ARRAY_BUFFER, vertex_buffer.count * sizeof(struct text_vertex_t), vertex_buffer.data, GL_STATIC_DRAW);
+        glBindBuffer(GL_ARRAY_BUFFER, font->gl.vbo);
+            glBufferData(GL_ARRAY_BUFFER, vertex_buffer.count * sizeof(struct text_vertex_t), vertex_buffer.data, GL_STATIC_DRAW);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, index_buffer.count * sizeof(INDEX_DATA_TYPE), index_buffer.data, GL_STATIC_DRAW);
     glBindVertexArray(0);
     
@@ -517,8 +508,10 @@ text_destroy_all_static_strings(struct font_t* font)
     
     /* clear vertices on GPU */
     glBindVertexArray(font->gl.vao);
-        glBufferData(GL_ARRAY_BUFFER, 0, NULL, GL_STATIC_DRAW);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, 0, NULL, GL_STATIC_DRAW);
+        glBindBuffer(GL_ARRAY_BUFFER, font->gl.vbo);
+            glBufferData(GL_ARRAY_BUFFER, 0, NULL, GL_STATIC_DRAW);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, font->gl.vio);
+            glBufferData(GL_ELEMENT_ARRAY_BUFFER, 0, NULL, GL_STATIC_DRAW);
     glBindVertexArray(0);
     
     /* reset index counter */
@@ -639,10 +632,13 @@ text_draw(void)
         UNORDERED_VECTOR_FOR_EACH(&g_fonts, struct font_t, font)
         {
             glBindVertexArray(font->gl.vao);printOpenGLError();
+                glBindBuffer(GL_ARRAY_BUFFER, font->gl.vbo);
+                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, font->gl.vio);
+                glBindTexture(GL_TEXTURE_2D, font->gl.tex);
                 glDrawElements(GL_TRIANGLES, font->gl.static_text_num_indices, GL_UNSIGNED_SHORT, NULL);printOpenGLError();
+            glBindVertexArray(0);printOpenGLError();
         }
     }
-    glBindVertexArray(0);printOpenGLError();
     glDisable(GL_BLEND);printOpenGLError();
 }
 
