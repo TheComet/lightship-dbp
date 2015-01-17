@@ -9,6 +9,8 @@ include_directories ("include")
 file (GLOB tests_HEADERS "include/tests/*.hpp")
 file (GLOB tests_SOURCES "src/*.cpp")
 
+add_definitions (${DEFINE_CMD}TESTING)
+
 add_executable (lightship_tests
     ${tests_HEADERS}
     ${tests_SOURCES}
