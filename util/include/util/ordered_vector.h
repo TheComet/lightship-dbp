@@ -1,7 +1,7 @@
 /*!
  * @file ordered_vector.h
- * @page ordered_vector Ordered Vector
  * @brief Dynamic contiguous sequence container with guaranteed element order.
+ * @page ordered_vector Ordered Vector
  * 
  * Ordered vectors arrange all inserted elements next to each other in memory.
  * Because of this, vector access is just as efficient as a normal array, but
@@ -36,7 +36,7 @@ struct ordered_vector_t
 };
 
 /*!
- * @brief Creates a new vector object.
+ * @brief Creates a new vector object. See @ref ordered_vector for details.
  * @param[in] element_size Specifies the size in bytes of the type of data you want
  * the vector to store. Typically one would pass sizeof(my_data_type).
  * @return Returns the newly created vector object.
@@ -46,7 +46,7 @@ ordered_vector_create(const intptr_t element_size);
 
 /*!
  * @brief Initialises an existing vector object.
- * @note This does **not** FREE existing memory. If you've pushed elements
+ * @note This does **not** free existing memory. If you've pushed elements
  * into your vector and call this, you will have created a memory leak.
  * @param[in] vector The vector to initialise.
  * @param[in] element_size Specifies the size in bytes of the type of data you
@@ -57,7 +57,7 @@ ordered_vector_init_vector(struct ordered_vector_t* vector,
                              const intptr_t element_size);
 
 /*!
- * @brief Destroys an existing vector object and FREEs all memory allocated by
+ * @brief Destroys an existing vector object and frees all memory allocated by
  * inserted elements.
  * @param[in] vector The vector to destroy.
  */
@@ -67,15 +67,15 @@ ordered_vector_destroy(struct ordered_vector_t* vector);
 /*!
  * @brief Erases all elements in a vector.
  * @note This does not actually erase the underlying memory, it simply resets
- * the element counter. If you wish to FREE the underlying memory, see
- * ordered_vector_clear_FREE().
+ * the element counter. If you wish to free the underlying memory, see
+ * ordered_vector_clear_free().
  * @param[in] vector The vector to clear.
  */
 LIGHTSHIP_PUBLIC_API void
 ordered_vector_clear(struct ordered_vector_t* vector);
 
 /*!
- * @brief Erases all elements in a vector and FREEs their memory.
+ * @brief Erases all elements in a vector and frees their memory.
  * @param[in] vector The vector to clear.
  */
 LIGHTSHIP_PUBLIC_API void
@@ -104,7 +104,7 @@ ordered_vector_push(struct ordered_vector_t* vector, void* data);
 /*!
  * @brief Allocates space for a new element at the head of the vector, but does
  * not initialise it.
- * @note **WARNING** The returned pointer could be invalidated if any other
+ * @warning The returned pointer could be invalidated if any other
  * vector related function is called, as the underlying memory of the vector
  * could be re-allocated. Use the pointer immediately after calling this
  * function.
@@ -117,7 +117,7 @@ ordered_vector_push_emplace(struct ordered_vector_t* vector);
 
 /*!
  * @brief Removes an element from the head of the vector.
- * @note **WARNING** The returned pointer could be invalidated if any other
+ * @warning The returned pointer could be invalidated if any other
  * vector related function is called, as the underlying memory of the vector
  * could be re-allocated. Use the pointer immediately after calling this
  * function.
@@ -128,9 +128,35 @@ ordered_vector_push_emplace(struct ordered_vector_t* vector);
 LIGHTSHIP_PUBLIC_API void* 
 ordered_vector_pop(struct ordered_vector_t* vector);
 
+/*!
+ * @brief Allocates space for a new element at the specified index, but does
+ * not initialise it.
+ * @note This can cause a re-allocation of the underlying memory. This
+ * implementation expands the allocated memory by a factor of 2 every time a
+ * re-allocation occurs to cut down on the frequency of re-allocations.
+ * @warning The returned pointer could be invalidated if any other
+ * vector related function is called, as the underlying memory of the vector
+ * could be re-allocated. Use the pointer immediately after calling this
+ * function.
+ * @param[in] vector The vector to emplace an element into.
+ * @param[in] index Where to insert.
+ * @return A pointer to the emplaced element. See warning and use with caution.
+ */
 LIGHTSHIP_PUBLIC_API void*
 ordered_vector_insert_emplace(struct ordered_vector_t* vector, intptr_t index);
 
+/*!
+ * @brief Inserts (copies) a new element at the specified index.
+ * @note This can cause a re-allocation of the underlying memory. This
+ * implementation expands the allocated memory by a factor of 2 every time a
+ * re-allocation occurs to cut down on the frequency of re-allocations.
+ * @note If you do not wish to copy data into the vector, but merely make
+ * space, see ordered_vector_insert_emplace().
+ * @param[in] vector The vector to insert into.
+ * @param[in] data The data to copy into the vector. It is assumed that
+ * sizeof(data) is equal to what was specified when the vector was first
+ * created. If this is not the case then it could cause undefined behaviour.
+ */
 LIGHTSHIP_PUBLIC_API void
 ordered_vector_insert(struct ordered_vector_t* vector, intptr_t index, void* data);
 
@@ -154,7 +180,7 @@ ordered_vector_erase_element(struct ordered_vector_t* vector, void* element);
 
 /*!
  * @brief Gets a pointer to the specified element in the vector.
- * @note **WARNING** The returned pointer could be invalidated if any other
+ * @warning The returned pointer could be invalidated if any other
  * vector related function is called, as the underlying memory of the vector
  * could be re-allocated. Use the pointer immediately after calling this
  * function.
@@ -173,8 +199,8 @@ ordered_vector_get_element(struct ordered_vector_t*, intptr_t index);
  * 
  * Example:
  * @code
- * ordered_vector_t* someVector = (a vector containing elements of type "struct bar")
- * LIST_FOR_EACH(someList, struct bar, element)
+ * ordered_vector_t* some_vector = (a vector containing elements of type "struct bar")
+ * ORDERED_VECTOR_FOR_EACH(some_vector, struct bar, element)
  * {
  *     do_something_with(element);  ("element" is now of type "struct bar*")
  * }
