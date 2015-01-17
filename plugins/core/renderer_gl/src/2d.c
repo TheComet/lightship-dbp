@@ -42,15 +42,15 @@ deinit_2d(void)
     UNORDERED_VECTOR_FOR_EACH(&g_shapes_collection, struct shapes_t, shapes)
     {
         glDeleteBuffers(1, &shapes->vbo);printOpenGLError();
-        glDeleteBuffers(1, &shapes->vio);printOpenGLError();
+        glDeleteBuffers(1, &shapes->ibo);printOpenGLError();
         glDeleteVertexArrays(1, &shapes->vao);printOpenGLError();
         unordered_vector_clear_free(&shapes->vertex_data);printOpenGLError();
         unordered_vector_clear_free(&shapes->index_data);printOpenGLError();
     }
-    
+    unordered_vector_clear_free(&g_shapes_collection);
+
     if(g_line_shader_id)
         glDeleteProgram(g_line_shader_id);printOpenGLError();
-    unordered_vector_clear_free(&g_shapes_collection);
 }
 
 void
@@ -106,8 +106,8 @@ shapes_2d_end(void)
                                   (void*)offsetof(struct vertex_2d_t, diffuse));printOpenGLError();
 
         /* generate VBO for index data */
-        glGenBuffers(1, &g_current_shapes->vio);printOpenGLError();
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_current_shapes->vio);printOpenGLError();
+        glGenBuffers(1, &g_current_shapes->ibo);printOpenGLError();
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_current_shapes->ibo);printOpenGLError();
             /* copy index data into VBO */
             glBufferData(GL_ELEMENT_ARRAY_BUFFER,
                         g_current_shapes->index_data.count * sizeof(INDEX_DATA_TYPE),
@@ -128,7 +128,7 @@ shapes_2d_destroy(uint32_t ID)
         if(shapes->ID == ID)
         {
             glDeleteBuffers(1, &shapes->vbo);printOpenGLError();
-            glDeleteBuffers(1, &shapes->vio);printOpenGLError();
+            glDeleteBuffers(1, &shapes->ibo);printOpenGLError();
             glDeleteVertexArrays(1, &shapes->vao);printOpenGLError();
             unordered_vector_clear_free(&shapes->vertex_data);
             unordered_vector_clear_free(&shapes->index_data);
@@ -208,10 +208,11 @@ draw_2d(void)
         {
             if(!shapes->visible)
                 continue;
+
             glBindVertexArray(shapes->vao);printOpenGLError();
-                glBindBuffer(GL_ARRAY_BUFFER, shapes->vbo);
                 glDrawElements(GL_LINES, shapes->index_data.count, GL_UNSIGNED_SHORT, NULL);printOpenGLError();
-            glBindVertexArray(0);
+            
         }
     }
+    glBindVertexArray(0);
 }

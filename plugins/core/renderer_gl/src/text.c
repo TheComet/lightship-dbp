@@ -191,8 +191,8 @@ text_load_font(const char* filename, uint32_t char_size)
                                       GL_FALSE,         /* normalise? */
                                       sizeof(struct text_vertex_t),
                                       (void*)offsetof(struct text_vertex_t, diffuse));printOpenGLError();
-            glGenBuffers(1, &font->gl.vio);printOpenGLError();
-            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, font->gl.vio);printOpenGLError();
+            glGenBuffers(1, &font->gl.ibo);printOpenGLError();
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, font->gl.ibo);printOpenGLError();
             glGenTextures(1, &font->gl.tex);printOpenGLError();
             glBindTexture(GL_TEXTURE_2D, font->gl.tex);
                 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);printOpenGLError();
@@ -235,10 +235,10 @@ text_destroy_font(struct font_t* font)
     
     /* clean up GL stuff */
     glDeleteTextures(1, &font->gl.tex);printOpenGLError();
-    glDeleteBuffers(1, &font->gl.vio);printOpenGLError();
+    glDeleteBuffers(1, &font->gl.ibo);printOpenGLError();
     glDeleteBuffers(1, &font->gl.vbo);printOpenGLError();
     glDeleteVertexArrays(1, &font->gl.vao);printOpenGLError();
-    
+
     /* clean up freetype stuff */
     FT_Done_Face(font->face);
     
@@ -505,7 +505,7 @@ text_destroy_all_static_strings(struct font_t* font)
     glBindVertexArray(font->gl.vao);
         glBindBuffer(GL_ARRAY_BUFFER, font->gl.vbo);
             glBufferData(GL_ARRAY_BUFFER, 0, NULL, GL_STATIC_DRAW);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, font->gl.vio);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, font->gl.ibo);
             glBufferData(GL_ELEMENT_ARRAY_BUFFER, 0, NULL, GL_STATIC_DRAW);
     glBindVertexArray(0);
     
@@ -667,13 +667,11 @@ text_draw(void)
         UNORDERED_VECTOR_FOR_EACH(&g_fonts, struct font_t, font)
         {
             glBindVertexArray(font->gl.vao);printOpenGLError();
-                glBindBuffer(GL_ARRAY_BUFFER, font->gl.vbo);
-                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, font->gl.vio);
-                glBindTexture(GL_TEXTURE_2D, font->gl.tex);
                 glDrawElements(GL_TRIANGLES, font->gl.static_text_num_indices, GL_UNSIGNED_SHORT, NULL);printOpenGLError();
-            glBindVertexArray(0);printOpenGLError();
+            
         }
     }
+    glBindVertexArray(0);printOpenGLError();
     glDisable(GL_BLEND);printOpenGLError();
 }
 
