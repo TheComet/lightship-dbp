@@ -1,6 +1,7 @@
 /*!
  * @file events.h 
- * @addtogroup events
+ * @addtogroup events_and_services Events and Services
+ * @page events Events Explained
  * @brief Communication within and between plugins.
  * @{
  * 
@@ -60,8 +61,8 @@ EVENT_C(evt_run)
  * and jump:
 @code
 <during PLUGIN_INIT()>
-evt_jump = api->create_event(plugin, "jump");
-evt_run = api->create_event(plugin, "run");
+evt_jump = event_create(plugin, "jump");
+evt_run = event_create(plugin, "run");
 @endcode
  *
  * Once that is done, every plugin - including the one that registered the
@@ -73,11 +74,11 @@ evt_run = api->create_event(plugin, "run");
  * -------------------
  * Any registered event can be listened to by anyone. The listener callback
  * function has the same signature for every event, and is defined using the
- * macro EVENT_LISTENER(). 
+ * macro EVENT_LISTENERn(), where n is the number of arguments being passed.
  *
  * First the callback function must be defined:
 @code
-EVENT_LISTENER(on_player_jump)
+EVENT_LISTENER0(on_player_jump)
 {
     <do stuff to make a player jump>
 }
@@ -87,7 +88,8 @@ EVENT_LISTENER(on_player_jump)
  * is because events are registered during PLUGIN_INIT() and may not be
  * available until after the plugin is fully initialised.
 @code
-api->event_register_listener(plugin, "plugin_name.jump", on_player_jump);
+<during or after PLUGIN_START()>
+event_register_listener(plugin, "plugin_name.jump", on_player_jump);
 @endcode
  * 
  * See event_register_listener() for more information.
@@ -97,10 +99,11 @@ api->event_register_listener(plugin, "plugin_name.jump", on_player_jump);
 #define LIGHTSHIP_UTIL_EVENTS_H
 
 #include "util/pstdint.h"
+#include "util/config.h"
 #include "util/linked_list.h"
 #include "util/event_api.h"
 
-extern struct list_t g_events;
+C_HEADER_BEGIN
 
 /* ----------------------------
  * Built-in events
@@ -130,6 +133,8 @@ events_deinit(void);
  * 
  * @param[in] plugin The plugin object this event belongs to.
  * @param[in] name The name of the event. Should be unique plugin-wide.
+ * @note The name string is copied to an internal buffer, so you are free to
+ * delete it when it is no longer used.
  * @return Returns a new event object which should be stored by the plugin.
  */
 LIGHTSHIP_PUBLIC_API struct event_t*
@@ -187,7 +192,7 @@ event_unregister_listener(const char* event_name, const char* plugin_name);
  * @brief Unregisters all listeners from the specified event.
  */
 LIGHTSHIP_PUBLIC_API void
-event_unregister_all_listeners(const struct event_t* event);
+event_unregister_all_listeners(struct event_t* event);
 
 /*!
  * @brief Unregisters all listeners that belong to the specified plugin
@@ -196,6 +201,8 @@ event_unregister_all_listeners(const struct event_t* event);
  */
 LIGHTSHIP_PUBLIC_API void
 event_unregister_all_listeners_of_plugin(const struct plugin_t* plugin);
+
+C_HEADER_END
 
 #endif /* LIGHTSHIP_UTIL_EVENTS_H */
 

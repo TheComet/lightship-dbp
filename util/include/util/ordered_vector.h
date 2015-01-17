@@ -1,3 +1,23 @@
+/*!
+ * @file ordered_vector.h
+ * @page ordered_vector Ordered Vector
+ * @brief Dynamic contiguous sequence container with guaranteed element order.
+ * 
+ * Ordered vectors arrange all inserted elements next to each other in memory.
+ * Because of this, vector access is just as efficient as a normal array, but
+ * they are able to grow and shrink in size automatically.
+ * 
+ * As opposed to an @ref unordered_vector, an ordered vector guarantees that the
+ * elements it contains preserve the exact order in which they were inserted.
+ * Behind the curtains, this means that whenever an element which is **not**
+ * the last element is removed or inserted, all vectors proceeding
+ * or preceeding this element will be **moved** accordingly. An
+ * @ref unordered_vector will simply move the element at the end of the vector
+ * to fill the gap, or move the element to the end of the vector to make space
+ * for a new element, thus bringing the elements out of order.
+ * @{
+ */
+
 #ifndef LIGHTSHIP_UTIL_ORDERED_VECTOR_H
 #define LIGHTSHIP_UTIL_ORDERED_VECTOR_H
 
@@ -174,3 +194,5 @@ ordered_vector_get_element(struct ordered_vector_t*, intptr_t index);
 C_HEADER_END
 
 #endif /* LIGHTSHIP_UTIL_ORDERED_VECTOR_H */
+
+/** @} */
