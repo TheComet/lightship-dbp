@@ -147,13 +147,13 @@ unordered_vector_get_element(struct unordered_vector_t*, intptr_t index);
  * @brief Convenient macro for iterating a vector's elements.
  * 
  * Example:
- * @code
- * unordered_vector_t* someVector = (a vector containing elements of type "struct bar")
- * LIST_FOR_EACH(someList, struct bar, element)
- * {
- *     do_something_with(element);  ("element" is now of type "struct bar*")
- * }
- * @endcode
+@code
+unordered_vector_t* someVector = (a vector containing elements of type "struct bar")
+UNORDERED_VECTOR_FOR_EACH(some_vector, struct bar, element)
+{
+    do_something_with(element);  ("element" is now of type "struct bar*")
+}
+@endcode
  * @param[in] vector The vector to iterate.
  * @param[in] var_type Should be the type of data stored in the vector.
  * @param[in] var The name of a temporary variable you'd like to use within the
@@ -165,6 +165,21 @@ unordered_vector_get_element(struct unordered_vector_t*, intptr_t index);
     for(var = (var_type*)(vector)->data; \
         (DATA_POINTER_TYPE*)var != end_of_vector; \
         var = (var_type*)(((DATA_POINTER_TYPE*)var) + (vector)->element_size))
+        
+/*!
+ * @brief Convenient macro for erasing an element while iterating a vector.
+ * 
+ * Example:
+@code
+UNORDERED_VECTOR_FOR_EACH(some_vector, element)
+{
+    UNORDERED_VECTOR_ERASE_IN_FOR_LOOP(some_vector, element);
+}
+@endcode
+ */
+#define UNORDERED_VECTOR_ERASE_IN_FOR_LOOP(vector, var_type, var) \
+    unordered_vector_erase_element(vector, var); \
+    var = (var_type*)(((DATA_POINTER_TYPE*)var) - (vector)->element_size);
         
 C_HEADER_END
 

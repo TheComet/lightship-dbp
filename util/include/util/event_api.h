@@ -2,7 +2,10 @@
 #define LIGHTSHIP_UTIL_EVENT_API_H
 
 #include <stdio.h>
-#include "util/linked_list.h"
+#include "util/config.h"
+#include "util/unordered_vector.h"
+
+C_HEADER_BEGIN
 
 struct list_t;
 struct event_t;
@@ -10,11 +13,11 @@ struct event_t;
 /* event callback function signature */
 typedef void (*event_callback_func)();
 
-/* -------------------------------------------------------------------------
- * The following is the event listener and dispatch system implemented
- * partially in macros. We have no access to variadic macros so it may
- * appear a little bloated.
- * -----------------------------------------------------------------------*/
+/* ------------------------------------------------------------------------- *
+ * The following is the event listener and dispatch system implemented       *
+ * partially in macros. We have no access to variadic macros so it may       *
+ * appear a little bloated.                                                  *
+ * ------------------------------------------------------------------------- */
 
 /*!
  * @brief Register listeners with up to 4 receiving function parameters
@@ -97,7 +100,7 @@ typedef void (*event_callback_func)();
 
 /* used to iterate over the listeners of an event */
 #define EVENT_ITERATE_LISTENERS_BEGIN(event) \
-            LIST_FOR_EACH((event)->listeners, struct event_listener_t, listener) \
+            UNORDERED_VECTOR_FOR_EACH(&(event)->listeners, struct event_listener_t, listener) \
             {
 #define EVENT_ITERATE_LISTENERS_END \
             }
@@ -164,13 +167,15 @@ EVENT_C(evt_foo);
 struct event_t
 {
     char* name;
-    struct list_t* listeners; /* holds event_listener_t objects */
+    struct unordered_vector_t listeners; /* holds event_listener_t objects */
 };
 
 struct event_listener_t
 {
-    char* namespace;
+    char* name_space;
     event_callback_func exec;
 };
+
+C_HEADER_END
 
 #endif /* LIGHTSHIP_UTIL_EVENT_API_H */
