@@ -1,3 +1,24 @@
+/*!
+ * @file unordered_vector.h
+ * @brief Dynamic contiguous sequence container with no guarantee for element order preservation.
+ * @page unordered_vector Unordered Vector
+ * 
+ * Unrdered vectors arrange all inserted elements next to each other in memory.
+ * Because of this, vector access is just as efficient as a normal array, but
+ * they are able to grow and shrink in size automatically.
+ * 
+ * As opposed to an @ref ordered_vector, an unordered vector does not guarantee
+ * the elements it contains will remain in that order. The reason for this is
+ * that whenever an element, except for the last element, is removed or
+ * inserted, the very last element will be moved to fill the gap (in the case
+ * of removal), or the element in question will be moved to the end of the
+ * vector to make space for insertion. Because of this, order cannot be
+ * guaranteed.
+ * 
+ * An @ref unordered_vector is faster at insertion/deletion than an 
+ * @ref ordered_vector.
+ */
+
 #ifndef LIGHTSHIP_UTIL_UNORDERED_VECTOR_H
 #define LIGHTSHIP_UTIL_UNORDERED_VECTOR_H
 
@@ -12,11 +33,11 @@ struct unordered_vector_t
     intptr_t element_size;       /* how large one element is in bytes */
     intptr_t capacity;           /* how many elements actually fit into the allocated space */
     intptr_t count;              /* number of elements inserted */
-    DATA_POINTER_TYPE* data;/* pointer to the contiguous section of memory */
+    DATA_POINTER_TYPE* data;     /* pointer to the contiguous section of memory */
 };
 
 /*!
- * @brief Creates a new vector object.
+ * @brief Creates a new vector object. See @ref unordered_vector for details.
  * @param[in] element_size Specifies the size in bytes of the type of data you want
  * the vector to store. Typically one would pass sizeof(my_data_type).
  * @return Returns the newly created vector object.
@@ -26,7 +47,7 @@ unordered_vector_create(const intptr_t element_size);
 
 /*!
  * @brief Initialises an existing vector object.
- * @note This does **not** FREE existing memory. If you've pushed elements
+ * @note This does **not** free existing memory. If you've pushed elements
  * into your vector and call this, you will have created a memory leak.
  * @param[in] vector The vector to initialise.
  * @param[in] element_size Specifies the size in bytes of the type of data you
@@ -37,7 +58,7 @@ unordered_vector_init_vector(struct unordered_vector_t* vector,
                              const intptr_t element_size);
 
 /*!
- * @brief Destroys an existing vector object and FREEs all memory allocated by
+ * @brief Destroys an existing vector object and frees all memory allocated by
  * inserted elements.
  * @param[in] vector The vector to destroy.
  */
@@ -47,15 +68,15 @@ unordered_vector_destroy(struct unordered_vector_t* vector);
 /*!
  * @brief Erases all elements in a vector.
  * @note This does not actually erase the underlying memory, it simply resets
- * the element counter. If you wish to FREE the underlying memory, see
- * unordered_vector_clear_FREE().
+ * the element counter. If you wish to free the underlying memory, see
+ * unordered_vector_clear_free().
  * @param[in] vector The vector to clear.
  */
 LIGHTSHIP_PUBLIC_API void
 unordered_vector_clear(struct unordered_vector_t* vector);
 
 /*!
- * @brief Erases all elements in a vector and FREEs their memory.
+ * @brief Erases all elements in a vector and frees their memory.
  * @param[in] vector The vector to clear.
  */
 LIGHTSHIP_PUBLIC_API void
@@ -67,7 +88,7 @@ unordered_vector_clear_free(struct unordered_vector_t* vector);
 #define unordered_vector_count(x) ((x)->count)
 
 /*!
- * @brief Inserts (copies) a new element at the head of the vector.
+ * @brief Inserts (copies) a new element into the head of the vector.
  * @note This can cause a re-allocation of the underlying memory. This
  * implementation expands the allocated memory by a factor of 2 every time a
  * re-allocation occurs to cut down on the frequency of re-allocations.
@@ -84,7 +105,7 @@ unordered_vector_push(struct unordered_vector_t* vector, void* data);
 /*!
  * @brief Allocates space for a new element at the head of the vector, but does
  * not initialise it.
- * @note **WARNING** The returned pointer could be invalidated if any other
+ * @warning The returned pointer could be invalidated if any other
  * vector related function is called, as the underlying memory of the vector
  * could be re-allocated. Use the pointer immediately after calling this
  * function.
@@ -97,7 +118,7 @@ unordered_vector_push_emplace(struct unordered_vector_t* vector);
 
 /*!
  * @brief Removes an element from the head of the vector.
- * @note **WARNING** The returned pointer could be invalidated if any other
+ * @warning The returned pointer could be invalidated if any other
  * vector related function is called, as the underlying memory of the vector
  * could be re-allocated. Use the pointer immediately after calling this
  * function.
@@ -110,8 +131,10 @@ unordered_vector_pop(struct unordered_vector_t* vector);
 
 /*!
  * @brief Erases the specified element from the vector.
- * @note This causes all elements with indices greater than **index** to be
- * re-allocated (shifted 1 element down) so the vector remains contiguous.
+ * @note If the element being erased is not the last element in the vector, the
+ * last element of the vector will be moved down to fill the place of the
+ * element being erased.
+ * @param[in] vector The vector to erase the element from.
  * @param[in] index The position of the element in the vector to erase. The index
  * ranges from **0** to **unordered_vector_count()-1**.
  */
@@ -120,6 +143,9 @@ unordered_vector_erase_index(struct unordered_vector_t* vector, intptr_t index);
 
 /*!
  * @brief Removes the element in the vector pointed to by **element**.
+ * @note If the element being erased is not the last element in the vector, the
+ * last element of the vector will be moved down to fill the place of the
+ * element being erased.
  * @param[in] vector The vector from which to erase the data.
  * @param[in] element A pointer to an element within the vector.
  */
@@ -129,7 +155,7 @@ unordered_vector_erase_element(struct unordered_vector_t* vector,
 
 /*!
  * @brief Gets a pointer to the specified element in the vector.
- * @note **WARNING** The returned pointer could be invalidated if any other
+ * @warning The returned pointer could be invalidated if any other
  * vector related function is called, as the underlying memory of the vector
  * could be re-allocated. Use the pointer immediately after calling this
  * function.
@@ -148,7 +174,7 @@ unordered_vector_get_element(struct unordered_vector_t*, intptr_t index);
  * 
  * Example:
 @code
-unordered_vector_t* someVector = (a vector containing elements of type "struct bar")
+unordered_vector_t* some_vector = (a vector containing elements of type "struct bar")
 UNORDERED_VECTOR_FOR_EACH(some_vector, struct bar, element)
 {
     do_something_with(element);  ("element" is now of type "struct bar*")
@@ -168,18 +194,21 @@ UNORDERED_VECTOR_FOR_EACH(some_vector, struct bar, element)
         
 /*!
  * @brief Convenient macro for erasing an element while iterating a vector.
- * 
+ * @warning Only call this while iterating.
  * Example:
 @code
-UNORDERED_VECTOR_FOR_EACH(some_vector, element)
+UNORDERED_VECTOR_FOR_EACH(some_vector, struct bar, element)
 {
-    UNORDERED_VECTOR_ERASE_IN_FOR_LOOP(some_vector, element);
+    UNORDERED_VECTOR_ERASE_IN_FOR_LOOP(some_vector, struct bar, element);
 }
 @endcode
+ * @param[in] vector The vector to erase from.
+ * @param[in] var_type Should be the type of data stored in the vector.
+ * @param[in] element The element to erase.
  */
-#define UNORDERED_VECTOR_ERASE_IN_FOR_LOOP(vector, var_type, var) \
-    unordered_vector_erase_element(vector, var); \
-    var = (var_type*)(((DATA_POINTER_TYPE*)var) - (vector)->element_size);
+#define UNORDERED_VECTOR_ERASE_IN_FOR_LOOP(vector, element_type, element) \
+    unordered_vector_erase_element(vector, element); \
+    element = (element_type*)(((DATA_POINTER_TYPE*)element) - (vector)->element_size);
         
 C_HEADER_END
 
