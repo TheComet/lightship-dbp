@@ -5,6 +5,10 @@
 #include "util/config.h"
 #include "util/unordered_vector.h"
 
+#ifdef __cplusplus
+#include <functional>
+#endif
+
 C_HEADER_BEGIN
 
 struct list_t;
@@ -51,17 +55,24 @@ typedef void (*event_callback_func)();
 #define EVENT_LISTENER_TYPEDEF4(name, arg1, arg2, arg3, arg4) \
     typedef void (*name)(const struct event_t*, arg1, arg2, arg3, arg4);
 
+/* see issue #14 */
+#ifdef __cplusplus
+#   define EVENT_EXEC_FUNC cppexec
+#else
+#   define EVENT_EXEC_FUNC exec
+#endif
+
 /* the actual function call to the listener */
 #define EVENT_FIRE_IMPL0(event) \
-            listener->exec(event, NULL);
+            listener->EVENT_EXEC_FUNC(event);
 #define EVENT_FIRE_IMPL1(event, arg) \
-            listener->exec(event, arg);
+            listener->EVENT_EXEC_FUNC(event, arg);
 #define EVENT_FIRE_IMPL2(event, arg1, arg2) \
-            listener->exec(event, arg1, arg2);
+            listener->EVENT_EXEC_FUNC(event, arg1, arg2);
 #define EVENT_FIRE_IMPL3(event, arg1, arg2, arg3) \
-            listener->exec(event, arg1, arg2, arg3);
+            listener->EVENT_EXEC_FUNC(event, arg1, arg2, arg3);
 #define EVENT_FIRE_IMPL4(event, arg1, arg2, arg3, arg4) \
-            listener->exec(event, arg1, arg2, arg3, arg4);
+            listener->EVENT_EXEC_FUNC(event, arg1, arg2, arg3, arg4);
 
 /*
  * In debug mode, we want to print the stack trace if an event object
@@ -163,6 +174,8 @@ EVENT_C(evt_foo);
  */
 #define EVENT_C(event) \
     struct event_t* event = (void*)0;
+    
+C_HEADER_END
 
 struct event_t
 {
@@ -173,9 +186,54 @@ struct event_t
 struct event_listener_t
 {
     char* name_space;
+    /*
+     * See issue #14.
+     * C++ does not recognize generic functions. To get around this, store
+     * function pointer as void* and use templates to deduce the correct
+     * function signature and convert the void* to said function signature
+     * before calling.
+     */
+#ifdef __cplusplus
+#   if __cplusplus <= 199711L /* no variadic template support (c++11 not available) */
+    void cppexec()
+    {
+        typedef void (*func_sig)();
+        reinterpret_cast<func_sig>(exec)();
+    }
+    template <class arg1_t>
+    void cppexec(const arg1_t& arg1)
+    {
+        typedef void (*func_sig)(const arg1_t&);
+        reinterpret_cast<func_sig>(exec)(arg1);
+    }
+    template <class arg1_t, class arg2_t>
+    void cppexec(const arg1_t& arg1, const arg2_t& arg2)
+    {
+        typedef void (*func_sig)(const arg1_t&, const arg2_t&);
+        reinterpret_cast<func_sig>(exec)(arg1, arg2);
+    }
+    template <class arg1_t, class arg2_t, class arg3_t>
+    void cppexec(const arg1_t& arg1, const arg2_t& arg2, const arg3_t& arg3)
+    {
+        typedef void (*func_sig)(const arg1_t&, const arg2_t&, const arg3_t&);
+        reinterpret_cast<func_sig>(exec)(arg1, arg2, arg3);
+    }
+    template <class arg1_t, class arg2_t, class arg3_t, class arg4_t>
+    void cppexec(const arg1_t& arg1, const arg2_t& arg2, const arg3_t& arg3, const arg4_t& arg4)
+    {
+        typedef void (*func_sig)(const arg1_t&, const arg2_t&, const arg3_t&, const arg4_t&);
+        reinterpret_cast<func_sig>(exec)(arg1, arg2, arg3, arg4);
+    }
+#   else /* c++11! */
+    template <class... args_t>
+    void cppexec(args_t&&... args)
+    {
+        typedef void (*func_sig)(args_t...);
+        reinterpret_cast<func_sig>(exec)(args...);
+    }
+#   endif
+#endif
     event_callback_func exec;
 };
-
-C_HEADER_END
 
 #endif /* LIGHTSHIP_UTIL_EVENT_API_H */

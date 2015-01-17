@@ -179,14 +179,14 @@ event_get(const char* full_name);
  */
 LIGHTSHIP_PUBLIC_API char
 event_register_listener(const struct plugin_t* plugin,
-                        const char* full_name,
+                        const char* event_name,
                         event_callback_func callback);
 
 /*!
  * @brief Unregisters a listener from the specified event.
  */
 LIGHTSHIP_PUBLIC_API char
-event_unregister_listener(const char* event_name, const char* plugin_name);
+event_unregister_listener(const char* plugin_name, const char* event_name);
 
 /*!
  * @brief Unregisters all listeners from the specified event.

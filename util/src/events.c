@@ -179,21 +179,21 @@ event_get(const char* full_name)
 
 char
 event_register_listener(const struct plugin_t* plugin,
-                        const char* full_name,
+                        const char* event_full_name,
                         event_callback_func callback)
 {
     struct event_t* event;
     struct event_listener_t* new_listener;
-    char* register_name;
+    char* registering_name_space;
     
-    /* get registration name - if NULL was specified as a plugin, make it builtin */
+    /* get name space name - if NULL was specified as a plugin, make it builtin */
     if(plugin)
-        register_name = plugin->info.name;
+        registering_name_space = plugin->info.name;
     else
-        register_name = BUILTIN_NAMESPACE_NAME;
+        registering_name_space = BUILTIN_NAMESPACE_NAME;
     
     /* make sure event exists */
-    event = event_get(full_name);
+    event = event_get(event_full_name);
     if(event == NULL)
         return 0;
     
@@ -202,7 +202,7 @@ event_register_listener(const struct plugin_t* plugin,
     {
         UNORDERED_VECTOR_FOR_EACH(&event->listeners, struct event_listener_t, listener)
         {
-            if(strcmp(listener->name_space, register_name) == 0)
+            if(strcmp(listener->name_space, registering_name_space) == 0)
                 return 0;
         }
     }
@@ -211,13 +211,13 @@ event_register_listener(const struct plugin_t* plugin,
     new_listener = (struct event_listener_t*)unordered_vector_push_emplace(&event->listeners);
     new_listener->exec = callback;
     /* create and copy string from plugin name */
-    new_listener->name_space = cat_strings(2, register_name, ".");
+    new_listener->name_space = cat_strings(2, registering_name_space, ".");
     
     return 1;
 }
 
 char
-event_unregister_listener(const char* event_name, const char* plugin_name)
+event_unregister_listener(const char* plugin_name, const char* event_name)
 {
     struct event_t* event = event_get(event_name);
     if(event == NULL)
