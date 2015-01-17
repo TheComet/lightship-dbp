@@ -14,7 +14,7 @@ struct shapes_t
     uint8_t visible;
     GLuint vao;
     GLuint vbo;
-    GLuint vio;
+    GLuint ibo;
     struct unordered_vector_t vertex_data;
     struct unordered_vector_t index_data;
 };

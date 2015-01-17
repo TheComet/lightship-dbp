@@ -20,7 +20,7 @@ struct text_gl_t
 {
     GLuint vao;
     GLuint vbo;
-    GLuint vio;
+    GLuint ibo;
     GLuint tex;
     GLuint static_text_num_indices;
 };
