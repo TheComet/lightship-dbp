@@ -19,6 +19,16 @@ services_init(void)
     
 }
 
+void
+services_deinit(void)
+{
+    LIST_FOR_EACH_ERASE(&g_services, struct service_t, service)
+    {
+        service_free(service);
+        list_erase_node(&g_services, node);
+    }
+}
+
 char
 service_register(const struct plugin_t* plugin,
                  const char* name,
@@ -49,6 +59,13 @@ service_malloc_and_register(char* full_name, const intptr_t exec)
     list_push(&g_services, service);
 }
 
+void
+service_free(struct service_t* service)
+{
+    FREE(service->name);
+    FREE(service);
+}
+
 char
 service_unregister(const struct plugin_t* plugin,
                    const char* name)
@@ -63,8 +80,7 @@ service_unregister(const struct plugin_t* plugin,
         {
             if(strcmp(service->name, full_name) == 0)
             {
-                FREE(service->name);
-                FREE(service);
+                service_free(service);
                 list_erase_node(&g_services, node);
                 success = 1;
                 break;
@@ -86,8 +102,7 @@ service_unregister_all(const struct plugin_t* plugin)
         {
             if(strncmp(service->name, name, len) == 0)
             {
-                FREE(service->name);
-                FREE(service);
+                service_free(service);
                 list_erase_node(&g_services, node);
             }
         }

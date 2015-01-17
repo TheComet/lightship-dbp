@@ -23,14 +23,14 @@ event_unregister_all_listeners_of_name_space(struct event_t* event,
 
 /*!
  * @brief Returns the full name of the event using a plugin object and event name.
- * @note The returned string must be FREEd manually.
+ * @note The returned string must be freed manually.
  */
 static char*
 event_get_full_name(const struct plugin_t* plugin, const char* name);
 
 /*!
  * @brief Returns the name_space name of the event using a plugin object.
- * @note The returned string must be FREEd manually.
+ * @note The returned string must be freed manually.
  */
 static char*
 event_get_name_space_name(const struct plugin_t* plugin);
@@ -64,7 +64,7 @@ void
 events_init(void)
 {
     char* name;
-    
+
     list_init_list(&g_events);
     
     /* ----------------------------
@@ -110,7 +110,7 @@ event_malloc_and_register(char* full_name)
 {
     /* create new event and register to global list of events */
     struct event_t* event = (struct event_t*)MALLOC(sizeof(struct event_t));
-    event->name = malloc_string(full_name);
+    event->name = full_name;
     unordered_vector_init_vector(&event->listeners, sizeof(struct event_listener_t));
     list_push(&g_events, event);
     return event;
@@ -307,5 +307,4 @@ static void
 event_listener_free(struct event_listener_t* listener)
 {
     FREE(listener->name_space);
-    FREE(listener);
 }
