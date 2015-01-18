@@ -186,6 +186,7 @@ struct event_t
 struct event_listener_t
 {
     char* name_space;
+    event_callback_func exec;
     /*
      * See issue #14.
      * C++ does not recognize generic functions. To get around this, store
@@ -233,7 +234,6 @@ struct event_listener_t
     }
 #   endif
 #endif
-    event_callback_func exec;
 };
 
 #endif /* LIGHTSHIP_UTIL_EVENT_API_H */

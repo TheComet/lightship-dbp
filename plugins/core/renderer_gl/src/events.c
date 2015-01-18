@@ -12,13 +12,13 @@ EVENT_C(evt_mouse_scroll)
 void
 register_events(const struct plugin_t* plugin)
 {
-    evt_close_window = event_create(plugin, "close_window");
-    evt_key_press = event_create(plugin, "key_press");
-    evt_key_release = event_create(plugin, "key_release");
-    evt_mouse_move = event_create(plugin, "mouse_move");
-    evt_mouse_button_press = event_create(plugin, "mouse_button_press");
-    evt_mouse_button_release = event_create(plugin, "mouse_button_release");
-    evt_mouse_scroll = event_create(plugin, "mouse_scroll");
+    evt_close_window            = event_create(plugin, "close_window");
+    evt_key_press               = event_create(plugin, "key_press");
+    evt_key_release             = event_create(plugin, "key_release");
+    evt_mouse_move              = event_create(plugin, "mouse_move");
+    evt_mouse_button_press      = event_create(plugin, "mouse_button_press");
+    evt_mouse_button_release    = event_create(plugin, "mouse_button_release");
+    evt_mouse_scroll            = event_create(plugin, "mouse_scroll");
 }
 
 void

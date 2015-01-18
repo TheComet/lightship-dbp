@@ -3,7 +3,7 @@
 #include "util/config.h"     /* platform macros and definitions */
 #include "util/plugin.h"     /* plugin api */
 #include "plugin_input/services.h" /* plugin services */
-#include "plugin_input//events.h"   /* plugin events */
+#include "plugin_input/events.h"   /* plugin events */
 
 struct plugin_t* g_plugin = NULL;
 
@@ -41,6 +41,9 @@ PLUGIN_INIT()
 
 PLUGIN_START()
 {
+    if(!get_required_services())
+        return PLUGIN_FAILURE;
+    get_optional_services();
     register_event_listeners(g_plugin);
 
     return PLUGIN_SUCCESS;

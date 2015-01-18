@@ -1,11 +1,14 @@
 #include "plugin_renderer_gl/services.h"
 #include "plugin_renderer_gl/2d.h"
 #include "plugin_renderer_gl/text.h"
+#include "plugin_renderer_gl/window.h"
 #include "util/services.h"
 
 void
 register_services(const struct plugin_t* plugin)
 {
+    service_register(plugin, "window_width",                    (intptr_t)window_width);
+    service_register(plugin, "window_height",                   (intptr_t)window_height);
     service_register(plugin, "shapes_2d_begin",                 (intptr_t)shapes_2d_begin);
     service_register(plugin, "shapes_2d_end",                   (intptr_t)shapes_2d_end);
     service_register(plugin, "line_2d",                         (intptr_t)line_2d);

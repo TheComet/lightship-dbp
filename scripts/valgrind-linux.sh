@@ -7,6 +7,6 @@ valgrind --num-callers=50 \
 	--show-reachable=yes \
 	--show-possibly-lost=yes  \
 	--time-stamp=yes \
-	--suppressions=../../valgrind-suppressions.supp \
+	--suppressions=../../scripts/valgrind-suppressions.supp \
 	./lightship
 cd .. && cd ..
