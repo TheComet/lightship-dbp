@@ -1,6 +1,8 @@
 #include "util/pstdint.h"
 #include <wchar.h>
 
+typedef uint32_t(*window_width_func)                    (void);
+typedef uint32_t(*window_height_func)                   (void);
 typedef void    (*shapes_2d_begin_func)                 (void);
 typedef uint32_t(*shapes_2d_end_func)                   (void);
 typedef void    (*line_2d_func)                         (float, float, float, float, uint32_t);

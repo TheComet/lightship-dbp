@@ -1,5 +1,9 @@
-#include "lightship/api.h"
+#include "util/api.h"
 #include "plugin_input/services.h"
+
+/* extern service function pointers *
+window_width_func window_width;
+window_height_func window_height;*/
 
 void
 register_services(const struct plugin_t* plugin)
@@ -13,4 +17,19 @@ register_services(const struct plugin_t* plugin)
      * etc...
      */
 
+}
+
+char
+get_required_services(void)
+{
+    /*if(!(window_width = (window_width_func)service_get("renderer_gl.window_width")))
+        return 0;
+    if(!(window_height = (window_height_func)service_get("renderer_gl.window_height")))
+        return 0;*/
+    return 1;
+}
+
+void
+get_optional_services(void)
+{
 }

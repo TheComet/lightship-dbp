@@ -43,7 +43,7 @@ file (GLOB plugin_input_SOURCES "src/*.c")
 set (plugin_input_HEADERS ${plugin_input_HEADERS} "include/plugin_input.h")
 
 include_directories ("include")
-include_directories ("../renderer_gl/ext/GL/glfw-3.0.3/include/GLFW/")
+include_directories ("${CMAKE_SOURCE_DIR}/plugins/core/renderer_gl/include")
 
 add_library (plugin_input SHARED
     ${plugin_input_HEADERS}

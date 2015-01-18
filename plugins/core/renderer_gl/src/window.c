@@ -71,13 +71,13 @@ window_deinit(void)
         glfwDestroyWindow(g_window.window);
 }
 
-int
+uint32_t
 window_width(void)
 {
     return g_window.width;
 }
 
-int window_height(void)
+uint32_t window_height(void)
 {
     return g_window.height;
 }
