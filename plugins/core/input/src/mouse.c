@@ -7,7 +7,7 @@ static struct mouse_t g_mouse = {
     0                /* state */
 };
 
-EVENT_LISTENER2(on_mouse_move, uint32_t x, uint32_t y)
+EVENT_LISTENER2(on_mouse_move, double x, double y)
 {
     g_mouse.position.x = x;
     g_mouse.position.y = y;

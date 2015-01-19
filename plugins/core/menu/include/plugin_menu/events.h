@@ -4,11 +4,7 @@
  * All events this plugin emits
  * ---------------------------------------------------*/
  
- /* 
-  * EVENT_H(evt_name_1)
-  * EVENT_H(evt_name_2)
-  * etc...
-  */
+EVENT_H(evt_button_clicked)
 
 struct plugin_t;
 

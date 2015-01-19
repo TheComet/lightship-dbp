@@ -36,6 +36,7 @@ register_events(const struct plugin_t* plugin)
 void
 register_event_listeners(const struct plugin_t* plugin)
 {
+    event_register_listener(plugin, "renderer_gl.mouse_move", on_mouse_move);
     event_register_listener(plugin, "renderer_gl.mouse_button_press", on_mouse_button_press);
     event_register_listener(plugin, "renderer_gl.mouse_button_release", on_mouse_button_release);
     event_register_listener(plugin, "renderer_gl.key_press", on_key_press);

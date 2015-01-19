@@ -1,5 +1,6 @@
 #include "plugin_menu/button.h"
 #include "plugin_menu/services.h"
+#include "plugin_menu/events.h"
 #include "util/unordered_vector.h"
 #include "util/memory.h"
 #include "util/string.h"
@@ -94,4 +95,38 @@ void button_destroy_all(void)
         FREE(btn->text);
     }
     unordered_vector_clear(&g_buttons);
+}
+
+struct button_t* button_collision(struct button_t* button, float x, float y)
+{
+
+    /* test specified button */
+    if(button)
+    {
+        if(x > button->pos.x - button->size.x*0.5 && x < button->pos.x + button->size.x*0.5)
+            if(y > button->pos.y - button->size.y*0.5 && y < button->pos.y + button->size.y*0.5)
+                return button;
+        return NULL;
+    }
+    
+    /* test all buttons */
+    {
+        UNORDERED_VECTOR_FOR_EACH(&g_buttons, struct button_t, cur_btn)
+        {
+            if(x > cur_btn->pos.x - cur_btn->size.x*0.5 && x < cur_btn->pos.x + cur_btn->size.x*0.5)
+                if(y > cur_btn->pos.y - cur_btn->size.y*0.5 && y < cur_btn->pos.y + cur_btn->size.y*0.5)
+                    return cur_btn;
+        }
+    }
+    return NULL;
+}
+
+EVENT_LISTENER3(on_mouse_clicked, char mouse_btn, double x, double y)
+{
+    struct button_t* button = button_collision(NULL, (float)x, (float)y);
+    if(button)
+    {
+        printf("button \"%S\" clicked at %f,%f\n", button->text, x, y);
+        EVENT_FIRE1(evt_button_clicked, button->text);
+    }
 }
