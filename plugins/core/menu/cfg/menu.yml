@@ -1,4 +1,4 @@
-main-screen:
+main_screen:
     button:
         text: "Test"
         position:
@@ -7,3 +7,4 @@ main-screen:
         size:
             x: 0.1
             y: 0.03
+

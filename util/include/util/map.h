@@ -7,6 +7,8 @@
 
 C_HEADER_BEGIN
 
+extern const intptr_t MAP_INVALID_KEY;
+
 struct map_key_value_t
 {
     intptr_t hash;
@@ -74,6 +76,9 @@ map_set(struct map_t* map, intptr_t hash, void* value);
 LIGHTSHIP_PUBLIC_API void*
 map_find(struct map_t* map, intptr_t hash);
 
+LIGHTSHIP_PUBLIC_API intptr_t
+map_find_element(struct map_t* map, void* value);
+
 /*!
  * @brief Returns 1 if the specified key exists, 0 if otherwise.
  * @param map The map to find the key in.
@@ -106,6 +111,9 @@ map_find_unused_key(struct map_t* map);
 LIGHTSHIP_PUBLIC_API void*
 map_erase(struct map_t* map, intptr_t hash);
 
+LIGHTSHIP_PUBLIC_API void
+map_erase_element(struct map_t* map, void* value);
+
 /*!
  * @brief Erases the entire map, including the underlying memory.
  * @note This does **not** FREE existing elements. If you have elements in your
@@ -115,6 +123,9 @@ map_erase(struct map_t* map, intptr_t hash);
  */
 LIGHTSHIP_PUBLIC_API void
 map_clear(struct map_t* map);
+
+LIGHTSHIP_PUBLIC_API void
+map_clear_free(struct map_t* map);
 
 /*!
  * @brief Returns the number of elements in the specified map.

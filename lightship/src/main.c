@@ -29,9 +29,10 @@ struct plugin_t* plugin_yaml = NULL;
 
 typedef void (*start_loop_func)(void);
 
-EVENT_LISTENER1(on_button_click, wchar_t* btn)
+EVENT_LISTENER1(on_button_click, intptr_t id)
 {
-    if(wcscmp(L"Quit", btn) == 0)
+    button_get_text_func get_text = (button_get_text_func)service_get("menu.button_get_text");
+    if(wcscmp(L"Quit", get_text(id)) == 0)
     {
         main_loop_stop_func stop = (main_loop_stop_func)service_get("main_loop.stop");
         stop();
@@ -64,8 +65,8 @@ init(void)
     plugin_manager_init();
 
     /*!
-     * Load the YAML plugin. This is required to parse the core plugins file
-     * to load the core plugins.
+     * Load the YAML plugin. This is required so the plugin manager can parse
+     * the core plugins config file and load the core plugins.
      */
     target.name = "yaml";
     target.version.major = 0;
@@ -79,7 +80,7 @@ init(void)
         llog(LOG_FATAL, 1, "Failed to start YAML plugin");
         return;
     }
-    
+
     /*
      * Now that the YAML plugin is loaded, plugin manager can hook in to the
      * services YAML provides.
@@ -104,6 +105,7 @@ init(void)
         button_create("Quit", 0.0, -0.2, 0.3, 0.1);
 
     }
+
     /* 
      * Try to get the main loop service and start running the game
      */
