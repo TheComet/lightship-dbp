@@ -46,7 +46,7 @@ static struct button_t* button_get(uint32_t ID)
 
 uint32_t button_create(const char* text, float x, float y, float width, float height)
 {
-    uint32_t len;
+    intptr_t len;
     struct button_t* btn = (struct button_t*)unordered_vector_push_emplace(&g_buttons);
     btn->ID = guid_counter++;
     btn->pos.x = x;
