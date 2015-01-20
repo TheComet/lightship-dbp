@@ -126,7 +126,6 @@ EVENT_LISTENER3(on_mouse_clicked, char mouse_btn, double x, double y)
     struct button_t* button = button_collision(NULL, (float)x, (float)y);
     if(button)
     {
-        printf("button \"%S\" clicked at %f,%f\n", button->text, x, y);
         EVENT_FIRE1(evt_button_clicked, button->text);
     }
 }
