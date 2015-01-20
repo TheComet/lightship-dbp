@@ -115,7 +115,7 @@ text_init(void)
 void
 text_deinit(void)
 {
-    map_clear(&g_wrapper_fonts);
+    map_clear_free(&g_wrapper_fonts);
 
     while(g_fonts.count)
         text_destroy_font((struct font_t*)g_fonts.data);
@@ -230,7 +230,7 @@ text_destroy_font(struct font_t* font)
             if(value)
                 FREE(value);
         }
-        map_clear(&font->char_map);
+        map_clear_free(&font->char_map);
     }
     
     /* clean up GL stuff */
@@ -499,7 +499,7 @@ text_destroy_all_static_strings(struct font_t* font)
     {
         text_destroy_string_instance(value);
     }
-    map_clear(&font->static_text_map);
+    map_clear_free(&font->static_text_map);
     
     /* clear vertices on GPU */
     glBindVertexArray(font->gl.vao);
