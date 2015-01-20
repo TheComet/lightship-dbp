@@ -11,9 +11,9 @@ struct vec2_t
 
 struct button_t
 {
-    uint32_t ID;
-    uint32_t shapes_normal_ID;
-    intptr_t text_ID;
+    intptr_t id;
+    intptr_t shapes_normal_id;
+    intptr_t text_id;
     wchar_t* text;
     struct vec2_t pos;
     struct vec2_t size;
@@ -21,9 +21,15 @@ struct button_t
 
 void button_init(void);
 void button_deinit(void);
-uint32_t button_create(const char* text, float x, float y, float width, float height);
-void button_destroy(uint32_t ID);
+struct button_t* button_create(const char* text, float x, float y, float width, float height);
+void button_destroy(struct button_t* button);
+void button_free_contents(struct button_t* button);
 void button_destroy_all(void);
+
+
+intptr_t button_create_wrapper(const char* text, float x, float y, float width, float height);
+void button_destroy_wrapper(intptr_t id);
+wchar_t* button_get_text(intptr_t id);
 
 /*!
  * @brief Tests if the specified point is on top of the specified button.

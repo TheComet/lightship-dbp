@@ -1,6 +1,8 @@
 #include "util/map.h"
 #include "util/memory.h"
 
+const intptr_t MAP_INVALID_KEY = -1;
+
 struct map_t*
 map_create(void)
 {
@@ -66,6 +68,17 @@ map_find(struct map_t* map, intptr_t hash)
     return data->value;
 }
 
+intptr_t
+map_find_element(struct map_t* map, void* value)
+{
+    ORDERED_VECTOR_FOR_EACH(&map->vector, struct map_key_value_t, kv)
+    {
+        if(kv->value == value)
+            return kv->hash;
+    }
+    return MAP_INVALID_KEY;
+}
+
 char
 map_key_exists(struct map_t* map, intptr_t hash)
 {
@@ -93,11 +106,19 @@ void
 map_insert(struct map_t* map, intptr_t hash, void* value)
 {
     struct map_key_value_t* emplaced_data;
-    struct map_key_value_t* data = map_find_lower_bound(map, hash);
-    if(data)
-        if(data->hash == hash)
-            return;
+    struct map_key_value_t* data;
+    
+    /* don't insert reserved hashes */
+    if(hash == MAP_INVALID_KEY)
+        return;
+    
+    /* lookup location in map to insert */
+    data = map_find_lower_bound(map, hash);
+    if(data && data->hash == hash)
+        return;
 
+    /* either push back or insert, depending on whether there is already data
+     * in the map */
     if(!data)
         emplaced_data = (struct map_key_value_t*)ordered_vector_push_emplace(&map->vector);
     else
@@ -130,7 +151,24 @@ map_erase(struct map_t* map, intptr_t hash)
 }
 
 void
+map_erase_element(struct map_t* map, void* value)
+{
+    void* data;
+    intptr_t hash = map_find_element(map, value);
+    if(hash == MAP_INVALID_KEY)
+        return;
+
+    data = map_find_lower_bound(map, hash);
+    ordered_vector_erase_element(&map->vector, (DATA_POINTER_TYPE*)data);
+}
+
+void
 map_clear(struct map_t* map)
+{
+    ordered_vector_clear(&map->vector);
+}
+
+void map_clear_free(struct map_t* map)
 {
     ordered_vector_clear_free(&map->vector);
 }

@@ -27,8 +27,9 @@ register_services(const struct plugin_t* plugin)
     * All services this plugin supports
     * ---------------------------------------------------*/
 
-     service_register(plugin, "button_create", (intptr_t)button_create);
-
+     service_register(plugin, "button_create", (intptr_t)button_create_wrapper);
+     service_register(plugin, "button_destroy", (intptr_t)button_destroy_wrapper);
+     service_register(plugin, "button_get_text", (intptr_t)button_get_text);
 }
 
 char

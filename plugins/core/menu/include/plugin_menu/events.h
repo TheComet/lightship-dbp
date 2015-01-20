@@ -1,10 +1,11 @@
 #include "util/event_api.h"
+#include "util/pstdint.h"
 
 /* -----------------------------------------------------
  * All events this plugin emits
  * ---------------------------------------------------*/
  
-EVENT_H1(evt_button_clicked, wchar_t*);
+EVENT_H1(evt_button_clicked, intptr_t);
 
 struct plugin_t;
 
