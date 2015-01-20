@@ -1,4 +1,3 @@
-#include "lightship/api.h" /* lightship API so we can register and call services */
 #include "util/config.h"
 #include "util/plugin.h"
 #include "util/log.h"
@@ -43,7 +42,7 @@ PLUGIN_INIT()
 
     return g_plugin;
 }
-#include "util/memory.h"
+
 PLUGIN_START()
 {
     /* initialise GLFW */
@@ -75,7 +74,10 @@ PLUGIN_STOP()
     text_deinit();
     deinit_2d();
     window_deinit();
-
     glfwTerminate();
+}
+
+PLUGIN_DEINIT()
+{
     plugin_destroy(g_plugin);
 }

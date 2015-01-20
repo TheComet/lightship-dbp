@@ -1,0 +1,16 @@
+/*!
+ * \file plugin_${NAME}.h
+ * \brief API for @NAME@. Should be included by anything using this plugin.
+ */
+
+/* ----------------------------------------------------------------------------
+ * Service function signatures. These make it easier for code using your
+ * plugin services to cast the result from get_service() to the correct
+ * signature. All serivces that are registered should be typedef'd here.
+ * ------------------------------------------------------------------------- */
+
+ /*
+  * typedef int (*my_service_1)(int arg1);
+  * typedef void (*my_service_2)(void);
+  * etc...
+  */

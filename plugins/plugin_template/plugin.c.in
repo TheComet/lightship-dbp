@@ -1,5 +1,4 @@
 #include "plugin_@NAME@/config.h"   /* configurations for this plugin */
-#include "lightship/api.h"   /* lightship API so we can register and call services */
 #include "util/config.h"     /* platform macros and definitions */
 #include "util/plugin.h"     /* plugin api */
 #include "plugin_@NAME@/services.h" /* plugin services */
@@ -49,4 +48,8 @@ PLUGIN_START()
 PLUGIN_STOP()
 {
     plugin_destroy(g_plugin);
+}
+
+PLUGIN_DEINIT()
+{
 }

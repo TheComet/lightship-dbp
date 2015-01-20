@@ -9,6 +9,10 @@ else()
     set (CMAKE_BUILD_TYPE "Debug" CACHE STRING "Choose the type of build, options are: None(CMAKE_CXX_FLAGS or CMAKE_C_FLAGS used) Debug Release RelWithDebInfo MinSizeRel.")
 endif()
 
+###############################################################################
+# Project name
+###############################################################################
+
 project ("lightship" C)
 
 # Make macs happy
@@ -22,7 +26,9 @@ elseif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
     set (PLATFORM "WINDOWS")
 endif ()
 
-# create vcproj.user file for Visual Studio to set debug working directory
+# Create vcproj.user file for Visual Studio to set debug working directory
+# correctly.
+# (Thanks David Avedissian)
 function(create_vcproj_userfile TARGETNAME)
   if(MSVC)
     configure_file(
@@ -120,12 +126,6 @@ if(ENABLE_DLANG)
 else ()
     set (ENABLE_DLANG OFF)
 endif ()
-
-###############################################################################
-# Project name
-###############################################################################
-
-
 
 ###############################################################################
 # generate missing folders and files

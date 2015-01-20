@@ -31,7 +31,7 @@ void button_deinit(void)
     button_destroy_all();
     unordered_vector_clear_free(&g_buttons);
     
-    text_destroy_font(font_id);;
+    text_destroy_font(font_id);
 }
 
 static struct button_t* button_get(uint32_t ID)
