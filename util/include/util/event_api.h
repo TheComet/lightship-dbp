@@ -5,13 +5,8 @@
 #include "util/config.h"
 #include "util/unordered_vector.h"
 
-#ifdef __cplusplus
-#include <functional>
-#endif
-
 C_HEADER_BEGIN
 
-struct list_t;
 struct event_t;
 
 /* event callback function signature */
@@ -57,8 +52,8 @@ typedef void (*event_callback_func)();
 
 /* 
  * see issue #14
- * When compiling with C++, delegate to calling the templated member function
- * cppexec. When compiling with C89, call exec directly.
+ * When compiling with C++, let a call to cppexec delegate the call to exec.
+ * When compiling with C89, call exec directly.
  */
 #ifdef __cplusplus
 #   define EVENT_EXEC_FUNC cppexec
@@ -125,7 +120,7 @@ typedef void (*event_callback_func)();
  * signatures somewhat within plugins. This is accomplished by creating a
  * function pointer and comparing it to a dummy function created when EVENT_C
  * and EVENT_H are called. This means that the arguments passed to EVENT_H,
- * EVENT_C, and EVENT_FIRE must match, or a compiler error will be generated.
+ * EVENT_C, and EVENT_FIRE must match, or a compiler warning will be generated.
  * Only do this for debug builds.
  */
 #if defined(TYPEOF) && defined(_DEBUG)
