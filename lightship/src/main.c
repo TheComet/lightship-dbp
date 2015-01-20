@@ -80,7 +80,11 @@ init(void)
      * Try to load and start the core plugins. If that fails, bail out.
      */
     if(!load_plugins_from_yaml(yml_core_plugins))
+    {
+        llog(LOG_FATAL, 1, "Couldn't start all core plugins");
         return;
+    }
+
     {
         button_create_func button_create = ((button_create_func)service_get("menu.button_create"));
 
