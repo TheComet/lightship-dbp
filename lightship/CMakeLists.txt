@@ -32,6 +32,7 @@ create_vcproj_userfile (lightship)
 include_directories ("${CMAKE_SOURCE_DIR}/plugins/core/yaml/include")
 include_directories ("${CMAKE_SOURCE_DIR}/plugins/core/menu/include")
 include_directories ("${CMAKE_SOURCE_DIR}/plugins/core/renderer_gl/include")
+include_directories ("${CMAKE_SOURCE_DIR}/plugins/core/main_loop/include")
 
 ###############################################################################
 # install targets

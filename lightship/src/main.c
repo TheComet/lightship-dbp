@@ -13,6 +13,7 @@
 #include "plugin_yaml.h"
 #include "plugin_menu.h"
 #include "plugin_renderer_gl.h"
+#include "plugin_main_loop.h"
 
 #include "util/map.h"
 
@@ -27,6 +28,15 @@ static const char* yml_entry_point = "cfg/entry-point.yml";
 struct plugin_t* plugin_yaml = NULL;
 
 typedef void (*start_loop_func)(void);
+
+EVENT_LISTENER1(on_button_click, wchar_t* btn)
+{
+    if(wcscmp(L"Quit", btn) == 0)
+    {
+        main_loop_stop_func stop = (main_loop_stop_func)service_get("main_loop.stop");
+        stop();
+    }
+}
 
 void
 init(void)
@@ -87,6 +97,7 @@ init(void)
 
     {
         button_create_func button_create = ((button_create_func)service_get("menu.button_create"));
+        event_register_listener(NULL, "menu.button_clicked", on_button_click);
 
         button_create("Host", 0.0, 0.2, 0.3, 0.1);
         button_create("Join", 0.0, 0.0, 0.3, 0.1);
