@@ -1,9 +1,9 @@
 #include "util/events.h"
 #include "plugin_main_loop/main_loop.h"
 
-EVENT_C(evt_render)
-EVENT_C(evt_update)
-EVENT_C(evt_stats)
+EVENT_C0(evt_render);
+EVENT_C0(evt_update);
+EVENT_C2(evt_stats, uint32_t, uint32_t);
 
 void register_events(struct plugin_t* plugin)
 {

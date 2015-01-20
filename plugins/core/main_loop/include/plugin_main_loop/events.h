@@ -2,9 +2,9 @@
 
 struct plugin_t;
 
-EVENT_H(evt_render)
-EVENT_H(evt_update)
-EVENT_H(evt_stats)
+EVENT_H0(evt_render);
+EVENT_H0(evt_update);
+EVENT_H2(evt_stats, uint32_t, uint32_t);
 
 void
 register_events(const struct plugin_t* plugin);

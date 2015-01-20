@@ -1,13 +1,13 @@
 #include "util/events.h"
 #include "plugin_renderer_gl/window.h"
 
-EVENT_C(evt_close_window)
-EVENT_C(evt_key_press)
-EVENT_C(evt_key_release)
-EVENT_C(evt_mouse_move)
-EVENT_C(evt_mouse_button_press)
-EVENT_C(evt_mouse_button_release)
-EVENT_C(evt_mouse_scroll)
+EVENT_C0(evt_close_window);
+EVENT_C1(evt_key_press, uint32_t);
+EVENT_C1(evt_key_release, uint32_t);
+EVENT_C2(evt_mouse_move, double, double);
+EVENT_C1(evt_mouse_button_press, uint32_t);
+EVENT_C1(evt_mouse_button_release, uint32_t);
+EVENT_C2(evt_mouse_scroll, uint32_t, uint32_t);
 
 void
 register_events(const struct plugin_t* plugin)

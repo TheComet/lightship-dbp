@@ -64,7 +64,7 @@ main_loop_start(void)
         int updates = 0;
         
         /* dispatch render event */
-        EVENT_FIRE0(evt_render)
+        EVENT_FIRE0(evt_render);
         
         /* dispatch game loop event */
         while(is_time_to_update())

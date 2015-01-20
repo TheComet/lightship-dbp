@@ -7,9 +7,9 @@
 #include <stdlib.h>
 
 static struct list_t g_events;
-EVENT_C(evt_log)
-EVENT_C(evt_log_indent)
-EVENT_C(evt_log_unindent)
+EVENT_C1(evt_log, struct log_t*);
+EVENT_C1(evt_log_indent, const char*);
+EVENT_C0(evt_log_unindent);
 
 /*!
  * @brief Unregisters any listeners that belong to the specified name_space from

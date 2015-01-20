@@ -130,7 +130,7 @@ llog(log_level_t level, uint32_t num_strs, ...)
     /* fire event and clean up */
     log_.level = level;
     log_.message = buffer;
-    EVENT_FIRE1(evt_log, (void*)(&log_));
+    EVENT_FIRE1(evt_log, &log_);
     FREE(buffer);
 }
 

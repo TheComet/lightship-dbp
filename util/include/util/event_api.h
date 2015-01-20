@@ -55,7 +55,11 @@ typedef void (*event_callback_func)();
 #define EVENT_LISTENER_TYPEDEF4(name, arg1, arg2, arg3, arg4) \
     typedef void (*name)(const struct event_t*, arg1, arg2, arg3, arg4);
 
-/* see issue #14 */
+/* 
+ * see issue #14
+ * When compiling with C++, delegate to calling the templated member function
+ * cppexec. When compiling with C89, call exec directly.
+ */
 #ifdef __cplusplus
 #   define EVENT_EXEC_FUNC cppexec
 #else
@@ -116,42 +120,97 @@ typedef void (*event_callback_func)();
 #define EVENT_ITERATE_LISTENERS_END \
             }
 
+/*
+ * If we have access to TYPEOF, it is possible to enforce matching function
+ * signatures somewhat within plugins. This is accomplished by creating a
+ * function pointer and comparing it to a dummy function created when EVENT_C
+ * and EVENT_H are called. This means that the arguments passed to EVENT_H,
+ * EVENT_C, and EVENT_FIRE must match, or a compiler error will be generated.
+ * Only do this for debug builds.
+ */
+#if defined(TYPEOF) && defined(_DEBUG)
+    /* these are the dummy functions generated in EVENT_H and EVENT_C */
+#   define EVENT_GEN_DUMMY_FUNCTION0(event) \
+            void event_internal_func_##event(const struct event_t* evt)
+#   define EVENT_GEN_DUMMY_FUNCTION1(event, arg1_t) \
+            void event_internal_func_##event(const struct event_t* evt, arg1_t arg1)
+#   define EVENT_GEN_DUMMY_FUNCTION2(event, arg1_t, arg2_t) \
+            void event_internal_func_##event(const struct event_t* evt, arg1_t arg1, arg2_t arg2)
+#   define EVENT_GEN_DUMMY_FUNCTION3(event, arg1_t, arg2_t, arg3_t) \
+            void event_internal_func_##event(const struct event_t* evt, arg1_t arg1, arg2_t arg2, arg3_t arg3)
+#   define EVENT_GEN_DUMMY_FUNCTION4(event, arg1_t, arg2_t, arg3_t, arg4_t) \
+            void event_internal_func_##event(const struct event_t* evt, arg1_t arg1, arg2_t arg2, arg3_t arg3, arg4_t arg4)
+
+    /* these are the comparison checks used in EVENT_FIRE */
+#   define EVENT_FUNCTION_SIGNATURE_CHECK0(event) do { \
+            void (*func)(const struct event_t*); \
+            (void)(func == event_internal_func_##event); } while(0);
+#   define EVENT_FUNCTION_SIGNATURE_CHECK1(event, arg1) do { \
+            void (*func)(const struct event_t*, TYPEOF(arg1)); \
+            (void)(func == event_internal_func_##event); } while(0);
+#   define EVENT_FUNCTION_SIGNATURE_CHECK2(event, arg1, arg2) do { \
+            void (*func)(const struct event_t*, TYPEOF(arg1), TYPEOF(arg2)); \
+            (void)(func == event_internal_func_##event); } while(0);
+#   define EVENT_FUNCTION_SIGNATURE_CHECK3(event, arg1, arg2, arg3) do { \
+            void (*func)(const struct event_t*, TYPEOF(arg1), TYPEOF(arg2), TYPEOF(arg3)); \
+            (void)(func == event_internal_func_##event); } while(0);
+#   define EVENT_FUNCTION_SIGNATURE_CHECK4(event, arg1, arg2, arg3, arg4) do { \
+            void (*func)(const struct event_t*, TYPEOF(arg1), TYPEOF(arg2), TYPEOF(arg3), TYPEOF(arg4)); \
+            (void)(func == event_internal_func_##event); } while(0);
+#else
+#   define EVENT_GEN_DUMMY_FUNCTION0(event)
+#   define EVENT_GEN_DUMMY_FUNCTION1(event, arg1)
+#   define EVENT_GEN_DUMMY_FUNCTION2(event, arg1, arg2)
+#   define EVENT_GEN_DUMMY_FUNCTION3(event, arg1, arg2, arg3)
+#   define EVENT_GEN_DUMMY_FUNCTION4(event, arg1, arg2, arg3, arg4)
+#   define EVENT_FUNCTION_SIGNATURE_CHECK0(event)
+#   define EVENT_FUNCTION_SIGNATURE_CHECK1(event, arg1)
+#   define EVENT_FUNCTION_SIGNATURE_CHECK2(event, arg1, arg2)
+#   define EVENT_FUNCTION_SIGNATURE_CHECK3(event, arg1, arg2, arg3)
+#   define EVENT_FUNCTION_SIGNATURE_CHECK4(event, arg1, arg2, arg3, arg4)
+#endif
+
 /*!
  * @brief Fires the specified event with the specified arguments.
  * @param[in] event The event to fire. Should be declared with EVENT_C/EVENT_H
  * and be registered with the host program with event_register().
  * @param[in] args... The arguments to fire along with the event.
  */
-#define EVENT_FIRE0(event) \
+#define EVENT_FIRE0(event) do { \
+            EVENT_FUNCTION_SIGNATURE_CHECK0(event) \
             IF_EVENT_VALID(event) \
                 EVENT_ITERATE_LISTENERS_BEGIN(event) \
                     EVENT_FIRE_IMPL0(event) \
                 EVENT_ITERATE_LISTENERS_END \
-            REPORT_EVENT_FIRE_FAILURE
-#define EVENT_FIRE1(event, arg) \
+            REPORT_EVENT_FIRE_FAILURE } while(0)
+#define EVENT_FIRE1(event, arg) do { \
+            EVENT_FUNCTION_SIGNATURE_CHECK1(event, arg) \
             IF_EVENT_VALID(event) \
                 EVENT_ITERATE_LISTENERS_BEGIN(event) \
                     EVENT_FIRE_IMPL1(event, arg) \
                 EVENT_ITERATE_LISTENERS_END \
-            REPORT_EVENT_FIRE_FAILURE
-#define EVENT_FIRE2(event, arg1, arg2) \
+            REPORT_EVENT_FIRE_FAILURE } while(0)
+#define EVENT_FIRE2(event, arg1, arg2) do { \
+            EVENT_FUNCTION_SIGNATURE_CHECK2(event, arg1, arg2) \
             IF_EVENT_VALID(event) \
                 EVENT_ITERATE_LISTENERS_BEGIN(event) \
                     EVENT_FIRE_IMPL2(event, arg1, arg2) \
                 EVENT_ITERATE_LISTENERS_END \
-            REPORT_EVENT_FIRE_FAILURE
-#define EVENT_FIRE3(event, arg1, arg2, arg3) \
+            REPORT_EVENT_FIRE_FAILURE } while(0)
+#define EVENT_FIRE3(event, arg1, arg2, arg3) do { \
+            EVENT_FUNCTION_SIGNATURE_CHECK3(event, arg1, arg2, arg3) \
             IF_EVENT_VALID(event) \
                 EVENT_ITERATE_LISTENERS_BEGIN(event) \
                     EVENT_FIRE_IMPL3(event, arg1, arg2, arg3) \
                 EVENT_ITERATE_LISTENERS_END \
-            REPORT_EVENT_FIRE_FAILURE
-#define EVENT_FIRE4(event, arg1, arg2, arg3, arg4) \
+            REPORT_EVENT_FIRE_FAILURE } while(0)
+#define EVENT_FIRE4(event, arg1, arg2, arg3, arg4) do { \
+            EVENT_FUNCTION_SIGNATURE_CHECK4(event, arg1, arg2, arg3, arg4) \
             IF_EVENT_VALID(event) \
                 EVENT_ITERATE_LISTENERS_BEGIN(event) \
                     EVENT_FIRE_IMPL4(event, arg1, arg2, arg3, arg4) \
                 EVENT_ITERATE_LISTENERS_END \
-            REPORT_EVENT_FIRE_FAILURE
+            REPORT_EVENT_FIRE_FAILURE } while(0)
 
 /*!
  * @brief Declare an event in a header file.
@@ -161,8 +220,21 @@ typedef void (*event_callback_func)();
 EVENT_H(evt_foo);
 @endcode
  */
-#define EVENT_H(event) \
-    extern struct event_t* event;
+#define EVENT_H0(event) \
+    EVENT_GEN_DUMMY_FUNCTION0(event); \
+    extern struct event_t* event
+#define EVENT_H1(event, arg1_t) \
+    EVENT_GEN_DUMMY_FUNCTION1(event, arg1_t); \
+    extern struct event_t* event
+#define EVENT_H2(event, arg1_t, arg2_t) \
+    EVENT_GEN_DUMMY_FUNCTION2(event, arg1_t, arg2_t); \
+    extern struct event_t* event
+#define EVENT_H3(event, arg1_t, arg2_t, arg3_t) \
+    EVENT_GEN_DUMMY_FUNCTION3(event, arg1_t, arg2_t, arg3_t); \
+    extern struct event_t* event
+#define EVENT_H4(event, arg1_t, arg2_t, arg3_t, arg4_t) \
+    EVENT_GEN_DUMMY_FUNCTION4(event, arg1_t, arg2_t, arg3_t, arg4_t); \
+    extern struct event_t* event
 
 /*!
  * @brief Define an event in a source file.
@@ -172,8 +244,21 @@ EVENT_H(evt_foo);
 EVENT_C(evt_foo);
 @endcode
  */
-#define EVENT_C(event) \
-    struct event_t* event = (void*)0;
+#define EVENT_C0(event) \
+    EVENT_GEN_DUMMY_FUNCTION0(event) {} \
+    struct event_t* event = (struct event_t*)0
+#define EVENT_C1(event, arg1_t) \
+    EVENT_GEN_DUMMY_FUNCTION1(event, arg1_t) {} \
+    struct event_t* event = (struct event_t*)0
+#define EVENT_C2(event, arg1_t, arg2_t) \
+    EVENT_GEN_DUMMY_FUNCTION2(event, arg1_t, arg2_t) {} \
+    struct event_t* event = (struct event_t*)0
+#define EVENT_C3(event, arg1_t, arg2_t, arg3_t) \
+    EVENT_GEN_DUMMY_FUNCTION3(event, arg1_t, arg2_t, arg3_t) {} \
+    struct event_t* event = (struct event_t*)0
+#define EVENT_C4(event, arg1_t, arg2_t, arg3_t, arg4_t) \
+    EVENT_GEN_DUMMY_FUNCTION4(event, arg1_t, arg2_t, arg3_t, arg4_t) {} \
+    struct event_t* event = (struct event_t*)0
     
 C_HEADER_END
 
