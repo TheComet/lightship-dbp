@@ -19,14 +19,26 @@ typedef void (*event_callback_func)();
  * ------------------------------------------------------------------------- */
 
 /*!
- * @brief Register listeners with up to 4 receiving function parameters
+ * @brief Helper macro for creating listener functions with up to 4 receiving
+ * function parameters.
+ * 
+ * You can use this for function prototypes as well as function definitions.
+ * Example:
+@code
+EVENT_LISTENER1(on_event, int arg);
+
+...
+
+EVENT_LISTENER1(on_event, int arg)
+{
+}
+@endcode
  * @param[in] name The name to give the event listener. Usually something like
  * *on_event*.
  * @param[in] arg... The arguments to receive from the event.
  * @note The event listener must have the same signature as the fired event.
  */
 #define EVENT_LISTENER0(name) \
-    EVENT_DUMMY_FUNCTION_SIGNATURE_CHECK0(name) \
     void name(const struct event_t* evt)
 #define EVENT_LISTENER1(name, arg) \
     void name(const struct event_t* evt, arg)
@@ -226,11 +238,13 @@ typedef void (*event_callback_func)();
             REPORT_EVENT_FIRE_FAILURE } while(0)
 
 /*!
- * @brief Declare an event in a header file.
- * @param even The event name. Should match an event name defined using
+ * @brief Declare an event in a header file with up to 4 arguments.
+ * @param event The event name. Should match an event name defined using
  * EVENT_C() in a source file.
+ * @param args... The arguments that should be passed to listeners when this
+ * event is fired.
 @code
-EVENT_H(evt_foo);
+EVENT_H(evt_foo, args...);
 @endcode
  */
 #define EVENT_H0(event) \
@@ -250,11 +264,13 @@ EVENT_H(evt_foo);
     extern struct event_t* event
 
 /*!
- * @brief Define an event in a source file.
+ * @brief Define an event in a source file with up to 4 arguments.
  * @param event The event name. Should match an event name declared using
  * EVENT_H() in a header file.
+ * @param args... The arguments that should be passed to listeners when this
+ * event is fired.
 @code
-EVENT_C(evt_foo);
+EVENT_C(evt_foo, args...);
 @endcode
  */
 #define EVENT_C0(event) \
