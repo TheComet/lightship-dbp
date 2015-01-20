@@ -1,15 +1,16 @@
+#include "util/pstdint.h"
 #include "util/event_api.h"
 
 struct plugin_t;
 
 /* events this plugin defines */
-EVENT_H(evt_close_window)
-EVENT_H(evt_key_press)
-EVENT_H(evt_key_release)
-EVENT_H(evt_mouse_move)
-EVENT_H(evt_mouse_button_press)
-EVENT_H(evt_mouse_button_release)
-EVENT_H(evt_mouse_scroll)
+EVENT_H0(evt_close_window);
+EVENT_H1(evt_key_press, uint32_t);
+EVENT_H1(evt_key_release, uint32_t);
+EVENT_H2(evt_mouse_move, double, double);
+EVENT_H1(evt_mouse_button_press, uint32_t);
+EVENT_H1(evt_mouse_button_release, uint32_t);
+EVENT_H2(evt_mouse_scroll, uint32_t, uint32_t);
 
 void
 register_events(const struct plugin_t* plugin);

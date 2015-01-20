@@ -95,6 +95,6 @@ EVENT_LISTENER0(on_render)
     /* fire close window event */
     if(glfwWindowShouldClose(g_window.window) != 0)
     {
-        EVENT_FIRE0(evt_close_window)
+        EVENT_FIRE0(evt_close_window);
     }
 }

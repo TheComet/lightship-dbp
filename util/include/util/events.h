@@ -108,9 +108,10 @@ C_HEADER_BEGIN
 /* ----------------------------
  * Built-in events
  * --------------------------*/
-EVENT_H(evt_log)
-EVENT_H(evt_log_indent)
-EVENT_H(evt_log_unindent)
+struct log_t;
+EVENT_H1(evt_log, struct log_t*);
+EVENT_H1(evt_log_indent, const char*);
+EVENT_H0(evt_log_unindent);
 
 struct plugin_t;
 
