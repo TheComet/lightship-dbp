@@ -125,16 +125,22 @@ typedef void (*event_callback_func)();
  */
 #if defined(TYPEOF) && defined(_DEBUG)
     /* these are the dummy functions generated in EVENT_H and EVENT_C */
-#   define EVENT_GEN_DUMMY_FUNCTION0(event) \
+#   define EVENT_GEN_DUMMY_FUNCTION_DECL0(event) \
             void event_internal_func_##event(const struct event_t* evt)
-#   define EVENT_GEN_DUMMY_FUNCTION1(event, arg1_t) \
+#   define EVENT_GEN_DUMMY_FUNCTION_DECL1(event, arg1_t) \
             void event_internal_func_##event(const struct event_t* evt, arg1_t arg1)
-#   define EVENT_GEN_DUMMY_FUNCTION2(event, arg1_t, arg2_t) \
+#   define EVENT_GEN_DUMMY_FUNCTION_DECL2(event, arg1_t, arg2_t) \
             void event_internal_func_##event(const struct event_t* evt, arg1_t arg1, arg2_t arg2)
-#   define EVENT_GEN_DUMMY_FUNCTION3(event, arg1_t, arg2_t, arg3_t) \
+#   define EVENT_GEN_DUMMY_FUNCTION_DECL3(event, arg1_t, arg2_t, arg3_t) \
             void event_internal_func_##event(const struct event_t* evt, arg1_t arg1, arg2_t arg2, arg3_t arg3)
-#   define EVENT_GEN_DUMMY_FUNCTION4(event, arg1_t, arg2_t, arg3_t, arg4_t) \
+#   define EVENT_GEN_DUMMY_FUNCTION_DECL4(event, arg1_t, arg2_t, arg3_t, arg4_t) \
             void event_internal_func_##event(const struct event_t* evt, arg1_t arg1, arg2_t arg2, arg3_t arg3, arg4_t arg4)
+    /* function bodies of the dummy functions */
+#   define EVENT_GEN_DUMMY_FUNCTION_DEF0(event) EVENT_GEN_DUMMY_FUNCTION_DECL0(event) {}
+#   define EVENT_GEN_DUMMY_FUNCTION_DEF1(event, arg1) EVENT_GEN_DUMMY_FUNCTION_DECL1(event, arg1) {}
+#   define EVENT_GEN_DUMMY_FUNCTION_DEF2(event, arg1, arg2) EVENT_GEN_DUMMY_FUNCTION_DECL2(event, arg1, arg2) {}
+#   define EVENT_GEN_DUMMY_FUNCTION_DEF3(event, arg1, arg2, arg3) EVENT_GEN_DUMMY_FUNCTION_DECL3(event, arg1, arg2, arg3) {}
+#   define EVENT_GEN_DUMMY_FUNCTION_DEF4(event, arg1, arg2, arg3, arg4) EVENT_GEN_DUMMY_FUNCTION_DECL4(event, arg1, arg2, arg3, arg4) {}
 
     /* these are the comparison checks used in EVENT_FIRE */
 #   define EVENT_FUNCTION_SIGNATURE_CHECK0(event) do { \
@@ -153,17 +159,26 @@ typedef void (*event_callback_func)();
             void (*func)(const struct event_t*, TYPEOF(arg1), TYPEOF(arg2), TYPEOF(arg3), TYPEOF(arg4)); \
             (void)(func == event_internal_func_##event); } while(0);
 #else
-#   define EVENT_GEN_DUMMY_FUNCTION0(event)
-#   define EVENT_GEN_DUMMY_FUNCTION1(event, arg1)
-#   define EVENT_GEN_DUMMY_FUNCTION2(event, arg1, arg2)
-#   define EVENT_GEN_DUMMY_FUNCTION3(event, arg1, arg2, arg3)
-#   define EVENT_GEN_DUMMY_FUNCTION4(event, arg1, arg2, arg3, arg4)
+#   define EVENT_GEN_DUMMY_FUNCTION_DECL0(event)
+#   define EVENT_GEN_DUMMY_FUNCTION_DECL1(event, arg1)
+#   define EVENT_GEN_DUMMY_FUNCTION_DECL2(event, arg1, arg2)
+#   define EVENT_GEN_DUMMY_FUNCTION_DECL3(event, arg1, arg2, arg3)
+#   define EVENT_GEN_DUMMY_FUNCTION_DECL4(event, arg1, arg2, arg3, arg4)
+#   define EVENT_GEN_DUMMY_FUNCTION_DEF0(event)
+#   define EVENT_GEN_DUMMY_FUNCTION_DEF1(event, arg1)
+#   define EVENT_GEN_DUMMY_FUNCTION_DEF2(event, arg1, arg2)
+#   define EVENT_GEN_DUMMY_FUNCTION_DEF3(event, arg1, arg2, arg3)
+#   define EVENT_GEN_DUMMY_FUNCTION_DEF4(event, arg1, arg2, arg3, arg4)
 #   define EVENT_FUNCTION_SIGNATURE_CHECK0(event)
 #   define EVENT_FUNCTION_SIGNATURE_CHECK1(event, arg1)
 #   define EVENT_FUNCTION_SIGNATURE_CHECK2(event, arg1, arg2)
 #   define EVENT_FUNCTION_SIGNATURE_CHECK3(event, arg1, arg2, arg3)
 #   define EVENT_FUNCTION_SIGNATURE_CHECK4(event, arg1, arg2, arg3, arg4)
+
 #endif
+
+/* defines for the dummy functions */
+
 
 /*!
  * @brief Fires the specified event with the specified arguments.
@@ -216,19 +231,19 @@ EVENT_H(evt_foo);
 @endcode
  */
 #define EVENT_H0(event) \
-    EVENT_GEN_DUMMY_FUNCTION0(event); \
+    EVENT_GEN_DUMMY_FUNCTION_DECL0(event); \
     extern struct event_t* event
 #define EVENT_H1(event, arg1_t) \
-    EVENT_GEN_DUMMY_FUNCTION1(event, arg1_t); \
+    EVENT_GEN_DUMMY_FUNCTION_DECL1(event, arg1_t); \
     extern struct event_t* event
 #define EVENT_H2(event, arg1_t, arg2_t) \
-    EVENT_GEN_DUMMY_FUNCTION2(event, arg1_t, arg2_t); \
+    EVENT_GEN_DUMMY_FUNCTION_DECL2(event, arg1_t, arg2_t); \
     extern struct event_t* event
 #define EVENT_H3(event, arg1_t, arg2_t, arg3_t) \
-    EVENT_GEN_DUMMY_FUNCTION3(event, arg1_t, arg2_t, arg3_t); \
+    EVENT_GEN_DUMMY_FUNCTION_DECL3(event, arg1_t, arg2_t, arg3_t); \
     extern struct event_t* event
 #define EVENT_H4(event, arg1_t, arg2_t, arg3_t, arg4_t) \
-    EVENT_GEN_DUMMY_FUNCTION4(event, arg1_t, arg2_t, arg3_t, arg4_t); \
+    EVENT_GEN_DUMMY_FUNCTION_DECL4(event, arg1_t, arg2_t, arg3_t, arg4_t); \
     extern struct event_t* event
 
 /*!
@@ -240,19 +255,19 @@ EVENT_C(evt_foo);
 @endcode
  */
 #define EVENT_C0(event) \
-    EVENT_GEN_DUMMY_FUNCTION0(event) {} \
+    EVENT_GEN_DUMMY_FUNCTION_DEF0(event) \
     struct event_t* event = (struct event_t*)0
 #define EVENT_C1(event, arg1_t) \
-    EVENT_GEN_DUMMY_FUNCTION1(event, arg1_t) {} \
+    EVENT_GEN_DUMMY_FUNCTION_DEF1(event, arg1_t) \
     struct event_t* event = (struct event_t*)0
 #define EVENT_C2(event, arg1_t, arg2_t) \
-    EVENT_GEN_DUMMY_FUNCTION2(event, arg1_t, arg2_t) {} \
+    EVENT_GEN_DUMMY_FUNCTION_DEF2(event, arg1_t, arg2_t) \
     struct event_t* event = (struct event_t*)0
 #define EVENT_C3(event, arg1_t, arg2_t, arg3_t) \
-    EVENT_GEN_DUMMY_FUNCTION3(event, arg1_t, arg2_t, arg3_t) {} \
+    EVENT_GEN_DUMMY_FUNCTION_DEF3(event, arg1_t, arg2_t, arg3_t) \
     struct event_t* event = (struct event_t*)0
 #define EVENT_C4(event, arg1_t, arg2_t, arg3_t, arg4_t) \
-    EVENT_GEN_DUMMY_FUNCTION4(event, arg1_t, arg2_t, arg3_t, arg4_t) {} \
+    EVENT_GEN_DUMMY_FUNCTION_DEF4(event, arg1_t, arg2_t, arg3_t, arg4_t) \
     struct event_t* event = (struct event_t*)0
     
 C_HEADER_END
