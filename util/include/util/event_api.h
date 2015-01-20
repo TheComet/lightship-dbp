@@ -112,7 +112,7 @@ EVENT_LISTENER1(on_event, int arg)
                     llog_indent("Backtrace"); \
                     for(i = 0; i != size; ++i) \
                         llog(LOG_ERROR, 1, backtrace[i]); \
-                    free(backtrace); \
+                    if(backtrace) free(backtrace); \
                     llog_unindent(); \
                 }
 

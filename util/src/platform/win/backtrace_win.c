@@ -6,5 +6,6 @@ get_backtrace(intptr_t* size )
 {
     /* TODO */
     fprintf(stderr, "backtraces not implemented on windows\n");
-    return (void**)0;
+    *size = 0;
+    return (char**)0;
 }
