@@ -1,5 +1,4 @@
 #include "yaml/config.h"   /* configurations for this plugin */
-#include "lightship/api.h"   /* lightship API so we can register and call services */
 #include "util/config.h"     /* platform macros and definitions */
 #include "util/plugin.h"     /* plugin api */
 #include "plugin_yaml/services.h" /* plugin services */
@@ -51,5 +50,9 @@ PLUGIN_START()
 PLUGIN_STOP()
 {
     parser_deinit();
+}
+
+PLUGIN_DEINIT()
+{
     plugin_destroy(g_plugin);
 }

@@ -1,5 +1,8 @@
 struct plugin_t;
 
+/* ----------------------------------------------------------------------------
+ * Service */
+
 void
 register_services(const struct plugin_t* plugin);
 

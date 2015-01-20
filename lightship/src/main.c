@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <string.h>
 #include "lightship/plugin_manager.h"
-#include "lightship/api.h"
 #include "util/services.h"
 #include "util/events.h"
 #include "util/plugin.h"
@@ -47,12 +46,6 @@ init(void)
      * events)
      */
     llog_init();
-    
-    /*
-     * The lightship API must be initialised before any plugins can be
-     * loaded, so an api struct can be passed to each plugin.
-     */
-    api_init();
     
     /*
      * The plugin manager must be initialised before being able to load

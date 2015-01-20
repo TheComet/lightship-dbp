@@ -2,7 +2,6 @@
 #include <string.h>
 #include <stdlib.h>
 #include "lightship/plugin_manager.h"
-#include "lightship/api.h"
 #include "plugin_yaml/services.h"
 #include "util/services.h"
 #include "util/events.h"
@@ -86,6 +85,7 @@ plugin_load(const struct plugin_info_t* plugin_info,
     plugin_init_func init_func;
     plugin_start_func start_func;
     plugin_stop_func stop_func;
+    plugin_deinit_func deinit_func;
     /* will reference the allocated plugin object returned by plugin_init() */
     struct plugin_t* plugin = NULL;
     /* buffer for holding the various version strings that will be constructed */
@@ -132,9 +132,14 @@ plugin_load(const struct plugin_info_t* plugin_info,
         *(void**)(&stop_func) = module_sym(handle, "plugin_stop");
         if(!stop_func)
             break;
+        
+        /* get plugin deinit function */
+        *(void**)(&deinit_func) = module_sym(handle, "plugin_deinit");
+        if(!deinit_func)
+            break;
 
-        /* start the plugin */
-        plugin = init_func(&g_api);
+        /* initialise the plugin */
+        plugin = init_func();
         if(!plugin)
         {
             llog(LOG_ERROR, 1, "Error initialising plugin: \"plugin_init\" returned NULL");
@@ -168,6 +173,7 @@ plugin_load(const struct plugin_info_t* plugin_info,
         plugin->init = init_func;
         plugin->start = start_func;
         plugin->stop = stop_func;
+        plugin->deinit = deinit_func;
         list_push(&g_plugins, plugin);
         
         /* print info about loaded plugin */
@@ -308,16 +314,19 @@ plugin_unload(struct plugin_t* plugin)
     service_unregister_all(plugin);
     event_destroy_all_plugin_events(plugin);
     event_unregister_all_listeners_of_plugin(plugin);
+    
+    /* stop the plugin */
+    plugin_stop(plugin);
 
     /* 
-     * NOTE The plugin object becomes invalid as soon as plugin->stop() is
+     * NOTE The plugin object becomes invalid as soon as plugin_deinit() is
      * called. That is why the module handle must first be extracted before
      * stopping the plugin, so we can unload the module safely.
      * NOTE Erasing an element from the linked list does not require the plugin
      * object to be valid, as it does not dereference it.
      */
     module_handle = plugin->handle;
-    plugin->stop();
+    plugin_deinit(plugin);
     module_close(module_handle);
     list_erase_element(&g_plugins, plugin);
 }

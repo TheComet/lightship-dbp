@@ -4,14 +4,15 @@
 #include "util/pstdint.h"
 
 /* these must be implemented by the plugin */
-struct lightship_api_t;
-typedef struct plugin_t*    (*plugin_init_func) (struct lightship_api_t*);
-typedef char                (*plugin_start_func)(struct lightship_api_t*);
-typedef void                (*plugin_stop_func) (void);
+typedef struct plugin_t*    (*plugin_init_func)     (void);
+typedef char                (*plugin_start_func)    (void);
+typedef void                (*plugin_stop_func)     (void);
+typedef void                (*plugin_deinit_func)   (void);
 
-#define PLUGIN_INIT()  LIGHTSHIP_PUBLIC_API struct plugin_t* plugin_init(struct lightship_api_t* api)
-#define PLUGIN_START() LIGHTSHIP_PUBLIC_API char plugin_start(struct lightship_api_t* api)
+#define PLUGIN_INIT()  LIGHTSHIP_PUBLIC_API struct plugin_t* plugin_init(void)
+#define PLUGIN_START() LIGHTSHIP_PUBLIC_API char plugin_start(void)
 #define PLUGIN_STOP()  LIGHTSHIP_PUBLIC_API void plugin_stop(void)
+#define PLUGIN_DEINIT()LIGHTSHIP_PUBLIC_API void plugin_deinit(void)
 
 typedef enum plugin_result_t
 {
@@ -67,9 +68,11 @@ struct plugin_t
 {
     struct plugin_info_t info;
     void* handle;
+    char started_successfully;
     plugin_init_func init;
     plugin_start_func start;
     plugin_stop_func stop;
+    plugin_deinit_func deinit;
 };
 
 #endif /* LIGHTSHIP_UTIL_PLUGIN_API_H */

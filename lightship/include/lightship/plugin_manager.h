@@ -1,7 +1,6 @@
 #ifndef LIGHTSHIP_PLUGIN_MANAGER_H
 #define LIGHTSHIP_PLUGIN_MANAGER_H
 
-#include "lightship/api.h"
 #include "util/plugin_api.h"
 
 /*!
@@ -23,7 +22,13 @@ plugin_manager_get_services(void);
  * @param[in] plugin The plugin to start.
  * @return Returns 1 if successful, 0 if otherwise.
  */
-#define plugin_start(plugin) ((plugin)->start(&g_api))
+#define plugin_start(plugin) ((plugin)->started_successfully = (plugin)->start())
+
+#define plugin_stop(plugin) do { \
+    if((plugin)->started_successfully) \
+        ((plugin)->stop()); } while(0)
+
+#define plugin_deinit(plugin) do { (plugin)->deinit(); } while(0)
 
 /*!
  * @brief De-initialises the plugin manager.
