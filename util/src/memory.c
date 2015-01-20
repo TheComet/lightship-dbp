@@ -119,7 +119,8 @@ memory_deinit(void)
         {
             MAP_FOR_EACH(&report, struct report_info_t, key, info)
             {
-                char *dump, *dump_iterator;
+                char *dump;
+                intptr_t dump_i;
                 printf("  un-freed memory at %p, size %p\n", (void*)info->location, (void*)info->size);
                 
                 /* print a string and hex dump of the unfreed data */
@@ -128,8 +129,8 @@ memory_deinit(void)
                 dump[info->size] = '\0';
                 printf("  string dump: %s\n", dump);
                 printf("  hex dump:");
-                for(dump_iterator = dump; *dump_iterator; ++dump_iterator)
-                    printf(" %x", (unsigned char)*dump_iterator);
+                for(dump_i = 0; dump_i != info->size; ++dump_i)
+                    printf(" %02x", (unsigned char)dump[dump_i]);
                 printf("\n");
                 free(dump);
 

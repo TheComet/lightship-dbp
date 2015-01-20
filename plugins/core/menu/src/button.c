@@ -28,7 +28,7 @@ void button_init(void)
 void button_deinit(void)
 {
     button_destroy_all();
-    map_clear(&g_buttons);
+    map_clear_free(&g_buttons);
 
     text_destroy_font(font_id);
 }
