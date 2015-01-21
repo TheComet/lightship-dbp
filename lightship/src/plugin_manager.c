@@ -77,7 +77,7 @@ struct plugin_t*
 plugin_load(const struct plugin_info_t* plugin_info,
             const plugin_search_criteria_t criteria)
 {
-    /* will contain the file name of the plugin if it is found. Must be FREE()'d */
+    /* will contain the file name of the plugin if it is found. Must be util_free()'d */
     char* filename = NULL;
     /* will hold the handle of the loaded module, if successful */
     void* handle = NULL;
