@@ -1,6 +1,7 @@
 #include <stdarg.h>
 #include <string.h>
 #include <stdlib.h>
+#include <wchar.h>
 #include "util/string.h"
 #include "util/memory.h"
 
