@@ -208,7 +208,8 @@ UNORDERED_VECTOR_FOR_EACH(some_vector, struct bar, element)
  */
 #define UNORDERED_VECTOR_ERASE_IN_FOR_LOOP(vector, element_type, element) \
     unordered_vector_erase_element(vector, element); \
-    element = (element_type*)(((DATA_POINTER_TYPE*)element) - (vector)->element_size);
+    element = (element_type*)(((DATA_POINTER_TYPE*)element) - (vector)->element_size); \
+    end_of_vector = (vector)->data + (vector)->count * (vector)->element_size;
         
 C_HEADER_END
 
