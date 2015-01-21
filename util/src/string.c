@@ -27,7 +27,7 @@ safe_strcpy(char* target, const char* source)
         strcpy(target, source);
 }
 
-LIGHTSHIP_PUBLIC_API void
+void
 stdout_strings(uint32_t num_strs, ...)
 {
     uint32_t total_length = 0;
@@ -54,7 +54,7 @@ stdout_strings(uint32_t num_strs, ...)
     FREE(buffer);
 }
 
-LIGHTSHIP_PUBLIC_API void
+void
 stderr_strings(uint32_t num_strs, ...)
 {
     uint32_t total_length = 0;

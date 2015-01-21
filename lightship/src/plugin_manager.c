@@ -184,16 +184,16 @@ plugin_load(const struct plugin_info_t* plugin_info,
             version_str
         );
         
-        FREE(filename);
+        util_free(filename);
         return plugin;
     }
-    
+
     /* 
      * If the program reaches this point, it means something went wrong with
      * loading the plugin. Clean up...
      */
     if(filename)
-        FREE(filename);
+        util_free(filename);
     if(handle)
         module_close(handle);
     if(plugin)
@@ -209,7 +209,7 @@ load_plugins_from_yaml(const char* filename)
     struct ptree_t* dom;
     struct unordered_vector_t new_plugins;
     uint32_t doc_ID;
-	char success = 1;
+    char success = 1;
     
     unordered_vector_init_vector(&new_plugins, sizeof(struct plugin_t*));
 
@@ -419,14 +419,14 @@ find_plugin(const struct plugin_info_t* info,
             {
                 /* 
                  * get_directory_listing() allocates the strings it pushes into
-                 * the linked list, and it is up to us to FREE them.
+                 * the linked list, and it is up to us to free them.
                  */
-                FREE(name);
+                util_free(name);
             }
         }
     }
     
-    /* FREE list of directories */
+    /* free list of directories */
     list_destroy(list);
     
     return file_found;

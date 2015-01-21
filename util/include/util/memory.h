@@ -33,6 +33,13 @@ memory_init(void);
 LIGHTSHIP_PUBLIC_API void
 memory_deinit(void);
 
+/*!
+ * @brief Very important on Windows, so objects that were allocated from within
+ * this library are also freed in this library.
+ */
+LIGHTSHIP_PUBLIC_API void
+util_free(void* ptr);
+
 #ifdef MEMORY_ENABLE_MEMORY_REPORT
 /*!
  * @brief Does the same thing as a normal call to malloc(), but does some
