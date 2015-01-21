@@ -49,6 +49,12 @@ malloc_string(const char* str);
 LIGHTSHIP_PUBLIC_API char
 is_number(const char chr);
 
+LIGHTSHIP_PUBLIC_API wchar_t*
+strtowcs(const char* str);
+
+LIGHTSHIP_PUBLIC_API char*
+wcstostr(wchar_t* wcs);
+
 C_HEADER_END
 
 #endif /* LIGHTSHIP_UTIL_STRING_H */

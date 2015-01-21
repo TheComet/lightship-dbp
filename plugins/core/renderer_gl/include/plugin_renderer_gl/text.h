@@ -41,7 +41,7 @@ struct font_t
     FT_Face face;
     struct text_gl_t gl;
     struct map_t char_map;  /* maps character codes to instances of text_char_info_t */
-    struct map_t static_text_map; /* maps IDs to instances of text_string_instance_t */
+    struct map_t static_text_map; /* maps ids to instances of text_string_instance_t */
 };
 
 struct text_string_instance_t
@@ -119,7 +119,7 @@ text_load_atlass(struct font_t* font, const wchar_t* characters);
  * @param y The y-coordinate in GL screen space of the top of the first letter.
  * @param str The wchar_t* string to add. If NULL is specified, the static
  * buffer is re-generated but nothing is added.
- * @return Returns the ID for the string being added. This can be used to later
+ * @return Returns the id for the string being added. This can be used to later
  * delete the string from the static buffer.
  */
 intptr_t
@@ -135,12 +135,12 @@ text_add_static_center_string_wrapper(uint32_t font_id, float x, float y, const 
  * The static buffer takes longer to re-generate, but is very cheap to render
  * once generated.
  * @param font The font the vertex buffer belongs to.
- * @param ID The unique identifier returned by text_add_static_string().
+ * @param id The unique identifier returned by text_add_static_string().
  */
 void
-text_destroy_static_string(struct font_t* font, intptr_t ID);
+text_destroy_static_string(struct font_t* font, intptr_t id);
 void
-text_destroy_static_string_wrapper(uint32_t font_id, intptr_t ID);
+text_destroy_static_string_wrapper(uint32_t font_id, intptr_t id);
 
 /*!
  * @brief Destroys all static strings from the font.

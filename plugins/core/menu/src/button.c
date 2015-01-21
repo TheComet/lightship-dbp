@@ -35,7 +35,6 @@ void button_deinit(void)
 
 struct button_t* button_create(const char* text, float x, float y, float width, float height)
 {
-    intptr_t len;
     struct button_t* btn = (struct button_t*)MALLOC(sizeof(struct button_t));
     btn->pos.x = x;
     btn->pos.y = y;
@@ -45,28 +44,37 @@ struct button_t* button_create(const char* text, float x, float y, float width, 
     map_insert(&g_buttons, btn->id, btn);
 
     /* copy wchar_t string into button object */
-    len = (strlen(text)+1) * sizeof(wchar_t);
-    btn->text = (wchar_t*)MALLOC(len);
-    swprintf(btn->text, len, L"%s", text);
+    if(text)
+    {
+        /* TODO centering code for text */
+        /* TODO instead of passing the raw string, add way to pass a "string instance"
+        * which can specify the font and size of the string. */
+        btn->text = strtowcs(text);
+        btn->text_id = text_add_static_center_string(font_id, x, y+0.02, btn->text);
+    }
+    else
+    {
+        btn->text = NULL;
+        btn->text_id = 0;
+    }
 
     /* draw box */
     shapes_2d_begin();
         box_2d(x-width*0.5, y-height*0.5, x+width*0.5, y+height*0.5, BUTTON_COLOUR_NORMAL);
     btn->shapes_normal_id = shapes_2d_end();
 
-    /* add text to button */
-    /* TODO centering code for text */
-    /* TODO instead of passing the raw string, add way to pass a "string instance"
-     * which can specify the font and size of the string. */
-    btn->text_id = text_add_static_center_string(font_id, x, y+0.02, btn->text);
-
     return btn;
 }
 
 void button_free_contents(struct button_t* button)
 {
-    FREE(button->text);
     shapes_2d_destroy(button->shapes_normal_id);
+
+    if(button->text)
+    {
+        text_destroy_static_string(font_id, button->text_id);
+        FREE(button->text);
+    }
 }
 
 void button_destroy(struct button_t* button)

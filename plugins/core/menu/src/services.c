@@ -1,6 +1,7 @@
 #include "util/services.h"
 #include "plugin_menu/services.h"
 #include "plugin_menu/button.h"
+#include "plugin_menu/screen_manager.h"
 
 /* extern service function pointers */
 yaml_load_func yaml_load;
@@ -30,6 +31,7 @@ register_services(const struct plugin_t* plugin)
      service_register(plugin, "button_create", (intptr_t)button_create_wrapper);
      service_register(plugin, "button_destroy", (intptr_t)button_destroy_wrapper);
      service_register(plugin, "button_get_text", (intptr_t)button_get_text);
+     service_register(plugin, "screen_manager_load", (intptr_t)screen_manager_load);
 }
 
 char

@@ -1,6 +1,5 @@
 #include "util/ptree.h"
 #include "util/memory.h"
-#include "util/hash.h"
 #include "util/string.h"
 #include <string.h>
 #include <stdio.h>
@@ -19,7 +18,7 @@ ptree_init_ptree(struct ptree_t* tree, const char* key, void* value)
 #ifdef _DEBUG
     tree->key = malloc_string(key);
 #endif
-    tree->hash = hash_jenkins_oaat(key, strlen(key));
+    tree->hash = PTREE_HASH_STRING(key);
     tree->value = value;
     unordered_vector_init_vector(&tree->children, sizeof(struct ptree_t));
 }
@@ -58,7 +57,7 @@ ptree_add_node(struct ptree_t* tree, const char* key, void* value)
 void*
 ptree_find_local_by_key(const struct ptree_t* tree, const char* key)
 {
-    uint32_t hash = hash_jenkins_oaat(key, strlen(key));
+    uint32_t hash = PTREE_HASH_STRING(key);
     UNORDERED_VECTOR_FOR_EACH(&tree->children, struct ptree_t, child)
     {
         if(hash == child->hash)
