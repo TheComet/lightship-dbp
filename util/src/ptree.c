@@ -182,9 +182,9 @@ ptree_print_impl(struct ptree_t* tree, uint32_t depth)
     
     /* print node info */
 #ifdef _DEBUG
-    printf("key: \"%s\", hash: %d, dup: %p\n", tree->key, tree->hash, tree->dup_value);
+    printf("key: \"%s\", hash: %d, dup: %p\n", tree->key, tree->hash, (void*)tree->dup_value);
 #else
-    printf("hash: %d, dup: %p\n", tree->hash, tree->dup_value);
+    printf("hash: %d, dup: %p\n", tree->hash, (void*)tree->dup_value);
 #endif
     
     /* print children */
