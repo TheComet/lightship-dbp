@@ -52,12 +52,14 @@ llog_unindent(void)
 LIGHTSHIP_PUBLIC_API void
 llog(log_level_t level, uint32_t num_strs, ...)
 {
+    /* variables required to generate a timestamp string */
 #ifdef LOG_ENABLE_TIMESTAMPS
     time_t rawtime;
     struct tm* timeinfo;
     char timestamp[12];
 #endif
 
+    /* more local variables because C89 */
     va_list ap;
     struct log_t log_;
     uint32_t i;
@@ -97,7 +99,7 @@ llog(log_level_t level, uint32_t num_strs, ...)
             prefix = "";
             break;
     }
-    
+
     /*
      * Get total length of all strings combined and allocate a buffer large
      * enough to hold them, including a null terminator.
@@ -125,7 +127,9 @@ llog(log_level_t level, uint32_t num_strs, ...)
     for(i = 0; i != num_strs; ++i)
         safe_strcat(buffer, va_arg(ap, char*));
     va_end(ap);
-    strcat(buffer, "\n");
+    /*strcat(buffer, "\n");*/
+    buffer[total_length-2] = '\n';
+    buffer[total_length-1] = '\0';
 
     /* fire event and clean up */
     log_.level = level;
