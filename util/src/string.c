@@ -123,3 +123,29 @@ is_number(const char chr)
             return 1;
     return 0;
 }
+
+wchar_t*
+strtowcs(const char* str)
+{
+    wchar_t* wcs;
+    wchar_t* wcs_it;
+    intptr_t len = strlen(str);
+    wcs = (wchar_t*)MALLOC((len + 1) * sizeof(wchar_t));
+    for(wcs_it = wcs; *str; ++str)
+        *wcs_it++ = (wchar_t)*str;
+    *wcs_it = L'\0';
+    return wcs;
+}
+
+char*
+wcstostr(wchar_t* wcs)
+{
+    char* str;
+    char* str_it;
+    intptr_t len = wcslen(wcs);
+    str = (char*)MALLOC((len + 1) * sizeof(char));
+    for(str_it = str; *wcs; ++wcs)
+        *str_it++ = (char)*wcs;
+    *str_it = '\0';
+    return str;
+}
