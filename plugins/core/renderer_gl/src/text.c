@@ -390,10 +390,6 @@ text_load_atlass(struct font_t* font, const wchar_t* characters)
                                         (target_colour << 16) |
                                         (target_colour << 24) |
                                         0x000000FF;
-                                        
-                        /* TODO remove */
-                        if((GLuint)buffer_ptr - (GLuint)buffer >= tex_width * tex_height * sizeof(GLuint))
-                            printf("oh shit\n");
                     }
                 }
                 break;
@@ -440,6 +436,7 @@ text_add_static_string(struct font_t* font, char centered, GLfloat x, GLfloat y,
     intptr_t text_key;
 
     /* create new string instance and insert into map */
+    text_key = 0;
     if(str)
     {
         struct text_string_instance_t* str_instance;

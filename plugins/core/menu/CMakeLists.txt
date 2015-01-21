@@ -99,6 +99,7 @@ install (
 install (
     DIRECTORY
         "ttf"
+        "cfg"
     DESTINATION
         "bin"
 )
