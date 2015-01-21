@@ -36,7 +36,7 @@ parser_deinit(void)
 }
 
 char
-yaml_load_into_ptree(struct ptree_t* tree, yaml_parser_t* parser)
+yaml_load_into_ptree_deprecated(struct ptree_t* tree, yaml_parser_t* parser)
 {
     yaml_token_t token;
     yaml_parser_states_e state = YAML_PARSER_STATE_NONE;
@@ -122,7 +122,7 @@ yaml_load_into_ptree(struct ptree_t* tree, yaml_parser_t* parser)
                 if(state == YAML_PARSER_STATE_ENTER_NEW_DEPTH ||
                    state == YAML_PARSER_STATE_GET_VALUE)
                 {
-                    int result = yaml_load_into_ptree(ptree_add_node(tree, key, NULL), parser);
+                    int result = yaml_load_into_ptree_deprecated(ptree_add_node(tree, key, NULL), parser);
                     FREE(key); key = NULL;
                     if(result == 0)
                     {
@@ -152,7 +152,7 @@ yaml_load_into_ptree(struct ptree_t* tree, yaml_parser_t* parser)
                 
                 if(state == YAML_PARSER_STATE_ENTER_NEW_DEPTH)
                 {
-                    int result = yaml_load_into_ptree(ptree_add_node(tree, key, malloc_string((char*)token.data.scalar.value)), parser);
+                    int result = yaml_load_into_ptree_deprecated(ptree_add_node(tree, key, malloc_string((char*)token.data.scalar.value)), parser);
                     FREE(key); key = NULL;
                     if(result == 0)
                     {
@@ -264,6 +264,101 @@ yaml_load_into_ptree(struct ptree_t* tree, yaml_parser_t* parser)
     return 1;
 }
 
+char
+yaml_load_into_ptree(struct ptree_t* tree, struct ptree_t* root_tree, yaml_parser_t* parser)
+{
+    yaml_event_t event;
+    char* key;
+
+    if(!yaml_parser_parse(parser, &event))
+    {
+        char error[16];
+        snprintf(error, 16, "%d", parser->error);
+        llog(LOG_ERROR, 2, "Parser error ", error);
+        return 0;
+    }
+
+    key = NULL;
+    while(event.type != YAML_STREAM_END_EVENT)
+    {
+        char result;
+
+        switch(event.type)
+        {
+            case YAML_NO_EVENT:
+                puts("No event!");
+                return 0;
+
+            /* stream/document start/end */
+            case YAML_STREAM_START_EVENT:
+            case YAML_STREAM_END_EVENT:
+            case YAML_DOCUMENT_START_EVENT:
+            case YAML_DOCUMENT_END_EVENT:
+                break;
+
+            /* begin of sequence of mapping */
+            case YAML_SEQUENCE_START_EVENT:
+            case YAML_MAPPING_START_EVENT:
+                if(key)
+                {
+                    struct ptree_t* child = ptree_add_node(tree, key, NULL);
+                    ptree_set_dup_func(child, (ptree_dup_func)malloc_string);
+                    result = yaml_load_into_ptree(child, root_tree, parser);
+                    FREE(key);
+                    key = NULL;
+                    if(!result)
+                        return 0;
+                }
+                break;
+
+            /* end of sequence or mapping */
+            case YAML_SEQUENCE_END_EVENT:
+            case YAML_MAPPING_END_EVENT:
+                return 1;
+                break;
+                
+            /* alias */
+            case YAML_ALIAS_EVENT:
+                if(key)
+                {
+                    const struct ptree_t* source = ptree_find_by_key(root_tree, (char*)event.data.alias.anchor);
+                    if(source)
+                        ptree_duplicate_tree(tree, source, key);
+                    FREE(key);
+                    key = NULL;
+                }
+                break;
+
+            /* scalar */
+            case YAML_SCALAR_EVENT:
+                if(key)
+                {
+                    struct ptree_t* child = ptree_add_node(tree, key, malloc_string((char*)event.data.scalar.value));
+                    ptree_set_dup_func(child, (ptree_dup_func)malloc_string);
+                    FREE(key);
+                    key = NULL;
+                }
+                else
+                {
+                    key = malloc_string((char*)event.data.scalar.value);
+                }
+                break;
+            
+            default:
+                return 0;
+                break;
+
+        }
+        yaml_event_delete(&event);
+        yaml_parser_parse(parser, &event);
+    }
+    
+    /* clean up */
+    yaml_event_delete(&event);
+    
+    return 1;
+}
+
 static struct yaml_doc_t*
 yaml_get_doc(uint32_t ID)
 {
@@ -295,7 +390,7 @@ yaml_load(const char* filename)
     yaml_parser_initialize(&parser);
     yaml_parser_set_input_file(&parser, fp);
     tree = ptree_create("root", NULL);
-    if(!yaml_load_into_ptree(tree, &parser))
+    if(!yaml_load_into_ptree(tree, tree, &parser))
     {
         yaml_parser_delete(&parser);
         fclose(fp);
@@ -328,10 +423,14 @@ yaml_get_dom(uint32_t ID)
 char*
 yaml_get_value(const uint32_t ID, const char* key)
 {
+    struct ptree_t* node;
     struct yaml_doc_t* doc = yaml_get_doc(ID);
     if(!doc)
         return NULL;
-    return (char*)ptree_find_by_key(doc->dom, key);
+    node = ptree_find_by_key(doc->dom, key);
+    if(node)
+        return (char*)node->value;
+    return NULL;
 }
 
 void
@@ -341,7 +440,7 @@ yaml_destroy(const uint32_t ID)
     {
         if(doc->ID == ID)
         {
-            ptree_destroy(doc->dom);
+            ptree_destroy_free(doc->dom);
             unordered_vector_erase_element(&g_open_docs, doc);
 
             return;

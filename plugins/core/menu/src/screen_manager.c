@@ -21,20 +21,21 @@ screen_manager_load(const char* file_name)
             {
                 if(PTREE_HASH_STRING("button") == object->hash)
                 {
-                    char *x, *y, *width, *height;
-                    if(!(x = ptree_find_by_key(object, "position.x")))
+                    char* text_str = NULL;
+                    const struct ptree_t* text   = ptree_find_by_key(object, "text");
+                    const struct ptree_t* x      = ptree_find_by_key(object, "position.x");
+                    const struct ptree_t* y      = ptree_find_by_key(object, "position.y");
+                    const struct ptree_t* width  = ptree_find_by_key(object, "size.x");
+                    const struct ptree_t* height = ptree_find_by_key(object, "size.y");
+                    if(!x || !y || !width || !height)
                         continue;
-                    if(!(y = ptree_find_by_key(object, "position.y")))
-                        continue;
-                    if(!(width = ptree_find_by_key(object, "size.x")))
-                        continue;
-                    if(!(height = ptree_find_by_key(object, "size.y")))
-                        continue;
-                    button_create(ptree_find_by_key(object, "text"),
-                                  atof(x),
-                                  atof(y),
-                                  atof(width),
-                                  atof(height));
+                    if(text)
+                        text_str = (char*)text->value;
+                    button_create(text_str,
+                                  atof(x->value),
+                                  atof(y->value),
+                                  atof(width->value),
+                                  atof(height->value));
                 }
             }
         }

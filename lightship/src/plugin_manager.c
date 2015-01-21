@@ -231,16 +231,14 @@ load_plugins_from_yaml(const char* filename)
     {
         UNORDERED_VECTOR_FOR_EACH(&dom->children, struct ptree_t, child)
         {
-            char* name;
-            char* version;
-            char* policy;
             struct plugin_t* plugin;
             plugin_search_criteria_t criteria;
+            char* policy_str;
             
             /* extract information from tree */
-            name = ptree_find_by_key(child, "name");
-            version = ptree_find_by_key(child, "version");
-            policy = ptree_find_by_key(child, "version_policy");
+            const struct ptree_t* name = ptree_find_by_key(child, "name");
+            const struct ptree_t* version = ptree_find_by_key(child, "version");
+            const struct ptree_t* policy = ptree_find_by_key(child, "version_policy");
             if(!name)
             {
                 llog(LOG_ERROR, 1, "Key \"name\" isn't defined for plugin");
@@ -251,13 +249,15 @@ load_plugins_from_yaml(const char* filename)
                 llog(LOG_ERROR, 1, "Key \"version\" isn't defined for plugin");
                 continue;
             }
-            if(!policy)
+            if(policy)
+                policy_str = (char*)policy->value;
+            else
             {
                 llog(LOG_WARNING, 1, "Key \"version_policy\" isn't defined for plugin. Using default \"minimum\"");
-                policy = "minimum";
+                policy_str = "minimum";
             }
-            target.name = name;
-            if(!plugin_extract_version_from_string(version,
+            target.name = (char*)name->value;
+            if(!plugin_extract_version_from_string((char*)version->value,
                                                 &target.version.major,
                                                 &target.version.minor,
                                                 &target.version.patch))
@@ -265,13 +265,13 @@ load_plugins_from_yaml(const char* filename)
                 llog(LOG_ERROR, 1, "Version string of plugin \"", name, "\" is invalid. Should be major.minor.patch");
                 continue;
             }
-            if(strncmp("minimum", policy, 7) == 0)
+            if(strncmp("minimum", policy_str, 7) == 0)
                 criteria = PLUGIN_VERSION_MINIMUM;
-            else if(strncmp("exact", policy, 5) == 0)
+            else if(strncmp("exact", policy_str, 5) == 0)
                 criteria = PLUGIN_VERSION_EXACT;
             else
             {
-                llog(LOG_ERROR, 3, "Invalid policy \"", policy, "\"");
+                llog(LOG_ERROR, 3, "Invalid policy \"", policy_str, "\"");
                 continue;
             }
             
