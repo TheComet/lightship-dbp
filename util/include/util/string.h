@@ -29,6 +29,7 @@ stderr_strings(uint32_t num_strs, ...);
  * @param[in] num_strs The number of strings that should be concatenated.
  * @param[in] ...str A list of comma-seperated strings to concatenate.
  * @return The new buffer containing all concatenated strings.
+ * @warning Use util_free() to free the returned buffer.
  */
 LIGHTSHIP_PUBLIC_API char*
 cat_strings(uint32_t num_strs, ...);
@@ -38,6 +39,7 @@ cat_strings(uint32_t num_strs, ...);
  * @note The buffer needs to be FREEd manually when it is no longer required.
  * @param[in] str The string to copy.
  * @return The new buffer containing a copy of the input string.
+ * @warning Use util_free() to free the returned buffer.
  */
 LIGHTSHIP_PUBLIC_API char*
 malloc_string(const char* str);

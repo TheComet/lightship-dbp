@@ -7,6 +7,12 @@
 
 #define BACKTRACE_OMIT_COUNT 2
 
+void
+util_free(void* ptr)
+{
+    FREE(ptr);
+}
+
 #ifdef MEMORY_ENABLE_MEMORY_REPORT
 static intptr_t allocations = 0;
 static intptr_t deallocations = 0;
