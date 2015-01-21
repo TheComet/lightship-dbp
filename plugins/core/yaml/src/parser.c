@@ -33,7 +33,7 @@ yaml_load_into_ptree(struct ptree_t* tree, struct ptree_t* root_tree, yaml_parse
     if(!yaml_parser_parse(parser, &event))
     {
         char error[16];
-        snprintf(error, 16, "%d", parser->error);
+        sprintf(error, "%d", parser->error);
         llog(LOG_ERROR, 2, "Parser error ", error);
         return 0;
     }

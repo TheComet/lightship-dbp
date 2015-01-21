@@ -88,6 +88,9 @@ if (CMAKE_BUILD_TYPE MATCHES Debug)
         ${DEFINE_CMD}DEBUG
     )
 endif ()
+if (CMAKE_BUILD_TYPE MATCHES Release)
+    add_definitions(${DEFINE_CMD}NDEBUG)
+endif ()
 
 # library is being built (so dllexport gets defined on windows)
 add_definitions (${DEFINE_CMD}LIGHTSHIP_BUILDING_LIBRARY)
