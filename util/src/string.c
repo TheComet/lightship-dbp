@@ -39,7 +39,7 @@ stdout_strings(uint32_t num_strs, ...)
     va_start(ap, num_strs);
     for(i = 0; i != num_strs; ++i)
         total_length += safe_strlen(va_arg(ap, char*));
-    buffer = (char*)MALLOC((total_length+1) * sizeof(char*));
+    buffer = (char*)MALLOC((total_length+1) * sizeof(char));
     va_end(ap);
     
     /* concatenate all strings into the allocated buffer */
@@ -66,7 +66,7 @@ stderr_strings(uint32_t num_strs, ...)
     va_start(ap, num_strs);
     for(i = 0; i != num_strs; ++i)
         total_length += safe_strlen(va_arg(ap, char*));
-    buffer = (char*)MALLOC((total_length+1) * sizeof(char*));
+    buffer = (char*)MALLOC((total_length+1) * sizeof(char));
     va_end(ap);
     
     /* concatenate all strings into the allocated buffer */
@@ -94,7 +94,7 @@ cat_strings(uint32_t num_strs, ...)
     va_start(ap, num_strs);
     for(i = 0; i != num_strs; ++i)
         total_length += safe_strlen(va_arg(ap, char*));
-    buffer = (char*)MALLOC((total_length+1) * sizeof(char*));
+    buffer = (char*)MALLOC((total_length+1) * sizeof(char));
     va_end(ap);
     
     /* concatenate all strings into the allocated buffer */
@@ -110,7 +110,7 @@ cat_strings(uint32_t num_strs, ...)
 char*
 malloc_string(const char* str)
 {
-    char* buffer = (char*)MALLOC((strlen(str)+1) * sizeof(char*));
+    char* buffer = (char*)MALLOC((strlen(str)+1) * sizeof(char));
     strcpy(buffer, str);
     return buffer;
 }
