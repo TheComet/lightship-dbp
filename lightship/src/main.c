@@ -98,10 +98,12 @@ init(void)
 
     {
         screen_manager_load_func load = ((screen_manager_load_func)service_get("menu.screen_manager_load"));
-        button_create_func button_create = ((button_create_func)service_get("menu.button_create"));
         event_register_listener(NULL, "menu.button_clicked", on_button_click);
-        
+#ifdef _DEBUG
         load("../../plugins/core/menu/cfg/menu.yml");
+#else
+        load("cfg/menu.yml");
+#endif
 /*
         button_create("Host", 0.0, 0.2, 0.3, 0.1);
         button_create("Join", 0.0, 0.0, 0.3, 0.1);
