@@ -3,29 +3,30 @@ btn_size:
     x: 0.3
     y: 0.1
 
-# the main menu
-main_screen:
-    button:
-        text: Host
-        position:
-            x: 0.0
-            y: 0.3
-        size: *btn_size
-    button:
-        text: Join
-        position:
-            x: 0.0
-            y: 0.1
-        size: *btn_size
-    button:
-        text: Map Editor
-        position:
-            x: 0.0
-            y: -0.1
-        size: *btn_size
-    button:
-        text: Quit
-        position:
-            x: 0.0
-            y: -0.3
-        size: *btn_size
+screens:
+    # the main menu
+    main_screen:
+        button:
+            text: Host
+            position:
+                x: 0.0
+                y: 0.3
+            size: *btn_size
+        button:
+            text: Join
+            position:
+                x: 0.0
+                y: 0.1
+            size: *btn_size
+        button:
+            text: Map Editor
+            position:
+                x: 0.0
+                y: -0.1
+            size: *btn_size
+        button:
+            text: Quit
+            position:
+                x: 0.0
+                y: -0.3
+            size: *btn_size

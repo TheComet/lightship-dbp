@@ -31,7 +31,7 @@ register_services(const struct plugin_t* plugin)
      service_register(plugin, "button_create", (intptr_t)button_create_wrapper);
      service_register(plugin, "button_destroy", (intptr_t)button_destroy_wrapper);
      service_register(plugin, "button_get_text", (intptr_t)button_get_text);
-     service_register(plugin, "screen_manager_load", (intptr_t)screen_manager_load);
+     service_register(plugin, "load", (intptr_t)menu_load);
 }
 
 char

@@ -109,7 +109,7 @@ ptree_find_local_by_key(const struct ptree_t* node, const char* key);
  * @return Returns the node associated with the specified key if the key was
  * found, NULL if otherwise.
  */
-LIGHTSHIP_PUBLIC_API const struct ptree_t*
+LIGHTSHIP_PUBLIC_API struct ptree_t*
 ptree_find_by_key(const struct ptree_t* node, const char* key);
 
 LIGHTSHIP_PUBLIC_API void
