@@ -73,7 +73,7 @@ void button_free_contents(struct button_t* button)
     if(button->text)
     {
         text_destroy_static_string(font_id, button->text_id);
-        util_free(button->text);
+        free_string(button->text);
     }
 }
 

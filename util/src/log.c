@@ -12,6 +12,9 @@
 
 static char g_log_indent = 0;
 
+/* ----------------------------------------------------------------------------
+ * Static functions
+ * ------------------------------------------------------------------------- */
 static int
 safe_strlen(const char* str)
 {
@@ -20,6 +23,7 @@ safe_strlen(const char* str)
     return 0;
 }
 
+/* ------------------------------------------------------------------------- */
 static void
 safe_strcat(char* target, const char* source)
 {
@@ -27,6 +31,9 @@ safe_strcat(char* target, const char* source)
         strcat(target, source);
 }
 
+/* ----------------------------------------------------------------------------
+ * Exported functions
+ * ------------------------------------------------------------------------- */
 void
 llog_init(void)
 {
@@ -34,14 +41,16 @@ llog_init(void)
     event_register_listener(NULL, BUILTIN_NAMESPACE_NAME ".log_indent", (event_callback_func)on_llog_indent);
 }
 
-LIGHTSHIP_PUBLIC_API void
+/* ------------------------------------------------------------------------- */
+void
 llog_indent(const char* indent_name)
 {
     EVENT_FIRE1(evt_log_indent, indent_name);
     ++g_log_indent;
 }
 
-LIGHTSHIP_PUBLIC_API void
+/* ------------------------------------------------------------------------- */
+void
 llog_unindent(void)
 {
     EVENT_FIRE0(evt_log_unindent);
@@ -49,7 +58,8 @@ llog_unindent(void)
         --g_log_indent;
 }
 
-LIGHTSHIP_PUBLIC_API void
+/* ------------------------------------------------------------------------- */
+void
 llog(log_level_t level, uint32_t num_strs, ...)
 {
     /* variables required to generate a timestamp string */
@@ -138,11 +148,15 @@ llog(log_level_t level, uint32_t num_strs, ...)
     FREE(buffer);
 }
 
+/* ----------------------------------------------------------------------------
+ * Event listeners
+ * ------------------------------------------------------------------------- */
 EVENT_LISTENER1(on_llog_indent, const char* str)
 {
     llog(LOG_INFO, 1, str);
 }
 
+/* ------------------------------------------------------------------------- */
 EVENT_LISTENER1(on_llog, struct log_t* arg)
 {
     FILE* fp;

@@ -3,6 +3,10 @@
 #include "util/ordered_vector.h"
 #include "util/memory.h"
 
+/* ----------------------------------------------------------------------------
+ * Static functions
+ * ------------------------------------------------------------------------- */
+
 /*!
  * @brief Expands the underlying memory.
  *
@@ -16,6 +20,9 @@ static void
 ordered_vector_expand(struct ordered_vector_t* vector,
                         intptr_t insertion_index);
 
+/* ----------------------------------------------------------------------------
+ * Exported functions
+ * ------------------------------------------------------------------------- */
 struct ordered_vector_t*
 ordered_vector_create(const intptr_t element_size)
 {
@@ -24,6 +31,7 @@ ordered_vector_create(const intptr_t element_size)
     return vector;
 }
 
+/* ------------------------------------------------------------------------- */
 void
 ordered_vector_init_vector(struct ordered_vector_t* vector, const intptr_t element_size)
 {
@@ -31,6 +39,7 @@ ordered_vector_init_vector(struct ordered_vector_t* vector, const intptr_t eleme
     vector->element_size = element_size;
 }
 
+/* ------------------------------------------------------------------------- */
 void
 ordered_vector_destroy(struct ordered_vector_t* vector)
 {
@@ -38,6 +47,7 @@ ordered_vector_destroy(struct ordered_vector_t* vector)
     FREE(vector);
 }
 
+/* ------------------------------------------------------------------------- */
 void
 ordered_vector_clear(struct ordered_vector_t* vector)
 {
@@ -48,6 +58,7 @@ ordered_vector_clear(struct ordered_vector_t* vector)
     vector->count = 0;
 }
 
+/* ------------------------------------------------------------------------- */
 void
 ordered_vector_clear_free(struct ordered_vector_t* vector)
 {
@@ -58,6 +69,7 @@ ordered_vector_clear_free(struct ordered_vector_t* vector)
     vector->capacity = 0;
 }
 
+/* ------------------------------------------------------------------------- */
 void*
 ordered_vector_push_emplace(struct ordered_vector_t* vector)
 {
@@ -69,12 +81,14 @@ ordered_vector_push_emplace(struct ordered_vector_t* vector)
     return data;
 }
 
+/* ------------------------------------------------------------------------- */
 void
 ordered_vector_push(struct ordered_vector_t* vector, void* data)
 {
     memcpy(ordered_vector_push_emplace(vector), data, vector->element_size);
 }
 
+/* ------------------------------------------------------------------------- */
 void*
 ordered_vector_pop(struct ordered_vector_t* vector)
 {
@@ -85,6 +99,7 @@ ordered_vector_pop(struct ordered_vector_t* vector)
     return vector->data + (vector->element_size * vector->count);
 }
 
+/* ------------------------------------------------------------------------- */
 void*
 ordered_vector_insert_emplace(struct ordered_vector_t* vector, intptr_t index)
 {
@@ -116,12 +131,14 @@ ordered_vector_insert_emplace(struct ordered_vector_t* vector, intptr_t index)
     return (void*)(vector->data + index * vector->element_size);
 }
 
+/* ------------------------------------------------------------------------- */
 void
 ordered_vector_insert(struct ordered_vector_t* vector, intptr_t index, void* data)
 {
     memcpy(ordered_vector_insert_emplace(vector, index), data, vector->element_size);
 }
 
+/* ------------------------------------------------------------------------- */
 void
 ordered_vector_erase_index(struct ordered_vector_t* vector, intptr_t index)
 {
@@ -143,6 +160,7 @@ ordered_vector_erase_index(struct ordered_vector_t* vector, intptr_t index)
     }
 }
 
+/* ------------------------------------------------------------------------- */
 void
 ordered_vector_erase_element(struct ordered_vector_t* vector, void* element)
 {
@@ -156,6 +174,7 @@ ordered_vector_erase_element(struct ordered_vector_t* vector, void* element)
     --vector->count;
 }
 
+/* ------------------------------------------------------------------------- */
 void*
 ordered_vector_get_element(struct ordered_vector_t* vector, intptr_t index)
 {
@@ -164,6 +183,9 @@ ordered_vector_get_element(struct ordered_vector_t* vector, intptr_t index)
     return vector->data + (vector->element_size * index);
 }
 
+/* ----------------------------------------------------------------------------
+ * Static functions
+ * ------------------------------------------------------------------------- */
 static void
 ordered_vector_expand(struct ordered_vector_t* vector,
                         intptr_t insertion_index)

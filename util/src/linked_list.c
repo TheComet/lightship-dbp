@@ -3,6 +3,7 @@
 #include "util/linked_list.h"
 #include "util/memory.h"
 
+/* ------------------------------------------------------------------------- */
 struct list_t*
 list_create(void)
 {
@@ -11,12 +12,14 @@ list_create(void)
     return list;
 }
 
+/* ------------------------------------------------------------------------- */
 void
 list_init_list(struct list_t* list)
 {
     memset(list, 0, sizeof(struct list_t));
 }
 
+/* ------------------------------------------------------------------------- */
 void
 list_destroy(struct list_t* list)
 {
@@ -24,6 +27,7 @@ list_destroy(struct list_t* list)
     FREE(list);
 }
 
+/* ------------------------------------------------------------------------- */
 void
 list_clear(struct list_t* list)
 {
@@ -37,6 +41,7 @@ list_clear(struct list_t* list)
     list->count = 0;
 }
 
+/* ------------------------------------------------------------------------- */
 void
 list_push(struct list_t* list, void* data)
 {
@@ -54,6 +59,7 @@ list_push(struct list_t* list, void* data)
     ++list->count;
 }
 
+/* ------------------------------------------------------------------------- */
 void*
 list_pop(struct list_t* list)
 {
@@ -73,6 +79,7 @@ list_pop(struct list_t* list)
     return NULL;
 }
 
+/* ------------------------------------------------------------------------- */
 void*
 list_erase_node(struct list_t* list, struct list_node_t* node)
 {
@@ -95,6 +102,7 @@ list_erase_node(struct list_t* list, struct list_node_t* node)
     return data;
 }
 
+/* ------------------------------------------------------------------------- */
 void*
 list_erase_element(struct list_t* list, void* data)
 {

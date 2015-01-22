@@ -7,12 +7,6 @@
 
 #define BACKTRACE_OMIT_COUNT 2
 
-void
-util_free(void* ptr)
-{
-    FREE(ptr);
-}
-
 #ifdef MEMORY_ENABLE_MEMORY_REPORT
 static intptr_t allocations = 0;
 static intptr_t deallocations = 0;
@@ -29,6 +23,7 @@ struct report_info_t
 #endif
 };
 
+/* ------------------------------------------------------------------------- */
 void
 memory_init(void)
 {
@@ -38,6 +33,7 @@ memory_init(void)
     map_init_map(&report);
 }
 
+/* ------------------------------------------------------------------------- */
 void*
 malloc_debug(intptr_t size)
 {
@@ -65,6 +61,7 @@ malloc_debug(intptr_t size)
     return p;
 }
 
+/* ------------------------------------------------------------------------- */
 void
 free_debug(void* ptr)
 {
@@ -110,6 +107,7 @@ free_debug(void* ptr)
         fprintf(stderr, "Warning: free(NULL)\n");
 }
 
+/* ------------------------------------------------------------------------- */
 void
 memory_deinit(void)
 {

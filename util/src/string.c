@@ -5,6 +5,9 @@
 #include "util/string.h"
 #include "util/memory.h"
 
+/* ----------------------------------------------------------------------------
+ * Static functions
+ * ------------------------------------------------------------------------- */
 static int
 safe_strlen(const char* str)
 {
@@ -13,6 +16,7 @@ safe_strlen(const char* str)
     return 0;
 }
 
+/* ------------------------------------------------------------------------- */
 static void
 safe_strcat(char* target, const char* source)
 {
@@ -20,6 +24,7 @@ safe_strcat(char* target, const char* source)
         strcat(target, source);
 }
 
+/* ------------------------------------------------------------------------- */
 static void
 safe_strcpy(char* target, const char* source)
 {
@@ -27,6 +32,41 @@ safe_strcpy(char* target, const char* source)
         strcpy(target, source);
 }
 
+/* ------------------------------------------------------------------------- */
+static int
+safe_wcslen(const wchar_t* wcs)
+{
+    if(wcs)
+        return wcslen(wcs);
+    return 0;
+}
+
+/* ------------------------------------------------------------------------- */
+static void
+safe_wcscat(wchar_t* target, const wchar_t* source)
+{
+    if(source)
+        wcscat(target, source);
+}
+
+/* ------------------------------------------------------------------------- */
+static void
+safe_wcscpy(wchar_t* target, const wchar_t* source)
+{
+    if(source)
+        wcscpy(target, source);
+}
+
+/* ----------------------------------------------------------------------------
+ * Exported functions
+ * ------------------------------------------------------------------------- */
+void
+free_string(void* ptr)
+{
+    FREE(ptr);
+}
+
+/* ------------------------------------------------------------------------- */
 void
 stdout_strings(uint32_t num_strs, ...)
 {
@@ -54,6 +94,7 @@ stdout_strings(uint32_t num_strs, ...)
     FREE(buffer);
 }
 
+/* ------------------------------------------------------------------------- */
 void
 stderr_strings(uint32_t num_strs, ...)
 {
@@ -81,6 +122,7 @@ stderr_strings(uint32_t num_strs, ...)
     FREE(buffer);
 }
 
+/* ------------------------------------------------------------------------- */
 char*
 cat_strings(uint32_t num_strs, ...)
 {
@@ -107,6 +149,7 @@ cat_strings(uint32_t num_strs, ...)
     return buffer;
 }
 
+/* ------------------------------------------------------------------------- */
 char*
 malloc_string(const char* str)
 {
@@ -115,6 +158,43 @@ malloc_string(const char* str)
     return buffer;
 }
 
+/* ------------------------------------------------------------------------- */
+wchar_t*
+cat_wstrings(uint32_t num_strs, ...)
+{
+    uint32_t total_length = 0;
+    uint32_t i;
+    wchar_t* buffer;
+    
+    /* compute total lenght of all strings combined and allocate a buffer able
+     * to contain all strings plus a null terminator */
+    va_list ap;
+    va_start(ap, num_strs);
+    for(i = 0; i != num_strs; ++i)
+        total_length += safe_wcslen(va_arg(ap, wchar_t*));
+    buffer = (wchar_t*)MALLOC((total_length+1) * sizeof(wchar_t));
+    va_end(ap);
+    
+    /* concatenate all strings into the allocated buffer */
+    va_start(ap, num_strs);
+    safe_wcscpy(buffer, va_arg(ap, wchar_t*));
+    for(i = 1; i < num_strs; ++i)
+        safe_wcscat(buffer, va_arg(ap, wchar_t*));
+    va_end(ap);
+    
+    return buffer;
+}
+
+/* ------------------------------------------------------------------------- */
+wchar_t*
+malloc_wstring(const wchar_t* wcs)
+{
+    wchar_t* buffer = (wchar_t*)MALLOC((wcslen(wcs)+1) * sizeof(wchar_t));
+    wcscpy(buffer, wcs);
+    return buffer;
+}
+
+/* ------------------------------------------------------------------------- */
 char
 is_number(const char chr)
 {
@@ -125,6 +205,7 @@ is_number(const char chr)
     return 0;
 }
 
+/* ------------------------------------------------------------------------- */
 wchar_t*
 strtowcs(const char* str)
 {
@@ -138,6 +219,7 @@ strtowcs(const char* str)
     return wcs;
 }
 
+/* ------------------------------------------------------------------------- */
 char*
 wcstostr(wchar_t* wcs)
 {

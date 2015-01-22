@@ -7,6 +7,7 @@
 
 struct list_t g_services;
 
+/* ------------------------------------------------------------------------- */
 void
 services_init(void)
 {
@@ -19,6 +20,7 @@ services_init(void)
     
 }
 
+/* ------------------------------------------------------------------------- */
 void
 services_deinit(void)
 {
@@ -29,6 +31,7 @@ services_deinit(void)
     }
 }
 
+/* ------------------------------------------------------------------------- */
 char
 service_register(const struct plugin_t* plugin,
                  const char* name,
@@ -49,6 +52,7 @@ service_register(const struct plugin_t* plugin,
     return 1;
 }
 
+/* ------------------------------------------------------------------------- */
 void
 service_malloc_and_register(char* full_name, const intptr_t exec)
 {
@@ -59,6 +63,7 @@ service_malloc_and_register(char* full_name, const intptr_t exec)
     list_push(&g_services, service);
 }
 
+/* ------------------------------------------------------------------------- */
 void
 service_free(struct service_t* service)
 {
@@ -66,6 +71,7 @@ service_free(struct service_t* service)
     FREE(service);
 }
 
+/* ------------------------------------------------------------------------- */
 char
 service_unregister(const struct plugin_t* plugin,
                    const char* name)
@@ -92,6 +98,7 @@ service_unregister(const struct plugin_t* plugin,
     return success;
 }
 
+/* ------------------------------------------------------------------------- */
 void
 service_unregister_all(const struct plugin_t* plugin)
 {
@@ -110,6 +117,7 @@ service_unregister_all(const struct plugin_t* plugin)
     FREE(name);
 }
 
+/* ------------------------------------------------------------------------- */
 intptr_t
 service_get(const char* name)
 {
