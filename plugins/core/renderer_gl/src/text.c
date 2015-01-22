@@ -65,11 +65,8 @@ static struct text_string_instance_t*
 text_create_string_instance(struct font_t* font, char centered, GLfloat x, GLfloat y, const wchar_t* str)
 {
     struct text_string_instance_t* instance;
-    wchar_t* str_buffer;
-    str_buffer = (wchar_t*)MALLOC((wcslen(str) + 1) * sizeof(wchar_t));
-    wcscpy(str_buffer, str);
     instance = (struct text_string_instance_t*)MALLOC(sizeof(struct text_string_instance_t));
-    instance->text = str_buffer;
+    instance->text = malloc_wstring(str);
     instance->x = x;
     instance->y = y;
     instance->is_centered = centered;
@@ -84,7 +81,7 @@ text_create_string_instance(struct font_t* font, char centered, GLfloat x, GLflo
 static void
 text_destroy_string_instance(struct text_string_instance_t* instance)
 {
-    FREE(instance->text);
+    free_string(instance->text);
     FREE(instance);
 }
 

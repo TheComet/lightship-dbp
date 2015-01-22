@@ -3,6 +3,7 @@
 
 const intptr_t MAP_INVALID_KEY = -1;
 
+/* ------------------------------------------------------------------------- */
 struct map_t*
 map_create(void)
 {
@@ -11,12 +12,14 @@ map_create(void)
     return map;
 }
 
+/* ------------------------------------------------------------------------- */
 void
 map_init_map(struct map_t* map)
 {
     ordered_vector_init_vector(&map->vector, sizeof(struct map_key_value_t));
 }
 
+/* ------------------------------------------------------------------------- */
 void
 map_destroy(struct map_t* map)
 {
@@ -24,6 +27,7 @@ map_destroy(struct map_t* map)
     FREE(map);
 }
 
+/* ------------------------------------------------------------------------- */
 struct map_key_value_t*
 map_find_lower_bound(struct map_t* map, intptr_t hash)
 {
@@ -59,6 +63,7 @@ map_find_lower_bound(struct map_t* map, intptr_t hash)
         return data;
 }
 
+/* ------------------------------------------------------------------------- */
 void*
 map_find(struct map_t* map, intptr_t hash)
 {
@@ -68,6 +73,7 @@ map_find(struct map_t* map, intptr_t hash)
     return data->value;
 }
 
+/* ------------------------------------------------------------------------- */
 intptr_t
 map_find_element(struct map_t* map, void* value)
 {
@@ -79,6 +85,7 @@ map_find_element(struct map_t* map, void* value)
     return MAP_INVALID_KEY;
 }
 
+/* ------------------------------------------------------------------------- */
 char
 map_key_exists(struct map_t* map, intptr_t hash)
 {
@@ -88,6 +95,7 @@ map_key_exists(struct map_t* map, intptr_t hash)
     return 0;
 }
 
+/* ------------------------------------------------------------------------- */
 intptr_t
 map_find_unused_key(struct map_t* map)
 {
@@ -102,6 +110,7 @@ map_find_unused_key(struct map_t* map)
     return i;
 }
 
+/* ------------------------------------------------------------------------- */
 void
 map_insert(struct map_t* map, intptr_t hash, void* value)
 {
@@ -129,6 +138,7 @@ map_insert(struct map_t* map, intptr_t hash, void* value)
     emplaced_data->value = value;
 }
 
+/* ------------------------------------------------------------------------- */
 void
 map_set(struct map_t* map, intptr_t hash, void* value)
 {
@@ -137,6 +147,7 @@ map_set(struct map_t* map, intptr_t hash, void* value)
         data->value = value;
 }
 
+/* ------------------------------------------------------------------------- */
 void*
 map_erase(struct map_t* map, intptr_t hash)
 {
@@ -150,6 +161,7 @@ map_erase(struct map_t* map, intptr_t hash)
     return value;
 }
 
+/* ------------------------------------------------------------------------- */
 void
 map_erase_element(struct map_t* map, void* value)
 {
@@ -162,23 +174,27 @@ map_erase_element(struct map_t* map, void* value)
     ordered_vector_erase_element(&map->vector, (DATA_POINTER_TYPE*)data);
 }
 
+/* ------------------------------------------------------------------------- */
 void
 map_clear(struct map_t* map)
 {
     ordered_vector_clear(&map->vector);
 }
 
+/* ------------------------------------------------------------------------- */
 void map_clear_free(struct map_t* map)
 {
     ordered_vector_clear_free(&map->vector);
 }
 
+/* ------------------------------------------------------------------------- */
 intptr_t
 map_count(struct map_t* map)
 {
     return map->vector.count;
 }
 
+/* ------------------------------------------------------------------------- */
 #ifdef _DEBUG
 #include <stdio.h>
 void

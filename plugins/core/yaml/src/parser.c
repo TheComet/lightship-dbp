@@ -65,7 +65,7 @@ yaml_load_into_ptree(struct ptree_t* tree, struct ptree_t* root_tree, yaml_parse
                     struct ptree_t* child = ptree_add_node(tree, key, NULL);
                     ptree_set_dup_func(child, (ptree_dup_func)malloc_string);
                     result = yaml_load_into_ptree(child, root_tree, parser);
-                    util_free(key);
+                    free_string(key);
                     key = NULL;
                     if(!result)
                     {
@@ -88,7 +88,7 @@ yaml_load_into_ptree(struct ptree_t* tree, struct ptree_t* root_tree, yaml_parse
                     const struct ptree_t* source = ptree_find_by_key(root_tree, (char*)event.data.alias.anchor);
                     if(source)
                         ptree_duplicate_tree(tree, source, key);
-                    util_free(key);
+                    free_string(key);
                     key = NULL;
                 }
                 break;
@@ -99,7 +99,7 @@ yaml_load_into_ptree(struct ptree_t* tree, struct ptree_t* root_tree, yaml_parse
                 {
                     struct ptree_t* child = ptree_add_node(tree, key, malloc_string((char*)event.data.scalar.value));
                     ptree_set_dup_func(child, (ptree_dup_func)malloc_string);
-                    util_free(key);
+                    free_string(key);
                     key = NULL;
                 }
                 else
@@ -125,7 +125,7 @@ yaml_load_into_ptree(struct ptree_t* tree, struct ptree_t* root_tree, yaml_parse
     /* clean up */
     yaml_event_delete(&event);
     if(key)
-        util_free(key);
+        free_string(key);
     
     if(finished == FINISH_ERROR)
         return 0;

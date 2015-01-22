@@ -113,7 +113,7 @@ LIGHTSHIP_PUBLIC_API const struct ptree_t*
 ptree_find_by_key(const struct ptree_t* node, const char* key);
 
 LIGHTSHIP_PUBLIC_API void
-ptree_print(struct ptree_t* tree);
+ptree_print(const struct ptree_t* tree);
 
 #define PTREE_FOR_EACH(tree, var) \
     UNORDERED_VECTOR_FOR_EACH(&(tree)->children, struct ptree_t, var)

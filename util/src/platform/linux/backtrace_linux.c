@@ -1,6 +1,7 @@
 #include "util/backtrace.h"
 #include <execinfo.h>
 
+/* ------------------------------------------------------------------------- */
 char**
 get_backtrace(intptr_t* size )
 {

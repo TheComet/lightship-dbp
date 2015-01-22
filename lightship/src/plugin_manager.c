@@ -184,7 +184,7 @@ plugin_load(const struct plugin_info_t* plugin_info,
             version_str
         );
         
-        util_free(filename);
+        free_string(filename);
         return plugin;
     }
 
@@ -193,7 +193,7 @@ plugin_load(const struct plugin_info_t* plugin_info,
      * loading the plugin. Clean up...
      */
     if(filename)
-        util_free(filename);
+        free_string(filename);
     if(handle)
         module_close(handle);
     if(plugin)
@@ -421,7 +421,7 @@ find_plugin(const struct plugin_info_t* info,
                  * get_directory_listing() allocates the strings it pushes into
                  * the linked list, and it is up to us to free them.
                  */
-                util_free(name);
+                free_string(name);
             }
         }
     }

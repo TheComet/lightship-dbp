@@ -76,8 +76,8 @@ GLuint load_shader(const char* name)
     fragment_shader = cat_strings(2, name, ".fsh");
     result = load_shader_pair(vertex_shader, fragment_shader);
     
-    util_free(vertex_shader);
-    util_free(fragment_shader);
+    free_string(vertex_shader);
+    free_string(fragment_shader);
     return result;
 }
 

@@ -4,12 +4,6 @@
 #include "util/plugin.h"
 #include "util/memory.h"
 
-/*!
- * @brief Frees all buffers allocated for info strings.
- */
-static void
-plugin_free_info(struct plugin_t* plugin);
-
 #define PLUGIN_free_INFO_STRING(plugin, strname) \
     if((plugin)->info.strname) \
         FREE((plugin)->info.strname); \
@@ -22,6 +16,19 @@ plugin_free_info(struct plugin_t* plugin);
         strcpy((plugin)->info.strname, str); \
     }
 
+/* ----------------------------------------------------------------------------
+ * Static functions
+ * ------------------------------------------------------------------------- */
+
+/*!
+ * @brief Frees all buffers allocated for info strings.
+ */
+static void
+plugin_free_info(struct plugin_t* plugin);
+
+/* ----------------------------------------------------------------------------
+ * Exported functions
+ * ------------------------------------------------------------------------- */
 struct plugin_t*
 plugin_create(void)
 {
@@ -30,6 +37,7 @@ plugin_create(void)
     return plugin;
 }
 
+/* ------------------------------------------------------------------------- */
 void
 plugin_init_plugin(struct plugin_t* plugin)
 {
@@ -37,6 +45,7 @@ plugin_init_plugin(struct plugin_t* plugin)
     plugin->info.language = PLUGIN_PROGRAMMING_LANGUAGE_UNSET;
 }
 
+/* ------------------------------------------------------------------------- */
 void
 plugin_destroy(struct plugin_t* plugin)
 {
@@ -44,6 +53,7 @@ plugin_destroy(struct plugin_t* plugin)
     FREE(plugin);
 }
 
+/* ------------------------------------------------------------------------- */
 void
 plugin_set_info(struct plugin_t* plugin,
                 const char* name,
@@ -61,16 +71,7 @@ plugin_set_info(struct plugin_t* plugin,
     PLUGIN_ADD_INFO_STRING(plugin, website, website)
 }
 
-static void
-plugin_free_info(struct plugin_t* plugin)
-{
-    PLUGIN_free_INFO_STRING(plugin, name)
-    PLUGIN_free_INFO_STRING(plugin, category);
-    PLUGIN_free_INFO_STRING(plugin, author)
-    PLUGIN_free_INFO_STRING(plugin, description)
-    PLUGIN_free_INFO_STRING(plugin, website)
-}
-
+/* ------------------------------------------------------------------------- */
 void
 plugin_set_programming_language(struct plugin_t* plugin,
                                 plugin_programming_language_t language)
@@ -78,6 +79,7 @@ plugin_set_programming_language(struct plugin_t* plugin,
     plugin->info.language = language;
 }
 
+/* ------------------------------------------------------------------------- */
 void
 plugin_set_version(struct plugin_t* plugin,
                    uint32_t major,
@@ -89,12 +91,7 @@ plugin_set_version(struct plugin_t* plugin,
     plugin->info.version.patch = patch;
 }
 
-void
-plugin_add_dependency(struct plugin_info_t* plugin)
-{
-    /* TODO plugin dependencies */
-}
-    
+/* ------------------------------------------------------------------------- */
 char
 plugin_extract_version_from_string(const char* file,
                                    uint32_t* major,
@@ -139,6 +136,7 @@ plugin_extract_version_from_string(const char* file,
     return 1;
 }
 
+/* ------------------------------------------------------------------------- */
 void
 plugin_get_version_string(char* str, const struct plugin_info_t* info)
 {
@@ -146,4 +144,17 @@ plugin_get_version_string(char* str, const struct plugin_info_t* info)
         info->version.major,
         info->version.minor,
         info->version.patch);
+}
+
+/* ----------------------------------------------------------------------------
+ * Static functions
+ * ------------------------------------------------------------------------- */
+static void
+plugin_free_info(struct plugin_t* plugin)
+{
+    PLUGIN_free_INFO_STRING(plugin, name)
+    PLUGIN_free_INFO_STRING(plugin, category);
+    PLUGIN_free_INFO_STRING(plugin, author)
+    PLUGIN_free_INFO_STRING(plugin, description)
+    PLUGIN_free_INFO_STRING(plugin, website)
 }

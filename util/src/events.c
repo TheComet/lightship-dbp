@@ -7,9 +7,17 @@
 #include <stdlib.h>
 
 static struct list_t g_events;
+
+/* ----------------------------------------------------------------------------
+ * Built-in events
+ * ------------------------------------------------------------------------- */
 EVENT_C1(evt_log, struct log_t*);
 EVENT_C1(evt_log_indent, const char*);
 EVENT_C0(evt_log_unindent);
+
+/* ----------------------------------------------------------------------------
+ * Static functions
+ * ------------------------------------------------------------------------- */
 
 /*!
  * @brief Unregisters any listeners that belong to the specified name_space from
@@ -60,6 +68,9 @@ event_listener_free(struct event_listener_t* listener);
 static struct event_t*
 event_malloc_and_register(char* full_name);
 
+/* ----------------------------------------------------------------------------
+ * Exported functions
+ * ------------------------------------------------------------------------- */
 void
 events_init(void)
 {
@@ -80,6 +91,7 @@ events_init(void)
     evt_log_unindent = event_malloc_and_register(name);
 }
 
+/* ------------------------------------------------------------------------- */
 void
 events_deinit(void)
 {
@@ -90,6 +102,7 @@ events_deinit(void)
     }
 }
 
+/* ------------------------------------------------------------------------- */
 struct event_t*
 event_create(const struct plugin_t* plugin, const char* name)
 {
@@ -105,17 +118,7 @@ event_create(const struct plugin_t* plugin, const char* name)
     return event_malloc_and_register(full_name);
 }
 
-static struct event_t*
-event_malloc_and_register(char* full_name)
-{
-    /* create new event and register to global list of events */
-    struct event_t* event = (struct event_t*)MALLOC(sizeof(struct event_t));
-    event->name = full_name;
-    unordered_vector_init_vector(&event->listeners, sizeof(struct event_listener_t));
-    list_push(&g_events, event);
-    return event;
-}
-
+/* ------------------------------------------------------------------------- */
 char
 event_destroy(struct event_t* event_delete)
 {
@@ -131,11 +134,11 @@ event_destroy(struct event_t* event_delete)
     return 0;
 }
 
+/* ------------------------------------------------------------------------- */
 void
 event_destroy_plugin_event(const struct plugin_t* plugin, const char* name)
 {
     char* full_name = event_get_full_name(plugin, name);
-
     {
         LIST_FOR_EACH(&g_events, struct event_t, event)
         {
@@ -150,6 +153,7 @@ event_destroy_plugin_event(const struct plugin_t* plugin, const char* name)
     FREE(full_name);
 }
 
+/* ------------------------------------------------------------------------- */
 void
 event_destroy_all_plugin_events(const struct plugin_t* plugin)
 {
@@ -166,6 +170,7 @@ event_destroy_all_plugin_events(const struct plugin_t* plugin)
     FREE(name_space);
 }
 
+/* ------------------------------------------------------------------------- */
 struct event_t*
 event_get(const char* full_name)
 {
@@ -177,6 +182,7 @@ event_get(const char* full_name)
     return NULL;
 }
 
+/* ------------------------------------------------------------------------- */
 char
 event_register_listener(const struct plugin_t* plugin,
                         const char* event_full_name,
@@ -216,6 +222,7 @@ event_register_listener(const struct plugin_t* plugin,
     return 1;
 }
 
+/* ------------------------------------------------------------------------- */
 char
 event_unregister_listener(const char* plugin_name, const char* event_name)
 {
@@ -238,6 +245,7 @@ event_unregister_listener(const char* plugin_name, const char* event_name)
     return 0;
 }
 
+/* ------------------------------------------------------------------------- */
 void
 event_unregister_all_listeners(struct event_t* event)
 {
@@ -248,6 +256,7 @@ event_unregister_all_listeners(struct event_t* event)
     unordered_vector_clear_free(&event->listeners);
 }
 
+/* ------------------------------------------------------------------------- */
 void
 event_unregister_all_listeners_of_plugin(const struct plugin_t* plugin)
 {
@@ -265,6 +274,21 @@ event_unregister_all_listeners_of_plugin(const struct plugin_t* plugin)
     FREE(name_space);
 }
 
+/* ----------------------------------------------------------------------------
+ * Static functions
+ * ------------------------------------------------------------------------- */
+static struct event_t*
+event_malloc_and_register(char* full_name)
+{
+    /* create new event and register to global list of events */
+    struct event_t* event = (struct event_t*)MALLOC(sizeof(struct event_t));
+    event->name = full_name;
+    unordered_vector_init_vector(&event->listeners, sizeof(struct event_listener_t));
+    list_push(&g_events, event);
+    return event;
+}
+
+/* ------------------------------------------------------------------------- */
 static void
 event_unregister_all_listeners_of_name_space(struct event_t* event,
                                             const char* name_space)
@@ -282,18 +306,21 @@ event_unregister_all_listeners_of_name_space(struct event_t* event,
     }
 }
 
+/* ------------------------------------------------------------------------- */
 static char*
 event_get_full_name(const struct plugin_t* plugin, const char* name)
 {
     return cat_strings(3, plugin->info.name, ".", name);
 }
 
+/* ------------------------------------------------------------------------- */
 static char*
 event_get_name_space_name(const struct plugin_t* plugin)
 {
     return cat_strings(2, plugin->info.name, ".");
 }
 
+/* ------------------------------------------------------------------------- */
 static void
 event_free(struct event_t* event)
 {
@@ -303,6 +330,7 @@ event_free(struct event_t* event)
     FREE(event);
 }
 
+/* ------------------------------------------------------------------------- */
 static void
 event_listener_free(struct event_listener_t* listener)
 {

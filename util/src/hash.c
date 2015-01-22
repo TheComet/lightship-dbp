@@ -1,5 +1,6 @@
 #include "util/hash.h"
 
+/* ------------------------------------------------------------------------- */
 uint32_t
 hash_jenkins_oaat(const char* key, uint32_t len)
 {

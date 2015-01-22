@@ -19,7 +19,7 @@ int printOglError(char *file, int line)
     {
         char line_str[16];
         sprintf(line_str, "%d", line);
-        llog(LOG_ERROR, 6, "glError in file ", file, " @ line ",
+        llog(LOG_ERROR, 7, "[renderer_gl] ", "glError in file ", file, " @ line ",
              line_str, ": ", gluErrorString(glErr));
         retCode = 1;
     }

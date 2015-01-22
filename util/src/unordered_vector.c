@@ -3,6 +3,10 @@
 #include "util/unordered_vector.h"
 #include "util/memory.h"
 
+/* ----------------------------------------------------------------------------
+ * Static functions
+ * ------------------------------------------------------------------------- */
+
 /*!
  * @brief Expands the underlying memory.
  * 
@@ -16,6 +20,9 @@ static void
 unordered_vector_expand(struct unordered_vector_t* vector, 
                         intptr_t insertion_index);
 
+/* ----------------------------------------------------------------------------
+ * Exported functions
+ * ------------------------------------------------------------------------- */
 struct unordered_vector_t*
 unordered_vector_create(const intptr_t element_size)
 {
@@ -24,6 +31,7 @@ unordered_vector_create(const intptr_t element_size)
     return vector;
 }
 
+/* ------------------------------------------------------------------------- */
 void
 unordered_vector_init_vector(struct unordered_vector_t* vector, const intptr_t element_size)
 {
@@ -31,6 +39,7 @@ unordered_vector_init_vector(struct unordered_vector_t* vector, const intptr_t e
     vector->element_size = element_size;
 }
 
+/* ------------------------------------------------------------------------- */
 void
 unordered_vector_destroy(struct unordered_vector_t* vector)
 {
@@ -38,6 +47,7 @@ unordered_vector_destroy(struct unordered_vector_t* vector)
     FREE(vector);
 }
 
+/* ------------------------------------------------------------------------- */
 void
 unordered_vector_clear(struct unordered_vector_t* vector)
 {
@@ -48,6 +58,7 @@ unordered_vector_clear(struct unordered_vector_t* vector)
     vector->count = 0;
 }
 
+/* ------------------------------------------------------------------------- */
 void
 unordered_vector_clear_free(struct unordered_vector_t* vector)
 {
@@ -58,6 +69,7 @@ unordered_vector_clear_free(struct unordered_vector_t* vector)
     vector->capacity = 0;
 }
 
+/* ------------------------------------------------------------------------- */
 void*
 unordered_vector_push_emplace(struct unordered_vector_t* vector)
 {
@@ -69,12 +81,14 @@ unordered_vector_push_emplace(struct unordered_vector_t* vector)
     return data;
 }
 
+/* ------------------------------------------------------------------------- */
 void
 unordered_vector_push(struct unordered_vector_t* vector, void* data)
 {
     memcpy(unordered_vector_push_emplace(vector), data, vector->element_size);
 }
 
+/* ------------------------------------------------------------------------- */
 void*
 unordered_vector_pop(struct unordered_vector_t* vector)
 {
@@ -85,6 +99,7 @@ unordered_vector_pop(struct unordered_vector_t* vector)
     return (void*)((intptr_t)vector->data + (vector->element_size * vector->count));
 }
 
+/* ------------------------------------------------------------------------- */
 void
 unordered_vector_erase_index(struct unordered_vector_t* vector, intptr_t index)
 {
@@ -103,6 +118,7 @@ unordered_vector_erase_index(struct unordered_vector_t* vector, intptr_t index)
     --(vector->count);
 }
 
+/* ------------------------------------------------------------------------- */
 void
 unordered_vector_erase_element(struct unordered_vector_t* vector, void* element)
 {
@@ -116,6 +132,7 @@ unordered_vector_erase_element(struct unordered_vector_t* vector, void* element)
     --vector->count;
 }
 
+/* ------------------------------------------------------------------------- */
 void*
 unordered_vector_get_element(struct unordered_vector_t* vector, intptr_t index)
 {
@@ -124,6 +141,9 @@ unordered_vector_get_element(struct unordered_vector_t* vector, intptr_t index)
     return vector->data + (vector->element_size * index);
 }
 
+/* ----------------------------------------------------------------------------
+ * Static functions
+ * ------------------------------------------------------------------------- */
 static void
 unordered_vector_expand(struct unordered_vector_t* vector,
                         intptr_t insertion_index)

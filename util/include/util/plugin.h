@@ -69,10 +69,6 @@ plugin_set_version(struct plugin_t* plugin,
                    uint32_t minior,
                    uint32_t patch);
 
-/* TODO plugin dependencies */
-LIGHTSHIP_PUBLIC_API void
-plugin_add_dependency(struct plugin_info_t* plugin);
-
 /*!
  * @brief Extracts the three version digits from a string.
  * @param[in] file The file name to extract them from.
