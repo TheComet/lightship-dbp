@@ -4,8 +4,10 @@
 #include "plugin_menu/services.h" /* plugin services */
 #include "plugin_menu/events.h"   /* plugin events */
 #include "plugin_menu/button.h"
+#include "plugin_menu/screen_manager.h"
 
 static struct plugin_t* g_plugin = NULL;
+static struct menu_t* g_menu = NULL;
 
 void
 create_and_init_plugin(void)
@@ -47,6 +49,12 @@ PLUGIN_START()
     register_event_listeners(g_plugin);
 
     button_init();
+    
+#ifdef _DEBUG
+    g_menu = menu_load("../../plugins/core/menu/cfg/menu.yml");
+#else
+    g_menu = menu_load("cfg/menu.yml");
+#endif
 
     return PLUGIN_SUCCESS;
 }
@@ -54,6 +62,7 @@ PLUGIN_START()
 PLUGIN_STOP()
 {
     /* de-init */
+    menu_destroy(g_menu);
     button_deinit();
 }
 

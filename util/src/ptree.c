@@ -17,7 +17,7 @@ ptree_destroy_recurse(struct ptree_t* tree, char free_value);
 static char
 ptree_duplicate_tree_recurse(struct ptree_t* target, const struct ptree_t* source);
 
-static const struct ptree_t*
+static struct ptree_t*
 ptree_find_by_key_recurse(const struct ptree_t* tree,
                           const char* delim);
 
@@ -117,18 +117,17 @@ ptree_find_local_by_key(const struct ptree_t* tree, const char* key)
 }
 
 /* ------------------------------------------------------------------------- */
-const struct ptree_t*
+struct ptree_t*
 ptree_find_by_key(const struct ptree_t* tree, const char* key)
 {
     /* prepare key for tokenisation */
+    struct ptree_t* result;
     const char* delim = ".";
     char* key_iter = cat_strings(2, "n.", key); /* root key name is ignored, but must exist */
     strtok(key_iter, delim);
-    {
-        const struct ptree_t* result = ptree_find_by_key_recurse(tree, delim);
-        FREE(key_iter);
-        return result;
-    }
+    result = ptree_find_by_key_recurse(tree, delim);
+    FREE(key_iter);
+    return result;
 }
 
 /* ------------------------------------------------------------------------- */
@@ -196,7 +195,7 @@ ptree_duplicate_tree_recurse(struct ptree_t* target, const struct ptree_t* sourc
 }
 
 /* ------------------------------------------------------------------------- */
-static const struct ptree_t*
+static struct ptree_t*
 ptree_find_by_key_recurse(const struct ptree_t* tree,
                           const char* delim)
 {
@@ -213,7 +212,8 @@ ptree_find_by_key_recurse(const struct ptree_t* tree,
             return NULL;
         }
     } else
-        return tree;
+        return *(struct ptree_t**)&tree; /* to get around warning for const qualifiers */
+                                         /* same as "return tree;" */
 }
 
 /* ------------------------------------------------------------------------- */
