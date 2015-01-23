@@ -68,23 +68,27 @@ menu_load(const char* file_name)
                 struct button_t* button;
 
                 /* retrieve button parameters required to create a button */
-                char* text_str = NULL;
-                const struct ptree_t* text   = ptree_find_by_key(object_node, "text");
-                const struct ptree_t* x      = ptree_find_by_key(object_node, "position.x");
-                const struct ptree_t* y      = ptree_find_by_key(object_node, "position.y");
-                const struct ptree_t* width  = ptree_find_by_key(object_node, "size.x");
-                const struct ptree_t* height = ptree_find_by_key(object_node, "size.y");
-                if(!x || !y || !width || !height)
+                char* text = NULL;
+                char* action = NULL;
+                const struct ptree_t* text_node   = ptree_find_by_key(object_node, "text");
+                const struct ptree_t* action_node = ptree_find_by_key(object_node, "action");
+                const struct ptree_t* x_node      = ptree_find_by_key(object_node, "position.x");
+                const struct ptree_t* y_node      = ptree_find_by_key(object_node, "position.y");
+                const struct ptree_t* width_node  = ptree_find_by_key(object_node, "size.x");
+                const struct ptree_t* height_node = ptree_find_by_key(object_node, "size.y");
+                if(!x_node || !y_node || !width_node || !height_node)
                     continue;
-                if(text)
-                    text_str = (char*)text->value;
+                if(text_node)
+                    text = (char*)text_node->value;
+                if(action_node)
+                    action = (char*)action_node->value;
                 
                 /* add button to current screen */
-                button = button_create(text_str,
-                                    atof(x->value),
-                                    atof(y->value),
-                                    atof(width->value),
-                                    atof(height->value));
+                button = button_create(text,  /* text is allowed to be NULL */
+                                    atof(x_node->value),
+                                    atof(y_node->value),
+                                    atof(width_node->value),
+                                    atof(height_node->value));
                 screen_add_button(screen, button);
             }
         }}

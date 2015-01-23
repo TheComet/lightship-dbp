@@ -217,6 +217,24 @@ ordered_vector_get_element(struct ordered_vector_t*, intptr_t index);
         (DATA_POINTER_TYPE*)var != end_of_vector; \
         var = (var_type*)(((DATA_POINTER_TYPE*)var) + (vector)->element_size))
 
+/*!
+ * @brief Convenient macro for erasing an element while iterating a vector.
+ * @warning Only call this while iterating.
+ * Example:
+@code
+ORDERED_VECTOR_FOR_EACH(some_vector, struct bar, element)
+{
+    ORDERED_VECTOR_ERASE_IN_FOR_LOOP(some_vector, struct bar, element);
+}
+@endcode
+ * @param[in] vector The vector to erase from.
+ * @param[in] var_type Should be the type of data stored in the vector.
+ * @param[in] element The element to erase.
+ */
+#define ORDERED_VECTOR_ERASE_IN_FOR_LOOP(vector, element_type, element) \
+    ordered_vector_erase_element(vector, element); \
+    element = (element_type*)(((DATA_POINTER_TYPE*)element) - (vector)->element_size); \
+    end_of_vector = (vector)->data + (vector)->count * (vector)->element_size;
 C_HEADER_END
 
 #endif /* LIGHTSHIP_UTIL_ORDERED_VECTOR_H */
