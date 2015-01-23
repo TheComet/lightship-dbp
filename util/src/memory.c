@@ -111,9 +111,6 @@ free_debug(void* ptr)
 void
 memory_deinit(void)
 {
-#ifdef MEMORY_ENABLE_BACKTRACE
-    intptr_t i;
-#endif
     --allocations; /* this is the single allocation still held by the report vector */
     printf("=========================================\n");
     printf("Memory Report\n");
@@ -123,25 +120,35 @@ memory_deinit(void)
         {
             MAP_FOR_EACH(&report, struct report_info_t, key, info)
             {
-                char *dump;
-                intptr_t dump_i;
                 printf("  un-freed memory at %p, size %p\n", (void*)info->location, (void*)info->size);
                 
                 /* print a string and hex dump of the unfreed data */
-                dump = malloc(info->size + 1);
-                memcpy(dump, (void*)info->location, info->size);
-                dump[info->size] = '\0';
-                printf("  string dump: %s\n", dump);
-                printf("  hex dump:");
-                for(dump_i = 0; dump_i != info->size; ++dump_i)
-                    printf(" %02x", (unsigned char)dump[dump_i]);
-                printf("\n");
-                free(dump);
+                {
+                    char *dump;
+                    intptr_t i;
+                    /* allocate and copy data into new buffer */
+                    dump = malloc(info->size + 1);
+                    memcpy(dump, (void*)info->location, info->size);
+                    dump[info->size] = '\0';
+                    /* mutate null terminators */
+                    for(i = 0; i != info->size; ++i)
+                        if(dump[i] == '\0')
+                            dump[i] = '.';
+                    printf("  mutated string dump: %s\n", dump);
+                    printf("  hex dump:");
+                    for(i = 0; i != info->size; ++i)
+                        printf(" %02x", (unsigned char)dump[i]);
+                    printf("\n");
+                    free(dump);
+                }
 
 #ifdef MEMORY_ENABLE_BACKTRACE
                 printf("  Backtrace to where malloc() was called:\n");
-                for(i = BACKTRACE_OMIT_COUNT; i < info->backtrace_size; ++i)
-                    printf("      %s\n", info->backtrace[i]);
+                {
+                    intptr_t i;
+                    for(i = BACKTRACE_OMIT_COUNT; i < info->backtrace_size; ++i)
+                        printf("      %s\n", info->backtrace[i]);
+                }
                 free(info->backtrace);
                 printf("  -----------------------------------------\n");
 #endif
