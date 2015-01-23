@@ -3,7 +3,6 @@
 
 #include "util/pstdint.h"
 #include "util/config.h"
-#include "util/linked_list.h"
 
 C_HEADER_BEGIN
 
@@ -14,8 +13,6 @@ struct service_t
     char* name;
     intptr_t exec;
 };
-
-extern struct list_t g_services;
 
 /*!
  * @brief Initialises the service system. This must be called before calling any

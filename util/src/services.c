@@ -2,16 +2,18 @@
 #include "util/memory.h"
 #include "util/plugin.h"
 #include "util/string.h"
+#include "util/map.h"
+#include "util/hash.h"
 #include <stdlib.h>
 #include <string.h>
 
-struct list_t g_services;
+struct map_t g_services;
 
 /* ------------------------------------------------------------------------- */
 void
 services_init(void)
 {
-    list_init_list(&g_services);
+    map_init_map(&g_services);
     
     /* ----------------------------
      * Register built-in services 
@@ -24,11 +26,11 @@ services_init(void)
 void
 services_deinit(void)
 {
-    LIST_FOR_EACH_ERASE(&g_services, struct service_t, service)
+    MAP_FOR_EACH(&g_services, struct service_t, key, service)
     {
         service_free(service);
-        list_erase_node(&g_services, node);
     }
+    map_clear_free(&g_services);
 }
 
 /* ------------------------------------------------------------------------- */
@@ -43,7 +45,7 @@ service_register(const struct plugin_t* plugin,
     full_name = cat_strings(3, plugin->info.name, ".", name);
     if(service_get(full_name))
     {
-        FREE(full_name);
+        free_string(full_name);
         return 0;
     }
 
@@ -60,14 +62,14 @@ service_malloc_and_register(char* full_name, const intptr_t exec)
     struct service_t* service = (struct service_t*)MALLOC(sizeof(struct service_t));
     service->name = full_name;
     service->exec = exec;
-    list_push(&g_services, service);
+    map_insert(&g_services, hash_jenkins_oaat(full_name, strlen(full_name)), service);
 }
 
 /* ------------------------------------------------------------------------- */
 void
 service_free(struct service_t* service)
 {
-    FREE(service->name);
+    free_string(service->name);
     FREE(service);
 }
 
@@ -77,25 +79,17 @@ service_unregister(const struct plugin_t* plugin,
                    const char* name)
 {
     char* full_name;
-    char success = 0;
-    
-    /* remove service from list */
-    full_name = cat_strings(3, plugin->info.name, ".", name);
-    {
-        LIST_FOR_EACH(&g_services, struct service_t, service)
-        {
-            if(strcmp(service->name, full_name) == 0)
-            {
-                service_free(service);
-                list_erase_node(&g_services, node);
-                success = 1;
-                break;
-            }
-        }
-    }
-    FREE(full_name);
+    intptr_t hash;
+    struct service_t* service;
 
-    return success;
+    /* remove service from map */
+    full_name = cat_strings(3, plugin->info.name, ".", name);
+    hash = hash_jenkins_oaat(full_name, strlen(full_name));
+    free_string(full_name);
+    if(!(service = map_erase(&g_services, hash)))
+        return 0;
+    service_free(service);
+    return 1;
 }
 
 /* ------------------------------------------------------------------------- */
@@ -105,26 +99,24 @@ service_unregister_all(const struct plugin_t* plugin)
     char* name = cat_strings(2, plugin->info.name, ".");
     int len = strlen(plugin->info.name);
     {
-        LIST_FOR_EACH_ERASE(&g_services, struct service_t, service)
+        MAP_FOR_EACH(&g_services, struct service_t, key, service)
         {
             if(strncmp(service->name, name, len) == 0)
             {
                 service_free(service);
-                list_erase_node(&g_services, node);
+                MAP_ERASE_CURRENT_ITEM_IN_FOR_LOOP(&g_services);
             }
         }
     }
-    FREE(name);
+    free_string(name);
 }
 
 /* ------------------------------------------------------------------------- */
 intptr_t
 service_get(const char* name)
 {
-    LIST_FOR_EACH(&g_services, struct service_t, service)
-    {
-        if(strcmp(service->name, name) == 0)
-            return service->exec;
-    }
-    return 0;
+    struct service_t* service;
+    if(!(service = map_find(&g_services, hash_jenkins_oaat(name, strlen(name)))))
+        return 0;
+    return service->exec;
 }
