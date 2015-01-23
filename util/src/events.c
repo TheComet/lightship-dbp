@@ -37,7 +37,7 @@ static char*
 event_get_full_name(const struct plugin_t* plugin, const char* name);
 
 /*!
- * @brief Returns the name_space name of the event using a plugin object.
+ * @brief Returns the name space name of the event using a plugin object.
  * @note The returned string must be freed manually.
  */
 static char*

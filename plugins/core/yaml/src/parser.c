@@ -5,6 +5,7 @@
 #include "util/string.h"
 #include "util/hash.h"
 #include "plugin_yaml/parser.h"
+#include <stdlib.h>
 
 struct unordered_vector_t g_open_docs;
 static uint32_t GUID_counter = 1;
@@ -27,6 +28,7 @@ yaml_load_into_ptree(struct ptree_t* tree, struct ptree_t* root_tree, yaml_parse
     yaml_event_t event;
     char* key;
     char finished = 0;
+    char sequence = 0;  /* 0 means no sequence. Anything larger indicates the current sequence index */
     const char FINISH_ERROR = 1;
     const char FINISH_SUCCESS = 2;
 
@@ -46,7 +48,7 @@ yaml_load_into_ptree(struct ptree_t* tree, struct ptree_t* root_tree, yaml_parse
         switch(event.type)
         {
             case YAML_NO_EVENT:
-                llog(LOG_ERROR, 1, "Syntax error in yaml document");
+                llog(LOG_ERROR, 1, "[yaml] Syntax error in yaml document");
                 finished = FINISH_ERROR;
                 break;
 
@@ -59,6 +61,13 @@ yaml_load_into_ptree(struct ptree_t* tree, struct ptree_t* root_tree, yaml_parse
 
             /* begin of sequence of mapping */
             case YAML_SEQUENCE_START_EVENT:
+                sequence = 1;
+                if(!key)
+                {
+                    llog(LOG_ERROR, 1, "[yaml] Received sequence start without a key");
+                    finished = FINISH_ERROR;
+                    break;
+                }
             case YAML_MAPPING_START_EVENT:
                 if(key)
                 {
@@ -68,15 +77,13 @@ yaml_load_into_ptree(struct ptree_t* tree, struct ptree_t* root_tree, yaml_parse
                     free_string(key);
                     key = NULL;
                     if(!result)
-                    {
-                        llog(LOG_ERROR, 1, "Failed to copy ptree (yaml anchor failed)");
                         finished = FINISH_ERROR;
-                    }
                 }
                 break;
 
             /* end of sequence or mapping */
             case YAML_SEQUENCE_END_EVENT:
+                sequence = 0;
             case YAML_MAPPING_END_EVENT:
                 finished = FINISH_SUCCESS;
                 break;
@@ -88,6 +95,13 @@ yaml_load_into_ptree(struct ptree_t* tree, struct ptree_t* root_tree, yaml_parse
                     const struct ptree_t* source = ptree_find_by_key(root_tree, (char*)event.data.alias.anchor);
                     if(source)
                         ptree_duplicate_tree(tree, source, key);
+                    else
+                    {
+                        llog(LOG_ERROR, 1, "[yaml] Failed to copy ptree \"", event.data.alias.anchor, "\" (yaml anchor failed)");
+                        llog(LOG_ERROR, 1, "[yaml] Possible solution: References need to be defined before they are used.");
+                        finished = FINISH_ERROR;
+                        break;
+                    }
                     free_string(key);
                     key = NULL;
                 }
@@ -95,16 +109,40 @@ yaml_load_into_ptree(struct ptree_t* tree, struct ptree_t* root_tree, yaml_parse
 
             /* scalar */
             case YAML_SCALAR_EVENT:
-                if(key)
+                
+                /*
+                 * If the scalar doesn't belong to a sequence, simply toggle
+                 * back and forth between key and value, creating a new node 
+                 * each time a value is received.
+                 * If the scalar does belong to a sequence, use the current
+                 * sequence index as the key instead.
+                 */
+                if(sequence)
                 {
-                    struct ptree_t* child = ptree_add_node(tree, key, malloc_string((char*)event.data.scalar.value));
-                    ptree_set_dup_func(child, (ptree_dup_func)malloc_string);
-                    free_string(key);
-                    key = NULL;
+                    struct ptree_t* child;
+                    char index[sizeof(int)*8+1];
+                    if(key)
+                    {
+                        llog(LOG_ERROR, 1, "[yaml] Received a key during a sequence");
+                        finished = FINISH_ERROR;
+                        break;
+                    }
+                    sprintf(index, "%d", sequence - 1);
+                    child = ptree_add_node(tree, index, malloc_string((char*)event.data.scalar.value));
                 }
-                else
+                else /* scalar doesn't belong to a sequence */
                 {
-                    key = malloc_string((char*)event.data.scalar.value);
+                    if(key)
+                    {
+                        struct ptree_t* child = ptree_add_node(tree, key, malloc_string((char*)event.data.scalar.value));
+                        ptree_set_dup_func(child, (ptree_dup_func)malloc_string);
+                        free_string(key);
+                        key = NULL;
+                    }
+                    else
+                    {
+                        key = malloc_string((char*)event.data.scalar.value);
+                    }
                 }
                 break;
             

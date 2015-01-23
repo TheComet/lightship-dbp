@@ -26,6 +26,7 @@ screens:
             size: *btn_size
         button:
             text: Quit
+            action: main_loop.stop
             position:
                 x: 0.0
                 y: -0.3
