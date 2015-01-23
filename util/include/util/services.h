@@ -1,18 +1,19 @@
 #ifndef LIGHTSHIP_SERVICES_H
 #define LIGHTSHIP_SERVICES_H
 
-#include "util/pstdint.h"
-#include "util/config.h"
+#include "util/service_api.h"
 
 C_HEADER_BEGIN
 
 struct plugin_t;
 
-struct service_t
-{
-    char* name;
-    intptr_t exec;
-};
+LIGHTSHIP_PUBLIC_API char
+service_register_(const struct plugin_t* plugin,
+                  const char* name,
+                  const intptr_t exec,
+                  const char* ret_type,
+                  const int argc,
+                  const char** argv);
 
 /*!
  * @brief Initialises the service system. This must be called before calling any
@@ -21,6 +22,10 @@ struct service_t
 LIGHTSHIP_PUBLIC_API void
 services_init(void);
 
+/*!
+ * @brief De-initialises the service system. This must be called to clean up
+ * any memory allocated by the system before shutdown.
+ */
 LIGHTSHIP_PUBLIC_API void
 services_deinit(void);
 
@@ -37,6 +42,10 @@ service_register(const struct plugin_t* plugin,
                  const char* name,
                  intptr_t exec);
 
+/*!
+ * @brief Frees the specified service object's contents and object itself.
+ * @param service The service object to free
+ */
 LIGHTSHIP_PUBLIC_API void
 service_free(struct service_t* service);
 
@@ -80,6 +89,9 @@ service_unregister_all(const struct plugin_t* plugin);
  */
 LIGHTSHIP_PUBLIC_API intptr_t
 service_get(const char* name);
+
+LIGHTSHIP_PUBLIC_API intptr_t
+service_get_with_typecheck(const char* name, const char* ret_type, int argc, const char** argv);
 
 C_HEADER_END
 

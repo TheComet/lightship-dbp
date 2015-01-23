@@ -2,7 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "lightship/plugin_manager.h"
-#include "plugin_yaml/services.h"
+#include "plugin_yaml.h"
 #include "util/services.h"
 #include "util/events.h"
 #include "util/config.h"
