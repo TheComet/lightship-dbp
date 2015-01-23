@@ -162,6 +162,10 @@ map_print(struct map_t* map);
             ((var  = (var_type*)((struct map_key_value_t*)(map)->vector.data)[map_internal_i].value) || 1); \
         ++map_internal_i)
 
+#define MAP_ERASE_CURRENT_ITEM_IN_FOR_LOOP(map) \
+    ordered_vector_erase_element(&(map)->vector, &((struct map_key_value_t*)(map)->vector.data)[map_internal_i]); \
+    --map_internal_i;
+
 C_HEADER_END
 
 #endif /* LIGHTSHIP_UTIL_MAP_H */
