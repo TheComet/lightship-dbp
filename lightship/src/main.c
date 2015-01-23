@@ -137,6 +137,7 @@ deinit(void)
 {
     plugin_manager_deinit();
     events_deinit();
+    services_deinit();
 }
 
 int
