@@ -23,12 +23,12 @@ parser_deinit(void)
 }
 
 char
-yaml_load_into_ptree(struct ptree_t* tree, struct ptree_t* root_tree, yaml_parser_t* parser)
+yaml_load_into_ptree(struct ptree_t* tree, struct ptree_t* root_tree, yaml_parser_t* parser, char is_sequence)
 {
     yaml_event_t event;
     char* key;
     char finished = 0;
-    char sequence = 0;  /* 0 means no sequence. Anything larger indicates the current sequence index */
+    char sequence_index = 0;
     const char FINISH_ERROR = 1;
     const char FINISH_SUCCESS = 2;
 
@@ -61,7 +61,7 @@ yaml_load_into_ptree(struct ptree_t* tree, struct ptree_t* root_tree, yaml_parse
 
             /* begin of sequence of mapping */
             case YAML_SEQUENCE_START_EVENT:
-                sequence = 1;
+                is_sequence = 1;
                 if(!key)
                 {
                     llog(LOG_ERROR, 1, "[yaml] Received sequence start without a key");
@@ -73,7 +73,7 @@ yaml_load_into_ptree(struct ptree_t* tree, struct ptree_t* root_tree, yaml_parse
                 {
                     struct ptree_t* child = ptree_add_node(tree, key, NULL);
                     ptree_set_dup_func(child, (ptree_dup_func)malloc_string);
-                    result = yaml_load_into_ptree(child, root_tree, parser);
+                    result = yaml_load_into_ptree(child, root_tree, parser, is_sequence);
                     free_string(key);
                     key = NULL;
                     if(!result)
@@ -83,7 +83,7 @@ yaml_load_into_ptree(struct ptree_t* tree, struct ptree_t* root_tree, yaml_parse
 
             /* end of sequence or mapping */
             case YAML_SEQUENCE_END_EVENT:
-                sequence = 0;
+                is_sequence = 0;
             case YAML_MAPPING_END_EVENT:
                 finished = FINISH_SUCCESS;
                 break;
@@ -117,7 +117,7 @@ yaml_load_into_ptree(struct ptree_t* tree, struct ptree_t* root_tree, yaml_parse
                  * If the scalar does belong to a sequence, use the current
                  * sequence index as the key instead.
                  */
-                if(sequence)
+                if(is_sequence)
                 {
                     struct ptree_t* child;
                     char index[sizeof(int)*8+1];
@@ -127,8 +127,10 @@ yaml_load_into_ptree(struct ptree_t* tree, struct ptree_t* root_tree, yaml_parse
                         finished = FINISH_ERROR;
                         break;
                     }
-                    sprintf(index, "%d", sequence - 1);
+                    sprintf(index, "%d", sequence_index);
                     child = ptree_add_node(tree, index, malloc_string((char*)event.data.scalar.value));
+                    ptree_set_dup_func(child, (ptree_dup_func)malloc_string);
+                    ++sequence_index;
                 }
                 else /* scalar doesn't belong to a sequence */
                 {
@@ -189,7 +191,7 @@ yaml_load(const char* filename)
     struct yaml_doc_t* doc;
     struct ptree_t* tree;
     yaml_parser_t parser;
-    
+
     /* try to open the file */
     fp = fopen(filename, "rb");
     if(!fp)
@@ -197,12 +199,12 @@ yaml_load(const char* filename)
         llog(LOG_ERROR, 3, "Failed to open file \"", filename, "\"");
         return 0;
     }
-    
+
     /* parse file and load into dom tree */
     yaml_parser_initialize(&parser);
     yaml_parser_set_input_file(&parser, fp);
     tree = ptree_create("root", NULL);
-    if(!yaml_load_into_ptree(tree, tree, &parser))
+    if(!yaml_load_into_ptree(tree, tree, &parser, 0))
     {
         yaml_parser_delete(&parser);
         fclose(fp);
@@ -210,7 +212,7 @@ yaml_load(const char* filename)
         llog(LOG_ERROR, 3, "Syntax error: Failed to parse YAML file \"", filename, "\"");
         return 0;
     }
-    
+
     /* create doc object and initialise parser */
     doc = (struct yaml_doc_t*)unordered_vector_push_emplace(&g_open_docs);
     doc->ID = GUID_counter++;

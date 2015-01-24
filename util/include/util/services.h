@@ -50,18 +50,6 @@ LIGHTSHIP_PUBLIC_API void
 service_free(struct service_t* service);
 
 /*!
- * @brief Allocates and registers a new service. This is for internal use.
- * @param[in] full_name The full name, including namespace, of the service to
- * create and register.
- * @note *full_name* is owned by the service object after calling this function
- * and will be freed automatically. Therefore, you should pass a malloc'd string
- * as a parameter.
- * @param exec The function address of the callback function of the service.
- */
-void
-service_malloc_and_register(char* full_name, const intptr_t exec);
-
-/*!
  * @brief Unregisters a service from the global service directory.
  * @param[in] plugin The plugin the service belongs to. The plugin name is used
  * to create the namespace under which the service is registered.
@@ -92,6 +80,15 @@ service_get(const char* name);
 
 LIGHTSHIP_PUBLIC_API intptr_t
 service_get_with_typecheck(const char* name, const char* ret_type, int argc, const char** argv);
+
+LIGHTSHIP_PUBLIC_API void
+service_auto_call_void(const char* name, int argc, const char** argv);
+
+LIGHTSHIP_PUBLIC_API float
+service_auto_call_float(const char* name, int argc, const char** argv);
+
+LIGHTSHIP_PUBLIC_API uint32_t
+service_auto_call_int(const char* name, int argc, const char** argv);
 
 C_HEADER_END
 
