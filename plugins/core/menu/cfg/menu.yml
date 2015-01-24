@@ -26,7 +26,10 @@ screens:
             size: *btn_size
         button:
             text: Quit
-            action: main_loop.stop
+            action:
+                service: yaml.destroy
+                args:
+                  - int: 2
             position:
                 x: 0.0
                 y: -0.3
