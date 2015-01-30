@@ -1,5 +1,6 @@
 #include "util/pstdint.h"
 #include "util/event_api.h"
+#include "util/service_api.h"
 
 #define BUTTON_COLOUR_NORMAL 0xFFFFFFFF
 
@@ -25,10 +26,6 @@ struct button_t* button_create(const char* text, float x, float y, float width, 
 void button_destroy(struct button_t* button);
 void button_free_contents(struct button_t* button);
 void button_destroy_all(void);
-
-
-intptr_t button_create_wrapper(const char* text, float x, float y, float width, float height);
-void button_destroy_wrapper(intptr_t id);
 wchar_t* button_get_text(intptr_t id);
 
 /*!
@@ -41,5 +38,10 @@ wchar_t* button_get_text(intptr_t id);
  * no collision.
  */
 struct button_t* button_collision(struct button_t* button, float x, float y);
+
+SERVICE(button_create_wrapper);
+SERVICE(button_destroy_wrapper);
+SERVICE(button_get_text_wrapper);
+SERVICE(menu_load_wrapper);
 
 EVENT_LISTENER3(on_mouse_clicked, char mouse_btn, double x, double y);

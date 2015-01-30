@@ -7,13 +7,13 @@
 void
 register_services(const struct plugin_t* plugin)
 {
-    SERVICE_REGISTER0(plugin, "window_width",                   window_width, uint32_t);
-    SERVICE_REGISTER0(plugin, "window_height",                  window_height, uint32_t);
-    SERVICE_REGISTER0(plugin, "shapes_2d_begin",                shapes_2d_begin, void);
-    SERVICE_REGISTER0(plugin, "shapes_2d_end",                  shapes_2d_end, void);
-    SERVICE_REGISTER5(plugin, "line_2d",                        line_2d, void, float, float, float, float, uint32_t);
-    SERVICE_REGISTER5(plugin, "box_2d",                         box_2d, void, float, float, float, float, uint32_t);
-    SERVICE_REGISTER1(plugin, "shapes_2d_destroy",              shapes_2d_destroy, void, uint32_t);
+    SERVICE_REGISTER0(plugin, "window_width",                   window_width_wrapper, uint32_t);
+    SERVICE_REGISTER0(plugin, "window_height",                  window_height_wrapper, uint32_t);
+    SERVICE_REGISTER0(plugin, "shapes_2d_begin",                shapes_2d_begin_wrapper, void);
+    SERVICE_REGISTER0(plugin, "shapes_2d_end",                  shapes_2d_end_wrapper, void);
+    SERVICE_REGISTER5(plugin, "line_2d",                        line_2d_wrapper, void, float, float, float, float, uint32_t);
+    SERVICE_REGISTER5(plugin, "box_2d",                         box_2d_wrapper, void, float, float, float, float, uint32_t);
+    SERVICE_REGISTER1(plugin, "shapes_2d_destroy",              shapes_2d_destroy_wrapper, void, uint32_t);
     SERVICE_REGISTER2(plugin, "text_load_font",                 text_load_font_wrapper, uint32_t, const char*, uint32_t);
     SERVICE_REGISTER1(plugin, "text_destroy_font",              text_destroy_font_wrapper, void, uint32_t);
     SERVICE_REGISTER2(plugin, "text_load_characters",           text_load_characters_wrapper, void, uint32_t, const wchar_t*);

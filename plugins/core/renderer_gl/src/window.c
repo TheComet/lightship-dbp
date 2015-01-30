@@ -82,6 +82,16 @@ uint32_t window_height(void)
     return g_window.height;
 }
 
+SERVICE(window_width_wrapper)
+{
+    SERVICE_RETURN(uint32_t, g_window.width);
+}
+
+SERVICE(window_height_wrapper)
+{
+    SERVICE_RETURN(uint32_t, g_window.height);
+}
+
 EVENT_LISTENER0(on_render)
 {
     /* render everything */

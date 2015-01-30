@@ -265,26 +265,26 @@ yaml_destroy(const uint32_t ID)
 
 SERVICE(yaml_load_wrapper)
 {
-    const char* file_name = (const char*)argv[0];
-    return (void*)(intptr_t)yaml_load(file_name);
+    SERVICE_EXTRACT_ARGUMENT(0, file_name, const char*, const char*);
+    SERVICE_RETURN(uint32_t, yaml_load(file_name));
 }
 
 SERVICE(yaml_get_dom_wrapper)
 {
-    uint32_t id = *(uint32_t*)argv[0];
-    return (void*)yaml_get_dom(id);
+    SERVICE_EXTRACT_ARGUMENT(0, id, uint32_t, uint32_t);
+    *((struct ptree_t**)ret) = yaml_get_dom(id);
+    SERVICE_RETURN(struct ptree_t*, yaml_get_dom(id));
 }
 
 SERVICE(yaml_get_value_wrapper)
 {
-    uint32_t id = *(uint32_t*)argv[0];
-    const char* key = (const char*)argv[1];
-    return (void*)yaml_get_value(id, key);
+    SERVICE_EXTRACT_ARGUMENT(0, id, uint32_t, uint32_t);
+    SERVICE_EXTRACT_ARGUMENT(1, key, const char*, const char*);
+    SERVICE_RETURN(const char*, yaml_get_value(id, key));
 }
 
 SERVICE(yaml_destroy_wrapper)
 {
-    uint32_t id = *(uint32_t*)argv[0];
+    SERVICE_EXTRACT_ARGUMENT(0, id, uint32_t, uint32_t);
     yaml_destroy(id);
-    return NULL;
 }

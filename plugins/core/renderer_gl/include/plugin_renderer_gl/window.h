@@ -1,5 +1,6 @@
 #include "util/event_api.h"
 #include "util/pstdint.h"
+#include "util/service_api.h"
 
 struct GLFWwindow;
 
@@ -21,5 +22,8 @@ window_width(void);
 
 uint32_t
 window_height(void);
+
+SERVICE(window_width_wrapper);
+SERVICE(window_height_wrapper);
 
 EVENT_LISTENER0(on_render);

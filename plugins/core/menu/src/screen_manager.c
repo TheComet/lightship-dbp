@@ -21,11 +21,11 @@ menu_load(const char* file_name)
     llog(LOG_INFO, 3, "[menu] Loading menu from file \"", file_name, "\"");
     
     /* load and parse yaml file, get DOM */
-    doc = yaml_load(file_name);
-    dom = yaml_get_dom(doc);
+    SERVICE_CALL1(yaml_load, &doc, file_name);
+    SERVICE_CALL1(yaml_get_dom, &dom, doc);
     if(!dom)
     {
-        yaml_destroy(doc);
+        SERVICE_CALL1(yaml_destroy, SERVICE_NO_RETURN, doc);
         return NULL;
     }
     
@@ -34,7 +34,7 @@ menu_load(const char* file_name)
     if(!screens)
     {
         llog(LOG_ERROR, 1, "[menu] Failed to find \"screens\" node");
-        yaml_destroy(doc);
+        SERVICE_CALL1(yaml_destroy, SERVICE_NO_RETURN, doc);
         return NULL;
     }
     
@@ -116,8 +116,8 @@ menu_load(const char* file_name)
                     
                     if(action_service_node->value)
                     {
-                        service_callback_func service_exec = service_get((char*)action_service_node->value);
-                        if(service_exec)
+                        struct service_t* action_service = service_get((char*)action_service_node->value);
+                        if(action_service)
                         {
                             
                         }
@@ -129,7 +129,7 @@ menu_load(const char* file_name)
         }}
     }}
 
-    yaml_destroy(doc);
+    SERVICE_CALL1(yaml_destroy, SERVICE_NO_RETURN, doc);
     return menu;
 }
 

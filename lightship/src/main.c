@@ -31,11 +31,11 @@ typedef void (*start_loop_func)(void);
 
 EVENT_LISTENER1(on_button_click, intptr_t id)
 {
-    button_get_text_func get_text = (button_get_text_func)service_get("menu.button_get_text");
-    if(wcscmp(L"Quit", get_text(id)) == 0)
+    wchar_t* text;
+    SERVICE_CALL_NAME1("menu.button_get_text", &text, id);
+    if(wcscmp(L"Quit", text) == 0)
     {
-        main_loop_stop_func stop = (main_loop_stop_func)service_get("main_loop.stop");
-        stop();
+        SERVICE_CALL_NAME0("main_loop.stop", SERVICE_NO_RETURN);
     }
 }
 
@@ -105,30 +105,37 @@ init(void)
      */
     {
         char* start_service_name;
-        start_loop_func start;
-        uint32_t doc_ID = ((yaml_load_func)service_get("yaml.load"))(yml_entry_point);
+        uint32_t doc_ID;
+
+        struct service_t* start;
+        struct service_t* yaml_load = service_get("yaml.load");
+        struct service_t* yaml_get_value = service_get("yaml.get_value");
+        struct service_t* yaml_destroy = service_get("yaml.destroy");
+        const char* entry_point_key = "service";
+
+        SERVICE_CALL1(yaml_load, &doc_ID, yml_entry_point);
         if(!doc_ID)
         {
             llog(LOG_FATAL, 1, "Cannot get main loop service");
             return;
         }
-        start_service_name = ((yaml_get_value_func)service_get("yaml.get_value"))(doc_ID, "service");
+        SERVICE_CALL2(yaml_get_value, &start_service_name, doc_ID, entry_point_key);
         if(!start_service_name)
         {
             llog(LOG_FATAL, 3, "Cannot get value of \"service\" in \"", yml_entry_point ,"\"");
-            ((yaml_destroy_func)service_get("yaml.destroy"))(doc_ID);
+            SERVICE_CALL_NAME1("yaml.destroy", SERVICE_NO_RETURN, doc_ID);
             return;
         }
 
-        start = (start_loop_func)service_get(start_service_name);
-        ((yaml_destroy_func)service_get("yaml.destroy"))(doc_ID);
+        start = service_get(start_service_name);
+        SERVICE_CALL1(yaml_destroy, SERVICE_NO_RETURN, doc_ID);
         if(!start)
         {
             llog(LOG_FATAL, 1, "Cannot get main loop service");
             return;
         }
 
-        start();
+        SERVICE_CALL0(start, SERVICE_NO_RETURN);
     }
 }
 
