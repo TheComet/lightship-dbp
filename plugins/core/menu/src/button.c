@@ -38,6 +38,7 @@ void button_deinit(void)
 struct button_t* button_create(const char* text, float x, float y, float width, float height)
 {
     struct button_t* btn = (struct button_t*)MALLOC(sizeof(struct button_t));
+    memset(btn, 0, sizeof(struct button_t));
     btn->pos.x = x;
     btn->pos.y = y;
     btn->size.x = width;
@@ -85,6 +86,8 @@ void button_free_contents(struct button_t* button)
     {
         SERVICE_CALL2(text_destroy_static_string, SERVICE_NO_RETURN, font_id, button->text_id);
         free_string(button->text);
+        if(button->action.argv)
+            ordered_vector_destroy(button->action.argv);
     }
 }
 
@@ -134,7 +137,16 @@ EVENT_LISTENER3(on_mouse_clicked, char mouse_btn, double x, double y)
     struct button_t* button = button_collision(NULL, (float)x, (float)y);
     if(button)
     {
+        /* let everything know it was clicked */
         EVENT_FIRE1(evt_button_clicked, button->id);
+        
+        /* if button has an action, execute it */
+        if(button->action.service)
+        {
+            /* Pass vector of args (if there are no args, argv->data should be NULL */
+            /* Ignore the return value */
+            button->action.service->exec(SERVICE_NO_RETURN, (const void**)button->action.argv->data);
+        }
     }
 }
 

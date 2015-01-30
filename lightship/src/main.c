@@ -29,16 +29,6 @@ struct plugin_t* plugin_yaml = NULL;
 
 typedef void (*start_loop_func)(void);
 
-EVENT_LISTENER1(on_button_click, intptr_t id)
-{
-    wchar_t* text;
-    SERVICE_CALL_NAME1("menu.button_get_text", &text, id);
-    if(wcscmp(L"Quit", text) == 0)
-    {
-        SERVICE_CALL_NAME0("main_loop.stop", SERVICE_NO_RETURN);
-    }
-}
-
 void
 init(void)
 {
@@ -94,10 +84,6 @@ init(void)
     {
         llog(LOG_FATAL, 1, "Couldn't start all core plugins");
         return;
-    }
-
-    {
-        event_register_listener(NULL, "menu.button_clicked", on_button_click);
     }
 
     /* 

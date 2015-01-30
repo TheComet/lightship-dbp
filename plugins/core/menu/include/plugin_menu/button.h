@@ -10,6 +10,12 @@ struct vec2_t
     float y;
 };
 
+struct action_t
+{
+    struct service_t* service;
+    struct ordered_vector_t* argv;
+};
+
 struct button_t
 {
     intptr_t id;
@@ -18,6 +24,7 @@ struct button_t
     wchar_t* text;
     struct vec2_t pos;
     struct vec2_t size;
+    struct action_t action;
 };
 
 void button_init(void);

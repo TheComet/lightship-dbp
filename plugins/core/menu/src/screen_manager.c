@@ -76,8 +76,7 @@ menu_load(const char* file_name)
                 const struct ptree_t* y_node      = ptree_find_by_key(object_node, "position.y");
                 const struct ptree_t* width_node  = ptree_find_by_key(object_node, "size.x");
                 const struct ptree_t* height_node = ptree_find_by_key(object_node, "size.y");
-                const struct ptree_t* action_service_node = ptree_find_by_key(object_node, "action.service");
-                const struct ptree_t* action_argv_node    = ptree_find_by_key(object_node, "action.args");
+                const struct ptree_t* action_node = ptree_find_by_key(object_node, "action");
                 if(!x_node || !y_node || !width_node || !height_node)
                     continue;
                 if(text_node)
@@ -90,41 +89,45 @@ menu_load(const char* file_name)
                                     atof(width_node->value),
                                     atof(height_node->value));
                 screen_add_button(screen, button);
-                
+
                 /* extract service name and arguments tied to action, if any */
-                if(action_service_node && action_argv_node)
+                if(action_node)
                 {
-                    struct ptree_t* arg_node;
+                    struct ptree_t* service_node;
+                    struct ptree_t* argv_node;
                     char arg_key[sizeof(int)*8+1];
-                    struct ordered_vector_t action_argv; /* holds argument list as (char**) */
                     int action_argc = 0;
 
-                    /* inserts the arguments into action_argv */
-                    ordered_vector_init_vector(&action_argv, sizeof(char*));
-                    while(1)
+                    /* extract each argument and insert into vector */
+                    button->action.argv = ordered_vector_create(sizeof(void**));
+                    argv_node = ptree_find_by_key(action_node, "argv");
+                    while(argv_node)
                     {
                         /* retrieve next argument */
+                        struct ptree_t* arg_node;
                         sprintf(arg_key, "%d", action_argc);
-                        arg_node = ptree_find_by_key(action_argv_node, arg_key);
+                        arg_node = ptree_find_by_key(argv_node, arg_key);
                         if(!arg_node)
                             break;
                         /* argument found, add to argument list */
-                        ordered_vector_push(&action_argv, &arg_node->value);
+                        ordered_vector_push(button->action.argv, &arg_node->value);
                         ++action_argc;
                     }
                     
-                    /*
-                    if(action_service_node->value)
+                    /* get service name */
+                    service_node = ptree_find_by_key(action_node, "service");
+
+                    /* set up action to trigger when this button is pressed */
+                    if(service_node && service_node->value)
                     {
-                        struct service_t* action_service = service_get((char*)action_service_node->value);
+                        struct service_t* action_service = service_get((char*)service_node->value);
                         if(action_service)
                         {
-                            
+                            button->action.service = action_service;
                         }
-                    }*/
-                    
-                    ordered_vector_clear_free(&action_argv);
+                    }
                 }
+
             }
         }}
     }}
