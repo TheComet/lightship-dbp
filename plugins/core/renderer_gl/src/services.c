@@ -7,18 +7,18 @@
 void
 register_services(const struct plugin_t* plugin)
 {
-    service_register(plugin, "window_width",                    (intptr_t)window_width);
-    service_register(plugin, "window_height",                   (intptr_t)window_height);
-    service_register(plugin, "shapes_2d_begin",                 (intptr_t)shapes_2d_begin);
-    service_register(plugin, "shapes_2d_end",                   (intptr_t)shapes_2d_end);
-    service_register(plugin, "line_2d",                         (intptr_t)line_2d);
-    service_register(plugin, "box_2d",                          (intptr_t)box_2d);
-    service_register(plugin, "shapes_2d_destroy",               (intptr_t)shapes_2d_destroy);
-    service_register(plugin, "text_load_font",                  (intptr_t)text_load_font_wrapper);
-    service_register(plugin, "text_destroy_font",               (intptr_t)text_destroy_font_wrapper);
-    service_register(plugin, "text_load_characters",            (intptr_t)text_load_characters_wrapper);
-    service_register(plugin, "text_add_static_string",          (intptr_t)text_add_static_string_wrapper);
-    service_register(plugin, "text_add_static_center_string",   (intptr_t)text_add_static_center_string_wrapper);
-    service_register(plugin, "text_destroy_static_string",      (intptr_t)text_destroy_static_string_wrapper);
-    service_register(plugin, "text_destroy_all_static_strings", (intptr_t)text_destroy_all_static_strings_wrapper);
+    SERVICE_REGISTER0(plugin, "window_width",                   window_width, uint32_t);
+    SERVICE_REGISTER0(plugin, "window_height",                  window_height, uint32_t);
+    SERVICE_REGISTER0(plugin, "shapes_2d_begin",                shapes_2d_begin, void);
+    SERVICE_REGISTER0(plugin, "shapes_2d_end",                  shapes_2d_end, void);
+    SERVICE_REGISTER5(plugin, "line_2d",                        line_2d, void, float, float, float, float, uint32_t);
+    SERVICE_REGISTER5(plugin, "box_2d",                         box_2d, void, float, float, float, float, uint32_t);
+    SERVICE_REGISTER1(plugin, "shapes_2d_destroy",              shapes_2d_destroy, void, uint32_t);
+    SERVICE_REGISTER2(plugin, "text_load_font",                 text_load_font_wrapper, uint32_t, const char*, uint32_t);
+    SERVICE_REGISTER1(plugin, "text_destroy_font",              text_destroy_font_wrapper, void, uint32_t);
+    SERVICE_REGISTER2(plugin, "text_load_characters",           text_load_characters_wrapper, void, uint32_t, const wchar_t*);
+    SERVICE_REGISTER4(plugin, "text_add_static_string",         text_add_static_string_wrapper, intptr_t, uint32_t, float, float, const wchar_t*);
+    SERVICE_REGISTER4(plugin, "text_add_static_center_string",  text_add_static_center_string_wrapper, intptr_t, uint32_t, float, float, const wchar_t*);
+    SERVICE_REGISTER2(plugin, "text_destroy_static_string",     text_destroy_static_string_wrapper, void, uint32_t, intptr_t);
+    SERVICE_REGISTER1(plugin, "text_destroy_all_static_strings",text_destroy_all_static_strings_wrapper, void, uint32_t);
 }

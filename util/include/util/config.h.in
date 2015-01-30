@@ -111,6 +111,8 @@
     
 #   if defined(__GNUC__)
 #       define TYPEOF(x) __typeof__(x)
+#   else
+#       undef TYPEOF
 #   endif
 
     /* --------------------------------------------------------------

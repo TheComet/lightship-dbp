@@ -23,8 +23,7 @@ struct main_loop_t
     struct main_loop_statistics_t statistics;
 };
 
-void
-main_loop_start(void);
+SERVICE(main_loop_start);
 
 void
 main_loop_stop(void);

@@ -19,14 +19,11 @@ struct map_t g_services;
  * @param exec The function address of the callback function of the service.
  */
 static void
-service_malloc_and_register(char* full_name, const intptr_t exec);
-
-static void
-service_malloc_and_register_(char* full_name,
-                             const intptr_t exec,
-                             const char* ret_type,
-                             const int argc,
-                             const char** argv);
+service_malloc_and_register(char* full_name,
+                            const service_callback_func exec,
+                            const char* ret_type,
+                            const int argc,
+                            const char** argv);
 
 static char
 service_type_matches_simple_type(const char* type, const char* script_type);
@@ -58,28 +55,8 @@ services_deinit(void)
 /* ------------------------------------------------------------------------- */
 char
 service_register(const struct plugin_t* plugin,
-                 const char* name,
-                 intptr_t exec)
-{
-    char* full_name;
-
-    /* check if service is already registered */
-    full_name = cat_strings(3, plugin->info.name, ".", name);
-    if(service_get(full_name))
-    {
-        free_string(full_name);
-        return 0;
-    }
-
-    service_malloc_and_register(full_name, exec);
-
-    return 1;
-}
-
-char
-service_register_(const struct plugin_t* plugin,
                   const char* name,
-                  const intptr_t exec,
+                  const service_callback_func exec,
                   const char* ret_type,
                   const int argc,
                   const char** argv)
@@ -94,36 +71,26 @@ service_register_(const struct plugin_t* plugin,
         return 0;
     }
 
-    service_malloc_and_register_(full_name, exec, ret_type, argc, argv);
+    service_malloc_and_register(full_name, exec, ret_type, argc, argv);
 
     return 1;
 }
 
 /* ------------------------------------------------------------------------- */
 static void
-service_malloc_and_register(char* full_name, const intptr_t exec)
+service_malloc_and_register(char* full_name,
+                            const service_callback_func exec,
+                            const char* ret_type,
+                            const int argc,
+                            const char** argv)
 {
     /* create service and add to list */
     struct service_t* service = (struct service_t*)MALLOC(sizeof(struct service_t));
     service->name = full_name;
+    memcpy(&service->ret_type, &ret_type, sizeof(char*));
+    memcpy(&service->argv_type, &argv, sizeof(char**));
+    service->argc = argc;
     service->exec = exec;
-    map_insert(&g_services, hash_jenkins_oaat(full_name, strlen(full_name)), service);
-}
-
-static void
-service_malloc_and_register_(char* full_name,
-                             const intptr_t exec,
-                             const char* ret_type,
-                             const int argc,
-                             const char** argv)
-{
-    /* create service and add to list */
-    struct service_t* service = (struct service_t*)MALLOC(sizeof(struct service_t));
-    service->name = full_name;
-    memcpy(&service->cb.ret_type, &ret_type, sizeof(char*));
-    memcpy(&service->cb.argv, &argv, sizeof(char**));
-    service->cb.argc = argc;
-    service->cb.exec = exec;
     map_insert(&g_services, hash_jenkins_oaat(full_name, strlen(full_name)), service);
 }
 
@@ -174,59 +141,34 @@ service_unregister_all(const struct plugin_t* plugin)
 }
 
 /* ------------------------------------------------------------------------- */
-intptr_t
+struct service_t*
 service_get(const char* name)
 {
     struct service_t* service;
     if(!(service = map_find(&g_services, hash_jenkins_oaat(name, strlen(name)))))
         return 0;
-    return service->exec;
+
+    return service;
 }
 
-intptr_t
-service_get_with_typecheck(const char* name, const char* ret_type, int argc, const char** argv)
+char
+service_do_typecheck(const struct service_t* service, const char* ret_type, int argc, const char** argv)
 {
     int i;
-    struct service_t* service;
-    if(!(service = map_find(&g_services, hash_jenkins_oaat(name, strlen(name)))))
-        return 0;
 
     /* verify argument count */
-    if(argc != service->cb.argc)
+    if(argc != service->argc)
         return 0;
     /* verify return type */
-    if(!ret_type || strcmp(ret_type, service->cb.ret_type))
+    if(!ret_type || strcmp(ret_type, service->ret_type))
         return 0;
     /* verify argument types */
     for(i = 0; i != argc; ++i)
-        if(!argv[i] || strcmp(argv[i], service->cb.argv[i]))
+        if(!argv[i] || strcmp(argv[i], service->argv_type[i]))
             return 0;
     
     /* valid! */
-    return service->cb.exec;
-}
-
-void
-service_auto_call_void(const char* name, int argc, const char** argv)
-{
-    int i;
-    struct service_t* service;
-    if(!(service = map_find(&g_services, hash_jenkins_oaat(name, strlen(name)))))
-        return 0;
-    
-    /* verify argument count */
-    if(argc != service->cb.argc)
-        return 0;
-    /* verify return type */
-    if(!service_type_matches_simple_type(service->cb.ret_type, "void"))
-        return 0;
-    /* verify argument types */
-    for(i = 0; i != argc; ++i)
-        if(!argv[i] || !service_type_matches_simple_type(service->cb.argv[i], argv[i]))
-            return 0;
-    
-    /* valid! -- */
-    return service->cb.exec;
+    return 1;
 }
 
 static char

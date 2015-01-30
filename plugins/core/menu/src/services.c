@@ -28,10 +28,10 @@ register_services(const struct plugin_t* plugin)
     * All services this plugin supports
     * ---------------------------------------------------*/
 
-     service_register(plugin, "button_create", (intptr_t)button_create_wrapper);
-     service_register(plugin, "button_destroy", (intptr_t)button_destroy_wrapper);
-     service_register(plugin, "button_get_text", (intptr_t)button_get_text);
-     service_register(plugin, "load", (intptr_t)menu_load);
+    SERVICE_REGISTER5(plugin, "button_create", button_create_wrapper, intptr_t, const char*, float, float, float, float);
+    SERVICE_REGISTER1(plugin, "button_destroy", button_destroy_wrapper, void, intptr_t);
+    SERVICE_REGISTER1(plugin, "button_get_text", button_get_text, wchar_t*, intptr_t);
+    SERVICE_REGISTER1(plugin, "load", menu_load, struct menu_t, const char*);
 }
 
 char

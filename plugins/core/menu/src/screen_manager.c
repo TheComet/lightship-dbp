@@ -116,7 +116,7 @@ menu_load(const char* file_name)
                     
                     if(action_service_node->value)
                     {
-                        intptr_t service_exec = service_get((char*)action_service_node->value);
+                        service_callback_func service_exec = service_get((char*)action_service_node->value);
                         if(service_exec)
                         {
                             
