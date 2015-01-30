@@ -224,31 +224,33 @@ SERVICE(shapes_2d_begin_wrapper)
 
 SERVICE(shapes_2d_end_wrapper)
 {
-    SERVICE_RETURN(uint32_t, shapes_2d_end());
+    SERVICE_RETURN(shapes_2d_end(), uint32_t);
 }
 
 SERVICE(line_2d_wrapper)
 {
-    float x1 = (float) *(float*)argv[0];
-    float y1 = (float) *(float*)argv[1];
-    float x2 = (float) *(float*)argv[2];
-    float y2 = (float) *(float*)argv[3];
-    uint32_t colour = (uint32_t) *(uint32_t*)argv[4];
+    SERVICE_EXTRACT_ARGUMENT(0, x1, float, float);
+    SERVICE_EXTRACT_ARGUMENT(1, y1, float, float);
+    SERVICE_EXTRACT_ARGUMENT(2, x2, float, float);
+    SERVICE_EXTRACT_ARGUMENT(3, y2, float, float);
+    SERVICE_EXTRACT_ARGUMENT(4, colour, uint32_t, uint32_t);
+
     line_2d(x1, y1, x2, y2, colour);
 }
 
 SERVICE(box_2d_wrapper)
 {
-    float x1 = (float) *(float*)argv[0];
-    float y1 = (float) *(float*)argv[1];
-    float x2 = (float) *(float*)argv[2];
-    float y2 = (float) *(float*)argv[3];
-    uint32_t colour = (uint32_t) *(uint32_t*)argv[4];
+    SERVICE_EXTRACT_ARGUMENT(0, x1, float, float);
+    SERVICE_EXTRACT_ARGUMENT(1, y1, float, float);
+    SERVICE_EXTRACT_ARGUMENT(2, x2, float, float);
+    SERVICE_EXTRACT_ARGUMENT(3, y2, float, float);
+    SERVICE_EXTRACT_ARGUMENT(4, colour, uint32_t, uint32_t);
+
     box_2d(x1, y1, x2, y2, colour);
 }
 
 SERVICE(shapes_2d_destroy_wrapper)
 {
-    uint32_t id = (uint32_t) *(uint32_t*)argv[0];
+    SERVICE_EXTRACT_ARGUMENT(0, id, uint32_t, uint32_t);
     shapes_2d_destroy(id);
 }

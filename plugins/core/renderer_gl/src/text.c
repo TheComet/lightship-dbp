@@ -673,63 +673,82 @@ text_draw(void)
 /* ------------------------------------------------------------------------- */
 /* WRAPPERS */
 /* ------------------------------------------------------------------------- */
-uint32_t
-text_load_font_wrapper(const char* filename, uint32_t char_size)
+
+SERVICE(text_load_font_wrapper)
 {
     uint32_t key;
-    struct font_t* font = text_load_font(filename, char_size);
+    struct font_t* font;
+    SERVICE_EXTRACT_ARGUMENT(0, filename, const char*, const char*);
+    SERVICE_EXTRACT_ARGUMENT(1, char_size, uint32_t, uint32_t);
+
+    font = text_load_font(filename, char_size);
     key = map_find_unused_key(&g_wrapper_fonts);
     map_insert(&g_wrapper_fonts, key, font);
-    return key;
+
+    SERVICE_RETURN(key, uint32_t);
 }
 
-void
-text_destroy_font_wrapper(uint32_t font_id)
+SERVICE(text_destroy_font_wrapper)
 {
+    SERVICE_EXTRACT_ARGUMENT(0, font_id, uint32_t, uint32_t);
+
     struct font_t* font = map_erase(&g_wrapper_fonts, font_id);
     if(font)
         text_destroy_font(font);
 }
 
-void
-text_load_characters_wrapper(uint32_t font_id, const wchar_t* characters)
+SERVICE(text_load_characters_wrapper)
 {
+    SERVICE_EXTRACT_ARGUMENT(0, font_id, uint32_t, uint32_t);
+    SERVICE_EXTRACT_ARGUMENT(1, characters, const wchar_t*, const wchar_t*);
+
     struct font_t* font = map_find(&g_wrapper_fonts, font_id);
     if(font)
         text_load_characters(font, characters);
 }
 
-intptr_t
-text_add_static_string_wrapper(uint32_t font_id, float x, float y, const wchar_t* str)
+SERVICE(text_add_static_string_wrapper)
 {
-    intptr_t ret = -1;
+    SERVICE_EXTRACT_ARGUMENT(0, font_id, uint32_t, uint32_t);
+    SERVICE_EXTRACT_ARGUMENT(1, x, float, float);
+    SERVICE_EXTRACT_ARGUMENT(2, y, float, float);
+    SERVICE_EXTRACT_ARGUMENT(3, str, const wchar_t*, const wchar_t*);
+    intptr_t ret_val = -1;
+
     struct font_t* font = map_find(&g_wrapper_fonts, font_id);
     if(font)
-        ret = text_add_static_string(font, 0, x, y, str);
-    return ret;
+        ret_val = text_add_static_string(font, 0, x, y, str);
+    SERVICE_RETURN(ret_val, intptr_t);
 }
 
-intptr_t
-text_add_static_center_string_wrapper(uint32_t font_id, float x, float y, const wchar_t* str)
+SERVICE(text_add_static_center_string_wrapper)
 {
-    intptr_t ret = -1;
+    SERVICE_EXTRACT_ARGUMENT(0, font_id, uint32_t, uint32_t);
+    SERVICE_EXTRACT_ARGUMENT(1, x, float, float);
+    SERVICE_EXTRACT_ARGUMENT(2, y, float, float);
+    SERVICE_EXTRACT_ARGUMENT(3, str, const wchar_t*, const wchar_t*);
+    intptr_t ret_val = -1;
+
     struct font_t* font = map_find(&g_wrapper_fonts, font_id);
     if(font)
-        ret = text_add_static_string(font, 1, x, y, str);
-    return ret;
+        ret_val = text_add_static_string(font, 1, x, y, str);
+    SERVICE_RETURN(ret_val, intptr_t);
 }
 
-void
-text_destroy_static_string_wrapper(uint32_t font_id, intptr_t ID)
+SERVICE(text_destroy_static_string_wrapper)
 {
+    SERVICE_EXTRACT_ARGUMENT(0, font_id, uint32_t, uint32_t);
+    SERVICE_EXTRACT_ARGUMENT(1, id, intptr_t, intptr_t);
+    
     struct font_t* font = map_find(&g_wrapper_fonts, font_id);
     if(font)
-        text_destroy_static_string(font, ID);
+        text_destroy_static_string(font, id);
 }
 
-void
-text_destroy_all_static_strings_wrapper(uint32_t font_id)
+SERVICE(text_destroy_all_static_strings_wrapper)
 {
+    SERVICE_EXTRACT_ARGUMENT(0, font_id, uint32_t, uint32_t);
+
     struct font_t* font = map_find(&g_wrapper_fonts, font_id);
     if(font)
         text_destroy_all_static_strings(font);

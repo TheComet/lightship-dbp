@@ -16,8 +16,8 @@ extern char g_service_internal_no_arg_dummy;
 #define SERVICE_EXTRACT_ARGUMENT(index, var, cast_from, cast_to) \
     cast_to var = (cast_to) *(cast_from*)argv[index]
 
-#define SERVICE_RETURN(ret_type, value) \
-        *(ret_type*)ret = value;
+#define SERVICE_RETURN(value, ret_type) \
+        *(ret_type*)ret = value; return
 
 #define SERVICE_NO_RETURN NULL
 #define SERVICE_NO_ARGUMENT g_service_internal_no_arg_dummy

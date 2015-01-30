@@ -113,7 +113,7 @@ menu_load(const char* file_name)
                         ++action_argc;
                     }
                     
-                    
+                    /*
                     if(action_service_node->value)
                     {
                         struct service_t* action_service = service_get((char*)action_service_node->value);
@@ -121,7 +121,7 @@ menu_load(const char* file_name)
                         {
                             
                         }
-                    }
+                    }*/
                     
                     ordered_vector_clear_free(&action_argv);
                 }
@@ -148,4 +148,10 @@ menu_destroy(struct menu_t* menu)
     }
     map_clear_free(&menu->screens);
     FREE(menu);
+}
+
+SERVICE(menu_load_wrapper)
+{
+    SERVICE_EXTRACT_ARGUMENT(0, file_name, const char*, const char*);
+    /* TODO return menu ID and map it to menu objects */
 }
