@@ -18,10 +18,10 @@
 
 static struct list_t g_plugins;
 
-static yaml_load_func yaml_load;
-static yaml_destroy_func yaml_destroy;
-static yaml_get_dom_func yaml_get_dom;
-static yaml_get_value_func yaml_get_value;
+static struct service_t* yaml_load;
+static struct service_t* yaml_destroy;
+static struct service_t* yaml_get_dom;
+static struct service_t* yaml_get_value;
 
 /*!
  * @brief Evaluates whether the specified file is an acceptable plugin to load
@@ -56,10 +56,10 @@ plugin_manager_init(void)
 void
 plugin_manager_get_services(void)
 {
-    yaml_load = (yaml_load_func)service_get("yaml.load");
-    yaml_destroy = (yaml_destroy_func)service_get("yaml.destroy");
-    yaml_get_dom = (yaml_get_dom_func)service_get("yaml.get_dom");
-    yaml_get_value = (yaml_get_value_func)service_get("yaml.get_value");
+    yaml_load = service_get("yaml.load");
+    yaml_destroy = service_get("yaml.destroy");
+    yaml_get_dom = service_get("yaml.get_dom");
+    yaml_get_value = service_get("yaml.get_value");
 }
 
 void
@@ -219,11 +219,11 @@ load_plugins_from_yaml(const char* filename)
         return 0;
     
     /* get DOM and get_value service */
-    dom = yaml_get_dom(doc_ID);
+    SERVICE_CALL1(yaml_get_dom, dom, doc_ID);
     if(!dom)
     {
         llog(LOG_FATAL, 1, "Failed to get DOM");
-        yaml_destroy(doc_ID);
+        SERVICE_CALL1(yaml_destroy, SERVICE_NO_RET, doc_ID);
         return 0;
     }
     
@@ -297,7 +297,7 @@ load_plugins_from_yaml(const char* filename)
     }
 
     /* clean up */
-    yaml_destroy(doc_ID);
+    SERVICE_CALL1(yaml_destroy, SERVICE_NO_RET, doc_ID);
     unordered_vector_clear_free(&new_plugins);
     return success;
 }

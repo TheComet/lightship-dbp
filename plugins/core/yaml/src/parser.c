@@ -234,7 +234,7 @@ yaml_get_dom(uint32_t ID)
     return doc->dom;
 }
 
-char*
+const char*
 yaml_get_value(const uint32_t ID, const char* key)
 {
     struct yaml_doc_t* doc = yaml_get_doc(ID);
@@ -261,4 +261,30 @@ yaml_destroy(const uint32_t ID)
             return;
         }
     }
+}
+
+SERVICE(yaml_load_wrapper)
+{
+    const char* file_name = (const char*)argv[0];
+    return (void*)(intptr_t)yaml_load(file_name);
+}
+
+SERVICE(yaml_get_dom_wrapper)
+{
+    uint32_t id = *(uint32_t*)argv[0];
+    return (void*)yaml_get_dom(id);
+}
+
+SERVICE(yaml_get_value_wrapper)
+{
+    uint32_t id = *(uint32_t*)argv[0];
+    const char* key = (const char*)argv[1];
+    return (void*)yaml_get_value(id, key);
+}
+
+SERVICE(yaml_destroy_wrapper)
+{
+    uint32_t id = *(uint32_t*)argv[0];
+    yaml_destroy(id);
+    return NULL;
 }

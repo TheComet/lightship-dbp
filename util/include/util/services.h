@@ -7,14 +7,6 @@ C_HEADER_BEGIN
 
 struct plugin_t;
 
-LIGHTSHIP_PUBLIC_API char
-service_register_(const struct plugin_t* plugin,
-                  const char* name,
-                  const intptr_t exec,
-                  const char* ret_type,
-                  const int argc,
-                  const char** argv);
-
 /*!
  * @brief Initialises the service system. This must be called before calling any
  * other service related functions.
@@ -39,8 +31,11 @@ services_deinit(void);
  */
 LIGHTSHIP_PUBLIC_API char
 service_register(const struct plugin_t* plugin,
-                 const char* name,
-                 intptr_t exec);
+                  const char* name,
+                  service_callback_func exec,
+                  const char* ret_type,
+                  const int argc,
+                  const char** argv);
 
 /*!
  * @brief Frees the specified service object's contents and object itself.
@@ -75,20 +70,11 @@ service_unregister_all(const struct plugin_t* plugin);
  * service. It must be cast to the exact function signature of the service
  * registered by the plugin. If the service does not exist, 0 is returned.
  */
-LIGHTSHIP_PUBLIC_API intptr_t
+LIGHTSHIP_PUBLIC_API struct service_t*
 service_get(const char* name);
 
-LIGHTSHIP_PUBLIC_API intptr_t
-service_get_with_typecheck(const char* name, const char* ret_type, int argc, const char** argv);
-
-LIGHTSHIP_PUBLIC_API void
-service_auto_call_void(const char* name, int argc, const char** argv);
-
-LIGHTSHIP_PUBLIC_API float
-service_auto_call_float(const char* name, int argc, const char** argv);
-
-LIGHTSHIP_PUBLIC_API uint32_t
-service_auto_call_int(const char* name, int argc, const char** argv);
+char
+service_do_typecheck(const struct service_t* service, const char* ret_type, int argc, const char** argv);
 
 C_HEADER_END
 

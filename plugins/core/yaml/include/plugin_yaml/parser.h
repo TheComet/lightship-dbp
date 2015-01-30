@@ -1,4 +1,5 @@
 #include "util/pstdint.h"
+#include "util/service_api.h"
 #include "yaml/yaml.h"
 #include <stdio.h>
 
@@ -24,8 +25,13 @@ yaml_load(const char* filename);
 struct ptree_t*
 yaml_get_dom(uint32_t ID);
 
-char*
+const char*
 yaml_get_value(const uint32_t ID, const char* key);
 
 void
 yaml_destroy(const uint32_t ID);
+
+SERVICE(yaml_load_wrapper);
+SERVICE(yaml_get_dom_wrapper);
+SERVICE(yaml_get_value_wrapper);
+SERVICE(yaml_destroy_wrapper);
