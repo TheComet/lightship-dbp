@@ -27,7 +27,7 @@ screens:
         button:
             text: Quit
             action:
-                service: yaml.destroy
+                service: main_loop.stop
             position:
                 x: 0.0
                 y: -0.3
