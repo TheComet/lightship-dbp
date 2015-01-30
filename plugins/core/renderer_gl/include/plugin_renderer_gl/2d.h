@@ -1,5 +1,6 @@
 #include "GL/glew.h"
 #include "util/unordered_vector.h"
+#include "util/service_api.h"
 
 /* vertex type for 2d objects */
 struct vertex_2d_t
@@ -82,3 +83,9 @@ box_2d(float x1, float y1, float x2, float y2, uint32_t colour);
  */
 void
 draw_2d(void);
+
+SERVICE(shapes_2d_begin_wrapper);
+SERVICE(shapes_2d_end_wrapper);
+SERVICE(line_2d_wrapper);
+SERVICE(box_2d_wrapper);
+SERVICE(shapes_2d_destroy_wrapper);

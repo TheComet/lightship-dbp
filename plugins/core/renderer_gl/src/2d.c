@@ -216,3 +216,39 @@ draw_2d(void)
     }
     glBindVertexArray(0);
 }
+
+SERVICE(shapes_2d_begin_wrapper)
+{
+    shapes_2d_begin();
+}
+
+SERVICE(shapes_2d_end_wrapper)
+{
+    SERVICE_RETURN(uint32_t, shapes_2d_end());
+}
+
+SERVICE(line_2d_wrapper)
+{
+    float x1 = (float) *(float*)argv[0];
+    float y1 = (float) *(float*)argv[1];
+    float x2 = (float) *(float*)argv[2];
+    float y2 = (float) *(float*)argv[3];
+    uint32_t colour = (uint32_t) *(uint32_t*)argv[4];
+    line_2d(x1, y1, x2, y2, colour);
+}
+
+SERVICE(box_2d_wrapper)
+{
+    float x1 = (float) *(float*)argv[0];
+    float y1 = (float) *(float*)argv[1];
+    float x2 = (float) *(float*)argv[2];
+    float y2 = (float) *(float*)argv[3];
+    uint32_t colour = (uint32_t) *(uint32_t*)argv[4];
+    box_2d(x1, y1, x2, y2, colour);
+}
+
+SERVICE(shapes_2d_destroy_wrapper)
+{
+    uint32_t id = (uint32_t) *(uint32_t*)argv[0];
+    shapes_2d_destroy(id);
+}

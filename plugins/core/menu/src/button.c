@@ -4,6 +4,7 @@
 #include "util/map.h"
 #include "util/memory.h"
 #include "util/string.h"
+#include "util/service_api.h"
 #include <string.h>
 #include <wchar.h>
 
@@ -19,8 +20,9 @@ static const char* ttf_filename = "ttf/DejaVuSans.ttf";
 void button_init(void)
 {
     /* load font and characters */
-    font_id = text_load_font(ttf_filename, 9);
-    text_load_characters(font_id, NULL);
+    uint32_t char_size = 9;
+    SERVICE_CALL2(text_load_font, &font_id, ttf_filename, char_size);
+    SERVICE_CALL2(text_load_characters, SERVICE_NO_RETURN, font_id, SERVICE_NO_ARGUMENT);
     
     map_init_map(&g_buttons);
 }
@@ -30,7 +32,7 @@ void button_deinit(void)
     button_destroy_all();
     map_clear_free(&g_buttons);
 
-    text_destroy_font(font_id);
+    SERVICE_CALL1(text_destroy_font, SERVICE_NO_RETURN, font_id);
 }
 
 struct button_t* button_create(const char* text, float x, float y, float width, float height)
@@ -46,11 +48,12 @@ struct button_t* button_create(const char* text, float x, float y, float width, 
     /* copy wchar_t string into button object */
     if(text)
     {
+        float offy = y + 0.02;
         /* TODO centering code for text */
         /* TODO instead of passing the raw string, add way to pass a "string instance"
         * which can specify the font and size of the string. */
         btn->text = strtowcs(text);
-        btn->text_id = text_add_static_center_string(font_id, x, y+0.02, btn->text);
+        SERVICE_CALL4(text_add_static_center_string, &btn->text_id, font_id, x, offy, btn->text);
     }
     else
     {
@@ -59,20 +62,28 @@ struct button_t* button_create(const char* text, float x, float y, float width, 
     }
 
     /* draw box */
-    shapes_2d_begin();
-        box_2d(x-width*0.5, y-height*0.5, x+width*0.5, y+height*0.5, BUTTON_COLOUR_NORMAL);
-    btn->shapes_normal_id = shapes_2d_end();
+    SERVICE_CALL0(shapes_2d_begin, SERVICE_NO_RETURN);
+    {
+        float x1, y1, x2, y2;
+        uint32_t colour = BUTTON_COLOUR_NORMAL;
+        x1 = x-width*0.5;
+        y1 = y-height*0.5;
+        x2 = x+width*0.5;
+        y2 = y+height*0.5;
+        SERVICE_CALL5(box_2d, SERVICE_NO_RETURN, x1, y1, x2, y2, colour);
+    }
+    SERVICE_CALL0(shapes_2d_end, &btn->shapes_normal_id);
 
     return btn;
 }
 
 void button_free_contents(struct button_t* button)
 {
-    shapes_2d_destroy(button->shapes_normal_id);
+    SERVICE_CALL1(shapes_2d_destroy, SERVICE_NO_RETURN, button->shapes_normal_id);
 
     if(button->text)
     {
-        text_destroy_static_string(font_id, button->text_id);
+        SERVICE_CALL2(text_destroy_static_string, SERVICE_NO_RETURN, font_id, button->text_id);
         free_string(button->text);
     }
 }
@@ -131,26 +142,29 @@ EVENT_LISTENER3(on_mouse_clicked, char mouse_btn, double x, double y)
  * WRAPPERS
  * --------------------------------------------------------------------------*/
 
-intptr_t
-button_create_wrapper(const char* text, float x, float y, float width, float height)
+SERVICE(button_create_wrapper)
 {
-    struct button_t* button = button_create(text, x, y, width, height);
-    return button->id;
+    SERVICE_EXTRACT_ARGUMENT(0, text, const char*, const char*);
+    SERVICE_EXTRACT_ARGUMENT(1, x, float, float);
+    SERVICE_EXTRACT_ARGUMENT(2, y, float, float);
+    SERVICE_EXTRACT_ARGUMENT(3, width, float, float);
+    SERVICE_EXTRACT_ARGUMENT(4, height, float, float);
+    SERVICE_RETURN(struct button_t*, button_create(text, x, y, width, height));
 }
 
-void
-button_destroy_wrapper(intptr_t id)
+SERVICE(button_destroy_wrapper)
 {
+    SERVICE_EXTRACT_ARGUMENT(0, id, intptr_t, intptr_t);
     struct button_t* button = map_find(&g_buttons, id);
     if(button)
         button_destroy(button);
 }
 
-wchar_t*
-button_get_text(intptr_t id)
+SERVICE(button_get_text_wrapper)
 {
+    SERVICE_EXTRACT_ARGUMENT(0, id, intptr_t, intptr_t);
     struct button_t* button = map_find(&g_buttons, id);
     if(button)
-        return button->text;
-    return NULL;
+        SERVICE_RETURN(wchar_t*, button->text);
+    SERVICE_RETURN(wchar_t*, NULL);
 }

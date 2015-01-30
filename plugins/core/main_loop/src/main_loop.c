@@ -55,7 +55,20 @@ is_time_to_update(void)
 }
 
 void
-main_loop_start(void)
+main_loop_reset_timer(void)
+{
+    loop.update_loop_counter = 0;
+    loop.time_begin = get_time_in_microseconds();
+    loop.statistics.last_update = 0;
+}
+
+int64_t
+main_loop_get_elapsed_time(void)
+{
+    return get_time_in_microseconds() - loop.time_begin;
+}
+
+SERVICE(main_loop_start)
 {
     main_loop_reset_timer();
     loop.is_looping = 1;
@@ -77,29 +90,14 @@ main_loop_start(void)
     }
 }
 
-void
-main_loop_stop(void)
+SERVICE(main_loop_stop)
 {
     loop.is_looping = 0;
 }
 
-void
-main_loop_reset_timer(void)
-{
-    loop.update_loop_counter = 0;
-    loop.time_begin = get_time_in_microseconds();
-    loop.statistics.last_update = 0;
-}
-
-int64_t
-main_loop_get_elapsed_time(void)
-{
-    return get_time_in_microseconds() - loop.time_begin;
-}
-
 EVENT_LISTENER0(on_main_loop_stop)
 {
-    main_loop_stop();
+    main_loop_stop(NULL, NULL);
 }
 
 #ifdef _DEBUG

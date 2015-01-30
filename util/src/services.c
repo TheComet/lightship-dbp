@@ -8,6 +8,7 @@
 #include <string.h>
 
 struct map_t g_services;
+char g_service_internal_no_arg_dummy;
 
 /*!
  * @brief Allocates and registers a new service. This is for internal use.

@@ -1,5 +1,6 @@
 #include "util/pstdint.h"
 #include "util/event_api.h"
+#include "util/service_api.h"
 
 struct event_t;
 struct event_args;
@@ -24,9 +25,7 @@ struct main_loop_t
 };
 
 SERVICE(main_loop_start);
-
-void
-main_loop_stop(void);
+SERVICE(main_loop_stop);
 
 void
 main_loop_reset_timer(void);

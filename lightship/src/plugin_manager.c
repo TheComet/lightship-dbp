@@ -214,16 +214,16 @@ load_plugins_from_yaml(const char* filename)
     unordered_vector_init_vector(&new_plugins, sizeof(struct plugin_t*));
 
     /* try to load YAML file */
-    doc_ID = ((yaml_load_func)service_get("yaml.load"))(filename);
+    SERVICE_CALL_NAME1("yaml.load", &doc_ID, filename);
     if(!doc_ID)
         return 0;
     
     /* get DOM and get_value service */
-    SERVICE_CALL1(yaml_get_dom, dom, doc_ID);
+    SERVICE_CALL1(yaml_get_dom, &dom, doc_ID);
     if(!dom)
     {
         llog(LOG_FATAL, 1, "Failed to get DOM");
-        SERVICE_CALL1(yaml_destroy, SERVICE_NO_RET, doc_ID);
+        SERVICE_CALL1(yaml_destroy, SERVICE_NO_RETURN, doc_ID);
         return 0;
     }
     
@@ -297,7 +297,7 @@ load_plugins_from_yaml(const char* filename)
     }
 
     /* clean up */
-    SERVICE_CALL1(yaml_destroy, SERVICE_NO_RET, doc_ID);
+    SERVICE_CALL1(yaml_destroy, SERVICE_NO_RETURN, doc_ID);
     unordered_vector_clear_free(&new_plugins);
     return success;
 }
