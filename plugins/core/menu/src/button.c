@@ -149,7 +149,7 @@ SERVICE(button_create_wrapper)
     SERVICE_EXTRACT_ARGUMENT(2, y, float, float);
     SERVICE_EXTRACT_ARGUMENT(3, width, float, float);
     SERVICE_EXTRACT_ARGUMENT(4, height, float, float);
-    SERVICE_RETURN(struct button_t*, button_create(text, x, y, width, height));
+    SERVICE_RETURN(button_create(text, x, y, width, height), struct button_t*);
 }
 
 SERVICE(button_destroy_wrapper)
@@ -165,6 +165,6 @@ SERVICE(button_get_text_wrapper)
     SERVICE_EXTRACT_ARGUMENT(0, id, intptr_t, intptr_t);
     struct button_t* button = map_find(&g_buttons, id);
     if(button)
-        SERVICE_RETURN(wchar_t*, button->text);
-    SERVICE_RETURN(wchar_t*, NULL);
+        SERVICE_RETURN(button->text, wchar_t*);
+    SERVICE_RETURN(NULL, wchar_t*);
 }
