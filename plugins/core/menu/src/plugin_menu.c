@@ -4,7 +4,7 @@
 #include "plugin_menu/services.h" /* plugin services */
 #include "plugin_menu/events.h"   /* plugin events */
 #include "plugin_menu/button.h"
-#include "plugin_menu/screen_manager.h"
+#include "plugin_menu/menu.h"
 
 static struct plugin_t* g_plugin = NULL;
 static struct menu_t* g_menu = NULL;

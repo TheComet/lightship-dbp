@@ -17,3 +17,4 @@ void
 menu_destroy(struct menu_t* menu);
 
 SERVICE(menu_load_wrapper);
+SERVICE(menu_destroy_wrapper);

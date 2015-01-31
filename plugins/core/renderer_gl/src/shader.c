@@ -32,19 +32,19 @@ void compile_shader(GLuint shader_ID, const char* file_name)
     fp = fopen(file_name, "r");
     if(!fp)
     {
-        llog(LOG_ERROR, 3, "failed to open file \"", file_name, "\"");
+        llog(LOG_ERROR, 3, "[renderer_gl] failed to open file \"", file_name, "\"");
         return;
     }
     fseek(fp, 0, SEEK_END);
     code_num_bytes = ftell(fp);
     rewind(fp);
     code = (GLchar*)MALLOC(code_num_bytes + 1);
-    fread(code, sizeof(char), code_num_bytes, fp);
+    (void)fread(code, sizeof(char), code_num_bytes, fp);
     code[code_num_bytes] = '\0';
     fclose(fp);
 
     /* compile */
-    llog(LOG_INFO, 3, "compiling shader: \"", file_name, "\"");
+    llog(LOG_INFO, 3, "[renderer_gl] compiling shader: \"", file_name, "\"");
     glShaderSource(shader_ID, 1, (const GLchar**)&code, NULL);
     glCompileShader(shader_ID);
     
@@ -96,7 +96,7 @@ GLuint load_shader_pair(const char* vertex_shader, const char* fragment_shader)
     check_shader(fsh_ID);
 
     /* link program */
-    llog(LOG_INFO, 1, "linking program");
+    llog(LOG_INFO, 1, "[renderer_gl] linking program");
     program_ID = glCreateProgram();
     glAttachShader(program_ID, vsh_ID);
     glAttachShader(program_ID, fsh_ID);

@@ -48,7 +48,7 @@ PLUGIN_START()
     /* initialise GLFW */
     if(!glfwInit())
     {
-        llog(LOG_ERROR, 1, "Failed to initialise glfw");
+        llog(LOG_ERROR, 1, "[renderer_gl] Failed to initialise glfw");
         return PLUGIN_FAILURE;
     }
 

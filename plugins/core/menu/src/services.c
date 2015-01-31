@@ -1,7 +1,7 @@
 #include "util/services.h"
 #include "plugin_menu/services.h"
 #include "plugin_menu/button.h"
-#include "plugin_menu/screen_manager.h"
+#include "plugin_menu/menu.h"
 
 /* extern service function pointers */
 struct service_t* yaml_load;
