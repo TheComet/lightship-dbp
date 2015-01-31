@@ -11,10 +11,17 @@
 
     #define @PROJECT_NAME@_@BUILD_TYPE@
     #define @PROJECT_NAME@_@PLATFORM@
-    #cmakedefine MEMORY_ENABLE_MEMORY_REPORT
-    #cmakedefine MEMORY_ENABLE_BACKTRACE
-    #cmakedefine LOG_ENABLE_TIMESTAMPS
     #define BUILTIN_NAMESPACE_NAME "@BUILTIN_NAMESPACE_NAME@"
+
+    #cmakedefine ENABLE_MEMORY_REPORT
+    #cmakedefine ENABLE_MEMORY_BACKTRACE
+    #cmakedefine ENABLE_LOG_TIMESTAMPS
+
+    #cmakedefine HAVE_CURSES
+    #cmakedefine CURSES_HAVE_CURSES_H
+    #cmakedefine CURSES_HAVE_NCURSES_H
+    #cmakedefine CURSES_HAVE_NCURSES_NCURSES_H
+    #cmakedefine CURSES_HAVE_NCURSES_CURSES_H
 
     /* --------------------------------------------------------------
      * Identify the operating system

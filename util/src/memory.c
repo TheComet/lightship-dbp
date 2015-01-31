@@ -7,7 +7,7 @@
 
 #define BACKTRACE_OMIT_COUNT 2
 
-#ifdef MEMORY_ENABLE_MEMORY_REPORT
+#ifdef ENABLE_MEMORY_REPORT
 static intptr_t allocations = 0;
 static intptr_t deallocations = 0;
 static intptr_t ignore_map_malloc = 0;
@@ -17,7 +17,7 @@ struct report_info_t
 {
     intptr_t location;
     intptr_t size;
-#ifdef MEMORY_ENABLE_BACKTRACE
+#ifdef ENABLE_MEMORY_BACKTRACE
     intptr_t backtrace_size;
     char** backtrace;
 #endif
@@ -50,7 +50,7 @@ malloc_debug(intptr_t size)
         struct report_info_t* info = (struct report_info_t*)malloc(sizeof(struct report_info_t));;
         info->location = (intptr_t)p;
         info->size = size;
-#ifdef MEMORY_ENABLE_BACKTRACE
+#ifdef ENABLE_MEMORY_BACKTRACE
         info->backtrace = get_backtrace(&info->backtrace_size);
 #endif
         ignore_map_malloc = 1;
@@ -73,7 +73,7 @@ free_debug(void* ptr)
         struct report_info_t* info = map_find(&report, (intptr_t)ptr);
         if(info)
         {
-#ifdef MEMORY_ENABLE_BACKTRACE
+#ifdef ENABLE_MEMORY_BACKTRACE
             free(info->backtrace);
 #endif
             map_erase(&report, info->location);
@@ -83,13 +83,13 @@ free_debug(void* ptr)
 
         if(!success)
         {
-#ifdef MEMORY_ENABLE_BACKTRACE
+#ifdef ENABLE_MEMORY_BACKTRACE
             char** bt;
             intptr_t bt_size, i;
             printf("  -----------------------------------------\n");
 #endif
             printf("  WARNING: Freeing something that was never allocated\n");
-#ifdef MEMORY_ENABLE_BACKTRACE
+#ifdef ENABLE_MEMORY_BACKTRACE
             bt = get_backtrace(&bt_size);
             printf("  backtrace to where free() was called:\n");
             for(i = 0; i < bt_size; ++i)
@@ -142,7 +142,7 @@ memory_deinit(void)
                     free(dump);
                 }
 
-#ifdef MEMORY_ENABLE_BACKTRACE
+#ifdef ENABLE_MEMORY_BACKTRACE
                 printf("  Backtrace to where malloc() was called:\n");
                 {
                     intptr_t i;
@@ -165,9 +165,9 @@ memory_deinit(void)
     ignore_map_malloc = 1;
     map_clear(&report);
 }
-#else /* MEMORY_ENABLE_MEMORY_REPORT */
+#else /* \bENABLE_MEMORY_REPORT\b */
 
 void memory_init(void) {}
 void memory_deinit(void) {}
 
-#endif /* MEMORY_ENABLE_MEMORY_REPORT */
+#endif /* \bENABLE_MEMORY_REPORT\b */

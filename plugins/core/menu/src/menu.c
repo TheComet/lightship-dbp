@@ -1,4 +1,4 @@
-#include "plugin_menu/screen_manager.h"
+#include "plugin_menu/menu.h"
 #include "plugin_menu/screen.h"
 #include "plugin_menu/services.h"
 #include "plugin_menu/button.h"
@@ -9,6 +9,9 @@
 #include "util/services.h"
 #include <string.h>
 #include <stdlib.h>
+
+struct map_t g_menus;
+static intptr_t guid = 1;
 
 struct menu_t*
 menu_load(const char* file_name)
@@ -53,7 +56,11 @@ menu_load(const char* file_name)
          */
         if(map_find(&menu->screens, screen_node->hash))
         {
-            llog(LOG_WARNING, 2, "[menu] Screen with duplicate name found: ", (char*)screen_node->value);
+#ifdef _DEBUG
+            llog(LOG_WARNING, 2, "[menu] Screen with duplicate name found: ", (char*)screen_node->key);
+#else
+            llog(LOG_WARNING, 1, "[menu] Screen with duplicate name found");
+#endif
             llog(LOG_WARNING, 1, "[menu] Screen will not be created");
             continue;
         }
@@ -78,7 +85,10 @@ menu_load(const char* file_name)
                 const struct ptree_t* height_node = ptree_find_by_key(object_node, "size.y");
                 const struct ptree_t* action_node = ptree_find_by_key(object_node, "action");
                 if(!x_node || !y_node || !width_node || !height_node)
+                {
+                    llog(LOG_WARNING, 1, "[menu] Not enough data to create button. Need at least position and size.");
                     continue;
+                }
                 if(text_node)
                     text = (char*)text_node->value;
                 
@@ -125,6 +135,12 @@ menu_load(const char* file_name)
                         {
                             button->action.service = action_service;
                         }
+                        else
+                        {
+                            llog(LOG_WARNING, 3, "[menu] Tried to bind button to service \"",
+                                                 (char*)service_node->value,
+                                                 "\", but the service was not found.");
+                        }
                     }
                 }
 
@@ -156,5 +172,21 @@ menu_destroy(struct menu_t* menu)
 SERVICE(menu_load_wrapper)
 {
     SERVICE_EXTRACT_ARGUMENT(0, file_name, const char*, const char*);
-    /* TODO return menu ID and map it to menu objects */
+
+    intptr_t id = guid++;
+    struct menu_t* menu = menu_load(file_name);
+    if(!menu)
+        SERVICE_RETURN(0, intptr_t);
+
+    map_insert(&g_menus, id, menu);
+    SERVICE_RETURN(id, intptr_t);
+}
+
+SERVICE(menu_destroy_wrapper)
+{
+    SERVICE_EXTRACT_ARGUMENT(0, id, intptr_t, intptr_t);
+    
+    struct menu_t* menu = map_erase(&g_menus, id);
+    if(menu)
+        menu_destroy(menu);
 }

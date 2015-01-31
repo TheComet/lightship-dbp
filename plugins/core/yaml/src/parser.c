@@ -36,7 +36,7 @@ yaml_load_into_ptree(struct ptree_t* tree, struct ptree_t* root_tree, yaml_parse
     {
         char error[16];
         sprintf(error, "%d", parser->error);
-        llog(LOG_ERROR, 2, "Parser error ", error);
+        llog(LOG_ERROR, 2, "[yaml] Parser error ", error);
         return 0;
     }
 
@@ -149,7 +149,7 @@ yaml_load_into_ptree(struct ptree_t* tree, struct ptree_t* root_tree, yaml_parse
                 break;
             
             default:
-                llog(LOG_ERROR, 1, "Unknown error");
+                llog(LOG_ERROR, 1, "[yaml] Unknown error");
                 finished = FINISH_ERROR;
                 break;
 
@@ -196,7 +196,7 @@ yaml_load(const char* filename)
     fp = fopen(filename, "rb");
     if(!fp)
     {
-        llog(LOG_ERROR, 3, "Failed to open file \"", filename, "\"");
+        llog(LOG_ERROR, 3, "[yaml] Failed to open file \"", filename, "\"");
         return 0;
     }
 
@@ -209,7 +209,7 @@ yaml_load(const char* filename)
         yaml_parser_delete(&parser);
         fclose(fp);
         ptree_destroy(tree);
-        llog(LOG_ERROR, 3, "Syntax error: Failed to parse YAML file \"", filename, "\"");
+        llog(LOG_ERROR, 3, "[yaml] Syntax error: Failed to parse YAML file \"", filename, "\"");
         return 0;
     }
 

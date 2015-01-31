@@ -6,7 +6,7 @@
 
 C_HEADER_BEGIN
 
-#ifdef MEMORY_ENABLE_MEMORY_REPORT
+#ifdef ENABLE_MEMORY_REPORT
 #   define MALLOC malloc_debug
 #   define FREE free_debug
 #else
@@ -33,7 +33,7 @@ memory_init(void);
 LIGHTSHIP_PUBLIC_API void
 memory_deinit(void);
 
-#ifdef MEMORY_ENABLE_MEMORY_REPORT
+#ifdef ENABLE_MEMORY_REPORT
 /*!
  * @brief Does the same thing as a normal call to malloc(), but does some
  * additional work monitor and track down memory leaks.
