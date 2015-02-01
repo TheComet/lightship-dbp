@@ -65,7 +65,7 @@ LIGHTSHIP_PUBLIC_API extern char g_service_internal_no_arg_dummy;
 #define SERVICE_INTERNAL_GET_AND_CHECK(service_name) \
         struct service_t* service_internal_service = service_get(service_name); \
         if(!service_internal_service) \
-            llog(LOG_WARNING, 3, "Service \"", service_name, "\" does not exist"); \
+            llog(LOG_WARNING, NULL, 3, "Service \"", service_name, "\" does not exist"); \
         else
 
 #define SERVICE_CALL_NAME0(service_name, ret_value) do { \

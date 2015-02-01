@@ -108,10 +108,10 @@ EVENT_LISTENER1(on_event, int arg)
                 } else { \
                     intptr_t size, i; \
                     char** backtrace = get_backtrace(&size); \
-                    llog(LOG_ERROR, 1, "Cannot fire event for it is NULL"); \
+                    llog(LOG_ERROR, NULL, 1, "Cannot fire event for it is NULL"); \
                     llog_indent("Backtrace"); \
                     for(i = 0; i != size; ++i) \
-                        llog(LOG_ERROR, 1, backtrace[i]); \
+                        llog(LOG_ERROR, NULL, 1, backtrace[i]); \
                     if(backtrace) free(backtrace); \
                     llog_unindent(); \
                 }

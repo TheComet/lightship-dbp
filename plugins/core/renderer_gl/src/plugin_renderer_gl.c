@@ -27,9 +27,9 @@ set_plugin_info(void)
             PLUGIN_PROGRAMMING_LANGUAGE_C
     );
     plugin_set_version(g_plugin,
-            RENDERER_GL_VERSION_MAJOR,
-            RENDERER_GL_VERSION_MINOR,
-            RENDERER_GL_VERSION_PATCH
+            PLUGIN_VERSION_MAJOR,
+            PLUGIN_VERSION_MINOR,
+            PLUGIN_VERSION_PATCH
     );
 }
 
@@ -48,7 +48,7 @@ PLUGIN_START()
     /* initialise GLFW */
     if(!glfwInit())
     {
-        llog(LOG_ERROR, 1, "[renderer_gl] Failed to initialise glfw");
+        llog(LOG_ERROR, PLUGIN_NAME, 1, "Failed to initialise glfw");
         return PLUGIN_FAILURE;
     }
 

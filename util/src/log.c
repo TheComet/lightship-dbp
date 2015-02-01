@@ -96,7 +96,7 @@ llog_unindent(void)
 
 /* ------------------------------------------------------------------------- */
 void
-llog(log_level_t level, uint32_t num_strs, ...)
+llog(log_level_t level, const char* plugin, uint32_t num_strs, ...)
 {
     /* variables required to generate a timestamp string */
 #ifdef ENABLE_LOG_TIMESTAMPS
@@ -145,6 +145,13 @@ llog(log_level_t level, uint32_t num_strs, ...)
             prefix = "";
             break;
     }
+    
+    /* add length of plugin prefix, if any */
+    if(plugin)
+    {
+        total_length += strlen(plugin) + 3;
+        /* +3 for brackes[] and space */
+    }
 
     /*
      * Get total length of all strings combined and allocate a buffer large
@@ -168,6 +175,14 @@ llog(log_level_t level, uint32_t num_strs, ...)
     strcpy(buffer, prefix);
 #endif
     
+    /* copy plugin prefix into buffer, if any */
+    if(plugin)
+    {
+        strcat(buffer, "[");
+        strcat(buffer, plugin);
+        strcat(buffer, "] ");
+    }
+    
     /* copy all other strings into buffer and end with newline*/
     va_start(ap, num_strs);
     for(i = 0; i != num_strs; ++i)
@@ -189,7 +204,7 @@ llog(log_level_t level, uint32_t num_strs, ...)
  * ------------------------------------------------------------------------- */
 EVENT_LISTENER1(on_llog_indent, const char* str)
 {
-    llog(LOG_INFO, 1, str);
+    llog(LOG_INFO, NULL, 1, str);
 }
 
 /* ------------------------------------------------------------------------- */

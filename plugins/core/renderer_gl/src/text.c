@@ -1,3 +1,4 @@
+#include "plugin_renderer_gl/config.h"
 #include "plugin_renderer_gl/text.h"
 #include "plugin_renderer_gl/shader.h"
 #include "plugin_renderer_gl/glutils.h"
@@ -92,11 +93,11 @@ text_init(void)
     FT_Error error;
 
     /* init freetype */
-    llog(LOG_INFO, 2, "[renderer_gl] ", "Initialising freetype");
+    llog(LOG_INFO, PLUGIN_NAME, 1, "Initialising freetype");
     error = FT_Init_FreeType(&g_lib);
     if(error)
     {
-        llog(LOG_ERROR, 2, "[renderer_gl] ", "Failed to initialise freetype");
+        llog(LOG_ERROR, PLUGIN_NAME, 1, "Failed to initialise freetype");
         return 0;
     }
     
@@ -146,12 +147,12 @@ text_load_font(const char* filename, uint32_t char_size)
         error = FT_New_Face(g_lib, filename, 0, &font->face);
         if(error == FT_Err_Unknown_File_Format)
         {
-            llog(LOG_ERROR, 4, "[renderer_gl] ", "The font file \"", filename, "\" could be opened and read, but it appears that its font format is unsupported");
+            llog(LOG_ERROR, PLUGIN_NAME, 3, "The font file \"", filename, "\" could be opened and read, but it appears that its font format is unsupported");
             break;
         }
         else if(error)
         {
-            llog(LOG_ERROR, 4, "[renderer_gl] ", "Failed to open font file \"", filename, "\"");
+            llog(LOG_ERROR, PLUGIN_NAME, 3, "Failed to open font file \"", filename, "\"");
             break;
         }
         
@@ -159,7 +160,7 @@ text_load_font(const char* filename, uint32_t char_size)
         error = FT_Set_Char_Size(font->face, TO_26DOT6(char_size), 0, 300, 300);
         if(error)
         {
-            llog(LOG_ERROR, 2, "[renderer_gl] ", "Failed to set the character size");
+            llog(LOG_ERROR, PLUGIN_NAME, 1, "Failed to set the character size");
             break;
         }
         
@@ -322,7 +323,7 @@ text_load_atlass(struct font_t* font, const wchar_t* characters)
             char* buffer[sizeof(wchar_t)+1];
             memcpy(buffer, iterator, sizeof(wchar_t));
             buffer[sizeof(wchar_t)] = '\0';
-            llog(LOG_ERROR, 4, "[renderer_gl] ", "Failed to load glyph \"", buffer, "\"");
+            llog(LOG_ERROR, PLUGIN_NAME, 3, "Failed to load glyph \"", buffer, "\"");
             continue;
         }
         
@@ -394,7 +395,7 @@ text_load_atlass(struct font_t* font, const wchar_t* characters)
 
             /* other pixel modes */
             default:
-                llog(LOG_ERROR, 2, "[renderer_gl] ", "Glyph bitmap has unsupported format (conversion to RGBA needs implementing)");
+                llog(LOG_ERROR, PLUGIN_NAME, 1, "Glyph bitmap has unsupported format (conversion to RGBA needs implementing)");
                 break;
         }
 
@@ -552,7 +553,7 @@ text_convert_text_to_vbo(struct font_t* font,
                 char* buffer[sizeof(wchar_t)+1];
                 memcpy(buffer, iterator, sizeof(wchar_t));
                 buffer[sizeof(wchar_t)] = '\0';
-                llog(LOG_ERROR, 4, "[renderer_gl] ", "Failed to look up character: \"", buffer, "\"");
+                llog(LOG_ERROR, PLUGIN_NAME, 3, "Failed to look up character: \"", buffer, "\"");
                 continue;
             }
             
@@ -590,7 +591,7 @@ text_convert_text_to_vbo(struct font_t* font,
             char* buffer[sizeof(wchar_t)+1];
             memcpy(buffer, iterator, sizeof(wchar_t));
             buffer[sizeof(wchar_t)] = '\0';
-            llog(LOG_ERROR, 4, "[renderer_gl] ", "Failed to look up character: \"", buffer, "\"");
+            llog(LOG_ERROR, PLUGIN_NAME, 3, "Failed to look up character: \"", buffer, "\"");
             continue;
         }
 

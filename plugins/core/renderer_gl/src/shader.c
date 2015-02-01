@@ -1,3 +1,4 @@
+#include "plugin_renderer_gl/config.h"
 #include "plugin_renderer_gl/shader.h"
 #include "util/memory.h"
 #include "util/log.h"
@@ -18,7 +19,7 @@ void check_shader(GLuint shader_ID)
     message = (char*)MALLOC(info_log_length);
     glGetShaderInfoLog(shader_ID, info_log_length, NULL, message);
     if(result == GL_FALSE)
-        llog(LOG_ERROR, 1, message);
+        llog(LOG_ERROR, PLUGIN_NAME, 1, message);
     FREE(message);
 }
 
@@ -32,7 +33,7 @@ void compile_shader(GLuint shader_ID, const char* file_name)
     fp = fopen(file_name, "r");
     if(!fp)
     {
-        llog(LOG_ERROR, 3, "[renderer_gl] failed to open file \"", file_name, "\"");
+        llog(LOG_ERROR, PLUGIN_NAME, 3, "failed to open file \"", file_name, "\"");
         return;
     }
     fseek(fp, 0, SEEK_END);
@@ -44,7 +45,7 @@ void compile_shader(GLuint shader_ID, const char* file_name)
     fclose(fp);
 
     /* compile */
-    llog(LOG_INFO, 3, "[renderer_gl] compiling shader: \"", file_name, "\"");
+    llog(LOG_INFO, PLUGIN_NAME, 3, "compiling shader: \"", file_name, "\"");
     glShaderSource(shader_ID, 1, (const GLchar**)&code, NULL);
     glCompileShader(shader_ID);
     
@@ -62,7 +63,7 @@ void check_program(GLuint program_ID)
     message = (char*)MALLOC(info_log_length);
     glGetProgramInfoLog(program_ID, info_log_length, NULL, message);
     if(result == GL_FALSE)
-        llog(LOG_ERROR, 1, message);
+        llog(LOG_ERROR, PLUGIN_NAME, 1, message);
     FREE(message);
 }
 
@@ -96,7 +97,7 @@ GLuint load_shader_pair(const char* vertex_shader, const char* fragment_shader)
     check_shader(fsh_ID);
 
     /* link program */
-    llog(LOG_INFO, 1, "[renderer_gl] linking program");
+    llog(LOG_INFO, PLUGIN_NAME, 1, "linking program");
     program_ID = glCreateProgram();
     glAttachShader(program_ID, vsh_ID);
     glAttachShader(program_ID, fsh_ID);

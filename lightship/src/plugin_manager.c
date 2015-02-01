@@ -101,7 +101,7 @@ plugin_load(const struct plugin_info_t* plugin_info,
         /* make sure not already loaded */
         if(plugin_get_by_name(plugin_info->name))
         {
-            llog(LOG_ERROR, 3, "plugin \"", plugin_info->name, "\" already loaded");
+            llog(LOG_ERROR, NULL, 3, "plugin \"", plugin_info->name, "\" already loaded");
             break;
         }
 
@@ -109,7 +109,7 @@ plugin_load(const struct plugin_info_t* plugin_info,
         filename = find_plugin(plugin_info, criteria);
         if(!filename)
         {
-            llog(LOG_ERROR, 1, "Error searching for plugin: Unable to find a file matching the critera");
+            llog(LOG_ERROR, NULL, 1, "Error searching for plugin: Unable to find a file matching the critera");
             break;
         }
         
@@ -142,7 +142,7 @@ plugin_load(const struct plugin_info_t* plugin_info,
         plugin = init_func();
         if(!plugin)
         {
-            llog(LOG_ERROR, 1, "Error initialising plugin: \"plugin_init\" returned NULL");
+            llog(LOG_ERROR, NULL, 1, "Error initialising plugin: \"plugin_init\" returned NULL");
             break;
         }
         
@@ -152,7 +152,7 @@ plugin_load(const struct plugin_info_t* plugin_info,
         /* ensure the plugin claims to be the same version as its filename */
         if(!plugin_version_acceptable(&plugin->info, filename, PLUGIN_VERSION_EXACT))
         {
-            llog(LOG_ERROR, 5,
+            llog(LOG_ERROR, NULL, 5,
                             "Error: plugin claims to be version ",
                             version_str,
                             ", but the filename is \"",
@@ -177,7 +177,7 @@ plugin_load(const struct plugin_info_t* plugin_info,
         list_push(&g_plugins, plugin);
         
         /* print info about loaded plugin */
-        llog(LOG_INFO, 4,
+        llog(LOG_INFO, NULL, 4,
             "loaded plugin \"",
             plugin->info.name,
             "\", version ",
@@ -222,7 +222,7 @@ load_plugins_from_yaml(const char* filename)
     SERVICE_CALL1(yaml_get_dom, &dom, doc_ID);
     if(!dom)
     {
-        llog(LOG_FATAL, 1, "Failed to get DOM");
+        llog(LOG_FATAL, NULL, 1, "Failed to get DOM");
         SERVICE_CALL1(yaml_destroy, SERVICE_NO_RETURN, doc_ID);
         return 0;
     }
@@ -241,19 +241,19 @@ load_plugins_from_yaml(const char* filename)
             const struct ptree_t* policy = ptree_find_by_key(child, "version_policy");
             if(!name)
             {
-                llog(LOG_ERROR, 1, "Key \"name\" isn't defined for plugin");
+                llog(LOG_ERROR, NULL, 1, "Key \"name\" isn't defined for plugin");
                 continue;
             }
             if(!version)
             {
-                llog(LOG_ERROR, 1, "Key \"version\" isn't defined for plugin");
+                llog(LOG_ERROR, NULL, 1, "Key \"version\" isn't defined for plugin");
                 continue;
             }
             if(policy)
                 policy_str = (char*)policy->value;
             else
             {
-                llog(LOG_WARNING, 1, "Key \"version_policy\" isn't defined for plugin. Using default \"minimum\"");
+                llog(LOG_WARNING, NULL, 1, "Key \"version_policy\" isn't defined for plugin. Using default \"minimum\"");
                 policy_str = "minimum";
             }
             target.name = (char*)name->value;
@@ -262,7 +262,7 @@ load_plugins_from_yaml(const char* filename)
                                                 &target.version.minor,
                                                 &target.version.patch))
             {
-                llog(LOG_ERROR, 1, "Version string of plugin \"", name, "\" is invalid. Should be major.minor.patch");
+                llog(LOG_ERROR, NULL, 1, "Version string of plugin \"", name, "\" is invalid. Should be major.minor.patch");
                 continue;
             }
             if(strncmp("minimum", policy_str, 7) == 0)
@@ -271,7 +271,7 @@ load_plugins_from_yaml(const char* filename)
                 criteria = PLUGIN_VERSION_EXACT;
             else
             {
-                llog(LOG_ERROR, 3, "Invalid policy \"", policy_str, "\"");
+                llog(LOG_ERROR, NULL, 3, "Invalid policy \"", policy_str, "\"");
                 continue;
             }
             
@@ -289,7 +289,7 @@ load_plugins_from_yaml(const char* filename)
         {
             if(!plugin_start(*pluginp))
             {
-                llog(LOG_ERROR, 3, "Failed to start plugin \"", (*pluginp)->info.name, "\", unloading...");
+                llog(LOG_ERROR, NULL, 3, "Failed to start plugin \"", (*pluginp)->info.name, "\", unloading...");
                 plugin_unload(*pluginp);
                 success = 0;
             }
@@ -306,7 +306,7 @@ void
 plugin_unload(struct plugin_t* plugin)
 {
     void* module_handle;
-    llog(LOG_INFO, 3, "unloading plugin \"", plugin->info.name, "\"");
+    llog(LOG_INFO, NULL, 3, "unloading plugin \"", plugin->info.name, "\"");
     
     /* stop the plugin */
     plugin_stop(plugin);
@@ -392,7 +392,7 @@ find_plugin(const struct plugin_info_t* info,
             info->version.major,
             info->version.minor,
             info->version.patch);
-    llog(LOG_INFO, 4, "looking for plugin \"", info->name, crit_info[criteria],
+    llog(LOG_INFO, NULL, 4, "looking for plugin \"", info->name, crit_info[criteria],
             version_str);
     
     /* 

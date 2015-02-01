@@ -1,3 +1,4 @@
+#include "plugin_renderer_gl/config.h"
 #include "plugin_renderer_gl/glutils.h"
 #include "util/log.h"
 #include "GL/glew.h"
@@ -5,7 +6,7 @@
 int z_verbose = 0;
 void z_error(/* should be const */char* message)
 {
-    llog(LOG_ERROR, 1, message);
+    llog(LOG_ERROR, PLUGIN_NAME, 1, message);
 }
 
 int printOglError(char *file, int line)
@@ -19,7 +20,7 @@ int printOglError(char *file, int line)
     {
         char line_str[16];
         sprintf(line_str, "%d", line);
-        llog(LOG_ERROR, 7, "[renderer_gl] ", "glError in file ", file, " @ line ",
+        llog(LOG_ERROR, PLUGIN_NAME, 7, "", "glError in file ", file, " @ line ",
              line_str, ": ", gluErrorString(glErr));
         retCode = 1;
     }
