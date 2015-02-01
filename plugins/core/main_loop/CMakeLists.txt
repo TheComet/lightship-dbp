@@ -28,7 +28,7 @@ set (PLUGIN_MAIN_LOOP_VERSION_STRING
     "${PLUGIN_MAIN_LOOP_VERSION_MAJOR}.${PLUGIN_MAIN_LOOP_VERSION_MINOR}.${PLUGIN_MAIN_LOOP_VERSION_PATCH}")
 
 configure_file ("include/plugin_main_loop/config.h.in"
-                "${CMAKE_CURRENT_BINARY_DIR}/include/main_loop/config.h")
+                "${CMAKE_CURRENT_BINARY_DIR}/include/plugin_main_loop/config.h")
 include_directories ("${CMAKE_CURRENT_BINARY_DIR}/include")
 
 ###############################################################################

@@ -17,11 +17,11 @@ set_plugin_info(void)
 {
     /* set plugin information */
     plugin_set_info(g_plugin,
-            "renderer_gl",                  /* name */
-            "graphics",                     /* category */
-            "TheComet",                     /* author */
-            "OpenGL plugin for lightship",  /* description */
-            "http://github.com/TheComet93/" /* website */
+            PLUGIN_NAME,            /* name */
+            PLUGIN_CATEGORY,        /* category */
+            PLUGIN_AUTHOR,          /* author */
+            PLUGIN_DESCRIPTION,     /* description */
+            PLUGIN_WEBSITE          /* website */
     );
     plugin_set_programming_language(g_plugin,
             PLUGIN_PROGRAMMING_LANGUAGE_C

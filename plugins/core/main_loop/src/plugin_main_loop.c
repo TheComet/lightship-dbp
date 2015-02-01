@@ -1,6 +1,6 @@
 #include "util/config.h"   /* platform macros and definitions */
 #include "util/plugin.h"   /* plugin api */
-#include "main_loop/config.h"  /* configurations for this plugin */
+#include "plugin_main_loop/config.h"  /* configurations for this plugin */
 #include "plugin_main_loop/services.h"
 #include "plugin_main_loop/events.h"
 
@@ -16,11 +16,11 @@ PLUGIN_INIT()
     
     /* set plugin information */
     plugin_set_info(g_plugin,
-            "main_loop",   /* name */
-            "system",   /* category */
-            "TheComet",   /* author */
-            "Controls the speed of game loop and render loop",   /* description */
-            "http://github.com/TheComet93/"    /* website */
+            PLUGIN_NAME,            /* name */
+            PLUGIN_CATEGORY,        /* category */
+            PLUGIN_AUTHOR,          /* author */
+            PLUGIN_DESCRIPTION,     /* description */
+            PLUGIN_WEBSITE          /* website */
     );
     plugin_set_programming_language(g_plugin,
             PLUGIN_PROGRAMMING_LANGUAGE_C
