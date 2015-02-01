@@ -6,6 +6,18 @@
 C_HEADER_BEGIN
 
 struct plugin_t;
+struct ordered_vector_t;
+
+typedef enum service_script_type_e
+{
+    SERVICE_SCRIPT_TYPE_UNKNOWN,
+    SERVICE_SCRIPT_TYPE_NONE,
+    SERVICE_SCRIPT_TYPE_INT,
+    SERVICE_SCRIPT_TYPE_UINT,
+    SERVICE_SCRIPT_TYPE_FLOAT,
+    SERVICE_SCRIPT_TYPE_DOUBLE,
+    SERVICE_SCRIPT_TYPE_STRING
+} service_script_type_e;
 
 /*!
  * @brief Initialises the service system. This must be called before calling any
@@ -75,6 +87,12 @@ service_get(const char* name);
 
 char
 service_do_typecheck(const struct service_t* service, const char* ret_type, int argc, const char** argv);
+
+void**
+service_create_argument_list_from_strings(struct service_t* service, struct ordered_vector_t* argv);
+
+void
+service_destroy_argument_list(struct service_t* service, void** argv);
 
 C_HEADER_END
 

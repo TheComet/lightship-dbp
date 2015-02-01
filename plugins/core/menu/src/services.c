@@ -3,7 +3,7 @@
 #include "plugin_menu/button.h"
 #include "plugin_menu/menu.h"
 
-/* extern service function pointers */
+/* external services used by this plugin */
 struct service_t* yaml_load;
 struct service_t* yaml_get_value;
 struct service_t* yaml_get_dom;
@@ -21,17 +21,26 @@ struct service_t* text_load_characters;
 struct service_t* text_add_static_center_string;
 struct service_t* text_destroy_static_string;
 
+SERVICE(foo)
+{
+    SERVICE_EXTRACT_ARGUMENT_PTR(0, t1, const char*);
+    SERVICE_EXTRACT_ARGUMENT_PTR(1, t2, const char*);
+    SERVICE_EXTRACT_ARGUMENT_PTR(2, t3, const char*);
+    printf("received strings: %s, %s, %s\n", t1, t2, t3);
+}
+
 void
 register_services(const struct plugin_t* plugin)
 {
     /* -----------------------------------------------------
-    * All services this plugin supports
-    * ---------------------------------------------------*/
+     * All services this plugin supports
+     * ---------------------------------------------------*/
 
     SERVICE_REGISTER5(plugin, "button_create", button_create_wrapper, intptr_t, const char*, float, float, float, float);
     SERVICE_REGISTER1(plugin, "button_destroy", button_destroy_wrapper, void, intptr_t);
     SERVICE_REGISTER1(plugin, "button_get_text", button_get_text_wrapper, wchar_t*, intptr_t);
     SERVICE_REGISTER1(plugin, "load", menu_load_wrapper, struct menu_t, const char*);
+    SERVICE_REGISTER3(plugin, "foo", foo, void, const char*, const char*, const char*);
 }
 
 char

@@ -7,6 +7,7 @@
 #include "util/memory.h"
 #include "util/log.h"
 #include "util/services.h"
+#include "util/string.h"
 #include <string.h>
 #include <stdlib.h>
 
@@ -103,44 +104,53 @@ menu_load(const char* file_name)
                 /* extract service name and arguments tied to action, if any */
                 if(action_node)
                 {
-                    struct ptree_t* service_node;
-                    struct ptree_t* argv_node;
-                    char arg_key[sizeof(int)*8+1];
-                    int action_argc = 0;
-
-                    /* extract each argument and insert into vector */
-                    button->action.argv = ordered_vector_create(sizeof(void**));
-                    argv_node = ptree_find_by_key(action_node, "argv");
-                    while(argv_node)
-                    {
-                        /* retrieve next argument */
-                        struct ptree_t* arg_node;
-                        sprintf(arg_key, "%d", action_argc);
-                        arg_node = ptree_find_by_key(argv_node, arg_key);
-                        if(!arg_node)
-                            break;
-                        /* argument found, add to argument list */
-                        ordered_vector_push(button->action.argv, &arg_node->value);
-                        ++action_argc;
-                    }
-                    
-                    /* get service name */
-                    service_node = ptree_find_by_key(action_node, "service");
-
-                    /* set up action to trigger when this button is pressed */
+                    struct ptree_t* service_node = ptree_find_by_key(action_node, "service");
                     if(service_node && service_node->value)
                     {
                         struct service_t* action_service = service_get((char*)service_node->value);
-                        if(action_service)
-                        {
-                            button->action.service = action_service;
-                        }
-                        else
+                        if(!action_service)
                         {
                             llog(LOG_WARNING, 3, "[menu] Tried to bind button to service \"",
                                                  (char*)service_node->value,
                                                  "\", but the service was not found.");
                         }
+                        else
+                        {
+                            /*
+                             * The service exists and can be called. Extract
+                             * arguments and create compatible argument list.
+                             */
+                            struct ptree_t* argv_node;
+                            struct ordered_vector_t argv;
+                            char arg_key[sizeof(int)*8+1];
+                            int action_argc = 0;
+                            ordered_vector_init_vector(&argv, sizeof(void*));
+
+                            /* extract each argument and insert into vector as string */
+                            argv_node = ptree_find_by_key(action_node, "argv");
+                            while(argv_node)
+                            {
+                                /* retrieve next argument */
+                                struct ptree_t* arg_node;
+                                sprintf(arg_key, "%d", action_argc);
+                                arg_node = ptree_find_by_key(argv_node, arg_key);
+                                if(!arg_node)
+                                    break;
+                                /* argument found, add to argument list */
+                                ordered_vector_push(&argv, arg_node->value);
+                                ++action_argc;
+                            }
+                            
+                            /* convert the vector of strings into a vector of arguments */
+                            button->action.argv = service_create_argument_list_from_strings(action_service, &argv);
+                            ordered_vector_clear_free(&argv);
+                            /* only set service if the arguments were successfully created */
+                            if(button->action.argv)
+                            {
+                                button->action.service = action_service;
+                            }
+                        }
+
                     }
                 }
 

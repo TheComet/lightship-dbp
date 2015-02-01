@@ -4,26 +4,33 @@ btn_size:
     y: 0.1
 
 screens:
-    # the main menu
+
     main_screen:
+
         button:
             text: Host
             position:
                 x: 0.0
                 y: 0.3
             size: *btn_size
+
         button:
             text: Join
             position:
                 x: 0.0
                 y: 0.1
             size: *btn_size
+
         button:
             text: Map Editor
             position:
                 x: 0.0
                 y: -0.1
             size: *btn_size
+            action:
+                service: menu.foo
+                argv: [Test, 2, gay]
+
         button:
             text: Quit
             action:
@@ -32,3 +39,4 @@ screens:
                 x: 0.0
                 y: -0.3
             size: *btn_size
+
