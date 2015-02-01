@@ -1,10 +1,11 @@
+#include "plugin_yaml/config.h"
+#include "plugin_yaml/parser.h"
 #include "util/unordered_vector.h"
 #include "util/log.h"
 #include "util/memory.h"
 #include "util/ptree.h"
 #include "util/string.h"
 #include "util/hash.h"
-#include "plugin_yaml/parser.h"
 #include <stdlib.h>
 
 struct unordered_vector_t g_open_docs;
@@ -36,7 +37,7 @@ yaml_load_into_ptree(struct ptree_t* tree, struct ptree_t* root_tree, yaml_parse
     {
         char error[16];
         sprintf(error, "%d", parser->error);
-        llog(LOG_ERROR, 2, "[yaml] Parser error ", error);
+        llog(LOG_ERROR, PLUGIN_NAME, 2, "Parser error ", error);
         return 0;
     }
 
@@ -48,7 +49,7 @@ yaml_load_into_ptree(struct ptree_t* tree, struct ptree_t* root_tree, yaml_parse
         switch(event.type)
         {
             case YAML_NO_EVENT:
-                llog(LOG_ERROR, 1, "[yaml] Syntax error in yaml document");
+                llog(LOG_ERROR, PLUGIN_NAME, 1, "Syntax error in yaml document");
                 finished = FINISH_ERROR;
                 break;
 
@@ -64,7 +65,7 @@ yaml_load_into_ptree(struct ptree_t* tree, struct ptree_t* root_tree, yaml_parse
                 is_sequence = 1;
                 if(!key)
                 {
-                    llog(LOG_ERROR, 1, "[yaml] Received sequence start without a key");
+                    llog(LOG_ERROR, PLUGIN_NAME, 1, "Received sequence start without a key");
                     finished = FINISH_ERROR;
                     break;
                 }
@@ -97,8 +98,8 @@ yaml_load_into_ptree(struct ptree_t* tree, struct ptree_t* root_tree, yaml_parse
                         ptree_duplicate_tree(tree, source, key);
                     else
                     {
-                        llog(LOG_ERROR, 1, "[yaml] Failed to copy ptree \"", event.data.alias.anchor, "\" (yaml anchor failed)");
-                        llog(LOG_ERROR, 1, "[yaml] Possible solution: References need to be defined before they are used.");
+                        llog(LOG_ERROR, PLUGIN_NAME, 1, "Failed to copy ptree \"", event.data.alias.anchor, "\" (yaml anchor failed)");
+                        llog(LOG_ERROR, PLUGIN_NAME, 1, "Possible solution: References need to be defined before they are used.");
                         finished = FINISH_ERROR;
                         break;
                     }
@@ -123,7 +124,7 @@ yaml_load_into_ptree(struct ptree_t* tree, struct ptree_t* root_tree, yaml_parse
                     char index[sizeof(int)*8+1];
                     if(key)
                     {
-                        llog(LOG_ERROR, 1, "[yaml] Received a key during a sequence");
+                        llog(LOG_ERROR, PLUGIN_NAME, 1, "Received a key during a sequence");
                         finished = FINISH_ERROR;
                         break;
                     }
@@ -149,7 +150,7 @@ yaml_load_into_ptree(struct ptree_t* tree, struct ptree_t* root_tree, yaml_parse
                 break;
             
             default:
-                llog(LOG_ERROR, 1, "[yaml] Unknown error");
+                llog(LOG_ERROR, PLUGIN_NAME, 1, "Unknown error");
                 finished = FINISH_ERROR;
                 break;
 
@@ -196,7 +197,7 @@ yaml_load(const char* filename)
     fp = fopen(filename, "rb");
     if(!fp)
     {
-        llog(LOG_ERROR, 3, "[yaml] Failed to open file \"", filename, "\"");
+        llog(LOG_ERROR, PLUGIN_NAME, 3, "Failed to open file \"", filename, "\"");
         return 0;
     }
 
@@ -209,7 +210,7 @@ yaml_load(const char* filename)
         yaml_parser_delete(&parser);
         fclose(fp);
         ptree_destroy(tree);
-        llog(LOG_ERROR, 3, "[yaml] Syntax error: Failed to parse YAML file \"", filename, "\"");
+        llog(LOG_ERROR, PLUGIN_NAME, 3, "Syntax error: Failed to parse YAML file \"", filename, "\"");
         return 0;
     }
 

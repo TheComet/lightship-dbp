@@ -26,9 +26,9 @@ PLUGIN_INIT()
             PLUGIN_PROGRAMMING_LANGUAGE_C
     );
     plugin_set_version(g_plugin,
-            MAIN_LOOP_VERSION_MAJOR,
-            MAIN_LOOP_VERSION_MINOR,
-            MAIN_LOOP_VERSION_PATCH
+            PLUGIN_VERSION_MAJOR,
+            PLUGIN_VERSION_MINOR,
+            PLUGIN_VERSION_PATCH
     );
 
     register_services(g_plugin);

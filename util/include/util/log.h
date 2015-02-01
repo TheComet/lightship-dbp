@@ -59,7 +59,7 @@ llog_unindent(void);
  * @param[in] strs... The strings to concatenate and send to the log.
  */
 LIGHTSHIP_PUBLIC_API void
-llog(log_level_t level, uint32_t num_strs, ...);
+llog(log_level_t level, const char* plugin, uint32_t num_strs, ...);
 
 EVENT_LISTENER1(on_llog_indent, const char* str);
 EVENT_LISTENER1(on_llog, struct log_t* arg);

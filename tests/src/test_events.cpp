@@ -1,6 +1,7 @@
 #include "gmock/gmock.h"
 #include "util/events.h"
-#include "util/api.h"
+#include "util/services.h"
+#include "util/plugin_api.h"
 
 #define NAME events
 

@@ -1,3 +1,4 @@
+#include "plugin_renderer_gl/config.h"
 #include "plugin_renderer_gl/window.h"
 #include "plugin_renderer_gl/events.h"
 #include "plugin_renderer_gl/input.h"
@@ -37,14 +38,14 @@ window_init(void)
     glfw_window = glfwCreateWindow(g_window.width, g_window.height, "Light Ship", NULL, NULL);
     if(glfw_window == NULL)
     {
-        llog(LOG_ERROR, 1, "[renderer_gl] Failed to open glfw window. If you have an Intel GPU, they are not 3.3 compatible.");
+        llog(LOG_ERROR, PLUGIN_NAME, 1, "Failed to open glfw window. If you have an Intel GPU, they are not 3.3 compatible.");
         return 0;
     }
     glfwMakeContextCurrent(glfw_window); /* initialise GLEW */
     glewExperimental = 1; /* needed in core profile */
     if(glewInit() != GLEW_OK)
     {
-        llog(LOG_ERROR, 1, "[renderer_gl] Failed to initialise GLEW\n");
+        llog(LOG_ERROR, PLUGIN_NAME, 1, "Failed to initialise GLEW\n");
         return 0;
     }
     glClearColor(0.0, 0.0, 0.4, 0.0);

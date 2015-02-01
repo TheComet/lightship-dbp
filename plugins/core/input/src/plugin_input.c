@@ -14,19 +14,19 @@ create_and_init_plugin(void)
     
     /* set plugin information - Change this in the file "CMakeLists.txt" */
     plugin_set_info(g_plugin,
-            INPUT_NAME,         /* name */
-            INPUT_CATEGORY,     /* category */
-            INPUT_AUTHOR,       /* author */
-            INPUT_DESCRIPTION,  /* description */
-            INPUT_WEBSITE       /* website */
+            PLUGIN_NAME,         /* name */
+            PLUGIN_CATEGORY,     /* category */
+            PLUGIN_AUTHOR,       /* author */
+            PLUGIN_DESCRIPTION,  /* description */
+            PLUGIN_WEBSITE       /* website */
     );
     plugin_set_programming_language(g_plugin,
             PLUGIN_PROGRAMMING_LANGUAGE_C
     );
     plugin_set_version(g_plugin,
-            INPUT_VERSION_MAJOR,
-            INPUT_VERSION_MINOR,
-            INPUT_VERSION_PATCH
+            PLUGIN_VERSION_MAJOR,
+            PLUGIN_VERSION_MINOR,
+            PLUGIN_VERSION_PATCH
     );
 }
 

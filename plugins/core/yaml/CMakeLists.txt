@@ -26,15 +26,15 @@ set (PLUGIN_YAML_VERSION_MAJOR 0)
 set (PLUGIN_YAML_VERSION_MINOR 0)
 set (PLUGIN_YAML_VERSION_PATCH 1)
 set (PLUGIN_YAML_NAME "yaml")
-set (PLUGIN_YAML_CATEGORY "unknown")
-set (PLUGIN_YAML_AUTHOR "unknown")
-set (PLUGIN_YAML_DESCRIPTION "unknown")
-set (PLUGIN_YAML_WEBSITE "unknown")
+set (PLUGIN_YAML_CATEGORY "utiliy")
+set (PLUGIN_YAML_AUTHOR "TheComet")
+set (PLUGIN_YAML_DESCRIPTION "A YAML parser")
+set (PLUGIN_YAML_WEBSITE "http://github.com/TheComet93/lightship")
 set (PLUGIN_YAML_VERSION_STRING
     "${PLUGIN_YAML_VERSION_MAJOR}.${PLUGIN_YAML_VERSION_MINOR}.${PLUGIN_YAML_VERSION_PATCH}")
 
 configure_file ("include/plugin_yaml/config.h.in"
-                "${CMAKE_CURRENT_BINARY_DIR}/include/yaml/config.h")
+                "${CMAKE_CURRENT_BINARY_DIR}/include/plugin_yaml/config.h")
 include_directories ("${CMAKE_CURRENT_BINARY_DIR}/include")
 
 ###############################################################################

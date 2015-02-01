@@ -17,19 +17,19 @@ create_and_init_plugin(void)
     
     /* set plugin information - Change this in the file "CMakeLists.txt" */
     plugin_set_info(g_plugin,
-            MENU_NAME,         /* name */
-            MENU_CATEGORY,     /* category */
-            MENU_AUTHOR,       /* author */
-            MENU_DESCRIPTION,  /* description */
-            MENU_WEBSITE       /* website */
+            PLUGIN_NAME,         /* name */
+            PLUGIN_CATEGORY,     /* category */
+            PLUGIN_AUTHOR,       /* author */
+            PLUGIN_DESCRIPTION,  /* description */
+            PLUGIN_WEBSITE       /* website */
     );
     plugin_set_programming_language(g_plugin,
             PLUGIN_PROGRAMMING_LANGUAGE_C
     );
     plugin_set_version(g_plugin,
-            MENU_VERSION_MAJOR,
-            MENU_VERSION_MINOR,
-            MENU_VERSION_PATCH
+            PLUGIN_VERSION_MAJOR,
+            PLUGIN_VERSION_MINOR,
+            PLUGIN_VERSION_PATCH
     );
 }
 
