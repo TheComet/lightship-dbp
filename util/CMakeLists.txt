@@ -78,14 +78,18 @@ set (PROJECT_NAME "LIGHTSHIP")
 set (BUILTIN_NAMESPACE_NAME "builtin" CACHE STRING "This is the namespace under which builtin events and services are registered")
 
 if (CMAKE_BUILD_TYPE MATCHES Debug)
-    option (MEMORY_ENABLE_MEMORY_REPORT "Keeps track of the number of allocations and de-allocations and prints a report when the program shuts down" ON)
-    option (MEMORY_ENABLE_BACKTRACE "Generates backtraces for every malloc(), making it easy to track down memory leaks" ON)
+    option (ENABLE_MEMORY_REPORT "Keeps track of the number of allocations and de-allocations and prints a report when the program shuts down" ON)
+    option (ENABLE_MEMORY_BACKTRACE "Generates backtraces for every malloc(), making it easy to track down memory leaks" ON)
 else ()
     option (MEMORY_ENABLE_MEMORY_REPORT "Keeps track of the number of allocations and de-allocations and prints a report when the program shuts down" OFF)
     option (MEMORY_ENABLE_BACKTRACE "Generates backtraces for every malloc(), making it easy to track down memory leaks" OFF)
 endif ()
 
-option (LOG_ENABLE_TIMESTAMPS "Whether or not to prefix log messages with timestamps" ON)
+option (ENABLE_LOG_TIMESTAMPS "Whether or not to prefix log messages with timestamps" ON)
+
+message (STATUS "Memory reports: ${ENABLE_MEMORY_REPORT}")
+message (STATUS "Backtraces in memory reports: ${ENABLE_BACKTRACE}")
+message (STATUS "Log timestamps: ${ENABLE_LOG_TIMESTAMPS}")
 
 # disable backtraces on Windows, as those aren't implemented yet
 if (WIN32)

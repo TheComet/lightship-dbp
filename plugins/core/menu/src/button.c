@@ -4,7 +4,7 @@
 #include "util/map.h"
 #include "util/memory.h"
 #include "util/string.h"
-#include "util/service_api.h"
+#include "util/services.h"
 #include <string.h>
 #include <wchar.h>
 
@@ -86,8 +86,8 @@ void button_free_contents(struct button_t* button)
     {
         SERVICE_CALL2(text_destroy_static_string, SERVICE_NO_RETURN, font_id, button->text_id);
         free_string(button->text);
-        if(button->action.argv)
-            ordered_vector_destroy(button->action.argv);
+        if(button->action.service)
+            service_destroy_argument_list(button->action.service, button->action.argv);
     }
 }
 
@@ -145,7 +145,7 @@ EVENT_LISTENER3(on_mouse_clicked, char mouse_btn, double x, double y)
         {
             /* Pass vector of args (if there are no args, argv->data should be NULL */
             /* Ignore the return value */
-            button->action.service->exec(SERVICE_NO_RETURN, (const void**)button->action.argv->data);
+            button->action.service->exec(SERVICE_NO_RETURN, (const void**)button->action.argv);
         }
     }
 }

@@ -4,6 +4,7 @@
 #include "util/string.h"
 #include "util/map.h"
 #include "util/hash.h"
+#include <util/log.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -28,6 +29,12 @@ service_malloc_and_register(char* full_name,
 
 static char
 service_type_matches_simple_type(const char* type, const char* script_type);
+
+static service_script_type_e
+service_get_c_type_equivalent_from_script_type(const char* type);
+
+static service_script_type_e
+service_get_c_type_equivalent_from_service_type(const char* type);
 
 /* ------------------------------------------------------------------------- */
 void
@@ -88,10 +95,19 @@ service_malloc_and_register(char* full_name,
     /* create service and add to list */
     struct service_t* service = (struct service_t*)MALLOC(sizeof(struct service_t));
     service->name = full_name;
-    memcpy(&service->ret_type, &ret_type, sizeof(char*));
-    memcpy(&service->argv_type, &argv, sizeof(char**));
     service->argc = argc;
     service->exec = exec;
+    
+    /* copy type info */
+    {
+        int i;
+        char** argv_tmp = (char**)MALLOC(argc * sizeof(char**));
+        char* ret_type_tmp = malloc_string(ret_type);
+        for(i = 0; i != argc; ++i)
+            argv_tmp[i] = malloc_string(argv[i]);
+        memcpy(&service->argv_type, &argv_tmp, sizeof(char**));
+        memcpy(&service->ret_type, &ret_type_tmp, sizeof(char*));
+    }
     map_insert(&g_services, hash_jenkins_oaat(full_name, strlen(full_name)), service);
 }
 
@@ -99,7 +115,12 @@ service_malloc_and_register(char* full_name,
 void
 service_free(struct service_t* service)
 {
+    int i;
     free_string(service->name);
+    free_string((char*)service->ret_type);
+    for(i = 0; i != service->argc; ++i)
+        free_string((char*)service->argv_type[i]);
+    FREE(service->argv_type);
     FREE(service);
 }
 
@@ -152,6 +173,83 @@ service_get(const char* name)
     return service;
 }
 
+void**
+service_create_argument_list_from_strings(struct service_t* service, struct ordered_vector_t* argv)
+{
+    void** ret;
+
+    /* check argument count */
+    if(service->argc != argv->count)
+    {
+        llog(LOG_ERROR, 3, "Cannot create argument list for service \"", service->name,
+                           "\": Wrong number of arguments");
+        return NULL;
+    }
+
+    ret = (void**)MALLOC(service->argc * sizeof(void*));
+    memset(ret, 0, service->argc * sizeof(void*));
+    {
+        int i = 0;
+        char failed = 0;
+        ORDERED_VECTOR_FOR_EACH(argv, const char, str)
+        {
+            service_script_type_e type = service_get_c_type_equivalent_from_service_type(service->argv_type[i]);
+            switch(type)
+            {
+                case SERVICE_SCRIPT_TYPE_STRING:
+                    ret[i] = malloc_string(str);
+                    break;
+                case SERVICE_SCRIPT_TYPE_INT:
+                    ret[i] = MALLOC(sizeof(int32_t));
+                    *((int32_t*)ret[i]) = atoi(str);
+                    break;
+                case SERVICE_SCRIPT_TYPE_UINT:
+                    ret[i] = MALLOC(sizeof(uint32_t));
+                    *((uint32_t*)ret[i]) = (uint32_t)atoi(str);
+                    break;
+                case SERVICE_SCRIPT_TYPE_FLOAT:
+                    ret[i] = MALLOC(sizeof(float));
+                    *((float*)ret[i]) = (float)atof(str);
+                    break;
+                case SERVICE_SCRIPT_TYPE_DOUBLE:
+                    ret[i] = MALLOC(sizeof(double));
+                    *((double*)ret[i]) = atof(str);
+                    break;
+                case SERVICE_SCRIPT_TYPE_NONE:
+                    ret[i] = MALLOC(sizeof(char));
+                    *((char*)ret[i]) = '\0';
+                    break;
+                default:
+                    llog(LOG_ERROR, 4, "Cannot create argument list for service \"", service->name,
+                                       "\": Unknown type \"", str, "\"");
+                    failed = 1;
+                    break;
+            }
+            
+            ++i;
+        }
+        
+        /* if any of the conversions failed, free the list and return NULL */
+        if(failed)
+        {
+            service_destroy_argument_list(service, ret);
+            ret = NULL;
+        }
+    }
+
+    return ret;
+}
+
+void
+service_destroy_argument_list(struct service_t* service, void** argv)
+{
+    int i;
+    for(i = 0; i != service->argc; ++i)
+        if(argv[i])
+            FREE(argv[i]);
+    FREE(argv);
+}
+
 char
 service_do_typecheck(const struct service_t* service, const char* ret_type, int argc, const char** argv)
 {
@@ -172,23 +270,40 @@ service_do_typecheck(const struct service_t* service, const char* ret_type, int 
     return 1;
 }
 
-static char
-service_type_matches_simple_type(const char* type, const char* script_type)
+static service_script_type_e
+service_get_c_type_equivalent_from_script_type(const char* type)
+{
+    if(strcmp(type, "string") == 0)
+        return SERVICE_SCRIPT_TYPE_STRING;
+    if(strcmp(type, "int") == 0)
+        return SERVICE_SCRIPT_TYPE_INT;
+    if(strcmp(type, "uint") == 0)
+        return SERVICE_SCRIPT_TYPE_UINT;
+    if(strcmp(type, "float") == 0)
+        return SERVICE_SCRIPT_TYPE_FLOAT;
+    if(strcmp(type, "double") == 0)
+        return SERVICE_SCRIPT_TYPE_DOUBLE;
+    if(strcmp(type, "none") == 0)
+        return SERVICE_SCRIPT_TYPE_NONE;
+
+    return SERVICE_SCRIPT_TYPE_UNKNOWN;
+}
+
+static service_script_type_e
+service_get_c_type_equivalent_from_service_type(const char* type)
 {
     /* strings */
-    if(!strcmp(script_type, "string"))
     {
         /* any form of char* is acceptable */
         if(!strstr(type, "char*"))
-            return 0;
+            return SERVICE_SCRIPT_TYPE_UNKNOWN;
         /* make sure it's not actually a char** */
         if(strstr(type, "**"))
-            return 0;
-        return 1;
+            return SERVICE_SCRIPT_TYPE_UNKNOWN;
+        return SERVICE_SCRIPT_TYPE_STRING;
     }
     
     /* integers */
-    if(strcmp(script_type, "int"))
     {
         int i;
         char* accepted_types[] = {
@@ -201,46 +316,48 @@ service_type_matches_simple_type(const char* type, const char* script_type)
             if(strstr(type, accepted_types[i]))
                 break;
         if(i == 4)
-            return 0;
+            return SERVICE_SCRIPT_TYPE_UNKNOWN;
         /* 
          * Reaching this point means an integer type was recognized.
          * Reject any form of pointers */
         if(strstr(type, "*"))
-            return 0;
-        return 1;
+            return SERVICE_SCRIPT_TYPE_UNKNOWN;
+        /* sign */
+        if(strstr(type, "unsigned"))
+            return SERVICE_SCRIPT_TYPE_UINT;
+        return SERVICE_SCRIPT_TYPE_INT;
     }
     
     /* floats */
-    if(!strcmp(script_type, "float"))
     {
-        int i;
-        char* accepted_types[] = {
-            "float",
-            "double"
-        };
-        for(i = 0; i != 2; ++i)
-            if(strstr(type, accepted_types[i]))
-                break;
-        if(i == 2)
-            return 0;
-        /* 
-         * Reaching this point means a floatign point type was recognized.
-         * Reject any form of pointers */
+        if(!strstr(type, "float"))
+            return SERVICE_SCRIPT_TYPE_UNKNOWN;
+        /* make sure it's not actually a float* */
         if(strstr(type, "*"))
-            return 0;
-        return 1;
+            return SERVICE_SCRIPT_TYPE_UNKNOWN;
+        return SERVICE_SCRIPT_TYPE_FLOAT;
     }
     
-    /* nothings */
-    if(!strcmp(script_type, "none"))
+    /* doubles */
+    {
+        if(!strstr(type, "double"))
+            return SERVICE_SCRIPT_TYPE_UNKNOWN;
+        /* make sure it's not actually a float* */
+        if(strstr(type, "*"))
+            return SERVICE_SCRIPT_TYPE_UNKNOWN;
+        return SERVICE_SCRIPT_TYPE_DOUBLE;
+    }
+    
+    /* none/void */
     {
         if(!strstr(type, "void"))
-            return 0;
+            return SERVICE_SCRIPT_TYPE_UNKNOWN;
         /* reject pointer types */
         if(strstr(type, "*"))
-            return 0;
-        return 1;
+            return SERVICE_SCRIPT_TYPE_UNKNOWN;
+        return SERVICE_SCRIPT_TYPE_NONE;
     }
     
-    return 0;
+    /* unknown */
+    return SERVICE_SCRIPT_TYPE_UNKNOWN;
 }

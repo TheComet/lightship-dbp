@@ -13,7 +13,7 @@ struct vec2_t
 struct action_t
 {
     struct service_t* service;
-    struct ordered_vector_t* argv;
+    void** argv;
 };
 
 struct button_t

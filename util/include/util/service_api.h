@@ -14,6 +14,8 @@ LIGHTSHIP_PUBLIC_API extern char g_service_internal_no_arg_dummy;
 
 #define SERVICE_EXTRACT_ARGUMENT(index, var, cast_from, cast_to) \
     cast_to var = (cast_to) *(cast_from*)argv[index]
+#define SERVICE_EXTRACT_ARGUMENT_PTR(index, var, cast_to) \
+    cast_to var = (cast_to)argv[index]
 
 #define SERVICE_RETURN(value, ret_type) do {\
         *(ret_type*)ret = value; return; } while(0)

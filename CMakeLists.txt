@@ -8,6 +8,7 @@ if (DEFINED CMAKE_BUILD_TYPE)
 else()
     set (CMAKE_BUILD_TYPE "Debug" CACHE STRING "Choose the type of build, options are: None(CMAKE_CXX_FLAGS or CMAKE_C_FLAGS used) Debug Release RelWithDebInfo MinSizeRel.")
 endif()
+message (STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 
 ###############################################################################
 # Project name
