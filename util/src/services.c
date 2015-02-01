@@ -191,8 +191,9 @@ service_create_argument_list_from_strings(struct service_t* service, struct orde
     {
         int i = 0;
         char failed = 0;
-        ORDERED_VECTOR_FOR_EACH(argv, const char, str)
+        ORDERED_VECTOR_FOR_EACH(argv, const char*, str_p)
         {
+            const char* str = *str_p;
             service_script_type_e type = service_get_c_type_equivalent_from_service_type(service->argv_type[i]);
             switch(type)
             {

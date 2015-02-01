@@ -124,7 +124,7 @@ menu_load(const char* file_name)
                             struct ordered_vector_t argv;
                             char arg_key[sizeof(int)*8+1];
                             int action_argc = 0;
-                            ordered_vector_init_vector(&argv, sizeof(void*));
+                            ordered_vector_init_vector(&argv, sizeof(char*));
 
                             /* extract each argument and insert into vector as string */
                             argv_node = ptree_find_by_key(action_node, "argv");
@@ -137,7 +137,7 @@ menu_load(const char* file_name)
                                 if(!arg_node)
                                     break;
                                 /* argument found, add to argument list */
-                                ordered_vector_push(&argv, arg_node->value);
+                                ordered_vector_push(&argv, &arg_node->value);
                                 ++action_argc;
                             }
                             

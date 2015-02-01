@@ -27,9 +27,6 @@ screens:
                 x: 0.0
                 y: -0.1
             size: *btn_size
-            action:
-                service: menu.foo
-                argv: [Test, 2, gay]
 
         button:
             text: Quit
@@ -40,3 +37,12 @@ screens:
                 y: -0.3
             size: *btn_size
 
+        button:
+            text: Explode
+            action:
+                service: menu.foo
+                argv: [This is a test]
+            position:
+                x: -0.6
+                y: 0.3
+            size: *btn_size
