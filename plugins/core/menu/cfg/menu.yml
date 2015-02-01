@@ -5,7 +5,8 @@ btn_size:
 
 screens:
 
-    main_screen:
+    screen:
+        name: main screen
 
         button:
             text: Host
@@ -37,3 +38,12 @@ screens:
                 y: -0.3
             size: *btn_size
 
+    screen:
+        name: host
+
+        button:
+            text: Back
+            position:
+                x: 0.0
+                y: -0.3
+            size: *btn_size

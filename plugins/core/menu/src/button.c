@@ -39,6 +39,7 @@ struct button_t* button_create(const char* text, float x, float y, float width, 
 {
     struct button_t* btn = (struct button_t*)MALLOC(sizeof(struct button_t));
     memset(btn, 0, sizeof(struct button_t));
+    btn->visible = 1;
     btn->pos.x = x;
     btn->pos.y = y;
     btn->size.x = width;
@@ -112,7 +113,7 @@ struct button_t* button_collision(struct button_t* button, float x, float y)
 {
 
     /* test specified button */
-    if(button)
+    if(button && button->visible)
     {
         if(x > button->pos.x - button->size.x*0.5 && x < button->pos.x + button->size.x*0.5)
             if(y > button->pos.y - button->size.y*0.5 && y < button->pos.y + button->size.y*0.5)

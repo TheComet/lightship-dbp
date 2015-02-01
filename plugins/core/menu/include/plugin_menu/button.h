@@ -18,6 +18,7 @@ struct action_t
 
 struct button_t
 {
+    char visible;
     intptr_t id;
     intptr_t shapes_normal_id;
     intptr_t text_id;
