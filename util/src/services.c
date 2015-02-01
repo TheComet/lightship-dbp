@@ -181,11 +181,18 @@ service_create_argument_list_from_strings(struct service_t* service, struct orde
     /* check argument count */
     if(service->argc != argv->count)
     {
+        char argc_provided[sizeof(int)*8+1];
+        char argc_required[sizeof(int)*8+1];
+        sprintf(argc_provided, "%d", (int)argv->count);
+        sprintf(argc_required, "%d", service->argc);
         llog(LOG_ERROR, 3, "Cannot create argument list for service \"", service->name,
                            "\": Wrong number of arguments");
+        llog(LOG_ERROR, 2, "    Required: ", argc_required);
+        llog(LOG_ERROR, 2, "    Provided: ", argc_provided);
         return NULL;
     }
 
+    /* create void** argument vector */
     ret = (void**)MALLOC(service->argc * sizeof(void*));
     memset(ret, 0, service->argc * sizeof(void*));
     {
