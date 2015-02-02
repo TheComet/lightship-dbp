@@ -51,6 +51,7 @@ struct text_string_instance_t
     GLfloat x;
     GLfloat y;
     char is_centered;
+    char visible;
 };
 
 /*!
@@ -150,3 +151,5 @@ SERVICE(text_add_static_string_wrapper);
 SERVICE(text_add_static_center_string_wrapper);
 SERVICE(text_destroy_static_string_wrapper);
 SERVICE(text_destroy_all_static_strings_wrapper);
+SERVICE(text_show_static_string_wrapper);
+SERVICE(text_hide_static_string_wrapper);

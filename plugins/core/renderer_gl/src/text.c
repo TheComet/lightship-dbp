@@ -71,6 +71,7 @@ text_create_string_instance(struct font_t* font, char centered, GLfloat x, GLflo
     instance->x = x;
     instance->y = y;
     instance->is_centered = centered;
+    instance->visible = 1;
     
     return instance;
 }
@@ -452,7 +453,8 @@ text_add_static_string(struct font_t* font, char centered, GLfloat x, GLfloat y,
     {
         MAP_FOR_EACH(&font->static_text_map, struct text_string_instance_t, key, value)
         {
-            text_convert_text_to_vbo(font, value, &vertex_buffer, &index_buffer);
+            if(value->visible)
+                text_convert_text_to_vbo(font, value, &vertex_buffer, &index_buffer);
         }
     }
 
@@ -462,7 +464,7 @@ text_add_static_string(struct font_t* font, char centered, GLfloat x, GLfloat y,
             glBufferData(GL_ARRAY_BUFFER, vertex_buffer.count * sizeof(struct text_vertex_t), vertex_buffer.data, GL_STATIC_DRAW);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, index_buffer.count * sizeof(INDEX_DATA_TYPE), index_buffer.data, GL_STATIC_DRAW);
     glBindVertexArray(0);
-    
+
     /* set number of indices */
     font->gl.static_text_num_indices = index_buffer.count;
     
@@ -507,6 +509,30 @@ text_destroy_all_static_strings(struct font_t* font)
     
     /* reset index counter */
     font->gl.static_text_num_indices = 0;
+}
+
+/* ------------------------------------------------------------------------- */
+void
+text_show_static_string(struct font_t* font, intptr_t id)
+{
+    struct text_string_instance_t* instance = map_find(&font->static_text_map, id);
+    if(!instance)
+        return;
+    
+    instance->visible = 1;
+    text_add_static_string(font, 0, 0, 0, NULL);
+}
+
+/* ------------------------------------------------------------------------- */
+void
+text_hide_static_string(struct font_t* font, intptr_t id)
+{
+    struct text_string_instance_t* instance = map_find(&font->static_text_map, id);
+    if(!instance)
+        return;
+    
+    instance->visible = 0;
+    text_add_static_string(font, 0, 0, 0, NULL);
 }
 
 /* ------------------------------------------------------------------------- */
@@ -753,4 +779,24 @@ SERVICE(text_destroy_all_static_strings_wrapper)
     struct font_t* font = map_find(&g_wrapper_fonts, font_id);
     if(font)
         text_destroy_all_static_strings(font);
+}
+
+SERVICE(text_show_static_string_wrapper)
+{
+    SERVICE_EXTRACT_ARGUMENT(0, font_id, uint32_t, uint32_t);
+    SERVICE_EXTRACT_ARGUMENT(1, id, intptr_t, intptr_t);
+    
+    struct font_t* font = map_find(&g_wrapper_fonts, font_id);
+    if(font)
+        text_show_static_string(font, id);
+}
+
+SERVICE(text_hide_static_string_wrapper)
+{
+    SERVICE_EXTRACT_ARGUMENT(0, font_id, uint32_t, uint32_t);
+    SERVICE_EXTRACT_ARGUMENT(1, id, intptr_t, intptr_t);
+    
+    struct font_t* font = map_find(&g_wrapper_fonts, font_id);
+    if(font)
+        text_hide_static_string(font, id);
 }

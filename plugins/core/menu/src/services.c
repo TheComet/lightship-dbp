@@ -14,12 +14,16 @@ struct service_t* shapes_2d_end;
 struct service_t* shapes_2d_destroy;
 struct service_t* line_2d;
 struct service_t* box_2d;
+struct service_t* shapes_2d_show;
+struct service_t* shapes_2d_hide;
 
 struct service_t* text_load_font;
 struct service_t* text_destroy_font;
 struct service_t* text_load_characters;
 struct service_t* text_add_static_center_string;
 struct service_t* text_destroy_static_string;
+struct service_t* text_show_static_string;
+struct service_t* text_hide_static_string;
 
 void
 register_services(const struct plugin_t* plugin)
@@ -45,6 +49,7 @@ get_required_services(void)
         return 0;
     if(!(yaml_destroy                   = service_get("yaml.destroy")))
         return 0;
+
     if(!(shapes_2d_begin                = service_get("renderer_gl.shapes_2d_begin")))
         return 0;
     if(!(shapes_2d_end                  = service_get("renderer_gl.shapes_2d_end")))
@@ -55,6 +60,11 @@ get_required_services(void)
         return 0;
     if(!(box_2d                         = service_get("renderer_gl.box_2d")))
         return 0;
+    if(!(shapes_2d_show                 = service_get("renderer_gl.shapes_2d_show")))
+        return 0;
+    if(!(shapes_2d_hide                 = service_get("renderer_gl.shapes_2d_hide")))
+        return 0;
+    
     if(!(text_load_font                 = service_get("renderer_gl.text_load_font")))
         return 0;
     if(!(text_destroy_font              = service_get("renderer_gl.text_destroy_font")))
@@ -65,6 +75,11 @@ get_required_services(void)
         return 0;
     if(!(text_destroy_static_string     = service_get("renderer_gl.text_destroy_static_string")))
         return 0;
+    if(!(text_show_static_string        = service_get("renderer_gl.text_show_static_string")))
+        return 0;
+    if(!(text_hide_static_string        = service_get("renderer_gl.text_hide_static_string")))
+        return 0;
+
     return 1;
 }
 
