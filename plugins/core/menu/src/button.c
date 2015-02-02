@@ -32,18 +32,30 @@ void button_init(void)
 void button_deinit(void)
 {
     SERVICE_CALL1(text_destroy_font, SERVICE_NO_RETURN, font_id);
-
     button_destroy_all();
 }
 
-struct button_t* button_create(const char* text, float x, float y, float width, float height)
+struct button_t*
+button_create(const char* text, float x, float y, float width, float height)
 {
     struct button_t* btn = (struct button_t*)MALLOC(sizeof(struct button_t));
     memset(btn, 0, sizeof(struct button_t));
-    element_init_base((struct element_t*)btn,
-                      (element_deinit_derived_func)button_destroy,
+
+    /* base constructor */
+    element_constructor((struct element_t*)btn,
+                      (element_destructor_func)button_destructor,
                       x, y,
                       width, height);
+    
+    /* derived constructor */
+    button_constructor(btn, text, x, y, width, height);
+    
+    return btn;
+}
+
+void
+button_constructor(struct button_t* btn, const char* text, float x, float y, float width, float height)
+{
 
     /* copy wchar_t string into button object */
     if(text)
@@ -76,11 +88,35 @@ struct button_t* button_create(const char* text, float x, float y, float width, 
 
     /* insert into internal container of buttons */
     map_insert(&g_buttons, btn->base.element.id, btn);
-
-    return btn;
 }
 
-void button_free_contents(struct button_t* button)
+void
+button_destructor(struct button_t* button)
+{
+    button_free_contents(button);
+    map_erase_element(&g_buttons, button);
+}
+
+void
+button_destroy(struct button_t* button)
+{
+    button_destructor(button);
+    element_destructor((struct element_t*)button);
+    FREE(button);
+}
+
+void
+button_destroy_all(void)
+{
+    MAP_FOR_EACH(&g_buttons, struct button_t, id, button)
+    {
+        button_destroy(button);
+    }
+    map_clear_free(&g_buttons);
+}
+
+void
+button_free_contents(struct button_t* button)
 {
     SERVICE_CALL1(shapes_2d_destroy, SERVICE_NO_RETURN, button->base.button.shapes_normal_id);
 
@@ -93,24 +129,8 @@ void button_free_contents(struct button_t* button)
     }
 }
 
-void button_destroy(struct button_t* button)
-{
-    button_free_contents(button);
-    map_erase_element(&g_buttons, button);
-    FREE(button);
-}
-
-void button_destroy_all(void)
-{
-    MAP_FOR_EACH(&g_buttons, struct button_t, key, button)
-    {
-        button_free_contents(button);
-        FREE(button);
-    }
-    map_clear_free(&g_buttons);
-}
-
-struct button_t* button_collision(struct button_t* button, float x, float y)
+struct button_t*
+button_collision(struct button_t* button, float x, float y)
 {
 
     /* test specified button */
