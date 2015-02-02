@@ -1,10 +1,10 @@
 #include "util/map.h"
 
-struct button_t;
+struct element_t;
 
 struct screen_t
 {
-    struct map_t buttons;
+    struct map_t elements;
 };
 
 struct screen_t*
@@ -17,4 +17,4 @@ void
 screen_destroy(struct screen_t* screen);
 
 void
-screen_add_button(struct screen_t* screen, struct button_t* button);
+screen_add_element(struct screen_t* screen, struct element_t* element);

@@ -8,8 +8,8 @@
 #include <string.h>
 #include <wchar.h>
 
-static struct map_t g_buttons;
 static intptr_t font_id = -1;
+static struct map_t g_buttons;
 
 #ifdef _DEBUG
 static const char* ttf_filename = "../../plugins/core/menu/ttf/DejaVuSans.ttf";
@@ -19,33 +19,31 @@ static const char* ttf_filename = "ttf/DejaVuSans.ttf";
 
 void button_init(void)
 {
+    uint32_t char_size;
+
+    map_init_map(&g_buttons);
+
     /* load font and characters */
-    uint32_t char_size = 9;
+    char_size = 9;
     SERVICE_CALL2(text_load_font, &font_id, ttf_filename, char_size);
     SERVICE_CALL2(text_load_characters, SERVICE_NO_RETURN, font_id, SERVICE_NO_ARGUMENT);
-    
-    map_init_map(&g_buttons);
 }
 
 void button_deinit(void)
 {
-    button_destroy_all();
-    map_clear_free(&g_buttons);
-
     SERVICE_CALL1(text_destroy_font, SERVICE_NO_RETURN, font_id);
+
+    button_destroy_all();
 }
 
 struct button_t* button_create(const char* text, float x, float y, float width, float height)
 {
     struct button_t* btn = (struct button_t*)MALLOC(sizeof(struct button_t));
     memset(btn, 0, sizeof(struct button_t));
-    btn->visible = 1;
-    btn->pos.x = x;
-    btn->pos.y = y;
-    btn->size.x = width;
-    btn->size.y = height;
-    btn->id = map_find_unused_key(&g_buttons);
-    map_insert(&g_buttons, btn->id, btn);
+    element_init_base((struct element_t*)btn,
+                      (element_deinit_derived_func)button_destroy,
+                      x, y,
+                      width, height);
 
     /* copy wchar_t string into button object */
     if(text)
@@ -54,13 +52,13 @@ struct button_t* button_create(const char* text, float x, float y, float width, 
         /* TODO centering code for text */
         /* TODO instead of passing the raw string, add way to pass a "string instance"
         * which can specify the font and size of the string. */
-        btn->text = strtowcs(text);
-        SERVICE_CALL4(text_add_static_center_string, &btn->text_id, font_id, x, offy, btn->text);
+        btn->base.button.text = strtowcs(text);
+        SERVICE_CALL4(text_add_static_center_string, &btn->base.button.text_id, font_id, x, offy, btn->base.button.text);
     }
     else
     {
-        btn->text = NULL;
-        btn->text_id = 0;
+        btn->base.button.text = NULL;
+        btn->base.button.text_id = 0;
     }
 
     /* draw box */
@@ -74,49 +72,53 @@ struct button_t* button_create(const char* text, float x, float y, float width, 
         y2 = y+height*0.5;
         SERVICE_CALL5(box_2d, SERVICE_NO_RETURN, x1, y1, x2, y2, colour);
     }
-    SERVICE_CALL0(shapes_2d_end, &btn->shapes_normal_id);
+    SERVICE_CALL0(shapes_2d_end, &btn->base.button.shapes_normal_id);
+
+    /* insert into internal container of buttons */
+    map_insert(&g_buttons, btn->base.element.id, btn);
 
     return btn;
 }
 
 void button_free_contents(struct button_t* button)
 {
-    SERVICE_CALL1(shapes_2d_destroy, SERVICE_NO_RETURN, button->shapes_normal_id);
+    SERVICE_CALL1(shapes_2d_destroy, SERVICE_NO_RETURN, button->base.button.shapes_normal_id);
 
-    if(button->text)
+    if(button->base.button.text)
     {
-        SERVICE_CALL2(text_destroy_static_string, SERVICE_NO_RETURN, font_id, button->text_id);
-        free_string(button->text);
-        if(button->action.service)
-            service_destroy_argument_list(button->action.service, button->action.argv);
+        SERVICE_CALL2(text_destroy_static_string, SERVICE_NO_RETURN, font_id, button->base.button.text_id);
+        free_string(button->base.button.text);
+        if(button->base.element.action.service)
+            service_destroy_argument_list(button->base.element.action.service, button->base.element.action.argv);
     }
 }
 
 void button_destroy(struct button_t* button)
 {
     button_free_contents(button);
-    FREE(button);
     map_erase_element(&g_buttons, button);
+    FREE(button);
 }
 
 void button_destroy_all(void)
 {
-    MAP_FOR_EACH(&g_buttons, struct button_t, id, btn)
+    MAP_FOR_EACH(&g_buttons, struct button_t, key, button)
     {
-        button_free_contents(btn);
-        FREE(btn);
+        button_free_contents(button);
+        FREE(button);
     }
-    map_clear(&g_buttons);
+    map_clear_free(&g_buttons);
 }
 
 struct button_t* button_collision(struct button_t* button, float x, float y)
 {
 
     /* test specified button */
-    if(button && button->visible)
+    if(button && button->base.element.visible)
     {
-        if(x > button->pos.x - button->size.x*0.5 && x < button->pos.x + button->size.x*0.5)
-            if(y > button->pos.y - button->size.y*0.5 && y < button->pos.y + button->size.y*0.5)
+        struct element_data_t* elem = &button->base.element;
+        if(x > elem->pos.x - elem->size.x*0.5 && x < elem->pos.x + elem->size.x*0.5)
+            if(y > elem->pos.y - elem->size.y*0.5 && y < elem->pos.y + elem->size.y*0.5)
                 return button;
         return NULL;
     }
@@ -125,8 +127,9 @@ struct button_t* button_collision(struct button_t* button, float x, float y)
     {
         MAP_FOR_EACH(&g_buttons, struct button_t, id, cur_btn)
         {
-            if(x > cur_btn->pos.x - cur_btn->size.x*0.5 && x < cur_btn->pos.x + cur_btn->size.x*0.5)
-                if(y > cur_btn->pos.y - cur_btn->size.y*0.5 && y < cur_btn->pos.y + cur_btn->size.y*0.5)
+            struct element_data_t* elem = &cur_btn->base.element;
+            if(x > elem->pos.x - elem->size.x*0.5 && x < elem->pos.x + elem->size.x*0.5)
+                if(y > elem->pos.y - elem->size.y*0.5 && y < elem->pos.y + elem->size.y*0.5)
                     return cur_btn;
         }
     }
@@ -139,14 +142,15 @@ EVENT_LISTENER3(on_mouse_clicked, char mouse_btn, double x, double y)
     if(button)
     {
         /* let everything know it was clicked */
-        EVENT_FIRE1(evt_button_clicked, button->id);
+        EVENT_FIRE1(evt_button_clicked, button->base.element.id);
         
         /* if button has an action, execute it */
-        if(button->action.service)
+        if(button->base.element.action.service)
         {
             /* Pass vector of args (if there are no args, argv->data should be NULL */
             /* Ignore the return value */
-            button->action.service->exec(SERVICE_NO_RETURN, (const void**)button->action.argv);
+            button->base.element.action.service->exec(SERVICE_NO_RETURN,
+                                                      (const void**)button->base.element.action.argv);
         }
     }
 }
@@ -178,6 +182,6 @@ SERVICE(button_get_text_wrapper)
     SERVICE_EXTRACT_ARGUMENT(0, id, intptr_t, intptr_t);
     struct button_t* button = map_find(&g_buttons, id);
     if(button)
-        SERVICE_RETURN(button->text, wchar_t*);
+        SERVICE_RETURN(button->base.button.text, wchar_t*);
     SERVICE_RETURN(NULL, wchar_t*);
 }

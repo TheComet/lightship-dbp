@@ -1,32 +1,31 @@
+#include "plugin_menu/element.h"
 #include "util/pstdint.h"
 #include "util/event_api.h"
 #include "util/service_api.h"
 
 #define BUTTON_COLOUR_NORMAL 0xFFFFFFFF
 
-struct vec2_t
+struct button_data_t
 {
-    float x;
-    float y;
-};
-
-struct action_t
-{
-    struct service_t* service;
-    void** argv;
+    union
+    {
+        struct element_data_t element;
+    } base;
+    wchar_t* text;
+    intptr_t text_id;
+    intptr_t shapes_normal_id;
 };
 
 struct button_t
 {
-    char visible;
-    intptr_t id;
-    intptr_t shapes_normal_id;
-    intptr_t text_id;
-    wchar_t* text;
-    struct vec2_t pos;
-    struct vec2_t size;
-    struct action_t action;
+    union
+    {
+        struct button_data_t button;
+        struct element_data_t element;
+    } base;
 };
+
+#define GET_BUTTON(self) (&(self)->base.button)
 
 void button_init(void);
 void button_deinit(void);
