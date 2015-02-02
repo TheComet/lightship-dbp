@@ -18,3 +18,9 @@ screen_destroy(struct screen_t* screen);
 
 void
 screen_add_element(struct screen_t* screen, struct element_t* element);
+
+void
+screen_show(struct screen_t* screen);
+
+void
+screen_hide(struct screen_t* screen);

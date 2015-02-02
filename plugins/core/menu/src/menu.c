@@ -13,7 +13,6 @@
 #include <stdlib.h>
 
 struct map_t g_menus;
-static intptr_t guid = 1;
 
 static void
 menu_load_screens(struct menu_t* menu, const struct ptree_t* screen_node);
@@ -24,12 +23,25 @@ menu_load_button(struct screen_t* screen, const struct ptree_t* button_node);
 static void
 menu_load_button_action(struct button_t* button, const struct ptree_t* action_node);
 
+void
+menu_init(void)
+{
+    map_init_map(&g_menus);
+}
+
+void
+menu_deinit(void)
+{
+    map_clear_free(&g_menus);
+}
+
 struct menu_t*
 menu_load(const char* file_name)
 {
     struct menu_t* menu;
     struct ptree_t* dom;
     struct ptree_t* screens;
+    char* menu_name;
     uint32_t doc;
     
     llog(LOG_INFO, PLUGIN_NAME, 3, "Loading menu from file \"", file_name, "\"");
@@ -52,11 +64,37 @@ menu_load(const char* file_name)
         return NULL;
     }
     
+    /* menu must have a name */
+    {
+        struct ptree_t* name_node = ptree_find_by_key(dom, "name");
+        if(name_node && name_node->value)
+            menu_name = name_node->value;
+        else
+        {
+            llog(LOG_ERROR, PLUGIN_NAME, 1, "Failed to find \"name\" node");
+            SERVICE_CALL1(yaml_destroy, SERVICE_NO_RETURN, doc);
+            return NULL;
+        }
+    }
+    
     /* create new menu object in which to store menu elements */
     menu = (struct menu_t*)MALLOC(sizeof(struct menu_t));
     menu_init_menu(menu);
     
+    /* set menu name */
+    menu->name = malloc_string(menu_name);
+    
+    /* load all screens into menu structure */
     menu_load_screens(menu, screens);
+    
+    /* screens are hidden by default. Show the screen specified in start_screen */
+    {
+        struct ptree_t* start_node = ptree_find_by_key(dom, "start_screen");
+        if(start_node && start_node->value)
+            menu_set_active_screen(menu, (char*)start_node->value);
+        else
+            llog(LOG_WARNING, PLUGIN_NAME, 1, "You didn't specify start_screen: \"name\" in your YAML file. Don't know which screen to begin with.");
+    }
 
     /* clean up */
     SERVICE_CALL1(yaml_destroy, SERVICE_NO_RETURN, doc);
@@ -67,6 +105,7 @@ menu_load(const char* file_name)
 void
 menu_init_menu(struct menu_t* menu)
 {
+    memset(menu, 0, sizeof(struct menu_t));
     map_init_map(&menu->screens);
 }
 
@@ -78,13 +117,23 @@ menu_destroy(struct menu_t* menu)
         screen_destroy(screen);
     }
     map_clear_free(&menu->screens);
+    free_string(menu->name);
     FREE(menu);
 }
 
 void
-menu_set_screen(struct menu_t* menu, const char* name)
+menu_set_active_screen(struct menu_t* menu, const char* name)
 {
-    
+    intptr_t screen_id = hash_jenkins_oaat(name, strlen(name));
+    struct screen_t* screen = map_find(&menu->screens, screen_id);
+    if(!screen)
+        return;
+
+    if(menu->active_screen)
+        screen_hide(menu->active_screen);
+
+    screen_show(screen);
+    menu->active_screen = screen;
 }
 
 static void
@@ -138,6 +187,9 @@ menu_load_screens(struct menu_t* menu, const struct ptree_t* screens)
                 if(PTREE_HASH_STRING("button") == object_node->hash)
                     menu_load_button(screen, object_node);
             }}
+            
+            /* hide the screen by default */
+            screen_hide(screen);
         }
     }}
     
@@ -194,9 +246,9 @@ menu_load_button_action(struct button_t* button, const struct ptree_t* action_no
         else
         {
             /*
-            * The service exists and can be called. Extract
-            * arguments and create compatible argument list.
-            */
+             * The service exists and can be called. Extract
+             * arguments and create compatible argument list.
+             */
             struct ptree_t* argv_node;
             struct ordered_vector_t argv;
             char arg_key[sizeof(int)*8+1];
@@ -233,22 +285,45 @@ menu_load_button_action(struct button_t* button, const struct ptree_t* action_no
 
 SERVICE(menu_load_wrapper)
 {
-    SERVICE_EXTRACT_ARGUMENT(0, file_name, const char*, const char*);
+    intptr_t id;
+    SERVICE_EXTRACT_ARGUMENT_PTR(0, file_name, const char*);
 
-    intptr_t id = guid++;
     struct menu_t* menu = menu_load(file_name);
     if(!menu)
         SERVICE_RETURN(0, intptr_t);
 
+    /* cannot have duplicate menu names */
+    id = hash_jenkins_oaat(menu->name, strlen(menu->name));
+    if(map_find(&g_menus, id))
+    {
+        llog(LOG_ERROR, PLUGIN_NAME, 3, "Tried to load a menu with duplicate name: \"", menu->name, "\"");
+        menu_destroy(menu);
+        SERVICE_RETURN(0, intptr_t);
+    }
+    
     map_insert(&g_menus, id, menu);
-    SERVICE_RETURN(id, intptr_t);
+    SERVICE_RETURN(menu->name, const char*);
 }
 
 SERVICE(menu_destroy_wrapper)
 {
-    SERVICE_EXTRACT_ARGUMENT(0, id, intptr_t, intptr_t);
-    
+    SERVICE_EXTRACT_ARGUMENT_PTR(0, menu_name, const char*);
+
+    intptr_t id = hash_jenkins_oaat(menu_name, strlen(menu_name));
     struct menu_t* menu = map_erase(&g_menus, id);
     if(menu)
         menu_destroy(menu);
+}
+
+SERVICE(menu_set_active_screen_wrapper)
+{
+    SERVICE_EXTRACT_ARGUMENT_PTR(0, menu_name, const char*);
+    SERVICE_EXTRACT_ARGUMENT_PTR(1, screen_name, const char*);
+    
+    intptr_t menu_id = hash_jenkins_oaat(menu_name, strlen(menu_name));
+    struct menu_t* menu = map_find(&g_menus, menu_id);
+    if(!menu)
+        return;
+    
+    menu_set_active_screen(menu, screen_name);
 }

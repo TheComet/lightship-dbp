@@ -215,6 +215,10 @@ service_create_argument_list_from_strings(struct service_t* service, struct orde
                     ret[i] = MALLOC(sizeof(uint32_t));
                     *((uint32_t*)ret[i]) = (uint32_t)atoi(str);
                     break;
+                case SERVICE_SCRIPT_TYPE_INTPTR:
+                    ret[i] = MALLOC(sizeof(intptr_t));
+                    *((intptr_t*)ret[i]) = (intptr_t)atoi(str);
+                    break;
                 case SERVICE_SCRIPT_TYPE_FLOAT:
                     ret[i] = MALLOC(sizeof(float));
                     *((float*)ret[i]) = (float)atof(str);
@@ -303,12 +307,13 @@ service_get_c_type_equivalent_from_service_type(const char* type)
     /* strings */
     {
         /* any form of char* is acceptable */
-        if(!strstr(type, "char*"))
-            return SERVICE_SCRIPT_TYPE_UNKNOWN;
-        /* make sure it's not actually a char** */
-        if(strstr(type, "**"))
-            return SERVICE_SCRIPT_TYPE_UNKNOWN;
-        return SERVICE_SCRIPT_TYPE_STRING;
+        if(strstr(type, "char*"))
+        {
+            /* make sure it's not actually a char** */
+            if(strstr(type, "**"))
+                return SERVICE_SCRIPT_TYPE_UNKNOWN;
+            return SERVICE_SCRIPT_TYPE_STRING;
+        }
     }
     
     /* integers */
@@ -323,47 +328,54 @@ service_get_c_type_equivalent_from_service_type(const char* type)
         for(i = 0; i != 4; ++i)
             if(strstr(type, accepted_types[i]))
                 break;
-        if(i == 4)
-            return SERVICE_SCRIPT_TYPE_UNKNOWN;
-        /* 
-         * Reaching this point means an integer type was recognized.
-         * Reject any form of pointers */
-        if(strstr(type, "*"))
-            return SERVICE_SCRIPT_TYPE_UNKNOWN;
-        /* sign */
-        if(strstr(type, "unsigned"))
-            return SERVICE_SCRIPT_TYPE_UINT;
-        return SERVICE_SCRIPT_TYPE_INT;
+        if(i != 4)
+        {
+            /* 
+             * Reaching this point means an integer type was recognized.
+             * Reject any form of pointers */
+            if(strstr(type, "*"))
+                return SERVICE_SCRIPT_TYPE_UNKNOWN;
+            /* intptr_t */
+            if(strstr(type, "intptr"))
+                return SERVICE_SCRIPT_TYPE_INTPTR;
+            /* sign */
+            if(strstr(type, "unsigned"))
+                return SERVICE_SCRIPT_TYPE_UINT;
+            return SERVICE_SCRIPT_TYPE_INT;
+        }
     }
     
     /* floats */
     {
-        if(!strstr(type, "float"))
-            return SERVICE_SCRIPT_TYPE_UNKNOWN;
-        /* make sure it's not actually a float* */
-        if(strstr(type, "*"))
-            return SERVICE_SCRIPT_TYPE_UNKNOWN;
-        return SERVICE_SCRIPT_TYPE_FLOAT;
+        if(strstr(type, "float"))
+        {
+            /* make sure it's not actually a float* */
+            if(strstr(type, "*"))
+                return SERVICE_SCRIPT_TYPE_UNKNOWN;
+            return SERVICE_SCRIPT_TYPE_FLOAT;
+        }
     }
     
     /* doubles */
     {
-        if(!strstr(type, "double"))
-            return SERVICE_SCRIPT_TYPE_UNKNOWN;
-        /* make sure it's not actually a float* */
-        if(strstr(type, "*"))
-            return SERVICE_SCRIPT_TYPE_UNKNOWN;
-        return SERVICE_SCRIPT_TYPE_DOUBLE;
+        if(strstr(type, "double"))
+        {
+            /* make sure it's not actually a float* */
+            if(strstr(type, "*"))
+                return SERVICE_SCRIPT_TYPE_UNKNOWN;
+            return SERVICE_SCRIPT_TYPE_DOUBLE;
+        }
     }
     
     /* none/void */
     {
-        if(!strstr(type, "void"))
-            return SERVICE_SCRIPT_TYPE_UNKNOWN;
-        /* reject pointer types */
-        if(strstr(type, "*"))
-            return SERVICE_SCRIPT_TYPE_UNKNOWN;
-        return SERVICE_SCRIPT_TYPE_NONE;
+        if(strstr(type, "void"))
+        {
+            /* reject pointer types */
+            if(strstr(type, "*"))
+                return SERVICE_SCRIPT_TYPE_UNKNOWN;
+            return SERVICE_SCRIPT_TYPE_NONE;
+        }
     }
     
     /* unknown */

@@ -32,3 +32,21 @@ screen_add_element(struct screen_t* screen, struct element_t* element)
 {
     map_insert(&screen->elements, element->base.element.id, element);
 }
+
+void
+screen_show(struct screen_t* screen)
+{
+    MAP_FOR_EACH(&screen->elements, struct element_t, id, elem)
+    {
+        element_show(elem);
+    }
+}
+
+void
+screen_hide(struct screen_t* screen)
+{
+    MAP_FOR_EACH(&screen->elements, struct element_t, id, elem)
+    {
+        element_hide(elem);
+    }
+}

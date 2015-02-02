@@ -3,13 +3,33 @@ btn_size:
     x: 0.3
     y: 0.1
 
+back_to_main:
+    text: Back
+    action:
+        service: menu.set_active_screen
+        argv: [main menu, main screen]
+    position:
+        x: 0.0
+        y: -0.5
+    size: *btn_size
+
+name: main menu
+start_screen: main screen
+
 screens:
+
+    ###########################################################################
+    # Main Screen
+    ###########################################################################
 
     screen:
         name: main screen
 
         button:
             text: Host
+            action:
+                service: menu.set_active_screen
+                argv: [main menu, host]
             position:
                 x: 0.0
                 y: 0.3
@@ -17,6 +37,9 @@ screens:
 
         button:
             text: Join
+            action:
+                service: menu.set_active_screen
+                argv: [main menu, join]
             position:
                 x: 0.0
                 y: 0.1
@@ -24,9 +47,22 @@ screens:
 
         button:
             text: Map Editor
+            action:
+                service: menu.set_active_screen
+                argv: [main menu, map editor]
             position:
                 x: 0.0
                 y: -0.1
+            size: *btn_size
+        
+        button:
+            text: Settings
+            action:
+                service: menu.set_active_screen
+                argv: [main menu, settings]
+            position:
+                x: 0.0
+                y: -0.3
             size: *btn_size
 
         button:
@@ -35,15 +71,21 @@ screens:
                 service: main_loop.stop
             position:
                 x: 0.0
-                y: -0.3
+                y: -0.5
             size: *btn_size
 
     screen:
         name: host
+        button: *back_to_main
 
-        button:
-            text: Back
-            position:
-                x: 0.0
-                y: -0.3
-            size: *btn_size
+    screen:
+        name: join
+        button: *back_to_main
+
+    screen:
+        name: map editor
+        button: *back_to_main
+
+    screen:
+        name: settings
+        button: *back_to_main

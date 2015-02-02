@@ -136,7 +136,11 @@ button_collision(struct button_t* button, float x, float y)
     /* test specified button */
     if(button && button->base.element.visible)
     {
-        struct element_data_t* elem = &button->base.element;
+        struct element_data_t* elem;
+        if(!button->base.element.visible)
+            return NULL;
+        
+        elem = &button->base.element;
         if(x > elem->pos.x - elem->size.x*0.5 && x < elem->pos.x + elem->size.x*0.5)
             if(y > elem->pos.y - elem->size.y*0.5 && y < elem->pos.y + elem->size.y*0.5)
                 return button;
@@ -147,7 +151,11 @@ button_collision(struct button_t* button, float x, float y)
     {
         MAP_FOR_EACH(&g_buttons, struct button_t, id, cur_btn)
         {
-            struct element_data_t* elem = &cur_btn->base.element;
+            struct element_data_t* elem;
+            if(!cur_btn->base.element.visible)
+                continue;
+
+            elem = &cur_btn->base.element;
             if(x > elem->pos.x - elem->size.x*0.5 && x < elem->pos.x + elem->size.x*0.5)
                 if(y > elem->pos.y - elem->size.y*0.5 && y < elem->pos.y + elem->size.y*0.5)
                     return cur_btn;
