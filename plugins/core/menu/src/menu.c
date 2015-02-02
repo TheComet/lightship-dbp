@@ -81,6 +81,12 @@ menu_destroy(struct menu_t* menu)
     FREE(menu);
 }
 
+void
+menu_set_screen(struct menu_t* menu, const char* name)
+{
+    
+}
+
 static void
 menu_load_screens(struct menu_t* menu, const struct ptree_t* screens)
 {
@@ -165,7 +171,7 @@ menu_load_button(struct screen_t* screen, const struct ptree_t* button_node)
                         atof(y_node->value),
                         atof(width_node->value),
                         atof(height_node->value));
-    screen_add_button(screen, button);
+    screen_add_element(screen, (struct element_t*)button);
 
     /* extract service name and arguments tied to action, if any */
     if(action_node)
@@ -213,12 +219,12 @@ menu_load_button_action(struct button_t* button, const struct ptree_t* action_no
             }
             
             /* convert the vector of strings into a vector of arguments */
-            button->action.argv = service_create_argument_list_from_strings(action_service, &argv);
+            button->base.element.action.argv = service_create_argument_list_from_strings(action_service, &argv);
             ordered_vector_clear_free(&argv);
             /* only set service if the arguments were successfully created */
-            if(button->action.argv)
+            if(button->base.element.action.argv)
             {
-                button->action.service = action_service;
+                button->base.element.action.service = action_service;
             }
         }
 

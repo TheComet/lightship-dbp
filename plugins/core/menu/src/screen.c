@@ -1,5 +1,5 @@
 #include "plugin_menu/screen.h"
-#include "plugin_menu/button.h"
+#include "plugin_menu/element.h"
 #include "util/memory.h"
 
 struct screen_t*
@@ -13,21 +13,22 @@ screen_create(void)
 void
 screen_init_screen(struct screen_t* screen)
 {
-    map_init_map(&screen->buttons);
+    map_init_map(&screen->elements);
 }
 
 void
 screen_destroy(struct screen_t* screen)
 {
-    MAP_FOR_EACH(&screen->buttons, struct button_t, key, button)
+    MAP_FOR_EACH(&screen->elements, struct element_t, key, element)
     {
-        button_destroy(button);
+        element_destroy(element);
     }
-    map_clear_free(&screen->buttons);
+    map_clear_free(&screen->elements);
     FREE(screen);
 }
 
 void
-screen_add_button(struct screen_t* screen, struct button_t* button)
+screen_add_element(struct screen_t* screen, struct element_t* element)
 {
+    map_insert(&screen->elements, element->base.element.id, element);
 }

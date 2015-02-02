@@ -1,6 +1,6 @@
-#include "yaml/config.h"   /* configurations for this plugin */
 #include "util/config.h"     /* platform macros and definitions */
 #include "util/plugin.h"     /* plugin api */
+#include "plugin_yaml/config.h"   /* configurations for this plugin */
 #include "plugin_yaml/services.h" /* plugin services */
 #include "plugin_yaml/events.h"   /* plugin events */
 #include "plugin_yaml/parser.h"
