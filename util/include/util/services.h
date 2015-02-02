@@ -97,13 +97,13 @@ service_unregister_all(const struct plugin_t* plugin);
 LIGHTSHIP_PUBLIC_API struct service_t*
 service_get(const char* name);
 
-char
+LIGHTSHIP_PUBLIC_API char
 service_do_typecheck(const struct service_t* service, const char* ret_type, int argc, const char** argv);
 
-void**
+LIGHTSHIP_PUBLIC_API void**
 service_create_argument_list_from_strings(struct service_t* service, struct ordered_vector_t* argv);
 
-void
+LIGHTSHIP_PUBLIC_API void
 service_destroy_argument_list(struct service_t* service, void** argv);
 
 C_HEADER_END
