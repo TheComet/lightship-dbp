@@ -50,10 +50,7 @@ to_nearest_pow2(GLuint value)
  * @param index_buffer The unsigned_vector to append indices to.
  */
 static void
-text_convert_text_to_vbo(struct font_t* font,
-                         struct text_string_instance_t* string_instance,
-                         struct unordered_vector_t* vertex_buffer,
-                         struct unordered_vector_t* index_buffer);
+text_sync_static_strings_with_gpu(struct font_t* font);
 
 /*!
  * @brief Creates a new text_string_instance_t object.
@@ -63,29 +60,17 @@ text_convert_text_to_vbo(struct font_t* font,
  * @param str The string to copy into the instance.
  */
 static struct text_string_instance_t*
-text_create_string_instance(struct font_t* font, char centered, GLfloat x, GLfloat y, const wchar_t* str)
-{
-    struct text_string_instance_t* instance;
-    instance = (struct text_string_instance_t*)MALLOC(sizeof(struct text_string_instance_t));
-    instance->text = malloc_wstring(str);
-    instance->x = x;
-    instance->y = y;
-    instance->is_centered = centered;
-    instance->visible = 1;
-    
-    return instance;
-}
+text_create_string_instance(struct font_t* font, char centered, GLfloat x, GLfloat y, const wchar_t* str);
 
 /*!
  * @brief Destroys a text_string_instance_t object.
  * @param instance The instance to destroy.
  */
 static void
-text_destroy_string_instance(struct text_string_instance_t* instance)
-{
-    free_string(instance->text);
-    FREE(instance);
-}
+text_destroy_string_instance(struct text_string_instance_t* instance);
+
+static void
+text_sync_static_strings_with_gpu(struct font_t* font);
 
 /* ------------------------------------------------------------------------- */
 char
@@ -431,46 +416,14 @@ text_load_atlass(struct font_t* font, const wchar_t* characters)
 intptr_t
 text_add_static_string(struct font_t* font, char centered, GLfloat x, GLfloat y, const wchar_t* str)
 {
-    struct unordered_vector_t vertex_buffer;
-    struct unordered_vector_t index_buffer;
-    intptr_t text_key;
-
     /* create new string instance and insert into map */
-    text_key = 0;
-    if(str)
-    {
-        struct text_string_instance_t* str_instance;
-        str_instance = text_create_string_instance(font, centered, x, y, str);
-        text_key = map_find_unused_key(&font->static_text_map);
-        map_insert(&font->static_text_map, text_key, str_instance);
-    }
-
-    /* init vertex and index buffers */
-    unordered_vector_init_vector(&vertex_buffer, sizeof(struct text_vertex_t));
-    unordered_vector_init_vector(&index_buffer, sizeof(INDEX_DATA_TYPE));
-
-    /* convert all strings in static text map to vertex and index data */
-    {
-        MAP_FOR_EACH(&font->static_text_map, struct text_string_instance_t, key, value)
-        {
-            if(value->visible)
-                text_convert_text_to_vbo(font, value, &vertex_buffer, &index_buffer);
-        }
-    }
-
-    /* upload to GPU */
-    glBindVertexArray(font->gl.vao);
-        glBindBuffer(GL_ARRAY_BUFFER, font->gl.vbo);
-            glBufferData(GL_ARRAY_BUFFER, vertex_buffer.count * sizeof(struct text_vertex_t), vertex_buffer.data, GL_STATIC_DRAW);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, index_buffer.count * sizeof(INDEX_DATA_TYPE), index_buffer.data, GL_STATIC_DRAW);
-    glBindVertexArray(0);
-
-    /* set number of indices */
-    font->gl.static_text_num_indices = index_buffer.count;
+    intptr_t text_key;
+    struct text_string_instance_t* str_instance;
+    str_instance = text_create_string_instance(font, centered, x, y, str);
+    text_key = map_find_unused_key(&font->static_text_map);
+    map_insert(&font->static_text_map, text_key, str_instance);
     
-    /* clean up */
-    unordered_vector_clear_free(&vertex_buffer);
-    unordered_vector_clear_free(&index_buffer);
+    text_sync_static_strings_with_gpu(font);
     
     return text_key;
 }
@@ -484,7 +437,7 @@ text_destroy_static_string(struct font_t* font, intptr_t ID)
     if(instance)
     {
         text_destroy_string_instance(instance);
-        text_add_static_string(font, 0, 0, 0, NULL);
+        text_sync_static_strings_with_gpu(font);
     }
 }
 
@@ -520,7 +473,7 @@ text_show_static_string(struct font_t* font, intptr_t id)
         return;
     
     instance->visible = 1;
-    text_add_static_string(font, 0, 0, 0, NULL);
+    text_sync_static_strings_with_gpu(font);
 }
 
 /* ------------------------------------------------------------------------- */
@@ -532,12 +485,54 @@ text_hide_static_string(struct font_t* font, intptr_t id)
         return;
     
     instance->visible = 0;
-    text_add_static_string(font, 0, 0, 0, NULL);
+    text_sync_static_strings_with_gpu(font);
+}
+
+/* ------------------------------------------------------------------------- */
+void
+text_draw(void)
+{
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);printOpenGLError();
+    glUseProgram(g_text_shader_id);printOpenGLError();
+    {
+        UNORDERED_VECTOR_FOR_EACH(&g_fonts, struct font_t, font)
+        {
+            glBindVertexArray(font->gl.vao);printOpenGLError();
+                glDrawElements(GL_TRIANGLES, font->gl.static_text_num_indices, GL_UNSIGNED_SHORT, NULL);printOpenGLError();
+            
+        }
+    }
+    glBindVertexArray(0);printOpenGLError();
+    glDisable(GL_BLEND);printOpenGLError();
+}
+
+/* ------------------------------------------------------------------------- */
+static struct text_string_instance_t*
+text_create_string_instance(struct font_t* font, char centered, GLfloat x, GLfloat y, const wchar_t* str)
+{
+    struct text_string_instance_t* instance;
+    instance = (struct text_string_instance_t*)MALLOC(sizeof(struct text_string_instance_t));
+    instance->text = malloc_wstring(str);
+    instance->x = x;
+    instance->y = y;
+    instance->is_centered = centered;
+    instance->visible = 1;
+    
+    return instance;
 }
 
 /* ------------------------------------------------------------------------- */
 static void
-text_convert_text_to_vbo(struct font_t* font,
+text_destroy_string_instance(struct text_string_instance_t* instance)
+{
+    free_string(instance->text);
+    FREE(instance);
+}
+
+/* ------------------------------------------------------------------------- */
+static void
+text_convert_text_to_mesh(struct font_t* font,
                          struct text_string_instance_t* string_instance,
                          struct unordered_vector_t* vertex_buffer,
                          struct unordered_vector_t* index_buffer)
@@ -679,22 +674,37 @@ text_convert_text_to_vbo(struct font_t* font,
 }
 
 /* ------------------------------------------------------------------------- */
-void
-text_draw(void)
+static void
+text_sync_static_strings_with_gpu(struct font_t* font)
 {
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);printOpenGLError();
-    glUseProgram(g_text_shader_id);printOpenGLError();
+    /* init vertex and index buffers */
+    struct unordered_vector_t vertex_buffer;
+    struct unordered_vector_t index_buffer;
+    unordered_vector_init_vector(&vertex_buffer, sizeof(struct text_vertex_t));
+    unordered_vector_init_vector(&index_buffer, sizeof(INDEX_DATA_TYPE));
+
+    /* convert all strings in static text map to vertex and index data */
     {
-        UNORDERED_VECTOR_FOR_EACH(&g_fonts, struct font_t, font)
+        MAP_FOR_EACH(&font->static_text_map, struct text_string_instance_t, key, value)
         {
-            glBindVertexArray(font->gl.vao);printOpenGLError();
-                glDrawElements(GL_TRIANGLES, font->gl.static_text_num_indices, GL_UNSIGNED_SHORT, NULL);printOpenGLError();
-            
+            if(value->visible)
+                text_convert_text_to_mesh(font, value, &vertex_buffer, &index_buffer);
         }
     }
-    glBindVertexArray(0);printOpenGLError();
-    glDisable(GL_BLEND);printOpenGLError();
+
+    /* upload to GPU */
+    glBindVertexArray(font->gl.vao);
+        glBindBuffer(GL_ARRAY_BUFFER, font->gl.vbo);
+            glBufferData(GL_ARRAY_BUFFER, vertex_buffer.count * sizeof(struct text_vertex_t), vertex_buffer.data, GL_STATIC_DRAW);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, index_buffer.count * sizeof(INDEX_DATA_TYPE), index_buffer.data, GL_STATIC_DRAW);
+    glBindVertexArray(0);
+
+    /* set number of indices */
+    font->gl.static_text_num_indices = index_buffer.count;
+    
+    /* clean up */
+    unordered_vector_clear_free(&vertex_buffer);
+    unordered_vector_clear_free(&index_buffer);
 }
 
 /* ------------------------------------------------------------------------- */
