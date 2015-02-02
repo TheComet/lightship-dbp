@@ -6,8 +6,10 @@
 #include "plugin_menu/button.h"
 #include "plugin_menu/menu.h"
 
+#include "util/services.h"
+
 static struct plugin_t* g_plugin = NULL;
-static struct menu_t* g_menu = NULL;
+static char* g_menu;
 
 void
 create_and_init_plugin(void)
@@ -49,12 +51,17 @@ PLUGIN_START()
     register_event_listeners(g_plugin);
 
     button_init();
+    menu_init();
     
+    {
+        struct service_t* menu_load_service = service_get("menu.load");
 #ifdef _DEBUG
-    g_menu = menu_load("../../plugins/core/menu/cfg/menu.yml");
+        const char* menu_file_name = "../../plugins/core/menu/cfg/menu.yml";
 #else
-    g_menu = menu_load("cfg/menu.yml");
+        const char* menu_file_name = "cfg/menu.yml";
 #endif
+        SERVICE_CALL1(menu_load_service, &g_menu, *menu_file_name);
+    }
 
     return PLUGIN_SUCCESS;
 }
@@ -62,7 +69,10 @@ PLUGIN_START()
 PLUGIN_STOP()
 {
     /* de-init */
-    menu_destroy(g_menu);
+    struct service_t* menu_destroy_service = service_get("menu.destroy");
+    SERVICE_CALL1(menu_destroy_service, SERVICE_NO_RETURN, *g_menu);
+    
+    menu_deinit();
     button_deinit();
 }
 
