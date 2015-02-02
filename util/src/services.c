@@ -27,9 +27,6 @@ service_malloc_and_register(char* full_name,
                             const int argc,
                             const char** argv);
 
-static char
-service_type_matches_simple_type(const char* type, const char* script_type);
-
 static service_script_type_e
 service_get_c_type_equivalent_from_script_type(const char* type);
 
@@ -173,6 +170,7 @@ service_get(const char* name)
     return service;
 }
 
+/* ------------------------------------------------------------------------- */
 void**
 service_create_argument_list_from_strings(struct service_t* service, struct ordered_vector_t* argv)
 {
@@ -207,18 +205,48 @@ service_create_argument_list_from_strings(struct service_t* service, struct orde
                 case SERVICE_SCRIPT_TYPE_STRING:
                     ret[i] = malloc_string(str);
                     break;
-                case SERVICE_SCRIPT_TYPE_INT:
-                    ret[i] = MALLOC(sizeof(int32_t));
-                    *((int32_t*)ret[i]) = atoi(str);
+                case SERVICE_SCRIPT_TYPE_WSTRING:
+                    ret[i] = strtowcs(str);
                     break;
-                case SERVICE_SCRIPT_TYPE_UINT:
+/* ------------------------------------------------------------------------- */
+                case SERVICE_SCRIPT_TYPE_INT8:
+                    ret[i] = MALLOC(sizeof(int8_t));
+                    *((int8_t*)ret[i]) = (int8_t)atoi(str);
+                    break;
+                case SERVICE_SCRIPT_TYPE_UINT8:
+                    ret[i] = MALLOC(sizeof(uint8_t));
+                    *((uint8_t*)ret[i]) = (uint8_t)atoi(str);
+                    break;
+                case SERVICE_SCRIPT_TYPE_INT16:
+                    ret[i] = MALLOC(sizeof(int16_t));
+                    *((int16_t*)ret[i]) = (int16_t)atoi(str);
+                    break;
+                case SERVICE_SCRIPT_TYPE_UINT16:
+                    ret[i] = MALLOC(sizeof(uint16_t));
+                    *((uint16_t*)ret[i]) = (uint16_t)atoi(str);
+                    break;
+                case SERVICE_SCRIPT_TYPE_INT32:
+                    ret[i] = MALLOC(sizeof(int32_t));
+                    *((int32_t*)ret[i]) = (int32_t)atoi(str);
+                    break;
+                case SERVICE_SCRIPT_TYPE_UINT32:
                     ret[i] = MALLOC(sizeof(uint32_t));
                     *((uint32_t*)ret[i]) = (uint32_t)atoi(str);
                     break;
+                case SERVICE_SCRIPT_TYPE_INT64:
+                    ret[i] = MALLOC(sizeof(int64_t));
+                    *((int64_t*)ret[i]) = (int64_t)atoi(str);
+                    break;
+                case SERVICE_SCRIPT_TYPE_UINT64:
+                    ret[i] = MALLOC(sizeof(uint64_t));
+                    *((uint64_t*)ret[i]) = (uint64_t)atoi(str);
+                    break;
+/* ------------------------------------------------------------------------- */
                 case SERVICE_SCRIPT_TYPE_INTPTR:
                     ret[i] = MALLOC(sizeof(intptr_t));
                     *((intptr_t*)ret[i]) = (intptr_t)atoi(str);
                     break;
+/* ------------------------------------------------------------------------- */
                 case SERVICE_SCRIPT_TYPE_FLOAT:
                     ret[i] = MALLOC(sizeof(float));
                     *((float*)ret[i]) = (float)atof(str);
@@ -227,6 +255,7 @@ service_create_argument_list_from_strings(struct service_t* service, struct orde
                     ret[i] = MALLOC(sizeof(double));
                     *((double*)ret[i]) = atof(str);
                     break;
+/* ------------------------------------------------------------------------- */
                 case SERVICE_SCRIPT_TYPE_NONE:
                     ret[i] = MALLOC(sizeof(char));
                     *((char*)ret[i]) = '\0';
@@ -287,10 +316,12 @@ service_get_c_type_equivalent_from_script_type(const char* type)
 {
     if(strcmp(type, "string") == 0)
         return SERVICE_SCRIPT_TYPE_STRING;
+    if(strcmp(type, "wstring") == 0)
+        return SERVICE_SCRIPT_TYPE_WSTRING;
     if(strcmp(type, "int") == 0)
-        return SERVICE_SCRIPT_TYPE_INT;
+        return SERVICE_SCRIPT_TYPE_INT32;
     if(strcmp(type, "uint") == 0)
-        return SERVICE_SCRIPT_TYPE_UINT;
+        return SERVICE_SCRIPT_TYPE_UINT32;
     if(strcmp(type, "float") == 0)
         return SERVICE_SCRIPT_TYPE_FLOAT;
     if(strcmp(type, "double") == 0)
@@ -310,72 +341,81 @@ service_get_c_type_equivalent_from_service_type(const char* type)
         if(strstr(type, "char*"))
         {
             /* make sure it's not actually a char** */
-            if(strstr(type, "**"))
+            int num_chrs = 0;
+            const char* str = type;
+            for(num_chrs = 0; str[num_chrs]; str[num_chrs] == '*' ? num_chrs++ : *str++);
+            if(num_chrs >= 2)
                 return SERVICE_SCRIPT_TYPE_UNKNOWN;
             return SERVICE_SCRIPT_TYPE_STRING;
+        }
+        
+        /* any form of wchar_t* is acceptable */
+        if(strstr(type, "wchar_t*"))
+        {
+            /* make sure it's not actually a wchar_t** */
+            int num_chrs = 0;
+            const char* str = type;
+            for(num_chrs = 0; str[num_chrs]; str[num_chrs] == '*' ? num_chrs++ : *str++);
+            if(num_chrs >= 2)
+                return SERVICE_SCRIPT_TYPE_UNKNOWN;
+            return SERVICE_SCRIPT_TYPE_WSTRING;
         }
     }
     
     /* integers */
+    if(strstr(type, "int"))
     {
-        int i;
-        char* accepted_types[] = {
-            "int",
-            "short",
-            "long",
-            "char"
-        };
-        for(i = 0; i != 4; ++i)
-            if(strstr(type, accepted_types[i]))
-                break;
-        if(i != 4)
-        {
-            /* 
-             * Reaching this point means an integer type was recognized.
-             * Reject any form of pointers */
-            if(strstr(type, "*"))
-                return SERVICE_SCRIPT_TYPE_UNKNOWN;
-            /* intptr_t */
-            if(strstr(type, "intptr"))
-                return SERVICE_SCRIPT_TYPE_INTPTR;
-            /* sign */
-            if(strstr(type, "unsigned"))
-                return SERVICE_SCRIPT_TYPE_UINT;
-            return SERVICE_SCRIPT_TYPE_INT;
-        }
+        service_script_type_e ret = SERVICE_SCRIPT_TYPE_UNKNOWN;
+
+        /* reject pointer types */
+        if(strstr(type, "*"))
+            return SERVICE_SCRIPT_TYPE_UNKNOWN;
+        /* intptr_t */
+        if(strstr(type, "intptr"))
+            return SERVICE_SCRIPT_TYPE_INTPTR;
+        /* number of bits */
+        if(strstr(type, "8"))
+            ret = SERVICE_SCRIPT_TYPE_INT8;
+        else if(strstr(type, "16"))
+            ret = SERVICE_SCRIPT_TYPE_INT16;
+        else if(strstr(type, "32"))
+            ret = SERVICE_SCRIPT_TYPE_INT32;
+        else if(strstr(type, "64"))
+            ret = SERVICE_SCRIPT_TYPE_INT64;
+        else
+            return SERVICE_SCRIPT_TYPE_UNKNOWN;
+        /* sign */
+        if(strchr(type, 'u'))
+            ++ret;
+        return ret;
+        
     }
     
     /* floats */
+    if(strstr(type, "float"))
     {
-        if(strstr(type, "float"))
-        {
-            /* make sure it's not actually a float* */
-            if(strstr(type, "*"))
-                return SERVICE_SCRIPT_TYPE_UNKNOWN;
-            return SERVICE_SCRIPT_TYPE_FLOAT;
-        }
+        /* make sure it's not actually a float* */
+        if(strstr(type, "*"))
+            return SERVICE_SCRIPT_TYPE_UNKNOWN;
+        return SERVICE_SCRIPT_TYPE_FLOAT;
     }
     
     /* doubles */
+    if(strstr(type, "double"))
     {
-        if(strstr(type, "double"))
-        {
-            /* make sure it's not actually a float* */
-            if(strstr(type, "*"))
-                return SERVICE_SCRIPT_TYPE_UNKNOWN;
-            return SERVICE_SCRIPT_TYPE_DOUBLE;
-        }
+        /* make sure it's not actually a float* */
+        if(strstr(type, "*"))
+            return SERVICE_SCRIPT_TYPE_UNKNOWN;
+        return SERVICE_SCRIPT_TYPE_DOUBLE;
     }
     
     /* none/void */
+    if(strstr(type, "void"))
     {
-        if(strstr(type, "void"))
-        {
-            /* reject pointer types */
-            if(strstr(type, "*"))
-                return SERVICE_SCRIPT_TYPE_UNKNOWN;
-            return SERVICE_SCRIPT_TYPE_NONE;
-        }
+        /* reject pointer types */
+        if(strstr(type, "*"))
+            return SERVICE_SCRIPT_TYPE_UNKNOWN;
+        return SERVICE_SCRIPT_TYPE_NONE;
     }
     
     /* unknown */
