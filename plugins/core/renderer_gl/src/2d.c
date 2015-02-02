@@ -254,3 +254,15 @@ SERVICE(shapes_2d_destroy_wrapper)
     SERVICE_EXTRACT_ARGUMENT(0, id, uint32_t, uint32_t);
     shapes_2d_destroy(id);
 }
+
+SERVICE(shapes_show_wrapper)
+{
+    SERVICE_EXTRACT_ARGUMENT(0, id, uint32_t, uint32_t);
+    shapes_show(id);
+}
+
+SERVICE(shapes_hide_wrapper)
+{
+    SERVICE_EXTRACT_ARGUMENT(0, id, uint32_t, uint32_t);
+    shapes_hide(id);
+}

@@ -1,4 +1,5 @@
 #include "util/pstdint.h"
+#include "util/unordered_vector.h"
 
 typedef void (*element_destructor_func)(void*);
 
@@ -14,11 +15,23 @@ struct action_t
     void** argv;
 };
 
+struct element_font_text_id_pair_t
+{
+    intptr_t font_id;
+    intptr_t text_id;
+};
+
+struct element_gl_t
+{
+    struct unordered_vector_t text;     /* holds element_font_text_id_pair_t objects */
+    struct unordered_vector_t shapes;   /* holds intptr_t instances */
+};
+
 struct element_data_t
 {
     char visible;
     intptr_t id;
-    intptr_t shapes_normal_id;
+    struct element_gl_t gl;
     struct vec2_t pos;
     struct vec2_t size;
     struct action_t action;
@@ -68,3 +81,18 @@ element_destructor(struct element_t* element);
  */
 void
 element_destroy(struct element_t* element);
+
+void
+element_add_text(struct element_t* element, intptr_t font_id, intptr_t text_id);
+
+void
+element_add_shapes(struct element_t* element, intptr_t shapes_id);
+
+void
+element_set_action(struct element_t* element, struct service_t* service, void** argv);
+
+void
+element_show(struct element_t* element);
+
+void
+element_hide(struct element_t* element);

@@ -66,6 +66,7 @@ button_constructor(struct button_t* btn, const char* text, float x, float y, flo
         * which can specify the font and size of the string. */
         btn->base.button.text = strtowcs(text);
         SERVICE_CALL4(text_add_static_center_string, &btn->base.button.text_id, font_id, x, offy, btn->base.button.text);
+        element_add_text((struct element_t*)btn, font_id, btn->base.button.text_id);
     }
     else
     {
@@ -85,6 +86,7 @@ button_constructor(struct button_t* btn, const char* text, float x, float y, flo
         SERVICE_CALL5(box_2d, SERVICE_NO_RETURN, x1, y1, x2, y2, colour);
     }
     SERVICE_CALL0(shapes_2d_end, &btn->base.button.shapes_normal_id);
+    element_add_shapes((struct element_t*)btn, btn->base.button.shapes_normal_id);
 
     /* insert into internal container of buttons */
     map_insert(&g_buttons, btn->base.element.id, btn);
@@ -118,8 +120,6 @@ button_destroy_all(void)
 void
 button_free_contents(struct button_t* button)
 {
-    SERVICE_CALL1(shapes_2d_destroy, SERVICE_NO_RETURN, button->base.button.shapes_normal_id);
-
     if(button->base.button.text)
     {
         SERVICE_CALL2(text_destroy_static_string, SERVICE_NO_RETURN, font_id, button->base.button.text_id);

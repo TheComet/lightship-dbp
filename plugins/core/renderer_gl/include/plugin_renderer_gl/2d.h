@@ -89,3 +89,5 @@ SERVICE(shapes_2d_end_wrapper);
 SERVICE(line_2d_wrapper);
 SERVICE(box_2d_wrapper);
 SERVICE(shapes_2d_destroy_wrapper);
+SERVICE(shapes_show_wrapper);
+SERVICE(shapes_hide_wrapper);
