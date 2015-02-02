@@ -60,21 +60,58 @@ yaml_load_into_ptree(struct ptree_t* tree, struct ptree_t* root_tree, yaml_parse
             case YAML_DOCUMENT_END_EVENT:
                 break;
 
-            /* begin of sequence of mapping */
+            /* begin of sequence (yaml list) */
             case YAML_SEQUENCE_START_EVENT:
-                is_sequence = 1;
                 if(!key)
                 {
                     llog(LOG_ERROR, PLUGIN_NAME, 1, "Received sequence start without a key");
                     finished = FINISH_ERROR;
                     break;
                 }
+                {
+                    /* recurse, setting is_sequence to 1 */
+                    struct ptree_t* child = ptree_add_node(tree, key, NULL);
+                    ptree_set_dup_func(child, (ptree_dup_func)malloc_string);
+                    result = yaml_load_into_ptree(child, root_tree, parser, 1);
+                    free_string(key);
+                    key = NULL;
+                    if(!result)
+                        finished = FINISH_ERROR;
+                }
             case YAML_MAPPING_START_EVENT:
-                if(key)
+                
+                /* 
+                 * If this is a sequence, create index key as usual, but
+                 * recurse with is_sequence set to 0
+                 */
+                if(is_sequence)
+                {
+                    struct ptree_t* child;
+                    char index[sizeof(int)*8+1];
+                    if(key)
+                    {
+                        llog(LOG_ERROR, PLUGIN_NAME, 1, "Received a key during a sequence");
+                        finished = FINISH_ERROR;
+                        break;
+                    }
+                    sprintf(index, "%d", sequence_index);
+                    ++sequence_index;
+                    
+                    child = ptree_add_node(tree, index, NULL);
+                    ptree_set_dup_func(child, (ptree_dup_func)malloc_string);
+                    result = yaml_load_into_ptree(child, root_tree, parser, 0);
+                    if(!result)
+                        finished = FINISH_ERROR;
+                }
+                /*
+                 * If this is not a sequence, then only recurse if a key
+                 * exists.
+                 */
+                else if(key)
                 {
                     struct ptree_t* child = ptree_add_node(tree, key, NULL);
                     ptree_set_dup_func(child, (ptree_dup_func)malloc_string);
-                    result = yaml_load_into_ptree(child, root_tree, parser, is_sequence);
+                    result = yaml_load_into_ptree(child, root_tree, parser, 0);
                     free_string(key);
                     key = NULL;
                     if(!result)
@@ -84,7 +121,6 @@ yaml_load_into_ptree(struct ptree_t* tree, struct ptree_t* root_tree, yaml_parse
 
             /* end of sequence or mapping */
             case YAML_SEQUENCE_END_EVENT:
-                is_sequence = 0;
             case YAML_MAPPING_END_EVENT:
                 finished = FINISH_SUCCESS;
                 break;
