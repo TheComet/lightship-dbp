@@ -1,6 +1,6 @@
 #include "util/pstdint.h"
 
-typedef void (*element_deinit_derived_func)(void*);
+typedef void (*element_destructor_func)(void*);
 
 struct vec2_t
 {
@@ -14,12 +14,6 @@ struct action_t
     void** argv;
 };
 
-/*!
- * @brief This is a base struct for all menu elements such as buttons, sliders,
- * etc.
- * @note Custom polymorphism, using information from here:
- * http://www.deleveld.dds.nl/inherit.htm
- */
 struct element_data_t
 {
     char visible;
@@ -28,9 +22,15 @@ struct element_data_t
     struct vec2_t pos;
     struct vec2_t size;
     struct action_t action;
-    element_deinit_derived_func deinit_derived;
+    element_destructor_func derived_destructor;
 };
 
+/*!
+ * @brief This is a base struct for all menu elements such as buttons, sliders,
+ * etc.
+ * @note Custom polymorphism, using information from here:
+ * http://www.deleveld.dds.nl/inherit.htm
+ */
 struct element_t
 {
     union
@@ -40,15 +40,31 @@ struct element_t
 };
 
 /*!
- * @brief This macro performs like a typesafe case
+ * @brief Initialises the base struct.
+ * @param element The element to initialise.
+ * @param derived_destructor Function to the derived struct's destructor.
+ * @note The destructor must NOT free the object. This is handled separately.
+ * @param x The x coordinate of the menu element in GL screen space.
+ * @param y The y coordinate of the menu element in GL screen space.
+ * @param width The width of the menu element in GL screen space.
+ * @param height The height of the menu element in GL screen space.
  */
-#define GET_ELEMENT(self) (&(self)->base.element)
-
 void
-element_init_base(struct element_t* element,
-                  element_deinit_derived_func deinit_derived,
-                  float x, float y,
-                  float width, float height);
+element_constructor(struct element_t* element,
+                    element_destructor_func derived_destructor,
+                    float x, float y,
+                    float width, float height);
 
+/*!
+ * @brief Cleans up the base struct.
+ */
+void
+element_destructor(struct element_t* element);
+
+/*!
+ * @brief Calls the derived destructor, then calls the base destructor, and
+ * finally frees the object.
+ * @param element The element to destroy.
+ */
 void
 element_destroy(struct element_t* element);

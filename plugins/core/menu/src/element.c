@@ -6,8 +6,8 @@
 static intptr_t guid = 1;
 
 void
-element_init_base(struct element_t* element,
-                  element_deinit_derived_func deinit_derived,
+element_constructor(struct element_t* element,
+                  element_destructor_func derived_destructor,
                   float x, float y,
                   float width, float height)
 {
@@ -16,11 +16,23 @@ element_init_base(struct element_t* element,
     element->base.element.pos.y = y;
     element->base.element.size.x = width;
     element->base.element.size.y = height;
-    element->base.element.deinit_derived = deinit_derived;
+    element->base.element.derived_destructor = derived_destructor;
     element->base.element.visible = 1;
 }
 
-void element_destroy(struct element_t* element)
+void
+element_destructor(struct element_t* element)
 {
-    element->base.element.deinit_derived(element);
+    /* nothing to do */
+}
+
+void
+element_destroy(struct element_t* element)
+{
+    /* destruct derived */
+    element->base.element.derived_destructor(element);
+    /* destruct base */
+    element_destructor(element);
+
+    FREE(element);
 }
