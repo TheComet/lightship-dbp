@@ -3,11 +3,100 @@ btn_size:
     x: 0.3
     y: 0.1
 
-back_to_main:
+btn_host:
+    text: Host
+    action:
+        service: menu.set_active_screen
+        argv: [main menu, host]
+    position:
+        x: 0.0
+        y: 0.3
+    size: *btn_size
+
+btn_join:
+    text: Join
+    action:
+        service: menu.set_active_screen
+        argv: [main menu, join]
+    position:
+        x: 0.0
+        y: 0.1
+    size: *btn_size
+
+btn_map_editor:
+    text: Map Editor
+    action:
+        service: menu.set_active_screen
+        argv: [main menu, map editor]
+    position:
+        x: 0.0
+        y: -0.1
+    size: *btn_size
+
+btn_settings:
+    text: Settings
+    action:
+        service: menu.set_active_screen
+        argv: [main menu, settings]
+    position:
+        x: 0.0
+        y: -0.3
+    size: *btn_size
+
+btn_settings_input:
+    text: Input
+    action:
+        service: menu.set_active_screen
+        argv: [main menu, input]
+    position:
+        x: 0.0
+        y: 0.3
+    size: *btn_size
+
+btn_settings_audio:
+    text: Audio
+    action:
+        service: menu.set_active_screen
+        argv: [main menu, audio]
+    position:
+        x: 0.0
+        y: 0.1
+    size: *btn_size
+
+btn_settings_video:
+    text: Video
+    action:
+        service: menu.set_active_screen
+        argv: [main menu, video]
+    position:
+        x: 0.0
+        y: -0.1
+    size: *btn_size
+
+btn_quit:
+    text: Quit
+    action:
+        service: main_loop.stop
+    position:
+        x: 0.0
+        y: -0.5
+    size: *btn_size
+
+btn_back_to_main:
     text: Back
     action:
         service: menu.set_active_screen
         argv: [main menu, main screen]
+    position:
+        x: 0.0
+        y: -0.5
+    size: *btn_size
+
+btn_back_to_settings:
+    text: Back
+    action:
+        service: menu.set_active_screen
+        argv: [main menu, settings]
     position:
         x: 0.0
         y: -0.5
@@ -24,68 +113,40 @@ screens:
 
     screen:
         name: main screen
-
-        button:
-            text: Host
-            action:
-                service: menu.set_active_screen
-                argv: [main menu, host]
-            position:
-                x: 0.0
-                y: 0.3
-            size: *btn_size
-
-        button:
-            text: Join
-            action:
-                service: menu.set_active_screen
-                argv: [main menu, join]
-            position:
-                x: 0.0
-                y: 0.1
-            size: *btn_size
-
-        button:
-            text: Map Editor
-            action:
-                service: menu.set_active_screen
-                argv: [main menu, map editor]
-            position:
-                x: 0.0
-                y: -0.1
-            size: *btn_size
-        
-        button:
-            text: Settings
-            action:
-                service: menu.set_active_screen
-                argv: [main menu, settings]
-            position:
-                x: 0.0
-                y: -0.3
-            size: *btn_size
-
-        button:
-            text: Quit
-            action:
-                service: main_loop.stop
-            position:
-                x: 0.0
-                y: -0.5
-            size: *btn_size
+        button: *btn_host
+        button: *btn_join
+        button: *btn_map_editor
+        button: *btn_settings
+        button: *btn_quit
 
     screen:
         name: host
-        button: *back_to_main
+        button: *btn_back_to_main
 
     screen:
         name: join
-        button: *back_to_main
+        button: *btn_back_to_main
 
     screen:
         name: map editor
-        button: *back_to_main
+        button: *btn_back_to_main
 
     screen:
         name: settings
-        button: *back_to_main
+        button: *btn_settings_input
+        button: *btn_settings_audio
+        button: *btn_settings_video
+        button: *btn_back_to_main
+    
+    screen:
+        name: input
+        button: *btn_back_to_settings
+    
+    screen:
+        name: audio
+        button: *btn_back_to_settings
+    
+    screen:
+        name: video
+        button: *btn_back_to_settings
+    
