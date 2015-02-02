@@ -220,16 +220,20 @@ ptree_find_by_key_recurse(const struct ptree_t* tree,
 static void
 ptree_print_impl(const struct ptree_t* tree, uint32_t depth)
 {
+    char* value = "NULL";
+
     /* indentation */
     uint32_t i;
     for(i = 0; i != depth; ++i)
         printf("    ");
     
     /* print node info */
+    if(tree->value)
+        value = tree->value;
 #ifdef _DEBUG
-    printf("key: \"%s\", hash: %d, dup: %p\n", tree->key, tree->hash, (void*)&tree->dup_value);
+    printf("key: \"%s\", hash: %d, val: %s\n", tree->key, tree->hash, value);
 #else
-    printf("hash: %d, dup: %p\n", tree->hash, (void*)&tree->dup_value);
+    printf("hash: %d, dup: %p\n", tree->hash, value);
 #endif
     
     /* print children */
