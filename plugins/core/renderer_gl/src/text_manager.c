@@ -1,6 +1,8 @@
 #include "plugin_renderer_gl/config.h"
 #include "plugin_renderer_gl/text_manager.h"
+#include "plugin_renderer_gl/text.h"
 #include "plugin_renderer_gl/glutils.h"
+#include "plugin_renderer_gl/shader.h"
 #include "plugin_renderer_gl/window.h"
 #include "util/unordered_vector.h"
 #include "util/map.h"
@@ -11,7 +13,7 @@
 
 static FT_Library g_lib;
 static GLuint g_text_shader_id;
-static struct map_t g_fonts;
+static struct map_t g_text_groups;
 
 static const wchar_t* g_default_characters =
 L"abcdefghijklmnopqrstuvwxyz"
@@ -50,6 +52,8 @@ text_manager_init(void)
 {
     FT_Error error;
     
+    map_init_map(&g_text_groups);
+    
     /* load the text shader */
     g_text_shader_id = shader_load(text_shader_file);printOpenGLError();
 
@@ -61,6 +65,8 @@ text_manager_init(void)
         llog(LOG_ERROR, PLUGIN_NAME, 1, "Failed to initialise freetype");
         return 0;
     }
+    
+    return 1;
 }
 
 /* ------------------------------------------------------------------------- */
@@ -71,6 +77,8 @@ text_manager_deinit(void)
         glDeleteProgram(g_text_shader_id);printOpenGLError();
 
     FT_Done_FreeType(g_lib);
+    
+    map_clear_free(&g_text_groups);
 }
 
 char
@@ -106,7 +114,6 @@ text_group_load_font(struct text_group_t* group, const char* filename, uint32_t 
 struct text_group_t*
 text_group_create(const char* font_filename, uint32_t char_size)
 {
-    FT_Error error;
     struct text_group_t* group;
     
     /* create new text group object */
@@ -122,6 +129,7 @@ text_group_create(const char* font_filename, uint32_t char_size)
     
     /* initialise containers */
     map_init_map(&group->char_info);
+    unordered_vector_init_vector(&group->texts, sizeof(struct text_t*));
     ordered_vector_init_vector(&group->vertex_buffer, sizeof(struct text_vertex_t));
     ordered_vector_init_vector(&group->index_buffer, sizeof(INDEX_DATA_TYPE));
 
@@ -161,12 +169,21 @@ text_group_destroy(struct text_group_t* group)
 {
     /* destroy character info */
     {
-        MAP_FOR_EACH(&group->char_info, struct font_char_info_t, key, value)
+        MAP_FOR_EACH(&group->char_info, struct char_info_t, key, info)
         {
-            if(value)
-                FREE(value);
+            if(info)
+                FREE(info);
         }
         map_clear_free(&group->char_info);
+    }
+    
+    /* destroy texts */
+    {
+        UNORDERED_VECTOR_FOR_EACH(&group->texts, struct text_t*, ptext)
+        {
+            text_destroy(group, *ptext);
+        }
+        unordered_vector_clear_free(&group->texts);
     }
     
     /* clear vertex and index buffers */
@@ -235,13 +252,32 @@ text_group_load_character_set(struct text_group_t* group, const wchar_t* charact
 
 /* ------------------------------------------------------------------------- */
 void
+text_group_add_text(struct text_group_t* text_group, struct text_t* text)
+{
+    /* make sure it doesn't exist yet */
+}
+
+/* ------------------------------------------------------------------------- */
+void
+text_group_remove_text(struct text_group_t* text_group, struct text_t* text)
+{
+}
+
+/* ------------------------------------------------------------------------- */
+void
+text_group_inform_updated_text(struct text_group_t* text_group)
+{
+}
+
+/* ------------------------------------------------------------------------- */
+void
 text_draw(void)
 {
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);printOpenGLError();
     glUseProgram(g_text_shader_id);printOpenGLError();
     {
-        MAP_FOR_EACH(&g_fonts, struct text_group_t, key, group)
+        MAP_FOR_EACH(&g_text_groups, struct text_group_t, key, group)
         {
             glBindVertexArray(group->gl.vao);printOpenGLError();
                 glDrawElements(GL_TRIANGLES, group->index_buffer.count, GL_UNSIGNED_SHORT, NULL);printOpenGLError();

@@ -55,13 +55,3 @@ text_create(struct text_group_t* text_group, char centered, GLfloat x, GLfloat y
  */
 void
 text_destroy(struct text_group_t* font, struct text_t* text);
-
-SERVICE(text_load_font_wrapper);
-SERVICE(text_destroy_font_wrapper);
-SERVICE(text_load_characters_wrapper);
-SERVICE(text_add_static_string_wrapper);
-SERVICE(text_add_static_center_string_wrapper);
-SERVICE(text_destroy_static_string_wrapper);
-SERVICE(text_destroy_all_static_strings_wrapper);
-SERVICE(text_show_static_string_wrapper);
-SERVICE(text_hide_static_string_wrapper);
