@@ -1,7 +1,6 @@
 #include "plugin_renderer_gl/config.h"
 #include "plugin_renderer_gl/text_manager.h"
 #include "plugin_renderer_gl/text.h"
-#include "plugin_renderer_gl/shader.h"
 #include "plugin_renderer_gl/glutils.h"
 #include "plugin_renderer_gl/window.h"
 #include "util/log.h"
@@ -26,6 +25,8 @@ text_create(struct text_group_t* text_group, char centered, GLfloat x, GLfloat y
     text->visible = 1;
     
     text_group_add_text(text_group, text);
+    
+    return text;
 }
 
 /* ------------------------------------------------------------------------- */
@@ -64,19 +65,19 @@ text_destroy_all(struct text_group_t* group)
 
 /* ------------------------------------------------------------------------- */
 void
-text_set_string(struct font_t* font, struct text_t* text, const wchar_t* string)
+text_set_string(struct text_group_t* group, struct text_t* text, const wchar_t* string)
 {
 }
 
 /* ------------------------------------------------------------------------- */
 void
-text_set_position(struct font_t* font, struct text_t* text, GLfloat x, GLfloat y)
+text_set_position(struct text_group_t* group, struct text_t* text, GLfloat x, GLfloat y)
 {
 }
 
 /* ------------------------------------------------------------------------- */
 void
-text_show(struct font_t* font, struct text_t* text)
+text_show(struct text_group_t* group, struct text_t* text)
 {
     text->visible = 1;
     
@@ -85,7 +86,7 @@ text_show(struct font_t* font, struct text_t* text)
 
 /* ------------------------------------------------------------------------- */
 void
-text_hide(struct font_t* font, struct text_t* text)
+text_hide(struct text_group_t* group, struct text_t* text)
 {
     text->visible = 0;
     
@@ -229,8 +230,9 @@ text_group_sync_with_gpu(struct text_group_t* group)
     /* copy vertex and index data from each text object */
     /* need to make sure indices align correctly */
     {
-        MAP_FOR_EACH(&group->texts, struct text_t, key, text)
+        UNORDERED_VECTOR_FOR_EACH(&group->texts, struct text_t*, ptext)
         {
+            struct text_t* text = *ptext;
             if(text->visible)
             {
                 intptr_t insertion_index = text->index_buffer.count + 1;
@@ -253,108 +255,4 @@ text_group_sync_with_gpu(struct text_group_t* group)
             glBufferData(GL_ARRAY_BUFFER, group->vertex_buffer.count * sizeof(struct text_vertex_t), group->vertex_buffer.data, GL_STATIC_DRAW);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, group->index_buffer.count * sizeof(INDEX_DATA_TYPE), group->index_buffer.data, GL_STATIC_DRAW);
     glBindVertexArray(0);
-}
-
-/* ------------------------------------------------------------------------- */
-/* WRAPPERS */
-/* ------------------------------------------------------------------------- */
-
-SERVICE(text_load_font_wrapper)
-{
-    uint32_t key;
-    struct font_t* font;
-    SERVICE_EXTRACT_ARGUMENT(0, filename, const char*, const char*);
-    SERVICE_EXTRACT_ARGUMENT(1, char_size, uint32_t, uint32_t);
-
-    font = text_load_font(filename, char_size);
-    key = map_find_unused_key(&g_wrapper_fonts);
-    map_insert(&g_wrapper_fonts, key, font);
-
-    SERVICE_RETURN(key, uint32_t);
-}
-
-SERVICE(text_destroy_font_wrapper)
-{
-    SERVICE_EXTRACT_ARGUMENT(0, font_id, uint32_t, uint32_t);
-
-    struct font_t* font = map_erase(&g_wrapper_fonts, font_id);
-    if(font)
-        text_destroy_font(font);
-}
-
-SERVICE(text_load_characters_wrapper)
-{
-    SERVICE_EXTRACT_ARGUMENT(0, font_id, uint32_t, uint32_t);
-    SERVICE_EXTRACT_ARGUMENT(1, characters, const wchar_t*, const wchar_t*);
-
-    struct font_t* font = map_find(&g_wrapper_fonts, font_id);
-    if(font)
-        text_load_characters(font, characters);
-}
-
-SERVICE(text_add_static_string_wrapper)
-{
-    SERVICE_EXTRACT_ARGUMENT(0, font_id, uint32_t, uint32_t);
-    SERVICE_EXTRACT_ARGUMENT(1, x, float, float);
-    SERVICE_EXTRACT_ARGUMENT(2, y, float, float);
-    SERVICE_EXTRACT_ARGUMENT(3, str, const wchar_t*, const wchar_t*);
-    intptr_t ret_val = -1;
-
-    struct font_t* font = map_find(&g_wrapper_fonts, font_id);
-    if(font)
-        ret_val = text_add_static_string(font, 0, x, y, str);
-    SERVICE_RETURN(ret_val, intptr_t);
-}
-
-SERVICE(text_add_static_center_string_wrapper)
-{
-    SERVICE_EXTRACT_ARGUMENT(0, font_id, uint32_t, uint32_t);
-    SERVICE_EXTRACT_ARGUMENT(1, x, float, float);
-    SERVICE_EXTRACT_ARGUMENT(2, y, float, float);
-    SERVICE_EXTRACT_ARGUMENT(3, str, const wchar_t*, const wchar_t*);
-    intptr_t ret_val = -1;
-
-    struct font_t* font = map_find(&g_wrapper_fonts, font_id);
-    if(font)
-        ret_val = text_add_static_string(font, 1, x, y, str);
-    SERVICE_RETURN(ret_val, intptr_t);
-}
-
-SERVICE(text_destroy_static_string_wrapper)
-{
-    SERVICE_EXTRACT_ARGUMENT(0, font_id, uint32_t, uint32_t);
-    SERVICE_EXTRACT_ARGUMENT(1, id, intptr_t, intptr_t);
-    
-    struct font_t* font = map_find(&g_wrapper_fonts, font_id);
-    if(font)
-        text_destroy_static_string(font, id);
-}
-
-SERVICE(text_destroy_all_static_strings_wrapper)
-{
-    SERVICE_EXTRACT_ARGUMENT(0, font_id, uint32_t, uint32_t);
-
-    struct font_t* font = map_find(&g_wrapper_fonts, font_id);
-    if(font)
-        text_destroy_all_static_strings(font);
-}
-
-SERVICE(text_show_static_string_wrapper)
-{
-    SERVICE_EXTRACT_ARGUMENT(0, font_id, uint32_t, uint32_t);
-    SERVICE_EXTRACT_ARGUMENT(1, id, intptr_t, intptr_t);
-    
-    struct font_t* font = map_find(&g_wrapper_fonts, font_id);
-    if(font)
-        text_show_static_string(font, id);
-}
-
-SERVICE(text_hide_static_string_wrapper)
-{
-    SERVICE_EXTRACT_ARGUMENT(0, font_id, uint32_t, uint32_t);
-    SERVICE_EXTRACT_ARGUMENT(1, id, intptr_t, intptr_t);
-    
-    struct font_t* font = map_find(&g_wrapper_fonts, font_id);
-    if(font)
-        text_hide_static_string(font, id);
 }

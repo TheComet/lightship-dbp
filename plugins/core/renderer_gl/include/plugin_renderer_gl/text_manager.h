@@ -4,6 +4,7 @@
  */
 
 #include "util/ordered_vector.h"
+#include "util/unordered_vector.h"
 #include "util/map.h"
 #include <GL/glew.h>
 #include "ft2build.h"
@@ -47,7 +48,7 @@ struct text_group_t
     /* maps character codes to instances of text_manager_char_info_t */
     struct map_t char_info;
     /* maps text IDs to text_t instances */
-    struct map_t texts;
+    struct unordered_vector_t texts;
     /* keep text type specific vertex and index buffers alive for the entirity of the font's life,
      * to cut back on allocation frequency whenever all text objects are accumulated and
      * uploaded to the GPU */

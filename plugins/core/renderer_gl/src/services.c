@@ -1,5 +1,7 @@
 #include "plugin_renderer_gl/services.h"
 #include "plugin_renderer_gl/2d.h"
+#include "plugin_renderer_gl/text_wrapper.h"
+#include "plugin_renderer_gl/text_manager.h"
 #include "plugin_renderer_gl/text.h"
 #include "plugin_renderer_gl/window.h"
 #include "util/services.h"
@@ -16,13 +18,16 @@ register_services(const struct plugin_t* plugin)
     SERVICE_REGISTER1(plugin, "shapes_2d_destroy",              shapes_2d_destroy_wrapper, void, uint32_t);
     SERVICE_REGISTER1(plugin, "shapes_2d_show",                 shapes_show_wrapper, void, uint32_t);
     SERVICE_REGISTER1(plugin, "shapes_2d_hide",                 shapes_hide_wrapper, void, uint32_t);
-    SERVICE_REGISTER2(plugin, "text_load_font",                 text_load_font_wrapper, uint32_t, const char*, uint32_t);
-    SERVICE_REGISTER1(plugin, "text_destroy_font",              text_destroy_font_wrapper, void, uint32_t);
-    SERVICE_REGISTER2(plugin, "text_load_characters",           text_load_characters_wrapper, void, uint32_t, const wchar_t*);
-    SERVICE_REGISTER4(plugin, "text_add_static_string",         text_add_static_string_wrapper, intptr_t, uint32_t, float, float, const wchar_t*);
-    SERVICE_REGISTER4(plugin, "text_add_static_center_string",  text_add_static_center_string_wrapper, intptr_t, uint32_t, float, float, const wchar_t*);
-    SERVICE_REGISTER2(plugin, "text_destroy_static_string",     text_destroy_static_string_wrapper, void, uint32_t, intptr_t);
-    SERVICE_REGISTER1(plugin, "text_destroy_all_static_strings",text_destroy_all_static_strings_wrapper, void, uint32_t);
-    SERVICE_REGISTER2(plugin, "text_show_static_string",        text_show_static_string_wrapper, void, uint32_t, intptr_t);
-    SERVICE_REGISTER2(plugin, "text_hide_static_string",        text_hide_static_string_wrapper, void, uint32_t, intptr_t);
+
+    SERVICE_REGISTER2(plugin, "text_load_font",                 text_group_load_wrapper, uint32_t, const char*, uint32_t);
+    SERVICE_REGISTER1(plugin, "text_destroy_font",              text_group_destroy_wrapper, void, uint32_t);
+    SERVICE_REGISTER2(plugin, "text_load_character_set",        text_group_load_character_set_wrapper, void, uint32_t, const wchar_t*);
+
+    SERVICE_REGISTER4(plugin, "text_create",                    text_create_wrapper, intptr_t, uint32_t, float, float, const wchar_t*);
+    SERVICE_REGISTER4(plugin, "text_destroy",                   text_destroy_wrapper, intptr_t, uint32_t, float, float, const wchar_t*);
+    SERVICE_REGISTER2(plugin, "text_set_centered",              text_set_centered_wrapper, void, uint32_t, intptr_t);
+    SERVICE_REGISTER1(plugin, "text_set_position",              text_set_position_wrapper, void, uint32_t);
+    SERVICE_REGISTER1(plugin, "text_set_string",                text_set_string_wrapper, void, const wchar_t*);
+    SERVICE_REGISTER2(plugin, "text_show",                      text_show_wrapper, void, uint32_t, intptr_t);
+    SERVICE_REGISTER2(plugin, "text_hide",                      text_hide_wrapper, void, uint32_t, intptr_t);
 }
