@@ -116,6 +116,12 @@ LIGHTSHIP_PUBLIC_API void*
 ordered_vector_push_emplace(struct ordered_vector_t* vector);
 
 /*!
+ * @brief Copies the contents of another vector and pushes it into the vector.
+ */
+LIGHTSHIP_PUBLIC_API void
+ordered_vector_push_vector(struct ordered_vector_t* vector, struct ordered_vector_t* source_vector);
+
+/*!
  * @brief Removes an element from the head of the vector.
  * @warning The returned pointer could be invalidated if any other
  * vector related function is called, as the underlying memory of the vector
@@ -214,6 +220,13 @@ ordered_vector_get_element(struct ordered_vector_t*, intptr_t index);
     var_type* var; \
     DATA_POINTER_TYPE* end_of_vector = (vector)->data + (vector)->count * (vector)->element_size; \
     for(var = (var_type*)(vector)->data; \
+        (DATA_POINTER_TYPE*)var != end_of_vector; \
+        var = (var_type*)(((DATA_POINTER_TYPE*)var) + (vector)->element_size))
+
+#define ORDERED_VECTOR_FOR_EACH_RANGE(vector, var_type, var, begin_index, end_index) \
+    var_type* var; \
+    DATA_POINTER_TYPE* end_of_vector = (vector)->data + end_index * (vector)->element_size; \
+    for(var = (var_type*)(vector)->data + begin_index * (vector)->element_size; \
         (DATA_POINTER_TYPE*)var != end_of_vector; \
         var = (var_type*)(((DATA_POINTER_TYPE*)var) + (vector)->element_size))
 

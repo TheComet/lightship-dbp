@@ -12,13 +12,17 @@
  *
  * This implementation will expand the memory by a factor of 2 each time this
  * is called. All elements are copied into the new section of memory.
- * @param [in] insertion_index Set to -1 if no space should be made for element
+ * @param[in] insertion_index Set to -1 if no space should be made for element
  * insertion. Otherwise this parameter specifies the index of the element to
  * "evade" when re-allocating all other elements.
+ * @param[in] target_size If set to 0, target size is calculated automatically.
+ * Otherwise the vector will expand to the specified target size.
+ * @note No checks are performed to make sure the target size is large enough.
  */
 static void
 ordered_vector_expand(struct ordered_vector_t* vector,
-                        intptr_t insertion_index);
+                        intptr_t insertion_index,
+                        intptr_t target_size);
 
 /* ----------------------------------------------------------------------------
  * Exported functions
@@ -75,7 +79,7 @@ ordered_vector_push_emplace(struct ordered_vector_t* vector)
 {
     void* data;
     if(vector->count == vector->capacity)
-        ordered_vector_expand(vector, -1);
+        ordered_vector_expand(vector, -1, 0);
     data = vector->data + (vector->element_size * vector->count);
     ++(vector->count);
     return data;
@@ -86,6 +90,21 @@ void
 ordered_vector_push(struct ordered_vector_t* vector, void* data)
 {
     memcpy(ordered_vector_push_emplace(vector), data, vector->element_size);
+}
+
+/* ------------------------------------------------------------------------- */
+void
+ordered_vector_push_vector(struct ordered_vector_t* vector, struct ordered_vector_t* source_vector)
+{
+    /* make sure there's enough space in the target vector */
+    if(vector->count + source_vector->count > vector->capacity)
+        ordered_vector_expand(vector, -1, source_vector->count + vector->count + source_vector->count);
+    
+    /* copy data */
+    memcpy(vector->data + (vector->count * vector->element_size),
+           source_vector->data,
+           source_vector->count);
+    vector->count += source_vector->count;
 }
 
 /* ------------------------------------------------------------------------- */
@@ -115,7 +134,7 @@ ordered_vector_insert_emplace(struct ordered_vector_t* vector, intptr_t index)
 
     /* re-allocate? */
     if(vector->count == vector->capacity)
-        ordered_vector_expand(vector, index);
+        ordered_vector_expand(vector, index, 0);
     else
     {
         /* shift all elements up by one to make space for insertion */
@@ -188,14 +207,18 @@ ordered_vector_get_element(struct ordered_vector_t* vector, intptr_t index)
  * ------------------------------------------------------------------------- */
 static void
 ordered_vector_expand(struct ordered_vector_t* vector,
-                        intptr_t insertion_index)
+                        intptr_t insertion_index,
+                        intptr_t target_size)
 {
     intptr_t new_size;
     DATA_POINTER_TYPE* old_data;
     DATA_POINTER_TYPE* new_data;
 
-    /* expand by factor 2 */
-    new_size = vector->capacity << 1;
+    /* expand by factor 2, or adapt target size if it is not 0 */
+    if(target_size)
+        new_size = target_size;
+    else
+        new_size = vector->capacity << 1;
 
     /*
      * If vector hasn't allocated anything yet, allocate the first two elements

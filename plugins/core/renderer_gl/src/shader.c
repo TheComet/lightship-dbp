@@ -67,7 +67,7 @@ void check_program(GLuint program_ID)
     FREE(message);
 }
 
-GLuint load_shader(const char* name)
+GLuint shader_load(const char* name)
 {
     char* vertex_shader;
     char* fragment_shader;
