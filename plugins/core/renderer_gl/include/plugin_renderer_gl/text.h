@@ -45,3 +45,9 @@ text_create(struct text_group_t* text_group, char centered, GLfloat x, GLfloat y
  */
 void
 text_destroy(struct text_t* text);
+
+void
+text_show(struct text_t* text);
+
+void
+text_hide(struct text_t* text);

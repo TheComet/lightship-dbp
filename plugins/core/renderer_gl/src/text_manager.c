@@ -537,17 +537,22 @@ text_group_sync_with_gpu(struct text_group_t* group)
             struct text_t* text = *ptext;
             if(text->visible)
             {
-                intptr_t insertion_index = text->index_buffer.count + 1;
+                intptr_t insertion_index = group->index_buffer.count;
                 ordered_vector_push_vector(&group->vertex_buffer, &text->vertex_buffer);
                 ordered_vector_push_vector(&group->index_buffer, &text->index_buffer);
+                { ORDERED_VECTOR_FOR_EACH_RANGE(&group->index_buffer, INDEX_DATA_TYPE, val, insertion_index, group->index_buffer.count)
                 {
-                    ORDERED_VECTOR_FOR_EACH_RANGE(&group->index_buffer, INDEX_DATA_TYPE, val, insertion_index, group->index_buffer.count)
-                    {
-                        (*val) += base_index;
-                    }
-                }
-                base_index += text->index_buffer.count;
+                    (*val) += base_index;
+                }}
+                base_index += text->vertex_buffer.count;
             }
+        }
+    }
+    
+    {
+        UNORDERED_VECTOR_FOR_EACH(&group->index_buffer, INDEX_DATA_TYPE, index)
+        {
+            printf("%d\n", *index);
         }
     }
 
@@ -557,4 +562,7 @@ text_group_sync_with_gpu(struct text_group_t* group)
             glBufferData(GL_ARRAY_BUFFER, group->vertex_buffer.count * sizeof(struct text_vertex_t), group->vertex_buffer.data, GL_STATIC_DRAW);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, group->index_buffer.count * sizeof(INDEX_DATA_TYPE), group->index_buffer.data, GL_STATIC_DRAW);
     glBindVertexArray(0);
+    
+    /* reset flag */
+    group->mesh_needs_reuploading = 0;
 }
