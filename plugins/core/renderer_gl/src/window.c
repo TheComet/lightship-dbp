@@ -3,7 +3,7 @@
 #include "plugin_renderer_gl/events.h"
 #include "plugin_renderer_gl/input.h"
 #include "plugin_renderer_gl/2d.h"
-#include "plugin_renderer_gl/text.h"
+#include "plugin_renderer_gl/text_manager.h"
 #include "util/linked_list.h"
 #include "util/log.h"
 #include <stdio.h>

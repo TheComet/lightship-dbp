@@ -19,7 +19,7 @@ register_services(const struct plugin_t* plugin)
     SERVICE_REGISTER1(plugin, "shapes_2d_show",                 shapes_show_wrapper, void, uint32_t);
     SERVICE_REGISTER1(plugin, "shapes_2d_hide",                 shapes_hide_wrapper, void, uint32_t);
 
-    SERVICE_REGISTER2(plugin, "text_load_font",                 text_group_load_wrapper, uint32_t, const char*, uint32_t);
+    SERVICE_REGISTER2(plugin, "text_load_font",                 text_group_create_wrapper, uint32_t, const char*, uint32_t);
     SERVICE_REGISTER1(plugin, "text_destroy_font",              text_group_destroy_wrapper, void, uint32_t);
     SERVICE_REGISTER2(plugin, "text_load_character_set",        text_group_load_character_set_wrapper, void, uint32_t, const wchar_t*);
 

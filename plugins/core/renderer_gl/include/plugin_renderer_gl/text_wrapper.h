@@ -1,7 +1,17 @@
+#include "util/pstdint.h"
 #include "util/service_api.h"
 
+struct map_t;
+struct text_group_t;
+
+void
+text_wrapper_init(void);
+
+void
+text_wrapper_deinit(void);
+
 /* ------------------------------------------------------------------------- */
-SERVICE(text_group_load_wrapper);
+SERVICE(text_group_create_wrapper);
 SERVICE(text_group_destroy_wrapper);
 SERVICE(text_group_load_character_set_wrapper);
 

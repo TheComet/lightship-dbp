@@ -54,6 +54,7 @@ struct text_group_t
      * uploaded to the GPU */
     struct ordered_vector_t vertex_buffer;
     struct ordered_vector_t index_buffer;
+    char mesh_needs_reuploading;
 };
 
 char
@@ -67,7 +68,7 @@ text_manager_deinit(void);
  * @param[in] filename The font file to load.
  * @return A new font object which can be used for later text related calls.
  */
-struct text_group_t*
+intptr_t
 text_group_create(const char* font_filename, uint32_t char_size);
 
 /*!
@@ -75,7 +76,10 @@ text_group_create(const char* font_filename, uint32_t char_size);
  * @param[in] font The font object to destroy.
  */
 void
-text_group_destroy(struct text_group_t* text_group);
+text_group_destroy(intptr_t id);
+
+struct text_group_t*
+text_group_get(intptr_t id);
 
 /*!
  * @brief Loads all characters specified.
@@ -91,16 +95,16 @@ text_group_destroy(struct text_group_t* text_group);
  * @note Use NULL to load the default set of characters.
  */
 void
-text_group_load_character_set(struct text_group_t* text_group, const wchar_t* characters);
+text_group_load_character_set(intptr_t id, const wchar_t* characters);
 
 void
-text_group_add_text(struct text_group_t* text_group, struct text_t* text);
+text_group_add_text_object(struct text_group_t* text_group, struct text_t* text);
 
 void
-text_group_remove_text(struct text_group_t* text_group, struct text_t* text);
+text_group_remove_text_object(struct text_group_t* text_group, struct text_t* text);
 
 void
-text_group_inform_updated_text(struct text_group_t* text_group);
+text_group_inform_updated_text_object(struct text_group_t* text_group);
 
 /*!
  * @brief The draw call. Draws all text from all text groups to the screen.
