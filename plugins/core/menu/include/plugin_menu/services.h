@@ -20,13 +20,13 @@ extern struct service_t* box_2d;
 extern struct service_t* shapes_2d_show;
 extern struct service_t* shapes_2d_hide;
 
-extern struct service_t* text_load_font;
-extern struct service_t* text_destroy_font;
-extern struct service_t* text_load_characters;
-extern struct service_t* text_add_static_center_string;
-extern struct service_t* text_destroy_static_string;
-extern struct service_t* text_show_static_string;
-extern struct service_t* text_hide_static_string;
+extern struct service_t* text_group_create;
+extern struct service_t* text_group_destroy;
+extern struct service_t* text_group_load_character_set;
+extern struct service_t* text_create;
+extern struct service_t* text_destroy;
+extern struct service_t* text_show;
+extern struct service_t* text_hide;
 
 void
 register_services(const struct plugin_t* plugin);

@@ -4,26 +4,27 @@
 #include "plugin_menu/menu.h"
 
 /* external services used by this plugin */
-struct service_t* yaml_load;
-struct service_t* yaml_get_value;
-struct service_t* yaml_get_dom;
-struct service_t* yaml_destroy;
+struct service_t* yaml_load = NULL;
+struct service_t* yaml_get_value = NULL;
+struct service_t* yaml_get_dom = NULL;
+struct service_t* yaml_destroy = NULL;
 
-struct service_t* shapes_2d_begin;
-struct service_t* shapes_2d_end;
-struct service_t* shapes_2d_destroy;
-struct service_t* line_2d;
-struct service_t* box_2d;
-struct service_t* shapes_2d_show;
-struct service_t* shapes_2d_hide;
+struct service_t* shapes_2d_begin = NULL;
+struct service_t* shapes_2d_end = NULL;
+struct service_t* shapes_2d_destroy = NULL;
+struct service_t* line_2d = NULL;
+struct service_t* box_2d = NULL;
+struct service_t* shapes_2d_show = NULL;
+struct service_t* shapes_2d_hide = NULL;
 
-struct service_t* text_load_font;
-struct service_t* text_destroy_font;
-struct service_t* text_load_characters;
-struct service_t* text_add_static_center_string;
-struct service_t* text_destroy_static_string;
-struct service_t* text_show_static_string;
-struct service_t* text_hide_static_string;
+struct service_t* text_group_create = NULL;
+struct service_t* text_group_destroy = NULL;
+struct service_t* text_group_load_character_set = NULL;
+
+struct service_t* text_create = NULL;
+struct service_t* text_destroy = NULL;
+struct service_t* text_show = NULL;
+struct service_t* text_hide = NULL;
 
 void
 register_services(const struct plugin_t* plugin)
@@ -67,19 +68,19 @@ get_required_services(void)
     if(!(shapes_2d_hide                 = service_get("renderer_gl.shapes_2d_hide")))
         return 0;
     
-    if(!(text_load_font                 = service_get("renderer_gl.text_load_font")))
+    if(!(text_group_create              = service_get("renderer_gl.text_group_create")))
         return 0;
-    if(!(text_destroy_font              = service_get("renderer_gl.text_destroy_font")))
+    if(!(text_group_destroy             = service_get("renderer_gl.text_group_destroy")))
         return 0;
-    if(!(text_load_characters           = service_get("renderer_gl.text_load_characters")))
+    if(!(text_group_load_character_set  = service_get("renderer_gl.text_group_load_character_set")))
         return 0;
-    if(!(text_add_static_center_string  = service_get("renderer_gl.text_add_static_center_string")))
+    if(!(text_create                    = service_get("renderer_gl.text_create")))
         return 0;
-    if(!(text_destroy_static_string     = service_get("renderer_gl.text_destroy_static_string")))
+    if(!(text_destroy                   = service_get("renderer_gl.text_destroy")))
         return 0;
-    if(!(text_show_static_string        = service_get("renderer_gl.text_show_static_string")))
+    if(!(text_show                      = service_get("renderer_gl.text_show")))
         return 0;
-    if(!(text_hide_static_string        = service_get("renderer_gl.text_hide_static_string")))
+    if(!(text_hide                      = service_get("renderer_gl.text_hide")))
         return 0;
 
     return 1;

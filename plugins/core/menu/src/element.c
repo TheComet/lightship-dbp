@@ -33,7 +33,7 @@ element_destructor(struct element_t* element)
     }}
     { UNORDERED_VECTOR_FOR_EACH(&element->base.element.gl.text, struct element_font_text_id_pair_t, pair)
     {
-        SERVICE_CALL2(text_destroy_static_string, SERVICE_NO_RETURN, pair->font_id,pair->text_id);
+        SERVICE_CALL2(text_destroy, SERVICE_NO_RETURN, pair->font_id,pair->text_id);
     }}
     unordered_vector_clear_free(&element->base.element.gl.shapes);
     unordered_vector_clear_free(&element->base.element.gl.text);
@@ -74,7 +74,7 @@ element_show(struct element_t* element)
     }}
     { UNORDERED_VECTOR_FOR_EACH(&element->base.element.gl.text, struct element_font_text_id_pair_t, pair)
     {
-        SERVICE_CALL2(text_show_static_string, SERVICE_NO_RETURN, pair->font_id, pair->text_id);
+        SERVICE_CALL2(text_show, SERVICE_NO_RETURN, pair->font_id, pair->text_id);
     }}
     element->base.element.visible = 1;
 }
@@ -88,7 +88,7 @@ element_hide(struct element_t* element)
     }}
     { UNORDERED_VECTOR_FOR_EACH(&element->base.element.gl.text, struct element_font_text_id_pair_t, pair)
     {
-        SERVICE_CALL2(text_hide_static_string, SERVICE_NO_RETURN, pair->font_id, pair->text_id);
+        SERVICE_CALL2(text_hide, SERVICE_NO_RETURN, pair->font_id, pair->text_id);
     }}
     element->base.element.visible = 0;
 }

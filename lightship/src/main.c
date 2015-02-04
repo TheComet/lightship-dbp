@@ -99,13 +99,13 @@ init(void)
         struct service_t* yaml_destroy = service_get("yaml.destroy");
         const char* entry_point_key = "service";
 
-        SERVICE_CALL1(yaml_load, &doc_ID, yml_entry_point);
+        SERVICE_CALL1(yaml_load, &doc_ID, *yml_entry_point);
         if(!doc_ID)
         {
             llog(LOG_FATAL, NULL, 1, "Cannot get main loop service");
             return;
         }
-        SERVICE_CALL2(yaml_get_value, &start_service_name, doc_ID, entry_point_key);
+        SERVICE_CALL2(yaml_get_value, &start_service_name, doc_ID, *entry_point_key);
         if(!start_service_name)
         {
             llog(LOG_FATAL, NULL, 3, "Cannot get value of \"service\" in \"", yml_entry_point ,"\"");
