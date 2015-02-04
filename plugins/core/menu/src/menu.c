@@ -47,7 +47,7 @@ menu_load(const char* file_name)
     llog(LOG_INFO, PLUGIN_NAME, 3, "Loading menu from file \"", file_name, "\"");
     
     /* load and parse yaml file, get DOM */
-    SERVICE_CALL1(yaml_load, &doc, file_name);
+    SERVICE_CALL1(yaml_load, &doc, *file_name);
     SERVICE_CALL1(yaml_get_dom, &dom, doc);
     if(!dom)
     {

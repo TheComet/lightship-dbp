@@ -25,13 +25,13 @@ void button_init(void)
 
     /* load font and characters */
     char_size = 9;
-    SERVICE_CALL2(text_load_font, &font_id, ttf_filename, char_size);
-    SERVICE_CALL2(text_load_characters, SERVICE_NO_RETURN, font_id, SERVICE_NO_ARGUMENT);
+    SERVICE_CALL2(text_group_create, &font_id, *ttf_filename, char_size);
+    SERVICE_CALL2(text_group_load_character_set, SERVICE_NO_RETURN, font_id, *NULL);
 }
 
 void button_deinit(void)
 {
-    SERVICE_CALL1(text_destroy_font, SERVICE_NO_RETURN, font_id);
+    SERVICE_CALL1(text_group_destroy, SERVICE_NO_RETURN, font_id);
     button_destroy_all();
 }
 
@@ -60,12 +60,13 @@ button_constructor(struct button_t* btn, const char* text, float x, float y, flo
     /* copy wchar_t string into button object */
     if(text)
     {
+        char is_centered = 0;
         float offy = y + 0.02;
         /* TODO centering code for text */
         /* TODO instead of passing the raw string, add way to pass a "string instance"
         * which can specify the font and size of the string. */
         btn->base.button.text = strtowcs(text);
-        SERVICE_CALL4(text_add_static_center_string, &btn->base.button.text_id, font_id, x, offy, btn->base.button.text);
+        SERVICE_CALL5(text_create, &btn->base.button.text_id, font_id, is_centered, x, offy, *btn->base.button.text);
         element_add_text((struct element_t*)btn, font_id, btn->base.button.text_id);
     }
     else
@@ -122,7 +123,7 @@ button_free_contents(struct button_t* button)
 {
     if(button->base.button.text)
     {
-        SERVICE_CALL2(text_destroy_static_string, SERVICE_NO_RETURN, font_id, button->base.button.text_id);
+        SERVICE_CALL2(text_destroy, SERVICE_NO_RETURN, font_id, button->base.button.text_id);
         free_string(button->base.button.text);
         if(button->base.element.action.service)
             service_destroy_argument_list(button->base.element.action.service, button->base.element.action.argv);

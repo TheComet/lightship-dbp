@@ -302,7 +302,7 @@ yaml_destroy(const uint32_t ID)
 
 SERVICE(yaml_load_wrapper)
 {
-    SERVICE_EXTRACT_ARGUMENT(0, file_name, const char*, const char*);
+    SERVICE_EXTRACT_ARGUMENT_PTR(0, file_name, const char*);
     SERVICE_RETURN(yaml_load(file_name), uint32_t);
 }
 
@@ -315,7 +315,7 @@ SERVICE(yaml_get_dom_wrapper)
 SERVICE(yaml_get_value_wrapper)
 {
     SERVICE_EXTRACT_ARGUMENT(0, id, uint32_t, uint32_t);
-    SERVICE_EXTRACT_ARGUMENT(1, key, const char*, const char*);
+    SERVICE_EXTRACT_ARGUMENT_PTR(1, key, const char*);
     SERVICE_RETURN(yaml_get_value(id, key), const char*);
 }
 
