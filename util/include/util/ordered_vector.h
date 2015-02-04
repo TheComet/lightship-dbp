@@ -226,7 +226,7 @@ ordered_vector_get_element(struct ordered_vector_t*, intptr_t index);
 #define ORDERED_VECTOR_FOR_EACH_RANGE(vector, var_type, var, begin_index, end_index) \
     var_type* var; \
     DATA_POINTER_TYPE* end_of_vector = (vector)->data + end_index * (vector)->element_size; \
-    for(var = (var_type*)(vector)->data + begin_index * (vector)->element_size; \
+    for(var = (var_type*)((vector)->data + begin_index * (vector)->element_size); \
         (DATA_POINTER_TYPE*)var != end_of_vector; \
         var = (var_type*)(((DATA_POINTER_TYPE*)var) + (vector)->element_size))
 
