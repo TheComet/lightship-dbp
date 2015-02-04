@@ -28,6 +28,6 @@ register_services(const struct plugin_t* plugin)
     SERVICE_REGISTER2(plugin, "text_set_centered",              text_set_centered_wrapper, void, uint32_t, intptr_t);
     SERVICE_REGISTER1(plugin, "text_set_position",              text_set_position_wrapper, void, uint32_t);
     SERVICE_REGISTER1(plugin, "text_set_string",                text_set_string_wrapper, void, const wchar_t*);
-    SERVICE_REGISTER2(plugin, "text_show",                      text_show_wrapper, void, uint32_t, intptr_t);
-    SERVICE_REGISTER2(plugin, "text_hide",                      text_hide_wrapper, void, uint32_t, intptr_t);
+    SERVICE_REGISTER1(plugin, "text_show",                      text_show_wrapper, void, uint32_t);
+    SERVICE_REGISTER1(plugin, "text_hide",                      text_hide_wrapper, void, uint32_t);
 }

@@ -103,13 +103,19 @@ SERVICE(text_set_string_wrapper)
 /* ------------------------------------------------------------------------- */
 SERVICE(text_show_wrapper)
 {
+    SERVICE_EXTRACT_ARGUMENT(0, text_id, uint32_t, uint32_t);
+    struct text_t* text = map_find(&g_texts, text_id);
+    if(!text)
+        return;
+    
+    text_show(text);
 }
 
 /* ------------------------------------------------------------------------- */
 SERVICE(text_hide_wrapper)
 {
-    SERVICE_EXTRACT_ARGUMENT(0, id, uint32_t, uint32_t);
-    struct text_t* text = map_find(&g_texts, id);
+    SERVICE_EXTRACT_ARGUMENT(0, text_id, uint32_t, uint32_t);
+    struct text_t* text = map_find(&g_texts, text_id);
     if(!text)
         return;
     

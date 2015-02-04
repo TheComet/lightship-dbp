@@ -17,8 +17,8 @@ struct action_t
 
 struct element_font_text_id_pair_t
 {
-    intptr_t font_id;
-    intptr_t text_id;
+    uint32_t font_id;
+    uint32_t text_id;
 };
 
 struct element_gl_t

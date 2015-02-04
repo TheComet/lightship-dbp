@@ -74,7 +74,7 @@ element_show(struct element_t* element)
     }}
     { UNORDERED_VECTOR_FOR_EACH(&element->base.element.gl.text, struct element_font_text_id_pair_t, pair)
     {
-        SERVICE_CALL2(text_show, SERVICE_NO_RETURN, pair->font_id, pair->text_id);
+        SERVICE_CALL1(text_show, SERVICE_NO_RETURN, pair->text_id);
     }}
     element->base.element.visible = 1;
 }
@@ -88,7 +88,7 @@ element_hide(struct element_t* element)
     }}
     { UNORDERED_VECTOR_FOR_EACH(&element->base.element.gl.text, struct element_font_text_id_pair_t, pair)
     {
-        SERVICE_CALL2(text_hide, SERVICE_NO_RETURN, pair->font_id, pair->text_id);
+        SERVICE_CALL1(text_hide, SERVICE_NO_RETURN, pair->text_id);
     }}
     element->base.element.visible = 0;
 }
