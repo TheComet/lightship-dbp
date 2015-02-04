@@ -552,13 +552,6 @@ text_group_sync_with_gpu(struct text_group_t* group)
             }
         }
     }
-    
-    {
-        UNORDERED_VECTOR_FOR_EACH(&group->index_buffer, INDEX_DATA_TYPE, index)
-        {
-            printf("%d\n", *index);
-        }
-    }
 
     /* upload to GPU */
     glBindVertexArray(group->gl.vao);
