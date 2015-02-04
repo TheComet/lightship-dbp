@@ -290,6 +290,8 @@ text_group_add_text_object(struct text_group_t* text_group, struct text_t* text)
     
     unordered_vector_push(&text_group->texts, &text);
     text->group = text_group;
+    
+    text_group->mesh_needs_reuploading = 1;
 }
 
 /* ------------------------------------------------------------------------- */
@@ -304,6 +306,8 @@ text_group_remove_text_object(struct text_group_t* text_group, struct text_t* te
             return;
         }
     }
+    
+    text_group->mesh_needs_reuploading = 1;
 }
 
 /* ------------------------------------------------------------------------- */
