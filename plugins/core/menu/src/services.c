@@ -33,9 +33,9 @@ register_services(const struct plugin_t* plugin)
      * All services this plugin supports
      * ---------------------------------------------------*/
 
-    SERVICE_REGISTER5(plugin, "button_create", button_create_wrapper, intptr_t, const char*, float, float, float, float);
-    SERVICE_REGISTER1(plugin, "button_destroy", button_destroy_wrapper, void, intptr_t);
-    SERVICE_REGISTER1(plugin, "button_get_text", button_get_text_wrapper, wchar_t*, intptr_t);
+    SERVICE_REGISTER5(plugin, "button_create", button_create_wrapper, uint32_t, const char*, float, float, float, float);
+    SERVICE_REGISTER1(plugin, "button_destroy", button_destroy_wrapper, void, uint32_t);
+    SERVICE_REGISTER1(plugin, "button_get_text", button_get_text_wrapper, wchar_t*, uint32_t);
     SERVICE_REGISTER1(plugin, "load", menu_load_wrapper, const char*, const char*);
     SERVICE_REGISTER1(plugin, "destroy", menu_destroy_wrapper, void, const char*);
     SERVICE_REGISTER2(plugin, "set_active_screen", menu_set_active_screen_wrapper, void, const char*, const char*);

@@ -13,6 +13,6 @@
  * @note The returned array must be freed manually with FREE(returned_array).
  */
 LIGHTSHIP_PUBLIC_API char**
-get_backtrace(intptr_t* size);
+get_backtrace(uint32_t* size);
 
 #endif /* LIGHTSHIP_UTIL_BACKTRACE_H */

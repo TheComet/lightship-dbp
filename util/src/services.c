@@ -112,7 +112,7 @@ service_malloc_and_register(char* full_name,
 void
 service_free(struct service_t* service)
 {
-    int i;
+    uint32_t i;
     free_string(service->name);
     free_string((char*)service->ret_type);
     for(i = 0; i != service->argc; ++i)
@@ -127,7 +127,7 @@ service_unregister(const struct plugin_t* plugin,
                    const char* name)
 {
     char* full_name;
-    intptr_t hash;
+    uint32_t hash;
     struct service_t* service;
 
     /* remove service from map */
@@ -284,7 +284,7 @@ service_create_argument_list_from_strings(struct service_t* service, struct orde
 void
 service_destroy_argument_list(struct service_t* service, void** argv)
 {
-    int i;
+    uint32_t i;
     for(i = 0; i != service->argc; ++i)
         if(argv[i])
             FREE(argv[i]);
@@ -292,9 +292,9 @@ service_destroy_argument_list(struct service_t* service, void** argv)
 }
 
 char
-service_do_typecheck(const struct service_t* service, const char* ret_type, int argc, const char** argv)
+service_do_typecheck(const struct service_t* service, const char* ret_type, uint32_t argc, const char** argv)
 {
-    int i;
+    uint32_t i;
 
     /* verify argument count */
     if(argc != service->argc)

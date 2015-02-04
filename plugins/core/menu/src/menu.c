@@ -124,7 +124,7 @@ menu_destroy(struct menu_t* menu)
 void
 menu_set_active_screen(struct menu_t* menu, const char* name)
 {
-    intptr_t screen_id = hash_jenkins_oaat(name, strlen(name));
+    uint32_t screen_id = hash_jenkins_oaat(name, strlen(name));
     struct screen_t* screen = map_find(&menu->screens, screen_id);
     if(!screen)
         return;
@@ -285,12 +285,12 @@ menu_load_button_action(struct button_t* button, const struct ptree_t* action_no
 
 SERVICE(menu_load_wrapper)
 {
-    intptr_t id;
+    uint32_t id;
     SERVICE_EXTRACT_ARGUMENT_PTR(0, file_name, const char*);
 
     struct menu_t* menu = menu_load(file_name);
     if(!menu)
-        SERVICE_RETURN(0, intptr_t);
+        SERVICE_RETURN(0, uint32_t);
 
     /* cannot have duplicate menu names */
     id = hash_jenkins_oaat(menu->name, strlen(menu->name));
@@ -298,7 +298,7 @@ SERVICE(menu_load_wrapper)
     {
         llog(LOG_ERROR, PLUGIN_NAME, 3, "Tried to load a menu with duplicate name: \"", menu->name, "\"");
         menu_destroy(menu);
-        SERVICE_RETURN(0, intptr_t);
+        SERVICE_RETURN(0, uint32_t);
     }
     
     map_insert(&g_menus, id, menu);
@@ -309,7 +309,7 @@ SERVICE(menu_destroy_wrapper)
 {
     SERVICE_EXTRACT_ARGUMENT_PTR(0, menu_name, const char*);
 
-    intptr_t id = hash_jenkins_oaat(menu_name, strlen(menu_name));
+    uint32_t id = hash_jenkins_oaat(menu_name, strlen(menu_name));
     struct menu_t* menu = map_erase(&g_menus, id);
     if(menu)
         menu_destroy(menu);
@@ -320,7 +320,7 @@ SERVICE(menu_set_active_screen_wrapper)
     SERVICE_EXTRACT_ARGUMENT_PTR(0, menu_name, const char*);
     SERVICE_EXTRACT_ARGUMENT_PTR(1, screen_name, const char*);
     
-    intptr_t menu_id = hash_jenkins_oaat(menu_name, strlen(menu_name));
+    uint32_t menu_id = hash_jenkins_oaat(menu_name, strlen(menu_name));
     struct menu_t* menu = map_find(&g_menus, menu_id);
     if(!menu)
         return;

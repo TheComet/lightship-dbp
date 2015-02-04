@@ -98,7 +98,7 @@ events_deinit(void)
     LIST_FOR_EACH_ERASE(&g_events, struct event_t, event)
     {
         event_free(event);
-        list_erase_node(&g_events, node);
+        list_erase_node(&g_events, node_event);
     }
 }
 
@@ -127,7 +127,7 @@ event_destroy(struct event_t* event_delete)
         if(event == event_delete)
         {
             event_free(event);
-            list_erase_node(&g_events, node);
+            list_erase_node(&g_events, node_event);
             return 1;
         }
     }
@@ -145,7 +145,7 @@ event_destroy_plugin_event(const struct plugin_t* plugin, const char* name)
             if(strcmp(event->name, full_name) == 0)
             {
                 event_free(event);
-                list_erase_node(&g_events, node);
+                list_erase_node(&g_events, node_event);
                 break;
             }
         }
@@ -164,7 +164,7 @@ event_destroy_all_plugin_events(const struct plugin_t* plugin)
         if(strncmp(event->name, name_space, len) == 0)
         {
             event_free(event);
-            list_erase_node(&g_events, node);
+            list_erase_node(&g_events, node_event);
         }
     }
     FREE(name_space);

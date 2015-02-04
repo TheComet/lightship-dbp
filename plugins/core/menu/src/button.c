@@ -8,7 +8,7 @@
 #include <string.h>
 #include <wchar.h>
 
-static intptr_t font_id = -1;
+static uint32_t font_id = -1;
 static struct map_t g_buttons;
 
 #ifdef _DEBUG
@@ -200,7 +200,7 @@ SERVICE(button_create_wrapper)
 
 SERVICE(button_destroy_wrapper)
 {
-    SERVICE_EXTRACT_ARGUMENT(0, id, intptr_t, intptr_t);
+    SERVICE_EXTRACT_ARGUMENT(0, id, uint32_t, uint32_t);
     struct button_t* button = map_find(&g_buttons, id);
     if(button)
         button_destroy(button);
@@ -208,7 +208,7 @@ SERVICE(button_destroy_wrapper)
 
 SERVICE(button_get_text_wrapper)
 {
-    SERVICE_EXTRACT_ARGUMENT(0, id, intptr_t, intptr_t);
+    SERVICE_EXTRACT_ARGUMENT(0, id, uint32_t, uint32_t);
     struct button_t* button = map_find(&g_buttons, id);
     if(button)
         SERVICE_RETURN(button->base.button.text, wchar_t*);

@@ -24,13 +24,13 @@ struct element_font_text_id_pair_t
 struct element_gl_t
 {
     struct unordered_vector_t text;     /* holds element_font_text_id_pair_t objects */
-    struct unordered_vector_t shapes;   /* holds intptr_t instances */
+    struct unordered_vector_t shapes;   /* holds uint32_t instances */
 };
 
 struct element_data_t
 {
     char visible;
-    intptr_t id;
+    uint32_t id;
     struct element_gl_t gl;
     struct vec2_t pos;
     struct vec2_t size;
@@ -83,10 +83,10 @@ void
 element_destroy(struct element_t* element);
 
 void
-element_add_text(struct element_t* element, intptr_t font_id, intptr_t text_id);
+element_add_text(struct element_t* element, uint32_t font_id, uint32_t text_id);
 
 void
-element_add_shapes(struct element_t* element, intptr_t shapes_id);
+element_add_shapes(struct element_t* element, uint32_t shapes_id);
 
 void
 element_set_action(struct element_t* element, struct service_t* service, void** argv);

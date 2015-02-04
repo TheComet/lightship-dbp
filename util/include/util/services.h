@@ -98,7 +98,7 @@ LIGHTSHIP_PUBLIC_API struct service_t*
 service_get(const char* name);
 
 LIGHTSHIP_PUBLIC_API char
-service_do_typecheck(const struct service_t* service, const char* ret_type, int argc, const char** argv);
+service_do_typecheck(const struct service_t* service, const char* ret_type, uint32_t argc, const char** argv);
 
 LIGHTSHIP_PUBLIC_API void**
 service_create_argument_list_from_strings(struct service_t* service, struct ordered_vector_t* argv);

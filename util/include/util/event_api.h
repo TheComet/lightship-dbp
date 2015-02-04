@@ -106,7 +106,7 @@ EVENT_LISTENER1(on_event, int arg)
  */
 #   define REPORT_EVENT_FIRE_FAILURE \
                 } else { \
-                    intptr_t size, i; \
+                    uint32_t size, i; \
                     char** backtrace = get_backtrace(&size); \
                     llog(LOG_ERROR, NULL, 1, "Cannot fire event for it is NULL"); \
                     llog_indent("Backtrace"); \

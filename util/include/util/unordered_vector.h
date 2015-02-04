@@ -30,9 +30,9 @@ C_HEADER_BEGIN
 #define DATA_POINTER_TYPE unsigned char
 struct unordered_vector_t
 {
-    intptr_t element_size;       /* how large one element is in bytes */
-    intptr_t capacity;           /* how many elements actually fit into the allocated space */
-    intptr_t count;              /* number of elements inserted */
+    uint32_t element_size;       /* how large one element is in bytes */
+    uint32_t capacity;           /* how many elements actually fit into the allocated space */
+    uint32_t count;              /* number of elements inserted */
     DATA_POINTER_TYPE* data;     /* pointer to the contiguous section of memory */
 };
 
@@ -43,7 +43,7 @@ struct unordered_vector_t
  * @return Returns the newly created vector object.
  */
 LIGHTSHIP_PUBLIC_API struct unordered_vector_t*
-unordered_vector_create(const intptr_t element_size);
+unordered_vector_create(const uint32_t element_size);
 
 /*!
  * @brief Initialises an existing vector object.
@@ -55,7 +55,7 @@ unordered_vector_create(const intptr_t element_size);
  */
 LIGHTSHIP_PUBLIC_API void
 unordered_vector_init_vector(struct unordered_vector_t* vector,
-                             const intptr_t element_size);
+                             const uint32_t element_size);
 
 /*!
  * @brief Destroys an existing vector object and frees all memory allocated by
@@ -139,7 +139,7 @@ unordered_vector_pop(struct unordered_vector_t* vector);
  * ranges from **0** to **unordered_vector_count()-1**.
  */
 LIGHTSHIP_PUBLIC_API void
-unordered_vector_erase_index(struct unordered_vector_t* vector, intptr_t index);
+unordered_vector_erase_index(struct unordered_vector_t* vector, uint32_t index);
 
 /*!
  * @brief Removes the element in the vector pointed to by **element**.
@@ -167,7 +167,7 @@ unordered_vector_erase_element(struct unordered_vector_t* vector,
  * returned.
  */
 LIGHTSHIP_PUBLIC_API void*
-unordered_vector_get_element(struct unordered_vector_t*, intptr_t index);
+unordered_vector_get_element(struct unordered_vector_t*, uint32_t index);
 
 /*!
  * @brief Convenient macro for iterating a vector's elements.
