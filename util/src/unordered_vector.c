@@ -92,10 +92,7 @@ unordered_vector_push_emplace(struct unordered_vector_t* vector)
     {
         data = unordered_vector_expand(vector, -1);
         if(!data)
-        {
-            llog(LOG_FATAL, NULL, 1, "malloc() failed - not enough memory.");
-            return NULL;
-        }
+            OUT_OF_MEMORY("unordered_vector_push_emplace()", NULL);
     }
     else
         data = vector->data;

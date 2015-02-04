@@ -5,6 +5,12 @@
 #include "util/pstdint.h"
 #include "util/event_api.h"
 
+#define RETURN_NOTHING
+#define OUT_OF_MEMORY(where, ret_val) do { \
+        llog_critical_use_no_memory("malloc() failed in " where " - not enough memory"); \
+        return ret_val; \
+    } while(0)
+
 typedef enum log_level_t
 {
     LOG_INFO = 0,
@@ -60,6 +66,9 @@ llog_unindent(void);
  */
 LIGHTSHIP_PUBLIC_API void
 llog(log_level_t level, const char* plugin, uint32_t num_strs, ...);
+
+LIGHTSHIP_PUBLIC_API void
+llog_critical_use_no_memory(const char* message);
 
 EVENT_LISTENER1(on_llog_indent, const char* str);
 EVENT_LISTENER1(on_llog, struct log_t* arg);

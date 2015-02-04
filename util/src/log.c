@@ -199,6 +199,12 @@ llog(log_level_t level, const char* plugin, uint32_t num_strs, ...)
     FREE(buffer);
 }
 
+void
+llog_critical_use_no_memory(const char* message)
+{
+    printf("[FATAL] %s\n", message);
+}
+
 /* ----------------------------------------------------------------------------
  * Event listeners
  * ------------------------------------------------------------------------- */
