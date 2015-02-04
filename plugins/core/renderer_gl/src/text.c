@@ -39,6 +39,9 @@ text_destroy(struct text_t* text)
 {
     if(text->group)
         text_group_remove_text_object(text->group, text);
+    
+    ordered_vector_clear_free(&text->vertex_buffer);
+    ordered_vector_clear_free(&text->index_buffer);
 
     free_string(text->string);
     FREE(text);
