@@ -7,6 +7,8 @@
 #include "plugin_renderer_gl/services.h"
 #include "plugin_renderer_gl/2d.h"
 #include "plugin_renderer_gl/text.h"
+#include "plugin_renderer_gl/text_manager.h"
+#include "plugin_renderer_gl/text_wrapper.h"
 #include "glfw3.h"
 #include <stdio.h>
 
@@ -61,8 +63,9 @@ PLUGIN_START()
     /* init graphics */
     init_2d();
 
-    if(!text_init())
+    if(!text_manager_init())
         return PLUGIN_FAILURE;
+    text_wrapper_init();
 
     register_event_listeners(g_plugin);
 
@@ -71,7 +74,8 @@ PLUGIN_START()
 
 PLUGIN_STOP()
 {
-    text_deinit();
+    text_wrapper_deinit();
+    text_manager_deinit();
     deinit_2d();
     window_deinit();
     glfwTerminate();

@@ -10,7 +10,7 @@
 #include <math.h>
 
 static void
-text_group_sync_with_gpu(struct text_group_t* group);
+text_generate_mesh(struct text_t* text);
 
 /* ------------------------------------------------------------------------- */
 struct text_t*
@@ -24,78 +24,53 @@ text_create(struct text_group_t* text_group, char centered, GLfloat x, GLfloat y
     text->is_centered = centered;
     text->visible = 1;
     
-    text_group_add_text(text_group, text);
+    text_group_add_text_object(text_group, text);
+    text_generate_mesh(text);
     
     return text;
 }
 
 /* ------------------------------------------------------------------------- */
 void
-text_destroy(struct text_group_t* text_group, struct text_t* text)
+text_destroy(struct text_t* text)
 {
     free_string(text->string);
     FREE(text);
     
-    text_group_remove_text(text_group, text);
-}
-
-/* ------------------------------------------------------------------------- */
-/* TODO remove, there is no access to a list of all stings from within this translation unit */
-void
-text_destroy_all(struct text_group_t* group)
-{
-    /* destroy all elements in map *
-    MAP_FOR_EACH(&font->static_text_map, struct text_string_instance_t, key, value)
-    {
-        text_destroy_string_instance(value);
-    }
-    map_clear_free(&font->static_text_map);*/
-    
-    /* clear vertices on GPU */
-    glBindVertexArray(group->gl.vao);
-        glBindBuffer(GL_ARRAY_BUFFER, group->gl.vbo);
-            glBufferData(GL_ARRAY_BUFFER, 0, NULL, GL_STATIC_DRAW);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, group->gl.ibo);
-            glBufferData(GL_ELEMENT_ARRAY_BUFFER, 0, NULL, GL_STATIC_DRAW);
-    glBindVertexArray(0);
-    
-    /* reset index counter */
-    /*font->gl.static_text_num_indices = 0;*/
+    text_group_remove_text_object(text->group, text);
 }
 
 /* ------------------------------------------------------------------------- */
 void
-text_set_string(struct text_group_t* group, struct text_t* text, const wchar_t* string)
+text_set_string(struct text_t* text, const wchar_t* string)
 {
 }
 
 /* ------------------------------------------------------------------------- */
 void
-text_set_position(struct text_group_t* group, struct text_t* text, GLfloat x, GLfloat y)
+text_set_position(struct text_t* text, GLfloat x, GLfloat y)
 {
 }
 
 /* ------------------------------------------------------------------------- */
 void
-text_show(struct text_group_t* group, struct text_t* text)
+text_show(struct text_t* text)
 {
     text->visible = 1;
-    
-    /* TODO refresh with GPU */
+    text_generate_mesh(text);
 }
 
 /* ------------------------------------------------------------------------- */
 void
-text_hide(struct text_group_t* group, struct text_t* text)
+text_hide(struct text_t* text)
 {
     text->visible = 0;
-    
-    /* TODO refresh with GPU */
+    text_generate_mesh(text);
 }
 
 /* ------------------------------------------------------------------------- */
 static void
-text_generate_mesh(struct text_group_t* group, struct text_t* text)
+text_generate_mesh(struct text_t* text)
 {
     const wchar_t* iterator;
     GLfloat dist_between_chars;
@@ -128,7 +103,7 @@ text_generate_mesh(struct text_group_t* group, struct text_t* text)
             }
             
             /* lookup character info */
-            info = (struct char_info_t*)map_find(&group->char_info, (intptr_t)*iterator);
+            info = (struct char_info_t*)map_find(&text->group->char_info, (intptr_t)*iterator);
             if(!info)
             {
                 char* buffer[sizeof(wchar_t)+1];
@@ -166,7 +141,7 @@ text_generate_mesh(struct text_group_t* group, struct text_t* text)
         }
 
         /* lookup character info */
-        info = (struct char_info_t*)map_find(&group->char_info, (intptr_t)*iterator);
+        info = (struct char_info_t*)map_find(&text->group->char_info, (intptr_t)*iterator);
         if(!info)
         {
             char* buffer[sizeof(wchar_t)+1];
@@ -215,44 +190,7 @@ text_generate_mesh(struct text_group_t* group, struct text_t* text)
         x += info->width + dist_between_chars;
         base_index += 4;
     }
-}
-
-/* ------------------------------------------------------------------------- */
-static void
-text_group_sync_with_gpu(struct text_group_t* group)
-{
-    INDEX_DATA_TYPE base_index = 0;
-
-    /* prepare vertex and index buffers */
-    ordered_vector_clear(&group->vertex_buffer);
-    ordered_vector_clear(&group->index_buffer);
-
-    /* copy vertex and index data from each text object */
-    /* need to make sure indices align correctly */
-    {
-        UNORDERED_VECTOR_FOR_EACH(&group->texts, struct text_t*, ptext)
-        {
-            struct text_t* text = *ptext;
-            if(text->visible)
-            {
-                intptr_t insertion_index = text->index_buffer.count + 1;
-                ordered_vector_push_vector(&group->vertex_buffer, &text->vertex_buffer);
-                ordered_vector_push_vector(&group->index_buffer, &text->index_buffer);
-                {
-                    ORDERED_VECTOR_FOR_EACH_RANGE(&group->index_buffer, INDEX_DATA_TYPE, val, insertion_index, group->index_buffer.count)
-                    {
-                        (*val) += base_index;
-                    }
-                }
-                base_index += text->index_buffer.count;
-            }
-        }
-    }
-
-    /* upload to GPU */
-    glBindVertexArray(group->gl.vao);
-        glBindBuffer(GL_ARRAY_BUFFER, group->gl.vbo);
-            glBufferData(GL_ARRAY_BUFFER, group->vertex_buffer.count * sizeof(struct text_vertex_t), group->vertex_buffer.data, GL_STATIC_DRAW);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, group->index_buffer.count * sizeof(INDEX_DATA_TYPE), group->index_buffer.data, GL_STATIC_DRAW);
-    glBindVertexArray(0);
+    
+    /* let text group about mesh update */
+    text_group_inform_updated_text_object(text->group);
 }

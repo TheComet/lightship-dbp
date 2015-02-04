@@ -7,6 +7,9 @@ struct text_group_t;
 
 struct text_t
 {
+    /* reference to group this text object belongs to */
+    struct text_group_t* group;
+    /* mesh data of this text instance */
     struct ordered_vector_t vertex_buffer;
     struct ordered_vector_t index_buffer;
     wchar_t* string;
@@ -15,19 +18,6 @@ struct text_t
     char is_centered;
     char visible;
 };
-
-/*!
- * @brief Initialises the text subsystem. Call this before calling any other
- * related text functions.
- */
-char
-text_init(void);
-
-/*!
- * @brief De-initialises the text subsystem, cleaning up memory.
- */
-void
-text_deinit(void);
 
 /*!
  * @brief Adds a new text string to the static vertex buffer.
@@ -54,4 +44,4 @@ text_create(struct text_group_t* text_group, char centered, GLfloat x, GLfloat y
  * @param id The unique identifier returned by text_add_static_string().
  */
 void
-text_destroy(struct text_group_t* font, struct text_t* text);
+text_destroy(struct text_t* text);

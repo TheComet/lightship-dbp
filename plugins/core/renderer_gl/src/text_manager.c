@@ -1,6 +1,7 @@
 #include "plugin_renderer_gl/config.h"
 #include "plugin_renderer_gl/text_manager.h"
 #include "plugin_renderer_gl/text.h"
+#include "plugin_renderer_gl/text_wrapper.h"
 #include "plugin_renderer_gl/glutils.h"
 #include "plugin_renderer_gl/shader.h"
 #include "plugin_renderer_gl/window.h"
@@ -11,9 +12,18 @@
 #include "GL/glew.h"
 #include FT_BITMAP_H
 
+/*
+ * NOTE:
+ *   1) We need a list of all groups to be able to render the text.
+ *   2) We don't want to have to maintain two essentially duplicate lists
+ *      of text group objects. Therefore, the render list is the same
+ *      one being used to look up IDs for the wrapper.
+ */
+static struct map_t g_text_groups;
+static intptr_t guid = 1;
+
 static FT_Library g_lib;
 static GLuint g_text_shader_id;
-static struct map_t g_text_groups;
 
 static const wchar_t* g_default_characters =
 L"abcdefghijklmnopqrstuvwxyz"
@@ -26,6 +36,9 @@ static const char* text_shader_file = "../../plugins/core/renderer_gl/fx/text_2d
 #else
 static const char* text_shader_file = "fx/text_2d";
 #endif
+
+static char
+text_group_load_font(struct text_group_t* group, const char* filename, uint32_t char_size);
 
 /*!
  * @brief Rounds a number up to the nearest power of 2.
@@ -46,13 +59,14 @@ to_nearest_pow2(GLuint value)
 static void
 text_group_load_atlass(struct text_group_t* group, const wchar_t* characters);
 
+static void
+text_group_sync_with_gpu(struct text_group_t* group);
+
 /* ------------------------------------------------------------------------- */
 char
 text_manager_init(void)
 {
     FT_Error error;
-    
-    map_init_map(&g_text_groups);
     
     /* load the text shader */
     g_text_shader_id = shader_load(text_shader_file);printOpenGLError();
@@ -66,6 +80,10 @@ text_manager_init(void)
         return 0;
     }
     
+    /* This is used as a render list and as a map to expose group objects to the
+     * service API */
+    map_init_map(&g_text_groups);
+    
     return 1;
 }
 
@@ -73,48 +91,31 @@ text_manager_init(void)
 void
 text_manager_deinit(void)
 {
+    /* destroy all text groups */
+    /* NOTE: text_group_destroy mutates the container. Cannot iterate, so we're
+     * instead abusing the fact that the map uses an ordered vector internally,
+     * and know that the vector stores key-value structures.
+     */
+    while(g_text_groups.vector.count)
+    {
+        text_group_destroy(
+            ((struct map_key_value_t*)ordered_vector_pop(&g_text_groups.vector))->hash
+        );
+    }
+    map_clear_free(&g_text_groups);
+
     if(g_text_shader_id)
         glDeleteProgram(g_text_shader_id);printOpenGLError();
 
     FT_Done_FreeType(g_lib);
-    
-    map_clear_free(&g_text_groups);
-}
-
-char
-text_group_load_font(struct text_group_t* group, const char* filename, uint32_t char_size)
-{
-    FT_Error error;
-
-    /* load face */
-    error = FT_New_Face(g_lib, filename, 0, &group->face);
-    if(error == FT_Err_Unknown_File_Format)
-    {
-        llog(LOG_ERROR, PLUGIN_NAME, 3, "The font file \"", filename, "\" could be opened and read, but it appears that its font format is unsupported");
-        return 0;
-    }
-    else if(error)
-    {
-        llog(LOG_ERROR, PLUGIN_NAME, 3, "Failed to open font file \"", filename, "\"");
-        return 0;
-    }
-    
-    /* set character size */
-    error = FT_Set_Char_Size(group->face, TO_26DOT6(char_size), 0, 300, 300);
-    if(error)
-    {
-        llog(LOG_ERROR, PLUGIN_NAME, 1, "Failed to set the character size");
-        return 0;
-    }
-    
-    return 1;
 }
 
 /* ------------------------------------------------------------------------- */
-struct text_group_t*
+intptr_t
 text_group_create(const char* font_filename, uint32_t char_size)
 {
     struct text_group_t* group;
+    intptr_t id;
     
     /* create new text group object */
     group = (struct text_group_t*)MALLOC(sizeof(struct text_group_t));
@@ -124,7 +125,7 @@ text_group_create(const char* font_filename, uint32_t char_size)
     if(!text_group_load_font(group, font_filename, char_size))
     {
         FREE(group);
-        return NULL;
+        return 0;
     }
     
     /* initialise containers */
@@ -159,14 +160,23 @@ text_group_create(const char* font_filename, uint32_t char_size)
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);printOpenGLError();
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);printOpenGLError();
     glBindVertexArray(0);printOpenGLError();
+    
+    /* generate ID and add group to global list */
+    id = guid++;
+    map_insert(&g_text_groups, id, group);
 
-    return group;
+    return id;
 }
 
 /* ------------------------------------------------------------------------- */
 void
-text_group_destroy(struct text_group_t* group)
+text_group_destroy(intptr_t id)
 {
+    /* remove from global list */
+    struct text_group_t* group = map_erase(&g_text_groups, id);
+    if(!group)
+        return;
+    
     /* destroy character info */
     {
         MAP_FOR_EACH(&group->char_info, struct char_info_t, key, info)
@@ -181,7 +191,14 @@ text_group_destroy(struct text_group_t* group)
     {
         UNORDERED_VECTOR_FOR_EACH(&group->texts, struct text_t*, ptext)
         {
-            text_destroy(group, *ptext);
+            /* 
+             * NOTE: text_destroy WILL call text_group_remove_text_object,
+             * which in turn will modify this vector we're currently
+             * iterating. For this not to happen, we have to first set
+             * the group the text object is referencing to NULL.
+             */
+            (*ptext)->group = NULL;
+            text_destroy(*ptext);
         }
         unordered_vector_clear_free(&group->texts);
     }
@@ -204,12 +221,23 @@ text_group_destroy(struct text_group_t* group)
 }
 
 /* ------------------------------------------------------------------------- */
+struct text_group_t*
+text_group_get(intptr_t id)
+{
+    return map_find(&g_text_groups, id);
+}
+
+/* ------------------------------------------------------------------------- */
 void
-text_group_load_character_set(struct text_group_t* group, const wchar_t* characters)
+text_group_load_character_set(intptr_t id, const wchar_t* characters)
 {
     const wchar_t* iterator;
     const wchar_t* null_terminator = L'\0';
     struct unordered_vector_t sorted_chars;
+    
+    struct text_group_t* group = map_find(&g_text_groups, id);
+    if(!group)
+        return;
     
     /* if no characters were supplied (NULL), use default set */
     if(!characters)
@@ -252,21 +280,37 @@ text_group_load_character_set(struct text_group_t* group, const wchar_t* charact
 
 /* ------------------------------------------------------------------------- */
 void
-text_group_add_text(struct text_group_t* text_group, struct text_t* text)
+text_group_add_text_object(struct text_group_t* text_group, struct text_t* text)
 {
-    /* make sure it doesn't exist yet */
+    UNORDERED_VECTOR_FOR_EACH(&text_group->texts, struct text_t*, pregistered_text)
+    {
+        if(*pregistered_text == text)
+            return;
+    }
+    
+    unordered_vector_push(&text_group->texts, &text);
+    text->group = text_group;
 }
 
 /* ------------------------------------------------------------------------- */
 void
-text_group_remove_text(struct text_group_t* text_group, struct text_t* text)
+text_group_remove_text_object(struct text_group_t* text_group, struct text_t* text)
 {
+    UNORDERED_VECTOR_FOR_EACH(&text_group->texts, struct text_t*, pregistered_text)
+    {
+        if(*pregistered_text == text)
+        {
+            unordered_vector_erase_element(&text_group->texts, *pregistered_text);
+            return;
+        }
+    }
 }
 
 /* ------------------------------------------------------------------------- */
 void
-text_group_inform_updated_text(struct text_group_t* text_group)
+text_group_inform_updated_text_object(struct text_group_t* text_group)
 {
+    text_group->mesh_needs_reuploading = 1;
 }
 
 /* ------------------------------------------------------------------------- */
@@ -279,6 +323,11 @@ text_draw(void)
     {
         MAP_FOR_EACH(&g_text_groups, struct text_group_t, key, group)
         {
+            /* if any text objects were updated, then mesh needs re-uploading */
+            if(group->mesh_needs_reuploading)
+                text_group_sync_with_gpu(group);
+            
+            /* render */
             glBindVertexArray(group->gl.vao);printOpenGLError();
                 glDrawElements(GL_TRIANGLES, group->index_buffer.count, GL_UNSIGNED_SHORT, NULL);printOpenGLError();
             
@@ -286,6 +335,36 @@ text_draw(void)
     }
     glBindVertexArray(0);printOpenGLError();
     glDisable(GL_BLEND);printOpenGLError();
+}
+
+/* ------------------------------------------------------------------------- */
+static char
+text_group_load_font(struct text_group_t* group, const char* filename, uint32_t char_size)
+{
+    FT_Error error;
+
+    /* load face */
+    error = FT_New_Face(g_lib, filename, 0, &group->face);
+    if(error == FT_Err_Unknown_File_Format)
+    {
+        llog(LOG_ERROR, PLUGIN_NAME, 3, "The font file \"", filename, "\" could be opened and read, but it appears that its font format is unsupported");
+        return 0;
+    }
+    else if(error)
+    {
+        llog(LOG_ERROR, PLUGIN_NAME, 3, "Failed to open font file \"", filename, "\"");
+        return 0;
+    }
+    
+    /* set character size */
+    error = FT_Set_Char_Size(group->face, TO_26DOT6(char_size), 0, 300, 300);
+    if(error)
+    {
+        llog(LOG_ERROR, PLUGIN_NAME, 1, "Failed to set the character size");
+        return 0;
+    }
+    
+    return 1;
 }
 
 /* ------------------------------------------------------------------------- */
@@ -438,4 +517,44 @@ text_group_load_atlass(struct text_group_t* group, const wchar_t* characters)
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tex_width, tex_height, 0, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, buffer);printOpenGLError();
     glBindVertexArray(0);printOpenGLError();
     FREE(buffer);
+}
+
+/* ------------------------------------------------------------------------- */
+static void
+text_group_sync_with_gpu(struct text_group_t* group)
+{
+    INDEX_DATA_TYPE base_index = 0;
+
+    /* prepare vertex and index buffers */
+    ordered_vector_clear(&group->vertex_buffer);
+    ordered_vector_clear(&group->index_buffer);
+
+    /* copy vertex and index data from each text object */
+    /* need to make sure indices align correctly */
+    {
+        UNORDERED_VECTOR_FOR_EACH(&group->texts, struct text_t*, ptext)
+        {
+            struct text_t* text = *ptext;
+            if(text->visible)
+            {
+                intptr_t insertion_index = text->index_buffer.count + 1;
+                ordered_vector_push_vector(&group->vertex_buffer, &text->vertex_buffer);
+                ordered_vector_push_vector(&group->index_buffer, &text->index_buffer);
+                {
+                    ORDERED_VECTOR_FOR_EACH_RANGE(&group->index_buffer, INDEX_DATA_TYPE, val, insertion_index, group->index_buffer.count)
+                    {
+                        (*val) += base_index;
+                    }
+                }
+                base_index += text->index_buffer.count;
+            }
+        }
+    }
+
+    /* upload to GPU */
+    glBindVertexArray(group->gl.vao);
+        glBindBuffer(GL_ARRAY_BUFFER, group->gl.vbo);
+            glBufferData(GL_ARRAY_BUFFER, group->vertex_buffer.count * sizeof(struct text_vertex_t), group->vertex_buffer.data, GL_STATIC_DRAW);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, group->index_buffer.count * sizeof(INDEX_DATA_TYPE), group->index_buffer.data, GL_STATIC_DRAW);
+    glBindVertexArray(0);
 }
