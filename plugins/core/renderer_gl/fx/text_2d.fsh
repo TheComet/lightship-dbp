@@ -5,7 +5,6 @@
  * ------------------------------------------------------------------------- */
 
 in vec2 texCoord_fragment;
-in vec4 colourDiffuse_fragment;
 
 /* ----------------------------------------------------------------------------
  * output data
@@ -27,6 +26,5 @@ void main()
 {
     colour = texture(glyphSampler, texCoord_fragment);
     colour.w = dot(colour.rgb, vec3(1.0/3.0));
-    colour *= colourDiffuse_fragment;
 }
 

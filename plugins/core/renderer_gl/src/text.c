@@ -24,6 +24,9 @@ text_create(struct text_group_t* text_group, char centered, GLfloat x, GLfloat y
     text->is_centered = centered;
     text->visible = 1;
     
+    ordered_vector_init_vector(&text->vertex_buffer, sizeof(struct text_vertex_t));
+    ordered_vector_init_vector(&text->index_buffer, sizeof(INDEX_DATA_TYPE));
+    
     text_group_add_text_object(text_group, text);
     text_generate_mesh(text);
     
@@ -34,10 +37,11 @@ text_create(struct text_group_t* text_group, char centered, GLfloat x, GLfloat y
 void
 text_destroy(struct text_t* text)
 {
+    if(text->group)
+        text_group_remove_text_object(text->group, text);
+
     free_string(text->string);
     FREE(text);
-    
-    text_group_remove_text_object(text->group, text);
 }
 
 /* ------------------------------------------------------------------------- */
@@ -57,7 +61,7 @@ void
 text_show(struct text_t* text)
 {
     text->visible = 1;
-    text_generate_mesh(text);
+    text_group_inform_updated_text_object(text->group);
 }
 
 /* ------------------------------------------------------------------------- */
@@ -65,7 +69,7 @@ void
 text_hide(struct text_t* text)
 {
     text->visible = 0;
-    text_generate_mesh(text);
+    text_group_inform_updated_text_object(text->group);
 }
 
 /* ------------------------------------------------------------------------- */

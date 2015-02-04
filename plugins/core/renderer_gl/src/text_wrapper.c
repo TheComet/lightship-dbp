@@ -47,7 +47,7 @@ SERVICE(text_group_create_wrapper)
 /* ------------------------------------------------------------------------- */
 SERVICE(text_group_destroy_wrapper)
 {
-    SERVICE_EXTRACT_ARGUMENT(0, id, intptr_t, intptr_t);
+    SERVICE_EXTRACT_ARGUMENT(0, id, uint32_t, uint32_t);
 
     text_group_destroy(id);
 }
@@ -55,7 +55,7 @@ SERVICE(text_group_destroy_wrapper)
 /* ------------------------------------------------------------------------- */
 SERVICE(text_group_load_character_set_wrapper)
 {
-    SERVICE_EXTRACT_ARGUMENT(0, id, intptr_t, intptr_t);
+    SERVICE_EXTRACT_ARGUMENT(0, id, uint32_t, uint32_t);
     SERVICE_EXTRACT_ARGUMENT_PTR(1, characters, wchar_t*);
 
     text_group_load_character_set(id, characters);
@@ -66,7 +66,7 @@ SERVICE(text_group_load_character_set_wrapper)
 
 SERVICE(text_create_wrapper)
 {
-    SERVICE_EXTRACT_ARGUMENT(0, group_id, intptr_t, intptr_t);
+    SERVICE_EXTRACT_ARGUMENT(0, group_id, uint32_t, uint32_t);
     SERVICE_EXTRACT_ARGUMENT(1, centered, char, char);
     SERVICE_EXTRACT_ARGUMENT(2, x, float, GLfloat);
     SERVICE_EXTRACT_ARGUMENT(3, y, float, GLfloat);
@@ -77,7 +77,7 @@ SERVICE(text_create_wrapper)
     intptr_t text_id = guid++;
     map_insert(&g_texts, text_id, text);
     
-    SERVICE_RETURN(text_id, intptr_t);
+    SERVICE_RETURN(text_id, uint32_t);
 }
 
 /* ------------------------------------------------------------------------- */
@@ -108,4 +108,10 @@ SERVICE(text_show_wrapper)
 /* ------------------------------------------------------------------------- */
 SERVICE(text_hide_wrapper)
 {
+    SERVICE_EXTRACT_ARGUMENT(0, id, uint32_t, uint32_t);
+    struct text_t* text = map_find(&g_texts, id);
+    if(!text)
+        return;
+    
+    text_hide(text);
 }
