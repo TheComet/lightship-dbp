@@ -5,7 +5,7 @@
 #include "util/service_api.h"
 #include <string.h>
 
-static intptr_t guid = 1;
+static uint32_t guid = 1;
 
 void
 element_constructor(struct element_t* element,
@@ -13,7 +13,7 @@ element_constructor(struct element_t* element,
                   float x, float y,
                   float width, float height)
 {
-    unordered_vector_init_vector(&element->base.element.gl.shapes, sizeof(intptr_t));
+    unordered_vector_init_vector(&element->base.element.gl.shapes, sizeof(uint32_t));
     unordered_vector_init_vector(&element->base.element.gl.text, sizeof(struct element_font_text_id_pair_t));
     element->base.element.id = guid++;
     element->base.element.pos.x = x;
@@ -27,7 +27,7 @@ element_constructor(struct element_t* element,
 void
 element_destructor(struct element_t* element)
 {
-    { UNORDERED_VECTOR_FOR_EACH(&element->base.element.gl.shapes, intptr_t, id)
+    { UNORDERED_VECTOR_FOR_EACH(&element->base.element.gl.shapes, uint32_t, id)
     {
         SERVICE_CALL1(shapes_2d_destroy, SERVICE_NO_RETURN, id);
     }}
@@ -51,7 +51,7 @@ element_destroy(struct element_t* element)
 }
 
 void
-element_add_text(struct element_t* element, intptr_t font_id, intptr_t text_id)
+element_add_text(struct element_t* element, uint32_t font_id, uint32_t text_id)
 {
     struct element_font_text_id_pair_t* pair = unordered_vector_push_emplace(&element->base.element.gl.text);
     pair->font_id = font_id;
@@ -59,16 +59,16 @@ element_add_text(struct element_t* element, intptr_t font_id, intptr_t text_id)
 }
 
 void
-element_add_shapes(struct element_t* element, intptr_t shapes_id)
+element_add_shapes(struct element_t* element, uint32_t shapes_id)
 {
-    intptr_t* id = unordered_vector_push_emplace(&element->base.element.gl.shapes);
+    uint32_t* id = unordered_vector_push_emplace(&element->base.element.gl.shapes);
     *id = shapes_id;
 }
 
 void
 element_show(struct element_t* element)
 {
-    { UNORDERED_VECTOR_FOR_EACH(&element->base.element.gl.shapes, intptr_t, id)
+    { UNORDERED_VECTOR_FOR_EACH(&element->base.element.gl.shapes, uint32_t, id)
     {
         SERVICE_CALL1(shapes_2d_show, SERVICE_NO_RETURN, *id);
     }}
@@ -82,7 +82,7 @@ element_show(struct element_t* element)
 void
 element_hide(struct element_t* element)
 {
-    { UNORDERED_VECTOR_FOR_EACH(&element->base.element.gl.shapes, intptr_t, id)
+    { UNORDERED_VECTOR_FOR_EACH(&element->base.element.gl.shapes, uint32_t, id)
     {
         SERVICE_CALL1(shapes_2d_hide, SERVICE_NO_RETURN, *id);
     }}

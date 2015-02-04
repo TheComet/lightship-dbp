@@ -18,13 +18,13 @@
  */
 static void
 unordered_vector_expand(struct unordered_vector_t* vector, 
-                        intptr_t insertion_index);
+                        uint32_t insertion_index);
 
 /* ----------------------------------------------------------------------------
  * Exported functions
  * ------------------------------------------------------------------------- */
 struct unordered_vector_t*
-unordered_vector_create(const intptr_t element_size)
+unordered_vector_create(const uint32_t element_size)
 {
     struct unordered_vector_t* vector = (struct unordered_vector_t*)MALLOC(sizeof(struct unordered_vector_t));
     unordered_vector_init_vector(vector, element_size);
@@ -33,7 +33,7 @@ unordered_vector_create(const intptr_t element_size)
 
 /* ------------------------------------------------------------------------- */
 void
-unordered_vector_init_vector(struct unordered_vector_t* vector, const intptr_t element_size)
+unordered_vector_init_vector(struct unordered_vector_t* vector, const uint32_t element_size)
 {
     memset(vector, 0, sizeof(struct unordered_vector_t));
     vector->element_size = element_size;
@@ -101,7 +101,7 @@ unordered_vector_pop(struct unordered_vector_t* vector)
 
 /* ------------------------------------------------------------------------- */
 void
-unordered_vector_erase_index(struct unordered_vector_t* vector, intptr_t index)
+unordered_vector_erase_index(struct unordered_vector_t* vector, uint32_t index)
 {
     if(index >= vector->count)
         return;
@@ -134,7 +134,7 @@ unordered_vector_erase_element(struct unordered_vector_t* vector, void* element)
 
 /* ------------------------------------------------------------------------- */
 void*
-unordered_vector_get_element(struct unordered_vector_t* vector, intptr_t index)
+unordered_vector_get_element(struct unordered_vector_t* vector, uint32_t index)
 {
     if(index >= vector->count)
         return NULL;
@@ -146,9 +146,9 @@ unordered_vector_get_element(struct unordered_vector_t* vector, intptr_t index)
  * ------------------------------------------------------------------------- */
 static void
 unordered_vector_expand(struct unordered_vector_t* vector,
-                        intptr_t insertion_index)
+                        uint32_t insertion_index)
 {
-    intptr_t new_size;
+    uint32_t new_size;
     DATA_POINTER_TYPE* old_data;
     DATA_POINTER_TYPE* new_data;
 
@@ -172,15 +172,15 @@ unordered_vector_expand(struct unordered_vector_t* vector,
     new_data = (DATA_POINTER_TYPE*)MALLOC(vector->element_size * new_size);
     
     /* if no insertion index is required, copy all data to new memory */
-    if(insertion_index == -1 || insertion_index >= new_size)
+    if(insertion_index == (uint32_t)-1 || insertion_index >= new_size)
         memcpy(new_data, old_data, vector->element_size * vector->count);
     
     /* keep space for one element at the insertion index */
     else
     {
         /* copy old data up until right before insertion offset */
-        intptr_t offset = vector->element_size * insertion_index;
-        intptr_t total_size = vector->element_size * vector->count;
+        uint32_t offset = vector->element_size * insertion_index;
+        uint32_t total_size = vector->element_size * vector->count;
         memcpy(new_data, old_data, offset);
         /* copy the remaining amount of old data shifted one element ahead */
         memcpy((void*)((intptr_t)new_data + offset + vector->element_size),

@@ -12,8 +12,8 @@ struct button_data_t
         struct element_data_t element;
     } base;
     wchar_t* text;
-    intptr_t text_id;
-    intptr_t shapes_normal_id;
+    uint32_t text_id;
+    uint32_t shapes_normal_id;
 };
 
 struct button_t
@@ -49,7 +49,7 @@ void
 button_free_contents(struct button_t* button);
 
 wchar_t*
-button_get_text(intptr_t id);
+button_get_text(uint32_t id);
 
 /*!
  * @brief Tests if the specified point is on top of the specified button.

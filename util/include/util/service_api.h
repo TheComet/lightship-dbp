@@ -136,7 +136,7 @@ LIGHTSHIP_PUBLIC_API extern char g_service_internal_no_arg_dummy;
 struct service_t
 {
     char* name;
-    int argc;
+    uint32_t argc;
     const char* ret_type;
     const char** argv_type;
     service_callback_func exec;

@@ -7,11 +7,11 @@
 
 C_HEADER_BEGIN
 
-extern const intptr_t MAP_INVALID_KEY;
+extern const uint32_t MAP_INVALID_KEY;
 
 struct map_key_value_t
 {
-    intptr_t hash;
+    uint32_t hash;
     void* value;
 };
 
@@ -57,10 +57,10 @@ map_destroy(struct map_t* map);
  * reason, don't insert stack allocated items into the map.
  */
 LIGHTSHIP_PUBLIC_API void
-map_insert(struct map_t* map, intptr_t hash, void* value);
+map_insert(struct map_t* map, uint32_t hash, void* value);
 
 LIGHTSHIP_PUBLIC_API void
-map_set(struct map_t* map, intptr_t hash, void* value);
+map_set(struct map_t* map, uint32_t hash, void* value);
 
 /*!
  * @brief Looks for an element in the map and returns it if found.
@@ -74,9 +74,9 @@ map_set(struct map_t* map, intptr_t hash, void* value);
  * key exists, use map_key_exists() instead.
  */
 LIGHTSHIP_PUBLIC_API void*
-map_find(struct map_t* map, intptr_t hash);
+map_find(struct map_t* map, uint32_t hash);
 
-LIGHTSHIP_PUBLIC_API intptr_t
+LIGHTSHIP_PUBLIC_API uint32_t
 map_find_element(struct map_t* map, void* value);
 
 /*!
@@ -86,7 +86,7 @@ map_find_element(struct map_t* map, void* value);
  * @return 1 if the key was found, 0 if the key was not found.
  */
 LIGHTSHIP_PUBLIC_API char
-map_key_exists(struct map_t* map, intptr_t hash);
+map_key_exists(struct map_t* map, uint32_t hash);
 
 /*!
  * @brief Returns a key that does not yet exist in the map.
@@ -94,7 +94,7 @@ map_key_exists(struct map_t* map, intptr_t hash);
  * @param[in] map The map to generate a key from.
  * @return Returns a key that does not yet exist in the map.
  */
-LIGHTSHIP_PUBLIC_API intptr_t
+LIGHTSHIP_PUBLIC_API uint32_t
 map_find_unused_key(struct map_t* map);
 
 /*!
@@ -109,7 +109,7 @@ map_find_unused_key(struct map_t* map);
  * map.
  */
 LIGHTSHIP_PUBLIC_API void*
-map_erase(struct map_t* map, intptr_t hash);
+map_erase(struct map_t* map, uint32_t hash);
 
 LIGHTSHIP_PUBLIC_API void
 map_erase_element(struct map_t* map, void* value);
@@ -132,7 +132,7 @@ map_clear_free(struct map_t* map);
  * @param[in] map The map to count the elements of.
  * @return The number of elements in the specified map.
  */
-LIGHTSHIP_PUBLIC_API intptr_t
+LIGHTSHIP_PUBLIC_API uint32_t
 map_count(struct map_t* map);
 
 /*!
@@ -153,18 +153,18 @@ map_print(struct map_t* map);
  * element.
  */
 #define MAP_FOR_EACH(map, var_type, hash_n, var) \
-    intptr_t map_internal_i; \
-    intptr_t hash_n; \
+    uint32_t map_internal_##map_i; \
+    uint32_t hash_n; \
     var_type* var; \
-    for(map_internal_i = 0; \
-        map_internal_i != (map)->vector.count && \
-            ((hash_n = ((struct map_key_value_t*)(map)->vector.data)[map_internal_i].hash) || 1) && \
-            ((var  = (var_type*)((struct map_key_value_t*)(map)->vector.data)[map_internal_i].value) || 1); \
-        ++map_internal_i)
+    for(map_internal_##map_i = 0; \
+        map_internal_##map_i != (map)->vector.count && \
+            ((hash_n = ((struct map_key_value_t*)(map)->vector.data)[map_internal_##map_i].hash) || 1) && \
+            ((var  = (var_type*)((struct map_key_value_t*)(map)->vector.data)[map_internal_##map_i].value) || 1); \
+        ++map_internal_##map_i)
 
 #define MAP_ERASE_CURRENT_ITEM_IN_FOR_LOOP(map) \
-    ordered_vector_erase_element(&(map)->vector, &((struct map_key_value_t*)(map)->vector.data)[map_internal_i]); \
-    --map_internal_i;
+    ordered_vector_erase_element(&(map)->vector, &((struct map_key_value_t*)(map)->vector.data)[map_internal_##map_i]); \
+    --map_internal_##map_i;
 
 C_HEADER_END
 

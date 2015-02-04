@@ -110,7 +110,7 @@ text_generate_mesh(struct text_t* text)
             }
             
             /* lookup character info */
-            info = (struct char_info_t*)map_find(&text->group->char_info, (intptr_t)*iterator);
+            info = (struct char_info_t*)map_find(&text->group->char_info, (uint32_t)*iterator);
             if(!info)
             {
                 char* buffer[sizeof(wchar_t)+1];
@@ -148,7 +148,7 @@ text_generate_mesh(struct text_t* text)
         }
 
         /* lookup character info */
-        info = (struct char_info_t*)map_find(&text->group->char_info, (intptr_t)*iterator);
+        info = (struct char_info_t*)map_find(&text->group->char_info, (uint32_t)*iterator);
         if(!info)
         {
             char* buffer[sizeof(wchar_t)+1];

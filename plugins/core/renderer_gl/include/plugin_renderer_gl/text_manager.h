@@ -68,7 +68,7 @@ text_manager_deinit(void);
  * @param[in] filename The font file to load.
  * @return A new font object which can be used for later text related calls.
  */
-intptr_t
+uint32_t
 text_group_create(const char* font_filename, uint32_t char_size);
 
 /*!
@@ -76,10 +76,10 @@ text_group_create(const char* font_filename, uint32_t char_size);
  * @param[in] font The font object to destroy.
  */
 void
-text_group_destroy(intptr_t id);
+text_group_destroy(uint32_t id);
 
 struct text_group_t*
-text_group_get(intptr_t id);
+text_group_get(uint32_t id);
 
 /*!
  * @brief Loads all characters specified.
@@ -95,7 +95,7 @@ text_group_get(intptr_t id);
  * @note Use NULL to load the default set of characters.
  */
 void
-text_group_load_character_set(intptr_t id, const wchar_t* characters);
+text_group_load_character_set(uint32_t id, const wchar_t* characters);
 
 void
 text_group_add_text_object(struct text_group_t* text_group, struct text_t* text);

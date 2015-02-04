@@ -18,7 +18,7 @@ struct report_info_t
     intptr_t location;
     intptr_t size;
 #ifdef ENABLE_MEMORY_BACKTRACE
-    intptr_t backtrace_size;
+    uint32_t backtrace_size;
     char** backtrace;
 #endif
 };
@@ -85,7 +85,7 @@ free_debug(void* ptr)
         {
 #ifdef ENABLE_MEMORY_BACKTRACE
             char** bt;
-            intptr_t bt_size, i;
+            uint32_t bt_size, i;
             printf("  -----------------------------------------\n");
 #endif
             printf("  WARNING: Freeing something that was never allocated\n");

@@ -20,7 +20,7 @@
  *      one being used to look up IDs for the wrapper.
  */
 static struct map_t g_text_groups;
-static intptr_t guid = 1;
+static uint32_t guid = 1;
 
 static FT_Library g_lib;
 static GLuint g_text_shader_id;
@@ -111,11 +111,11 @@ text_manager_deinit(void)
 }
 
 /* ------------------------------------------------------------------------- */
-intptr_t
+uint32_t
 text_group_create(const char* font_filename, uint32_t char_size)
 {
     struct text_group_t* group;
-    intptr_t id;
+    uint32_t id;
     
     /* create new text group object */
     group = (struct text_group_t*)MALLOC(sizeof(struct text_group_t));
@@ -170,7 +170,7 @@ text_group_create(const char* font_filename, uint32_t char_size)
 
 /* ------------------------------------------------------------------------- */
 void
-text_group_destroy(intptr_t id)
+text_group_destroy(uint32_t id)
 {
     /* remove from global list */
     struct text_group_t* group = map_erase(&g_text_groups, id);
@@ -222,14 +222,14 @@ text_group_destroy(intptr_t id)
 
 /* ------------------------------------------------------------------------- */
 struct text_group_t*
-text_group_get(intptr_t id)
+text_group_get(uint32_t id)
 {
     return map_find(&g_text_groups, id);
 }
 
 /* ------------------------------------------------------------------------- */
 void
-text_group_load_character_set(intptr_t id, const wchar_t* characters)
+text_group_load_character_set(uint32_t id, const wchar_t* characters)
 {
     const wchar_t* iterator;
     const wchar_t* null_terminator = L'\0';
@@ -254,7 +254,7 @@ text_group_load_character_set(intptr_t id, const wchar_t* characters)
      */
     for(iterator = characters; *iterator; ++iterator)
     {
-        map_insert(&group->char_info, (intptr_t)*iterator, NULL);
+        map_insert(&group->char_info, (uint32_t)*iterator, NULL);
     }
 
     /* 
@@ -491,11 +491,11 @@ text_group_load_atlass(struct text_group_t* group, const wchar_t* characters)
          * the value associated with this character is not NULL (this is the
          * case if the character was already in the map)
          */
-        char_info = map_find(&group->char_info, (intptr_t)*iterator);
+        char_info = map_find(&group->char_info, (uint32_t)*iterator);
         if(!char_info)
         {
             char_info = (struct char_info_t*)MALLOC(sizeof(struct char_info_t));
-            map_set(&group->char_info, (intptr_t)*iterator, char_info);
+            map_set(&group->char_info, (uint32_t)*iterator, char_info);
         }
 
         /* save offsets as UV data */
@@ -541,7 +541,7 @@ text_group_sync_with_gpu(struct text_group_t* group)
             struct text_t* text = *ptext;
             if(text->visible)
             {
-                intptr_t insertion_index = group->index_buffer.count;
+                uint32_t insertion_index = group->index_buffer.count;
                 ordered_vector_push_vector(&group->vertex_buffer, &text->vertex_buffer);
                 ordered_vector_push_vector(&group->index_buffer, &text->index_buffer);
                 { ORDERED_VECTOR_FOR_EACH_RANGE(&group->index_buffer, INDEX_DATA_TYPE, val, insertion_index, group->index_buffer.count)

@@ -5,7 +5,7 @@
 
 static struct map_t g_text_groups;
 static struct map_t g_texts;
-static intptr_t guid = 1;
+static uint32_t guid = 1;
 
 /* ------------------------------------------------------------------------- */
 void
@@ -40,7 +40,7 @@ SERVICE(text_group_create_wrapper)
     SERVICE_EXTRACT_ARGUMENT_PTR(0, file_name, const char*);
     SERVICE_EXTRACT_ARGUMENT(1, char_size, uint32_t, uint32_t);
 
-    SERVICE_RETURN(text_group_create(file_name, char_size), intptr_t);
+    SERVICE_RETURN(text_group_create(file_name, char_size), uint32_t);
     
 }
 
@@ -74,7 +74,7 @@ SERVICE(text_create_wrapper)
     
     struct text_group_t* group = text_group_get(group_id);
     struct text_t* text = text_create(group, centered, x, y, string);
-    intptr_t text_id = guid++;
+    uint32_t text_id = guid++;
     map_insert(&g_texts, text_id, text);
     
     SERVICE_RETURN(text_id, uint32_t);

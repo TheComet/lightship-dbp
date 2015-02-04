@@ -3,7 +3,7 @@
 
 /* ------------------------------------------------------------------------- */
 char**
-get_backtrace(intptr_t* size )
+get_backtrace(uint32_t* size )
 {
     void* array[BACKTRACE_SIZE];
     char** strings;
