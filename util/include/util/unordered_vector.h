@@ -98,8 +98,9 @@ unordered_vector_clear_free(struct unordered_vector_t* vector);
  * @param[in] data The data to copy into the vector. It is assumed that
  * sizeof(data) is equal to what was specified when the vector was first
  * created. If this is not the case then it could cause undefined behaviour.
+ * @return Returns 0 if the push was not successful, 1 if it was successful.
  */
-LIGHTSHIP_PUBLIC_API void
+LIGHTSHIP_PUBLIC_API char
 unordered_vector_push(struct unordered_vector_t* vector, void* data);
 
 /*!
