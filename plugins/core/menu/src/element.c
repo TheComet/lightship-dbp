@@ -70,7 +70,7 @@ element_show(struct element_t* element)
 {
     { UNORDERED_VECTOR_FOR_EACH(&element->base.element.gl.shapes, uint32_t, id)
     {
-        SERVICE_CALL1(shapes_2d_show, SERVICE_NO_RETURN, *id);
+        SERVICE_CALL1(shapes_2d_show, SERVICE_NO_RETURN, id);
     }}
     { UNORDERED_VECTOR_FOR_EACH(&element->base.element.gl.text, struct element_font_text_id_pair_t, pair)
     {
@@ -84,7 +84,7 @@ element_hide(struct element_t* element)
 {
     { UNORDERED_VECTOR_FOR_EACH(&element->base.element.gl.shapes, uint32_t, id)
     {
-        SERVICE_CALL1(shapes_2d_hide, SERVICE_NO_RETURN, *id);
+        SERVICE_CALL1(shapes_2d_hide, SERVICE_NO_RETURN, id);
     }}
     { UNORDERED_VECTOR_FOR_EACH(&element->base.element.gl.text, struct element_font_text_id_pair_t, pair)
     {

@@ -60,7 +60,7 @@ PLUGIN_START()
 #else
         const char* menu_file_name = "cfg/menu.yml";
 #endif
-        SERVICE_CALL1(menu_load_service, &g_menu, *menu_file_name);
+        SERVICE_CALL1(menu_load_service, &g_menu, PTR(menu_file_name));
     }
 
     return PLUGIN_SUCCESS;
@@ -70,7 +70,7 @@ PLUGIN_STOP()
 {
     /* de-init */
     struct service_t* menu_destroy_service = service_get("menu.destroy");
-    SERVICE_CALL1(menu_destroy_service, SERVICE_NO_RETURN, *g_menu);
+    SERVICE_CALL1(menu_destroy_service, SERVICE_NO_RETURN, PTR(g_menu));
     
     menu_deinit();
     button_deinit();
