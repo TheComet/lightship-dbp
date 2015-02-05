@@ -2,13 +2,6 @@
 #include "util/unordered_vector.h"
 #include "util/service_api.h"
 
-/* vertex type for 2d objects */
-struct vertex_2d_t
-{
-    GLfloat position[2];
-    GLfloat diffuse[4];
-};
-
 struct shapes_t
 {
     uint32_t ID;

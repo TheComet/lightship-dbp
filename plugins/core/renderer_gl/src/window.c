@@ -3,6 +3,7 @@
 #include "plugin_renderer_gl/events.h"
 #include "plugin_renderer_gl/input.h"
 #include "plugin_renderer_gl/2d.h"
+#include "plugin_renderer_gl/sprite.h"
 #include "plugin_renderer_gl/text_manager.h"
 #include "util/linked_list.h"
 #include "util/log.h"
@@ -98,6 +99,7 @@ EVENT_LISTENER0(on_render)
     /* render everything */
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     draw_2d();
+    sprite_draw();
     text_draw();
     glfwSwapBuffers(g_window.window);
 

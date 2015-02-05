@@ -4,9 +4,8 @@
 #include "plugin_renderer_gl/2d.h"
 #include "plugin_renderer_gl/config.h"
 #include "plugin_renderer_gl/events.h"
-#include "plugin_renderer_gl/image.h"
 #include "plugin_renderer_gl/services.h"
-#include "plugin_renderer_gl/text.h"
+#include "plugin_renderer_gl/sprite.h"
 #include "plugin_renderer_gl/text_manager.h"
 #include "plugin_renderer_gl/text_wrapper.h"
 #include "plugin_renderer_gl/window.h"
@@ -69,7 +68,7 @@ PLUGIN_START()
         return PLUGIN_FAILURE;
     if(!text_wrapper_init())
         return PLUGIN_FAILURE;
-    if(!image_init())
+    if(!sprite_init())
         return PLUGIN_FAILURE;
 
     register_event_listeners(g_plugin);
@@ -79,7 +78,7 @@ PLUGIN_START()
 
 PLUGIN_STOP()
 {
-    image_deinit();
+    sprite_deinit();
     text_wrapper_deinit();
     text_manager_deinit();
     deinit_2d();
