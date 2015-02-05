@@ -98,7 +98,7 @@ text_manager_deinit(void)
     while(g_text_groups.vector.count)
     {
         text_group_destroy(
-            ((struct map_key_value_t*)ordered_vector_pop(&g_text_groups.vector))->hash
+            ((struct map_key_value_t*)g_text_groups.vector.data)->hash
         );
     }
     map_clear_free(&g_text_groups);
@@ -319,6 +319,7 @@ text_draw(void)
             
             /* render */
             glBindVertexArray(group->gl.vao);printOpenGLError();
+                glBindTexture(GL_TEXTURE_2D, group->gl.tex);
                 glDrawElements(GL_TRIANGLES, group->index_buffer.count, GL_UNSIGNED_SHORT, NULL);printOpenGLError();
             
         }

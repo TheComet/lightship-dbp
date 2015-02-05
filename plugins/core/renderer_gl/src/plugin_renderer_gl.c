@@ -44,7 +44,7 @@ PLUGIN_INIT()
 
     return g_plugin;
 }
-
+#include "plugin_renderer_gl/text.h"
 PLUGIN_START()
 {
     /* initialise GLFW */
@@ -72,6 +72,12 @@ PLUGIN_START()
         return PLUGIN_FAILURE;
 
     register_event_listeners(g_plugin);
+    
+    uint32_t id;
+    sprite_create("test.png", 1, 1, 1, &id);
+    id = text_group_create("../../plugins/core/menu/ttf/DejaVuSans.ttf", 24);
+    text_group_load_character_set(id, NULL);
+    text_create(text_group_get(id), 0, -0.7, 0.6, L"MOTHERFUCKING LIGHTSHIP");
 
     return PLUGIN_SUCCESS;
 }

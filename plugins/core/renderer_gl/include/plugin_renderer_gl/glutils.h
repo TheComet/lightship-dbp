@@ -1,3 +1,6 @@
+#ifndef PLUGIN_RENDERER_GL_GLUTILS
+#define PLUGIN_RENDERER_GL_GLUTILS
+
 #ifdef _DEBUG
 #   define printOpenGLError() printOglError(__FILE__, __LINE__)
 #else
@@ -59,3 +62,5 @@ struct vertex_2d_t
 
 void z_error(/* should be const */char* message);
 int printOglError(char *file, int line);
+
+#endif /* PLUGIN_RENDERER_GL_GLUTILS */
