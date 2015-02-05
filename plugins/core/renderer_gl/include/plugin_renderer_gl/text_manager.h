@@ -16,12 +16,6 @@
 
 struct text_t;
 
-struct text_vertex_t
-{
-    GLfloat position[2];
-    GLfloat tex_coord[2];
-};
-
 struct text_gl_t
 {
     GLuint vao;
