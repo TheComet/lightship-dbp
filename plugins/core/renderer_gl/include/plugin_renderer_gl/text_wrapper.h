@@ -4,7 +4,7 @@
 struct map_t;
 struct text_group_t;
 
-void
+char
 text_wrapper_init(void);
 
 void

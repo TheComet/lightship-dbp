@@ -28,12 +28,14 @@ shapes_get(uint32_t ID)
     return NULL;
 }
 
-void
+char
 init_2d(void)
 {
     g_line_shader_id = shader_load(two_d_shader_file);
 
     unordered_vector_init_vector(&g_shapes_collection, sizeof(struct shapes_t));
+    
+    return 1;
 }
 
 void

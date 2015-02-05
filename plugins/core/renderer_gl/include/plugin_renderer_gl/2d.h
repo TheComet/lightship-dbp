@@ -24,7 +24,7 @@ struct shapes_t
  * @brief Initialises 2D sub-system. Call this before calling any other 2D 
  * related calls.
  */
-void
+char
 init_2d(void);
 
 /*!

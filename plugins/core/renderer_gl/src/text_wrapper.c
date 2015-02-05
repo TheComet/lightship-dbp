@@ -8,10 +8,12 @@ static struct map_t g_texts;
 static uint32_t guid = 1;
 
 /* ------------------------------------------------------------------------- */
-void
+char
 text_wrapper_init(void)
 {
     map_init_map(&g_texts);
+    
+    return 1;
 }
 
 /* ------------------------------------------------------------------------- */

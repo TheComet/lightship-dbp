@@ -556,8 +556,8 @@ text_group_sync_with_gpu(struct text_group_t* group)
     /* upload to GPU */
     glBindVertexArray(group->gl.vao);
         glBindBuffer(GL_ARRAY_BUFFER, group->gl.vbo);
-            glBufferData(GL_ARRAY_BUFFER, group->vertex_buffer.count * sizeof(struct text_vertex_t), group->vertex_buffer.data, GL_STATIC_DRAW);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, group->index_buffer.count * sizeof(INDEX_DATA_TYPE), group->index_buffer.data, GL_STATIC_DRAW);
+            glBufferData(GL_ARRAY_BUFFER, group->vertex_buffer.count * sizeof(struct text_vertex_t), group->vertex_buffer.data, GL_DYNAMIC_DRAW);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, group->index_buffer.count * sizeof(INDEX_DATA_TYPE), group->index_buffer.data, GL_DYNAMIC_DRAW);
     glBindVertexArray(0);
     
     /* reset flag */
