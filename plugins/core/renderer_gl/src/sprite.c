@@ -172,6 +172,8 @@ sprite_set_fps(struct sprite_t* sprite, float fps)
 void
 sprite_set_position(struct sprite_t* sprite, float x, float y)
 {
+    sprite->pos.x = x;
+    sprite->pos.y = y;
 }
 
 /* ------------------------------------------------------------------------- */

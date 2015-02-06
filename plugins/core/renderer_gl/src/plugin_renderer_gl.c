@@ -76,6 +76,7 @@ PLUGIN_START()
     uint32_t id;
     struct sprite_t* sprite = sprite_create("menu/join/join.png", 1, 1, 1, &id);
     sprite_scale(sprite, 0.3);
+    sprite_set_position(sprite, 0.2, 0.7);
 
     return PLUGIN_SUCCESS;
 }
