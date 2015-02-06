@@ -60,52 +60,96 @@ services_deinit(void)
 /* ------------------------------------------------------------------------- */
 char
 service_register(const struct plugin_t* plugin,
-                  const char* name,
-                  const service_callback_func exec,
-                  const char* ret_type,
-                  const int argc,
-                  const char** argv)
+                 const char* name,
+                 const service_callback_func exec,
+                 const char* ret_type,
+                 const int argc,
+                 const char** argv)
 {
     char* full_name;
+    
+    assert(plugin);
+    assert(name);
+    assert(exec);
+    assert(ret_type);
 
     /* check if service is already registered */
     full_name = cat_strings(3, plugin->info.name, ".", name);
+    if(!full_name)
+        return 0;
     if(service_get(full_name))
     {
         free_string(full_name);
         return 0;
     }
 
-    service_malloc_and_register(full_name, exec, ret_type, argc, argv);
+    if(!service_malloc_and_register(full_name, exec, ret_type, argc, argv))
+        return 0;
 
     return 1;
 }
 
 /* ------------------------------------------------------------------------- */
-static void
+static char
 service_malloc_and_register(char* full_name,
                             const service_callback_func exec,
                             const char* ret_type,
                             const int argc,
                             const char** argv)
 {
+    struct service_t* service;
+    
+    assert(full_name);
+    assert(exec);
+    assert(ret_type);
+    
     /* create service and add to list */
-    struct service_t* service = (struct service_t*)MALLOC(sizeof(struct service_t));
+    service = (struct service_t*)MALLOC(sizeof(struct service_t));
+    if(!service)
+        OUT_OF_MEMORY("service_malloc_and_register()", 0);
+    memset(service, 0, sizeof(struct service_t));
     service->name = full_name;
-    service->argc = argc;
     service->exec = exec;
     
     /* copy type info */
     {
         int i;
-        char** argv_tmp = (char**)MALLOC(argc * sizeof(char**));
+        char** argv_tmp;
+        
+        /* copy return type */
         char* ret_type_tmp = malloc_string(ret_type);
-        for(i = 0; i != argc; ++i)
-            argv_tmp[i] = malloc_string(argv[i]);
-        memcpy(&service->argv_type, &argv_tmp, sizeof(char**));
+        if(!ret_type_tmp)
+        {
+            service_free(service);
+            return 0;
+        }
         memcpy(&service->ret_type, &ret_type_tmp, sizeof(char*));
+        
+        /* create argument type vector */
+        argv_tmp= (char**)MALLOC(argc * sizeof(char**));
+        if(!argv_tmp)
+        {
+            service_free(service);
+            OUT_OF_MEMORY("service_malloc_and_register()", 0);
+        }
+        memcpy(&service->argv_type, &argv_tmp, sizeof(char**));
+    
+        /* copy argument type vector */
+        for(i = 0; i != argc; ++i)
+        {
+            argv_tmp[i] = malloc_string(argv[i]);
+            if(!argv_tmp[i])
+            {
+                service_free(service);
+                return 0;
+            }
+            ++service->argc;
+        }
     }
-    map_insert(&g_services, hash_jenkins_oaat(full_name, strlen(full_name)), service);
+    if(!map_insert(&g_services, hash_jenkins_oaat(full_name, strlen(full_name)), service))
+        return 0;
+    
+    return 1;
 }
 
 /* ------------------------------------------------------------------------- */
@@ -113,6 +157,12 @@ void
 service_free(struct service_t* service)
 {
     uint32_t i;
+
+    assert(service);
+    assert(service->name);
+    assert(service->ret_type);
+    assert(service->argv_type);
+
     free_string(service->name);
     free_string((char*)service->ret_type);
     for(i = 0; i != service->argc; ++i)
@@ -129,22 +179,38 @@ service_unregister(const struct plugin_t* plugin,
     char* full_name;
     uint32_t hash;
     struct service_t* service;
+    
+    assert(plugin);
+    assert(plugin->info.name);
+    assert(name);
+
+    full_name = cat_strings(3, plugin->info.name, ".", name);
+    if(!full_name)
+        return 0;
 
     /* remove service from map */
-    full_name = cat_strings(3, plugin->info.name, ".", name);
     hash = hash_jenkins_oaat(full_name, strlen(full_name));
     free_string(full_name);
     if(!(service = map_erase(&g_services, hash)))
         return 0;
     service_free(service);
+
     return 1;
 }
 
 /* ------------------------------------------------------------------------- */
-void
+char
 service_unregister_all(const struct plugin_t* plugin)
 {
-    char* name = cat_strings(2, plugin->info.name, ".");
+    char* name;
+    
+    assert(plugin);
+    assert(plugin->info.name);
+
+    name = cat_strings(2, plugin->info.name, ".");
+    if(!name)
+        return 0;
+
     int len = strlen(plugin->info.name);
     {
         MAP_FOR_EACH(&g_services, struct service_t, key, service)
@@ -157,6 +223,8 @@ service_unregister_all(const struct plugin_t* plugin)
         }
     }
     free_string(name);
+    
+    return 1;
 }
 
 /* ------------------------------------------------------------------------- */
@@ -164,6 +232,9 @@ struct service_t*
 service_get(const char* name)
 {
     struct service_t* service;
+    
+    assert(name);
+
     if(!(service = map_find(&g_services, hash_jenkins_oaat(name, strlen(name)))))
         return 0;
 
@@ -175,6 +246,10 @@ void**
 service_create_argument_list_from_strings(struct service_t* service, struct ordered_vector_t* argv)
 {
     void** ret;
+    
+    assert(service);
+    assert(service->name);
+    assert(argv);
 
     /* check argument count */
     if(service->argc != argv->count)
@@ -192,6 +267,8 @@ service_create_argument_list_from_strings(struct service_t* service, struct orde
 
     /* create void** argument vector */
     ret = (void**)MALLOC(service->argc * sizeof(void*));
+    if(!ret)
+        OUT_OF_MEMORY("service_create_argument_list_from_strings()", NULL);
     memset(ret, 0, service->argc * sizeof(void*));
     {
         int i = 0;
