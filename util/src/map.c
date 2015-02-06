@@ -111,7 +111,7 @@ map_find_unused_key(struct map_t* map)
 }
 
 /* ------------------------------------------------------------------------- */
-void
+char
 map_insert(struct map_t* map, uint32_t hash, void* value)
 {
     struct map_key_value_t* emplaced_data;
@@ -119,12 +119,12 @@ map_insert(struct map_t* map, uint32_t hash, void* value)
     
     /* don't insert reserved hashes */
     if(hash == MAP_INVALID_KEY)
-        return;
+        return 0;
     
     /* lookup location in map to insert */
     data = map_find_lower_bound(map, hash);
     if(data && data->hash == hash)
-        return;
+        return 0;
 
     /* either push back or insert, depending on whether there is already data
      * in the map */
@@ -136,6 +136,8 @@ map_insert(struct map_t* map, uint32_t hash, void* value)
     
     emplaced_data->hash = hash;
     emplaced_data->value = value;
+    
+    return 1;
 }
 
 /* ------------------------------------------------------------------------- */

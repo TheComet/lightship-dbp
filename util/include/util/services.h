@@ -83,7 +83,7 @@ service_unregister(const struct plugin_t* plugin,
  * specified plugin.
  * @param[in] plugin The plugin to unregister all services.
  */
-LIGHTSHIP_PUBLIC_API void
+LIGHTSHIP_PUBLIC_API char
 service_unregister_all(const struct plugin_t* plugin);
 
 /*!
