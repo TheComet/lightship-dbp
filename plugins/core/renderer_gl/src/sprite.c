@@ -15,11 +15,14 @@ static GLuint g_vbo;
 static GLuint g_ibo;
 static GLuint g_sprite_shader_id;
 
+static GLuint g_uniform_sprite_position_location;
+static GLuint g_uniform_sprite_size_location;
+
 static struct vertex_quad_t g_quad_vertex_data[4] = {
     {{-1, -1}, {0,  1}},
-    {{-1,  1}, {0, -1}},
+    {{-1,  1}, {0,  0}},
     {{ 1, -1}, {1,  1}},
-    {{ 1,  1}, {1, -1}}
+    {{ 1,  1}, {1,  0}}
 };
 
 static INDEX_DATA_TYPE g_quad_index_data[6] = {
@@ -39,7 +42,9 @@ sprite_init(void)
 {
     map_init_map(&g_sprites);
     
-    g_sprite_shader_id = shader_load(sprite_shader_file);
+    g_sprite_shader_id = shader_load(sprite_shader_file);printOpenGLError();
+    g_uniform_sprite_position_location = glGetUniformLocation(g_sprite_shader_id, "spritePosition");
+    g_uniform_sprite_size_location     = glGetUniformLocation(g_sprite_shader_id, "spriteSize");
     
     glGenVertexArrays(1, &g_vao);printOpenGLError();
     glBindVertexArray(g_vao);
@@ -95,17 +100,25 @@ sprite_create(const char* file_name, uint32_t x_frame_count, uint32_t y_frame_co
     sprite->animation.state = SPRITE_ANIMATION_STOP;
     sprite->animation.frame_b = total_frame_count;
     sprite->animation.total_frame_count = total_frame_count;
-    sprite->size.x = 1.0;
-    sprite->size.y = 1.0;
-    sprite->frame_size.x = 1.0;
-    sprite->frame_size.y = 1.0;
     sprite->aspect_ratio = (float)x / (float)y;
+    if(x > y)
+    {
+        sprite->size.x = 1.0;
+        sprite->size.y = sprite->size.x / sprite->aspect_ratio;
+    }
+    else
+    {
+        sprite->size.y = 1.0;
+        sprite->size.x = sprite->size.y * sprite->aspect_ratio;
+    }
+    sprite->frame_size.x = sprite->size.x;
+    sprite->frame_size.y = sprite->size.y;
     sprite->is_visible = 1;
     
     /* create GL texture and hand over pixel data */
     glGenTextures(1, &sprite->gl.tex);printOpenGLError();
     glBindTexture(GL_TEXTURE_2D, sprite->gl.tex);printOpenGLError();
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, x, y, 0, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, data);printOpenGLError();
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, x, y, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);printOpenGLError();
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);printOpenGLError();
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);printOpenGLError();
     
@@ -165,12 +178,17 @@ sprite_set_position(struct sprite_t* sprite, float x, float y)
 void
 sprite_set_size(struct sprite_t* sprite, float x, float y)
 {
+    sprite->size.x = x;
+    sprite->size.y = y;
+    sprite->aspect_ratio = x / y;
 }
 
 /* ------------------------------------------------------------------------- */
 void
 sprite_scale(struct sprite_t* sprite, float factor)
 {
+    sprite->size.y *= factor;
+    sprite->size.x = sprite->size.y * sprite->aspect_ratio;
 }
 
 /* ------------------------------------------------------------------------- */
@@ -183,15 +201,19 @@ sprite_show_hide(struct sprite_t* sprite, char is_visible)
 void
 sprite_draw(void)
 {
+    glEnable(GL_BLEND);printOpenGLError();
     glUseProgram(g_sprite_shader_id);printOpenGLError();
     glBindVertexArray(g_vao);printOpenGLError();
     { MAP_FOR_EACH(&g_sprites, struct sprite_t, key, sprite)
     {
         glBindTexture(GL_TEXTURE_2D, sprite->gl.tex);printOpenGLError();
+        glUniform2f(g_uniform_sprite_position_location, sprite->pos.x, sprite->pos.y);
+        glUniform2f(g_uniform_sprite_size_location, sprite->size.x, sprite->size.y);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, NULL);printOpenGLError();
     }}
     glBindVertexArray(0);printOpenGLError();
     glUseProgram(0);
+    glDisable(GL_BLEND);printOpenGLError();
 }
 
 /* ------------------------------------------------------------------------- */

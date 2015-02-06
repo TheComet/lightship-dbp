@@ -74,10 +74,8 @@ PLUGIN_START()
     register_event_listeners(g_plugin);
     
     uint32_t id;
-    sprite_create("test.png", 1, 1, 1, &id);
-    id = text_group_create("../../plugins/core/menu/ttf/DejaVuSans.ttf", 24);
-    text_group_load_character_set(id, NULL);
-    text_create(text_group_get(id), 0, -0.7, 0.6, L"MOTHERFUCKING LIGHTSHIP");
+    struct sprite_t* sprite = sprite_create("menu/join/join.png", 1, 1, 1, &id);
+    sprite_scale(sprite, 0.3);
 
     return PLUGIN_SUCCESS;
 }
