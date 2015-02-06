@@ -7,6 +7,7 @@
 #include <util/log.h>
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
 
 struct map_t g_services;
 char  g_service_internal_no_arg_dummy     = 0;
@@ -20,7 +21,7 @@ char  g_service_internal_no_arg_dummy     = 0;
  * as a parameter.
  * @param exec The function address of the callback function of the service.
  */
-static void
+static char
 service_malloc_and_register(char* full_name,
                             const service_callback_func exec,
                             const char* ret_type,
@@ -39,9 +40,9 @@ services_init(void)
 {
     map_init_map(&g_services);
     
-    /* ----------------------------
+    /* ------------------------------------------------------------------------
      * Register built-in services 
-     * --------------------------*/
+     * --------------------------------------------------------------------- */
     
     
 }
@@ -203,6 +204,7 @@ char
 service_unregister_all(const struct plugin_t* plugin)
 {
     char* name;
+    int len;
     
     assert(plugin);
     assert(plugin->info.name);
@@ -211,7 +213,7 @@ service_unregister_all(const struct plugin_t* plugin)
     if(!name)
         return 0;
 
-    int len = strlen(plugin->info.name);
+    len = strlen(plugin->info.name);
     {
         MAP_FOR_EACH(&g_services, struct service_t, key, service)
         {
@@ -358,6 +360,7 @@ service_create_argument_list_from_strings(struct service_t* service, struct orde
     return ret;
 }
 
+/* ------------------------------------------------------------------------- */
 void
 service_destroy_argument_list(struct service_t* service, void** argv)
 {
@@ -368,6 +371,7 @@ service_destroy_argument_list(struct service_t* service, void** argv)
     FREE(argv);
 }
 
+/* ------------------------------------------------------------------------- */
 char
 service_do_typecheck(const struct service_t* service, const char* ret_type, uint32_t argc, const char** argv)
 {
@@ -388,6 +392,9 @@ service_do_typecheck(const struct service_t* service, const char* ret_type, uint
     return 1;
 }
 
+/* ------------------------------------------------------------------------- */
+/* Static functions */
+/* ------------------------------------------------------------------------- */
 static service_script_type_e
 service_get_c_type_equivalent_from_script_type(const char* type)
 {
@@ -409,6 +416,7 @@ service_get_c_type_equivalent_from_script_type(const char* type)
     return SERVICE_SCRIPT_TYPE_UNKNOWN;
 }
 
+/* ------------------------------------------------------------------------- */
 static service_script_type_e
 service_get_c_type_equivalent_from_service_type(const char* type)
 {

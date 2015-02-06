@@ -55,8 +55,9 @@ map_destroy(struct map_t* map);
  * @param[in] value The data to insert into the map.
  * @note The value is **not** copied into the map, only referenced. For this
  * reason, don't insert stack allocated items into the map.
+ * @return Returns 1 if insertion was successful, 0 if otherwise.
  */
-LIGHTSHIP_PUBLIC_API void
+LIGHTSHIP_PUBLIC_API char
 map_insert(struct map_t* map, uint32_t hash, void* value);
 
 LIGHTSHIP_PUBLIC_API void
