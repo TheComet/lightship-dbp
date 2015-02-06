@@ -7,7 +7,7 @@
 struct service_t;
 typedef void (*service_callback_func)(void* ret, const void** argv);
 
-LIGHTSHIP_PUBLIC_API extern char g_service_internal_no_arg_dummy;
+LIGHTSHIP_PUBLIC_API extern char  g_service_internal_no_arg_dummy;
 
 #define SERVICE(func_name) \
         void func_name(void* ret, const void** argv)
@@ -17,11 +17,12 @@ LIGHTSHIP_PUBLIC_API extern char g_service_internal_no_arg_dummy;
 #define SERVICE_EXTRACT_ARGUMENT_PTR(index, var, cast_to) \
     cast_to var = (cast_to)argv[index]
 
-#define SERVICE_RETURN(value, ret_type) do {\
+#define SERVICE_RETURN(value, ret_type) do { \
         *(ret_type*)ret = value; return; } while(0)
 
 #define SERVICE_NO_RETURN NULL
 #define SERVICE_NO_ARGUMENT g_service_internal_no_arg_dummy
+#define PTR(arg) *(char*)arg
 
 #define SERVICE_CALL0(service, ret_value) do { \
             ((struct service_t*)service)->exec(ret_value, NULL); \

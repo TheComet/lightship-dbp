@@ -104,16 +104,16 @@ EVENT_LISTENER1(on_event, int arg)
  * This is the closure of the IF_EVENT_VALID condition, which will print
  * the stacktrace.
  */
-#   define REPORT_EVENT_FIRE_FAILURE \
-                } else { \
-                    uint32_t size, i; \
-                    char** backtrace = get_backtrace(&size); \
-                    llog(LOG_ERROR, NULL, 1, "Cannot fire event for it is NULL"); \
-                    llog_indent("Backtrace"); \
-                    for(i = 0; i != size; ++i) \
-                        llog(LOG_ERROR, NULL, 1, backtrace[i]); \
-                    if(backtrace) free(backtrace); \
-                    llog_unindent(); \
+#   define REPORT_EVENT_FIRE_FAILURE                                                \
+                } else {                                                            \
+                    uint32_t size, i;                                               \
+                    char** backtrace = get_backtrace(&size);                        \
+                    llog(LOG_ERROR, NULL, 1, "Cannot fire event for it is NULL");   \
+                    llog_indent("Backtrace");                                       \
+                    for(i = 0; i != size; ++i)                                      \
+                        llog(LOG_ERROR, NULL, 1, backtrace[i]);                     \
+                    if(backtrace) free(backtrace);                                  \
+                    llog_unindent();                                                \
                 }
 
 #else  /* _DEBUG */
@@ -122,8 +122,8 @@ EVENT_LISTENER1(on_event, int arg)
 #endif /* _DEBUG */
 
 /* used to iterate over the listeners of an event */
-#define EVENT_ITERATE_LISTENERS_BEGIN(event) \
-            UNORDERED_VECTOR_FOR_EACH(&(event)->listeners, struct event_listener_t, listener) \
+#define EVENT_ITERATE_LISTENERS_BEGIN(event)                                                    \
+            UNORDERED_VECTOR_FOR_EACH(&(event)->listeners, struct event_listener_t, listener)   \
             {
 #define EVENT_ITERATE_LISTENERS_END \
             }
@@ -201,40 +201,40 @@ EVENT_LISTENER1(on_event, int arg)
  * and be registered with the host program with event_register().
  * @param[in] args... The arguments to fire along with the event.
  */
-#define EVENT_FIRE0(event) do { \
-            EVENT_DUMMY_FUNCTION_SIGNATURE_CHECK0(event) \
-            IF_EVENT_VALID(event) \
-                EVENT_ITERATE_LISTENERS_BEGIN(event) \
-                    EVENT_FIRE_IMPL0(event) \
-                EVENT_ITERATE_LISTENERS_END \
+#define EVENT_FIRE0(event) do {                             \
+            EVENT_DUMMY_FUNCTION_SIGNATURE_CHECK0(event)    \
+            IF_EVENT_VALID(event)                           \
+                EVENT_ITERATE_LISTENERS_BEGIN(event)        \
+                    EVENT_FIRE_IMPL0(event)                 \
+                EVENT_ITERATE_LISTENERS_END                 \
             REPORT_EVENT_FIRE_FAILURE } while(0)
-#define EVENT_FIRE1(event, arg) do { \
-            EVENT_DUMMY_FUNCTION_SIGNATURE_CHECK1(event, arg) \
-            IF_EVENT_VALID(event) \
-                EVENT_ITERATE_LISTENERS_BEGIN(event) \
-                    EVENT_FIRE_IMPL1(event, arg) \
-                EVENT_ITERATE_LISTENERS_END \
+#define EVENT_FIRE1(event, arg) do {                            \
+            EVENT_DUMMY_FUNCTION_SIGNATURE_CHECK1(event, arg)   \
+            IF_EVENT_VALID(event)                               \
+                EVENT_ITERATE_LISTENERS_BEGIN(event)            \
+                    EVENT_FIRE_IMPL1(event, arg)                \
+                EVENT_ITERATE_LISTENERS_END                     \
             REPORT_EVENT_FIRE_FAILURE } while(0)
-#define EVENT_FIRE2(event, arg1, arg2) do { \
-            EVENT_DUMMY_FUNCTION_SIGNATURE_CHECK2(event, arg1, arg2) \
-            IF_EVENT_VALID(event) \
-                EVENT_ITERATE_LISTENERS_BEGIN(event) \
-                    EVENT_FIRE_IMPL2(event, arg1, arg2) \
-                EVENT_ITERATE_LISTENERS_END \
+#define EVENT_FIRE2(event, arg1, arg2) do {                             \
+            EVENT_DUMMY_FUNCTION_SIGNATURE_CHECK2(event, arg1, arg2)    \
+            IF_EVENT_VALID(event)                                       \
+                EVENT_ITERATE_LISTENERS_BEGIN(event)                    \
+                    EVENT_FIRE_IMPL2(event, arg1, arg2)                 \
+                EVENT_ITERATE_LISTENERS_END                             \
             REPORT_EVENT_FIRE_FAILURE } while(0)
-#define EVENT_FIRE3(event, arg1, arg2, arg3) do { \
-            EVENT_DUMMY_FUNCTION_SIGNATURE_CHECK3(event, arg1, arg2, arg3) \
-            IF_EVENT_VALID(event) \
-                EVENT_ITERATE_LISTENERS_BEGIN(event) \
-                    EVENT_FIRE_IMPL3(event, arg1, arg2, arg3) \
-                EVENT_ITERATE_LISTENERS_END \
+#define EVENT_FIRE3(event, arg1, arg2, arg3) do {                           \
+            EVENT_DUMMY_FUNCTION_SIGNATURE_CHECK3(event, arg1, arg2, arg3)  \
+            IF_EVENT_VALID(event)                                           \
+                EVENT_ITERATE_LISTENERS_BEGIN(event)                        \
+                    EVENT_FIRE_IMPL3(event, arg1, arg2, arg3)               \
+                EVENT_ITERATE_LISTENERS_END                                 \
             REPORT_EVENT_FIRE_FAILURE } while(0)
-#define EVENT_FIRE4(event, arg1, arg2, arg3, arg4) do { \
-            EVENT_DUMMY_FUNCTION_SIGNATURE_CHECK4(event, arg1, arg2, arg3, arg4) \
-            IF_EVENT_VALID(event) \
-                EVENT_ITERATE_LISTENERS_BEGIN(event) \
-                    EVENT_FIRE_IMPL4(event, arg1, arg2, arg3, arg4) \
-                EVENT_ITERATE_LISTENERS_END \
+#define EVENT_FIRE4(event, arg1, arg2, arg3, arg4) do {                             \
+            EVENT_DUMMY_FUNCTION_SIGNATURE_CHECK4(event, arg1, arg2, arg3, arg4)    \
+            IF_EVENT_VALID(event)                                                   \
+                EVENT_ITERATE_LISTENERS_BEGIN(event)                                \
+                    EVENT_FIRE_IMPL4(event, arg1, arg2, arg3, arg4)                 \
+                EVENT_ITERATE_LISTENERS_END                                         \
             REPORT_EVENT_FIRE_FAILURE } while(0)
 
 /*!
@@ -247,20 +247,20 @@ EVENT_LISTENER1(on_event, int arg)
 EVENT_H(evt_foo, args...);
 @endcode
  */
-#define EVENT_H0(event) \
-    EVENT_GEN_DUMMY_FUNCTION_DECL0(event) \
+#define EVENT_H0(event)                     \
+    EVENT_GEN_DUMMY_FUNCTION_DECL0(event)   \
     extern struct event_t* event
-#define EVENT_H1(event, arg1_t) \
-    EVENT_GEN_DUMMY_FUNCTION_DECL1(event, arg1_t) \
+#define EVENT_H1(event, arg1_t)                     \
+    EVENT_GEN_DUMMY_FUNCTION_DECL1(event, arg1_t)   \
     extern struct event_t* event
-#define EVENT_H2(event, arg1_t, arg2_t) \
-    EVENT_GEN_DUMMY_FUNCTION_DECL2(event, arg1_t, arg2_t) \
+#define EVENT_H2(event, arg1_t, arg2_t)                     \
+    EVENT_GEN_DUMMY_FUNCTION_DECL2(event, arg1_t, arg2_t)   \
     extern struct event_t* event
-#define EVENT_H3(event, arg1_t, arg2_t, arg3_t) \
-    EVENT_GEN_DUMMY_FUNCTION_DECL3(event, arg1_t, arg2_t, arg3_t) \
+#define EVENT_H3(event, arg1_t, arg2_t, arg3_t)                     \
+    EVENT_GEN_DUMMY_FUNCTION_DECL3(event, arg1_t, arg2_t, arg3_t)   \
     extern struct event_t* event
-#define EVENT_H4(event, arg1_t, arg2_t, arg3_t, arg4_t) \
-    EVENT_GEN_DUMMY_FUNCTION_DECL4(event, arg1_t, arg2_t, arg3_t, arg4_t) \
+#define EVENT_H4(event, arg1_t, arg2_t, arg3_t, arg4_t)                     \
+    EVENT_GEN_DUMMY_FUNCTION_DECL4(event, arg1_t, arg2_t, arg3_t, arg4_t)   \
     extern struct event_t* event
 
 /*!
@@ -273,20 +273,20 @@ EVENT_H(evt_foo, args...);
 EVENT_C(evt_foo, args...);
 @endcode
  */
-#define EVENT_C0(event) \
-    EVENT_GEN_DUMMY_FUNCTION_DEF0(event) \
+#define EVENT_C0(event)                     \
+    EVENT_GEN_DUMMY_FUNCTION_DEF0(event)    \
     struct event_t* event = (struct event_t*)0
-#define EVENT_C1(event, arg1_t) \
-    EVENT_GEN_DUMMY_FUNCTION_DEF1(event, arg1_t) \
+#define EVENT_C1(event, arg1_t)                     \
+    EVENT_GEN_DUMMY_FUNCTION_DEF1(event, arg1_t)    \
     struct event_t* event = (struct event_t*)0
-#define EVENT_C2(event, arg1_t, arg2_t) \
-    EVENT_GEN_DUMMY_FUNCTION_DEF2(event, arg1_t, arg2_t) \
+#define EVENT_C2(event, arg1_t, arg2_t)                     \
+    EVENT_GEN_DUMMY_FUNCTION_DEF2(event, arg1_t, arg2_t)    \
     struct event_t* event = (struct event_t*)0
-#define EVENT_C3(event, arg1_t, arg2_t, arg3_t) \
-    EVENT_GEN_DUMMY_FUNCTION_DEF3(event, arg1_t, arg2_t, arg3_t) \
+#define EVENT_C3(event, arg1_t, arg2_t, arg3_t)                     \
+    EVENT_GEN_DUMMY_FUNCTION_DEF3(event, arg1_t, arg2_t, arg3_t)    \
     struct event_t* event = (struct event_t*)0
-#define EVENT_C4(event, arg1_t, arg2_t, arg3_t, arg4_t) \
-    EVENT_GEN_DUMMY_FUNCTION_DEF4(event, arg1_t, arg2_t, arg3_t, arg4_t) \
+#define EVENT_C4(event, arg1_t, arg2_t, arg3_t, arg4_t)                     \
+    EVENT_GEN_DUMMY_FUNCTION_DEF4(event, arg1_t, arg2_t, arg3_t, arg4_t)    \
     struct event_t* event = (struct event_t*)0
     
 C_HEADER_END

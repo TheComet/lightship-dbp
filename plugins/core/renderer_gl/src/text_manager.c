@@ -2,7 +2,6 @@
 #include "plugin_renderer_gl/text_manager.h"
 #include "plugin_renderer_gl/text.h"
 #include "plugin_renderer_gl/text_wrapper.h"
-#include "plugin_renderer_gl/glutils.h"
 #include "plugin_renderer_gl/shader.h"
 #include "plugin_renderer_gl/window.h"
 #include "util/unordered_vector.h"
@@ -99,7 +98,7 @@ text_manager_deinit(void)
     while(g_text_groups.vector.count)
     {
         text_group_destroy(
-            ((struct map_key_value_t*)ordered_vector_pop(&g_text_groups.vector))->hash
+            ((struct map_key_value_t*)g_text_groups.vector.data)->hash
         );
     }
     map_clear_free(&g_text_groups);
@@ -131,7 +130,7 @@ text_group_create(const char* font_filename, uint32_t char_size)
     /* initialise containers */
     map_init_map(&group->char_info);
     unordered_vector_init_vector(&group->texts, sizeof(struct text_t*));
-    ordered_vector_init_vector(&group->vertex_buffer, sizeof(struct text_vertex_t));
+    ordered_vector_init_vector(&group->vertex_buffer, sizeof(struct vertex_quad_t));
     ordered_vector_init_vector(&group->index_buffer, sizeof(INDEX_DATA_TYPE));
 
     /* generate VAO, VBO, VIO, and Texture buffer */
@@ -139,20 +138,7 @@ text_group_create(const char* font_filename, uint32_t char_size)
     glBindVertexArray(group->gl.vao);printOpenGLError();
         glGenBuffers(1, &group->gl.vbo);printOpenGLError();
         glBindBuffer(GL_ARRAY_BUFFER, group->gl.vbo);printOpenGLError();
-            glEnableVertexAttribArray(0);printOpenGLError();
-            glVertexAttribPointer(0,                /* attribute 0 */
-                                    2,                /* size, position[2] */
-                                    GL_FLOAT,         /* type */
-                                    GL_FALSE,         /* normalise? */
-                                    sizeof(struct text_vertex_t),
-                                    (void*)offsetof(struct text_vertex_t, position));printOpenGLError();
-            glEnableVertexAttribArray(1);printOpenGLError();
-            glVertexAttribPointer(1,                /* attribute 1 */
-                                    2,                /* size, tex_coord[2] */
-                                    GL_FLOAT,         /* type */
-                                    GL_FALSE,         /* normalise? */
-                                    sizeof(struct text_vertex_t),
-                                    (void*)offsetof(struct text_vertex_t, tex_coord));printOpenGLError();
+            VERTEX_QUAD_SETUP_ATTRIBS
         glGenBuffers(1, &group->gl.ibo);printOpenGLError();
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, group->gl.ibo);printOpenGLError();
         glGenTextures(1, &group->gl.tex);printOpenGLError();
@@ -333,6 +319,7 @@ text_draw(void)
             
             /* render */
             glBindVertexArray(group->gl.vao);printOpenGLError();
+                glBindTexture(GL_TEXTURE_2D, group->gl.tex);
                 glDrawElements(GL_TRIANGLES, group->index_buffer.count, GL_UNSIGNED_SHORT, NULL);printOpenGLError();
             
         }
@@ -556,8 +543,8 @@ text_group_sync_with_gpu(struct text_group_t* group)
     /* upload to GPU */
     glBindVertexArray(group->gl.vao);
         glBindBuffer(GL_ARRAY_BUFFER, group->gl.vbo);
-            glBufferData(GL_ARRAY_BUFFER, group->vertex_buffer.count * sizeof(struct text_vertex_t), group->vertex_buffer.data, GL_STATIC_DRAW);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, group->index_buffer.count * sizeof(INDEX_DATA_TYPE), group->index_buffer.data, GL_STATIC_DRAW);
+            glBufferData(GL_ARRAY_BUFFER, group->vertex_buffer.count * sizeof(struct vertex_quad_t), group->vertex_buffer.data, GL_DYNAMIC_DRAW);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, group->index_buffer.count * sizeof(INDEX_DATA_TYPE), group->index_buffer.data, GL_DYNAMIC_DRAW);
     glBindVertexArray(0);
     
     /* reset flag */
