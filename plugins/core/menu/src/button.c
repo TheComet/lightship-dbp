@@ -25,8 +25,8 @@ void button_init(void)
 
     /* load font and characters */
     char_size = 9;
-    SERVICE_CALL2(text_group_create, &font_id, *ttf_filename, char_size);
-    SERVICE_CALL2(text_group_load_character_set, SERVICE_NO_RETURN, font_id, *NULL);
+    SERVICE_CALL2(text_group_create, &font_id, PTR(ttf_filename), char_size);
+    SERVICE_CALL2(text_group_load_character_set, SERVICE_NO_RETURN, font_id, PTR(NULL));
 }
 
 void button_deinit(void)
@@ -66,7 +66,7 @@ button_constructor(struct button_t* btn, const char* text, float x, float y, flo
         /* TODO instead of passing the raw string, add way to pass a "string instance"
         * which can specify the font and size of the string. */
         btn->base.button.text = strtowcs(text);
-        SERVICE_CALL5(text_create, &btn->base.button.text_id, font_id, is_centered, x, offy, *btn->base.button.text);
+        SERVICE_CALL5(text_create, &btn->base.button.text_id, font_id, is_centered, x, offy, PTR(btn->base.button.text));
         element_add_text((struct element_t*)btn, font_id, btn->base.button.text_id);
     }
     else

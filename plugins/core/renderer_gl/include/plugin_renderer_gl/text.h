@@ -1,3 +1,4 @@
+#include "plugin_renderer_gl/glutils.h"
 #include "util/ordered_vector.h"
 #include "util/service_api.h"
 #include <GL/glew.h>
@@ -12,9 +13,8 @@ struct text_t
     /* mesh data of this text instance */
     struct ordered_vector_t vertex_buffer;
     struct ordered_vector_t index_buffer;
+    struct vec2_t pos;
     wchar_t* string;
-    GLfloat x;
-    GLfloat y;
     char is_centered;
     char visible;
 };

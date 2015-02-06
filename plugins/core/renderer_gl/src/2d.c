@@ -28,12 +28,14 @@ shapes_get(uint32_t ID)
     return NULL;
 }
 
-void
+char
 init_2d(void)
 {
     g_line_shader_id = shader_load(two_d_shader_file);
 
     unordered_vector_init_vector(&g_shapes_collection, sizeof(struct shapes_t));
+    
+    return 1;
 }
 
 void
@@ -89,22 +91,7 @@ shapes_2d_end(void)
                         g_current_shapes->vertex_data.count * sizeof(struct vertex_2d_t),
                         g_current_shapes->vertex_data.data,
                         GL_STATIC_DRAW);printOpenGLError();
-            /* set up position and diffuse vertex attributes */
-            glEnableVertexAttribArray(0);printOpenGLError();
-            glVertexAttribPointer(0,                      /* attribute 0 */
-                                  2,                      /* size, position[2] */
-                                  GL_FLOAT,               /* type */
-                                  GL_FALSE,               /* normalise? */
-                                  sizeof(struct vertex_2d_t),
-                                  (void*)offsetof(struct vertex_2d_t, position));printOpenGLError();
-            glEnableVertexAttribArray(1);
-            glVertexAttribPointer(1,                      /* attribute 1 */
-                                  4,                      /* diffuse[4] */
-                                  GL_FLOAT,               /* type */
-                                  GL_FALSE,               /* normalise? */
-                                  sizeof(struct vertex_2d_t),
-                                  (void*)offsetof(struct vertex_2d_t, diffuse));printOpenGLError();
-
+            VERTEX_2D_SETUP_ATTRIBS
         /* generate VBO for index data */
         glGenBuffers(1, &g_current_shapes->ibo);printOpenGLError();
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_current_shapes->ibo);printOpenGLError();

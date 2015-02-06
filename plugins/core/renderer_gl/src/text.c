@@ -1,7 +1,6 @@
 #include "plugin_renderer_gl/config.h"
 #include "plugin_renderer_gl/text_manager.h"
 #include "plugin_renderer_gl/text.h"
-#include "plugin_renderer_gl/glutils.h"
 #include "plugin_renderer_gl/window.h"
 #include "util/log.h"
 #include "util/memory.h"
@@ -19,12 +18,12 @@ text_create(struct text_group_t* text_group, char centered, GLfloat x, GLfloat y
     struct text_t* text;
     text = (struct text_t*)MALLOC(sizeof(struct text_t));
     text->string = malloc_wstring(str);
-    text->x = x;
-    text->y = y;
+    text->pos.x = x;
+    text->pos.y = y;
     text->is_centered = centered;
     text->visible = 1;
     
-    ordered_vector_init_vector(&text->vertex_buffer, sizeof(struct text_vertex_t));
+    ordered_vector_init_vector(&text->vertex_buffer, sizeof(struct vertex_quad_t));
     ordered_vector_init_vector(&text->index_buffer, sizeof(INDEX_DATA_TYPE));
     
     text_group_add_text_object(text_group, text);
@@ -125,20 +124,20 @@ text_generate_mesh(struct text_t* text)
         }
         
         /* x is now the total width of the string in GL screen space. */
-        x = text->x - (x / 2.0);
-        y = text->y;
+        x = text->pos.x - (x / 2.0);
+        y = text->pos.y;
     }
     else
     {
-        x = text->x;
-        y = text->y;
+        x = text->pos.x;
+        y = text->pos.y;
     }
     
     /* generate new vertices and insert into text vertex buffer */
     for(iterator = text->string; *iterator; ++iterator)
     {
         struct char_info_t* info;
-        struct text_vertex_t* vertex;
+        struct vertex_quad_t* vertex;
         
         /* the space character requires some extra attention */
         if(wcsncmp(iterator, L" ", 1) == 0)
@@ -159,28 +158,28 @@ text_generate_mesh(struct text_t* text)
         }
 
         /* top left vertex */
-        vertex = (struct text_vertex_t*)ordered_vector_push_emplace(&text->vertex_buffer);
+        vertex = (struct vertex_quad_t*)ordered_vector_push_emplace(&text->vertex_buffer);
         vertex->position[0]  = x;
         vertex->position[1]  = y - info->bearing_y;
         vertex->tex_coord[0] = info->uv_left;
         vertex->tex_coord[1] = info->uv_top;
         
         /* top right vertex */
-        vertex = (struct text_vertex_t*)ordered_vector_push_emplace(&text->vertex_buffer);
+        vertex = (struct vertex_quad_t*)ordered_vector_push_emplace(&text->vertex_buffer);
         vertex->position[0]  = x + info->width;
         vertex->position[1]  = y - info->bearing_y;
         vertex->tex_coord[0] = info->uv_left + info->uv_width;
         vertex->tex_coord[1] = info->uv_top;
         
         /* bottom left vertex */
-        vertex = (struct text_vertex_t*)ordered_vector_push_emplace(&text->vertex_buffer);
+        vertex = (struct vertex_quad_t*)ordered_vector_push_emplace(&text->vertex_buffer);
         vertex->position[0]  = x;
         vertex->position[1]  = y - info->bearing_y - info->height;
         vertex->tex_coord[0] = info->uv_left;
         vertex->tex_coord[1] = info->uv_top + info->uv_height;
         
         /* bottom right vertex */
-        vertex = (struct text_vertex_t*)ordered_vector_push_emplace(&text->vertex_buffer);
+        vertex = (struct vertex_quad_t*)ordered_vector_push_emplace(&text->vertex_buffer);
         vertex->position[0]  = x + info->width;
         vertex->position[1]  = y - info->bearing_y - info->height;
         vertex->tex_coord[0] = info->uv_left + info->uv_width;

@@ -214,7 +214,7 @@ load_plugins_from_yaml(const char* filename)
     unordered_vector_init_vector(&new_plugins, sizeof(struct plugin_t*));
 
     /* try to load YAML file */
-    SERVICE_CALL_NAME1("yaml.load", &doc_ID, *filename);
+    SERVICE_CALL_NAME1("yaml.load", &doc_ID, PTR(filename));
     if(!doc_ID)
         return 0;
     
