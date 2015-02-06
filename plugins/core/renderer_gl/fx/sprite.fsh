@@ -26,4 +26,3 @@ void main()
 {
     colour = texture(sampImage, texCoord);
 }
-
