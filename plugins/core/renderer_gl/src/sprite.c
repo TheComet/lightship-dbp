@@ -16,10 +16,10 @@ static GLuint g_ibo;
 static GLuint g_sprite_shader_id;
 
 static struct vertex_quad_t g_quad_vertex_data[4] = {
-    {{-1, -1}, {-1, -1}},
-    {{-1,  1}, {-1,  1}},
-    {{ 1, -1}, { 1, -1}},
-    {{ 1,  1}, { 1,  1}}
+    {{-1, -1}, {0,  1}},
+    {{-1,  1}, {0, -1}},
+    {{ 1, -1}, {1,  1}},
+    {{ 1,  1}, {1, -1}}
 };
 
 static INDEX_DATA_TYPE g_quad_index_data[6] = {
