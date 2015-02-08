@@ -4,6 +4,8 @@
 #include "util/plugin_api.h"
 #include "util/config.h"
 
+struct game_t;
+
 /*!
  * @brief Creates and initialises a new plugin object.
  * @note The plugin is not stored internally, it is expected for the
@@ -12,14 +14,14 @@
  * @return Returns the newly created plugin object.
  */
 LIGHTSHIP_PUBLIC_API struct plugin_t*
-plugin_create(void);
+plugin_create(struct game_t* game);
 
 /*!
  * @brief Initialises a plugin object.
  * @param[in] plugin The plugin to initialise.
  */
 LIGHTSHIP_PUBLIC_API void
-plugin_init_plugin(struct plugin_t* plugin);
+plugin_init_plugin(struct game_t* game, struct plugin_t* plugin);
 
 /*!
  * @brief Destroys a plugin object.

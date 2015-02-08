@@ -54,10 +54,10 @@ safe_strcat(char* target, const char* source)
  * Exported functions
  * ------------------------------------------------------------------------- */
 void
-llog_init(void)
+llog_init(struct game_t* game)
 {
-    event_register_listener(NULL, BUILTIN_NAMESPACE_NAME ".log", (event_callback_func)on_llog);
-    event_register_listener(NULL, BUILTIN_NAMESPACE_NAME ".log_indent", (event_callback_func)on_llog_indent);
+    event_register_listener(game, NULL, BUILTIN_NAMESPACE_NAME ".log", (event_callback_func)on_llog);
+    event_register_listener(game, NULL, BUILTIN_NAMESPACE_NAME ".log_indent", (event_callback_func)on_llog_indent);
     
     /* ncurses support -- TODO currently broken and disabled *
 #ifdef HAVE_CURSES

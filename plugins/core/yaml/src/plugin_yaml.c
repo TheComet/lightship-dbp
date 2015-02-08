@@ -8,10 +8,10 @@
 struct plugin_t* g_plugin = NULL;
 
 void
-create_and_init_plugin(void)
+create_and_init_plugin(struct game_t* game)
 {
     /* create plugin object - host requires this */
-    g_plugin = plugin_create();
+    g_plugin = plugin_create(game);
     
     /* set plugin information - Change this in the file "CMakeLists.txt" */
     plugin_set_info(g_plugin,
@@ -33,16 +33,16 @@ create_and_init_plugin(void)
 
 PLUGIN_INIT()
 {
-    create_and_init_plugin();
-    register_services(g_plugin);
-    register_events(g_plugin);
+    create_and_init_plugin(game);
+    register_services(game, g_plugin);
+    register_events(game, g_plugin);
     parser_init();
     return g_plugin;
 }
 
 PLUGIN_START()
 {
-    register_event_listeners(g_plugin);
+    register_event_listeners(game, g_plugin);
 
     return PLUGIN_SUCCESS;
 }

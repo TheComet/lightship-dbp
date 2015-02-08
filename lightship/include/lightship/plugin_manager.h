@@ -13,7 +13,7 @@ void
 plugin_manager_init(void);
 
 void
-plugin_manager_get_services(void);
+plugin_manager_get_services(struct game_t* game);
 
 /*!
  * @brief Starts a loaded plugin.
@@ -22,11 +22,11 @@ plugin_manager_get_services(void);
  * @param[in] plugin The plugin to start.
  * @return Returns 1 if successful, 0 if otherwise.
  */
-#define plugin_start(plugin) ((plugin)->started_successfully = (plugin)->start())
+#define plugin_start(game, plugin) ((plugin)->started_successfully = (plugin)->start(game))
 
-#define plugin_stop(plugin) do { \
+#define plugin_stop(game, plugin) do { \
     if((plugin)->started_successfully) \
-        ((plugin)->stop()); } while(0)
+        ((plugin)->stop(game)); } while(0)
 
 #define plugin_deinit(plugin) do { (plugin)->deinit(); } while(0)
 
@@ -36,7 +36,7 @@ plugin_manager_get_services(void);
  * This will unload all plugins cleanly and clean up any memory being used.
  */
 void
-plugin_manager_deinit(void);
+plugin_manager_deinit(struct game_t* game);
 
 /*!
  * @brief Loads the specified plugin.
@@ -70,11 +70,12 @@ plugin_manager_deinit(void);
  * returned.
  */
 struct plugin_t*
-plugin_load(const struct plugin_info_t* plugin_info,
+plugin_load(struct game_t* game,
+            const struct plugin_info_t* plugin_info,
             plugin_search_criteria_t criteria);
 
 char
-load_plugins_from_yaml(const char* filename);
+load_plugins_from_yaml(struct game_t* game, const char* filename);
 
 /*!
  * @brief Unloads the specified plugin.
@@ -90,6 +91,6 @@ plugin_unload(struct plugin_t* plugin);
  * failure.
  */
 struct plugin_t*
-plugin_get_by_name(const char* name);
+plugin_get_by_name(struct game_t* game, const char* name);
 
 #endif /* LIGHTSHIP_PLUGIN_MANAGER_H */

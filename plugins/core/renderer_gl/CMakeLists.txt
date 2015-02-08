@@ -66,7 +66,6 @@ set (plugin_renderer_gl_OUTPUT_NAME
 
 file (GLOB plugin_renderer_gl_HEADERS "include/plugin_renderer_gl/*.h")
 file (GLOB plugin_renderer_gl_SOURCES "src/*.c")
-set (plugin_renderer_gl_HEADERS ${plugin_renderer_gl_HEADERS} "include/plugin_renderer_gl.h")
 
 include_directories ("include")
 

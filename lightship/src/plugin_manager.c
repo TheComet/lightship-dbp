@@ -2,7 +2,6 @@
 #include <string.h>
 #include <stdlib.h>
 #include "lightship/plugin_manager.h"
-#include "plugin_yaml.h"
 #include "util/services.h"
 #include "util/events.h"
 #include "util/config.h"
@@ -54,16 +53,16 @@ plugin_manager_init(void)
 }
 
 void
-plugin_manager_get_services(void)
+plugin_manager_get_services(struct game_t* game)
 {
-    yaml_load = service_get("yaml.load");
-    yaml_destroy = service_get("yaml.destroy");
-    yaml_get_dom = service_get("yaml.get_dom");
-    yaml_get_value = service_get("yaml.get_value");
+    yaml_load       = service_get(game, "yaml.load");
+    yaml_destroy    = service_get(game, "yaml.destroy");
+    yaml_get_dom    = service_get(game, "yaml.get_dom");
+    yaml_get_value  = service_get(game, "yaml.get_value");
 }
 
 void
-plugin_manager_deinit(void)
+plugin_manager_deinit(struct game_t* game)
 {
     /* unload all plugins */
     LIST_FOR_EACH_ERASE_R(&g_plugins, struct plugin_t, plugin)
@@ -74,7 +73,8 @@ plugin_manager_deinit(void)
 }
 
 struct plugin_t*
-plugin_load(const struct plugin_info_t* plugin_info,
+plugin_load(struct game_t* game,
+            const struct plugin_info_t* plugin_info,
             const plugin_search_criteria_t criteria)
 {
     /* will contain the file name of the plugin if it is found. Must be util_free()'d */
@@ -99,7 +99,7 @@ plugin_load(const struct plugin_info_t* plugin_info,
     for(;;)
     {
         /* make sure not already loaded */
-        if(plugin_get_by_name(plugin_info->name))
+        if(plugin_get_by_name(game, plugin_info->name))
         {
             llog(LOG_ERROR, NULL, 3, "plugin \"", plugin_info->name, "\" already loaded");
             break;
@@ -139,7 +139,7 @@ plugin_load(const struct plugin_info_t* plugin_info,
             break;
 
         /* initialise the plugin */
-        plugin = init_func();
+        plugin = init_func(game);
         if(!plugin)
         {
             llog(LOG_ERROR, NULL, 1, "Error initialising plugin: \"plugin_init\" returned NULL");
@@ -203,7 +203,7 @@ plugin_load(const struct plugin_info_t* plugin_info,
 }
 
 char
-load_plugins_from_yaml(const char* filename)
+load_plugins_from_yaml(struct game_t* game, const char* filename)
 {
     struct plugin_info_t target;
     struct ptree_t* dom;
@@ -214,7 +214,7 @@ load_plugins_from_yaml(const char* filename)
     unordered_vector_init_vector(&new_plugins, sizeof(struct plugin_t*));
 
     /* try to load YAML file */
-    SERVICE_CALL_NAME1("yaml.load", &doc_ID, PTR(filename));
+    SERVICE_CALL_NAME1(game, "yaml.load", &doc_ID, PTR(filename));
     if(!doc_ID)
         return 0;
     
@@ -276,7 +276,7 @@ load_plugins_from_yaml(const char* filename)
             }
             
             /* load plugin */
-            plugin = plugin_load(&target, criteria);
+            plugin = plugin_load(game, &target, criteria);
             if(!plugin)
                 continue;
             unordered_vector_push(&new_plugins, &plugin);
@@ -287,7 +287,7 @@ load_plugins_from_yaml(const char* filename)
     {
         UNORDERED_VECTOR_FOR_EACH(&new_plugins, struct plugin_t*, pluginp)
         {
-            if(!plugin_start(*pluginp))
+            if(!plugin_start(game, *pluginp))
             {
                 llog(LOG_ERROR, NULL, 3, "Failed to start plugin \"", (*pluginp)->info.name, "\", unloading...");
                 plugin_unload(*pluginp);
@@ -309,7 +309,7 @@ plugin_unload(struct plugin_t* plugin)
     llog(LOG_INFO, NULL, 3, "unloading plugin \"", plugin->info.name, "\"");
     
     /* stop the plugin */
-    plugin_stop(plugin);
+    plugin_stop(plugin->game, plugin);
     
     /* TODO notify everything that this plugin is about to be unloaded */
 
@@ -332,7 +332,7 @@ plugin_unload(struct plugin_t* plugin)
 }
 
 struct plugin_t*
-plugin_get_by_name(const char* name)
+plugin_get_by_name(struct game_t* game, const char* name)
 {
     LIST_FOR_EACH(&g_plugins, struct plugin_t, plugin)
     {

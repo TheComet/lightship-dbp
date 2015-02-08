@@ -40,7 +40,6 @@ set (plugin_input_OUTPUT_NAME
 
 file (GLOB plugin_input_HEADERS "include/plugin_input/*.h")
 file (GLOB plugin_input_SOURCES "src/*.c")
-set (plugin_input_HEADERS ${plugin_input_HEADERS} "include/plugin_input.h")
 
 include_directories ("include")
 include_directories ("${CMAKE_SOURCE_DIR}/plugins/core/renderer_gl/include")

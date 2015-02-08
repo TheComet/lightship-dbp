@@ -36,7 +36,7 @@ typedef enum service_script_type_e
  * other service related functions.
  */
 LIGHTSHIP_PUBLIC_API void
-services_init(void);
+services_init(struct game_t* game);
 
 /*!
  * @brief De-initialises the service system. This must be called to clean up
@@ -54,12 +54,13 @@ services_deinit(void);
  * @param[in] exec A function pointer to the service function.
  */
 LIGHTSHIP_PUBLIC_API char
-service_register(const struct plugin_t* plugin,
-                  const char* name,
-                  service_callback_func exec,
-                  const char* ret_type,
-                  const int argc,
-                  const char** argv);
+service_register(struct game_t* game,
+                 const struct plugin_t* plugin,
+                 const char* name,
+                 service_callback_func exec,
+                 const char* ret_type,
+                 const int argc,
+                 const char** argv);
 
 /*!
  * @brief Frees the specified service object's contents and object itself.
@@ -75,7 +76,8 @@ service_free(struct service_t* service);
  * @param[in] name The name of the service to unregister.
  */
 LIGHTSHIP_PUBLIC_API char
-service_unregister(const struct plugin_t* plugin,
+service_unregister(struct game_t* game,
+                   const struct plugin_t* plugin,
                    const char* name);
 
 /*!
@@ -95,7 +97,7 @@ service_unregister_all(const struct plugin_t* plugin);
  * registered by the plugin. If the service does not exist, 0 is returned.
  */
 LIGHTSHIP_PUBLIC_API struct service_t*
-service_get(const char* name);
+service_get(struct game_t* game, const char* name);
 
 LIGHTSHIP_PUBLIC_API char
 service_do_typecheck(const struct service_t* service, const char* ret_type, uint32_t argc, const char** argv);

@@ -4,7 +4,9 @@
 #include "util/pstdint.h"
 #include "util/config.h"
 
+struct game_t;
 struct service_t;
+
 typedef void (*service_callback_func)(void* ret, const void** argv);
 
 LIGHTSHIP_PUBLIC_API extern char  g_service_internal_no_arg_dummy;
@@ -63,22 +65,22 @@ LIGHTSHIP_PUBLIC_API extern char  g_service_internal_no_arg_dummy;
             ((struct service_t*)service)->exec(ret_value, service_internal_argv); \
         } while(0)
 
-#define SERVICE_INTERNAL_GET_AND_CHECK(service_name) \
-        struct service_t* service_internal_service = service_get(service_name); \
+#define SERVICE_INTERNAL_GET_AND_CHECK(game, service_name) \
+        struct service_t* service_internal_service = service_get(game, service_name); \
         if(!service_internal_service) \
             llog(LOG_WARNING, NULL, 3, "Service \"", service_name, "\" does not exist"); \
         else
 
-#define SERVICE_CALL_NAME0(service_name, ret_value) do { \
-            SERVICE_INTERNAL_GET_AND_CHECK(service_name) \
+#define SERVICE_CALL_NAME0(game, service_name, ret_value) do { \
+            SERVICE_INTERNAL_GET_AND_CHECK(game, service_name) \
             SERVICE_CALL0(service_internal_service, ret_value); \
         } while(0)
-#define SERVICE_CALL_NAME1(service_name, ret_value, arg1) do { \
-            SERVICE_INTERNAL_GET_AND_CHECK(service_name) \
+#define SERVICE_CALL_NAME1(game, service_name, ret_value, arg1) do { \
+            SERVICE_INTERNAL_GET_AND_CHECK(game, service_name) \
             SERVICE_CALL1(service_internal_service, ret_value, arg1); \
         } while(0)
-#define SERVICE_CALL_NAME2(service_name, ret_value, arg1, arg2) do { \
-            SERVICE_INTERNAL_GET_AND_CHECK(service_name) \
+#define SERVICE_CALL_NAME2(game, service_name, ret_value, arg1, arg2) do { \
+            SERVICE_INTERNAL_GET_AND_CHECK(game, service_name) \
             SERVICE_CALL2(service_internal_service, ret_value, arg1, arg2); \
         } while(0)
 
@@ -100,42 +102,43 @@ LIGHTSHIP_PUBLIC_API extern char  g_service_internal_no_arg_dummy;
 #define STRINGIFY_(x) #x
 #define STRINGIFY(x) STRINGIFY_(x)
 
-#define SERVICE_REGISTER0(plugin, service_name, callback, ret_type) do { \
-            service_register(plugin, service_name, callback, STRINGIFY(ret_type), 0, NULL); \
+#define SERVICE_REGISTER0(game, plugin, service_name, callback, ret_type) do { \
+            service_register(game, plugin, service_name, callback, STRINGIFY(ret_type), 0, NULL); \
         } while(0)
-#define SERVICE_REGISTER1(plugin, service_name, callback, ret_type, arg1) do { \
+#define SERVICE_REGISTER1(game, plugin, service_name, callback, ret_type, arg1) do { \
             const char* ret = STRINGIFY(ret_type); \
             const char* argv[] = {STRINGIFY(arg1)}; \
-            service_register(plugin, service_name, callback, ret, 1, argv); \
+            service_register(game, plugin, service_name, callback, ret, 1, argv); \
         } while(0)
-#define SERVICE_REGISTER2(plugin, service_name, callback, ret_type, arg1, arg2) do { \
+#define SERVICE_REGISTER2(game, plugin, service_name, callback, ret_type, arg1, arg2) do { \
             const char* ret = STRINGIFY(ret_type); \
             const char* argv[] = {STRINGIFY(arg1), STRINGIFY(arg2)}; \
-            service_register(plugin, service_name, callback, ret, 2, argv); \
+            service_register(game, plugin, service_name, callback, ret, 2, argv); \
         } while(0)
-#define SERVICE_REGISTER3(plugin, service_name, callback, ret_type, arg1, arg2, arg3) do { \
+#define SERVICE_REGISTER3(game, plugin, service_name, callback, ret_type, arg1, arg2, arg3) do { \
             const char* ret = STRINGIFY(ret_type); \
             const char* argv[] = {STRINGIFY(arg1), STRINGIFY(arg2), STRINGIFY(arg3)}; \
-            service_register(plugin, service_name, callback, ret, 3, argv); \
+            service_register(game, plugin, service_name, callback, ret, 3, argv); \
         } while(0)
-#define SERVICE_REGISTER4(plugin, service_name, callback, ret_type, arg1, arg2, arg3, arg4) do { \
+#define SERVICE_REGISTER4(game, plugin, service_name, callback, ret_type, arg1, arg2, arg3, arg4) do { \
             const char* ret = STRINGIFY(ret_type); \
             const char* argv[] = {STRINGIFY(arg1), STRINGIFY(arg2), STRINGIFY(arg3), STRINGIFY(arg4)}; \
-            service_register(plugin, service_name, callback, ret, 4, argv); \
+            service_register(game, plugin, service_name, callback, ret, 4, argv); \
         } while(0)
-#define SERVICE_REGISTER5(plugin, service_name, callback, ret_type, arg1, arg2, arg3, arg4, arg5) do { \
+#define SERVICE_REGISTER5(game, plugin, service_name, callback, ret_type, arg1, arg2, arg3, arg4, arg5) do { \
             const char* ret = STRINGIFY(ret_type); \
             const char* argv[] = {STRINGIFY(arg1), STRINGIFY(arg2), STRINGIFY(arg3), STRINGIFY(arg4), STRINGIFY(arg5)}; \
-            service_register(plugin, service_name, callback, ret, 5, argv); \
+            service_register(game, plugin, service_name, callback, ret, 5, argv); \
         } while(0)
-#define SERVICE_REGISTER6(plugin, service_name, callback, ret_type, arg1, arg2, arg3, arg4, arg5, arg6) do { \
+#define SERVICE_REGISTER6(game, plugin, service_name, callback, ret_type, arg1, arg2, arg3, arg4, arg5, arg6) do { \
             const char* ret = STRINGIFY(ret_type); \
             const char* argv[] = {STRINGIFY(arg1), STRINGIFY(arg2), STRINGIFY(arg3), STRINGIFY(arg4), STRINGIFY(arg5), STRINGIFY(arg6)}; \
-            service_register(plugin, service_name, callback, ret, 6, argv); \
+            service_register(game, plugin, service_name, callback, ret, 6, argv); \
         } while(0)
 
 struct service_t
 {
+    struct game_t* game;
     char* name;
     uint32_t argc;
     const char* ret_type;

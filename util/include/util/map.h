@@ -75,7 +75,7 @@ map_set(struct map_t* map, uint32_t hash, void* value);
  * key exists, use map_key_exists() instead.
  */
 LIGHTSHIP_PUBLIC_API void*
-map_find(struct map_t* map, uint32_t hash);
+map_find(const struct map_t* map, uint32_t hash);
 
 LIGHTSHIP_PUBLIC_API uint32_t
 map_find_element(struct map_t* map, void* value);
@@ -112,7 +112,7 @@ map_find_unused_key(struct map_t* map);
 LIGHTSHIP_PUBLIC_API void*
 map_erase(struct map_t* map, uint32_t hash);
 
-LIGHTSHIP_PUBLIC_API void
+LIGHTSHIP_PUBLIC_API void*
 map_erase_element(struct map_t* map, void* value);
 
 /*!

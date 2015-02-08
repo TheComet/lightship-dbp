@@ -10,10 +10,7 @@
 #include "util/log.h"
 #include "util/string.h"
 #include "util/pstdint.h"
-#include "plugin_yaml.h"
-#include "plugin_menu.h"
-#include "plugin_renderer_gl.h"
-#include "plugin_main_loop.h"
+#include "util/game.h"
 
 #include "util/map.h"
 
@@ -25,7 +22,8 @@ static const char* yml_core_plugins = "cfg/core-plugins.yml";
 static const char* yml_entry_point = "cfg/entry-point.yml";
 #endif
 
-struct plugin_t* plugin_yaml = NULL;
+static struct plugin_t* g_plugin_yaml = NULL;
+static struct game_t* g_local_game = NULL;
 
 typedef void (*start_loop_func)(void);
 
@@ -33,20 +31,28 @@ void
 init(void)
 {
     struct plugin_info_t target;
+    
+    /*
+     * Create the local game instance. This is the context that holds all
+     * plugins, services, and events together.
+     */
+    g_local_game = game_create("localhost");
+    if(!g_local_game)
+        return;
 
     /*
      * Services and events should be initialised before anything else, as they
      * register built-in mechanics that are required throughout the rest of the
      * program (such as the log event).
      */
-    services_init();
-    events_init();
+    services_init(g_local_game);
+    events_init(g_local_game);
     
     /*
      * Enable logging as soon as possible (right after enabling services and
      * events)
      */
-    llog_init();
+    llog_init(g_local_game);
     
     /*
      * The plugin manager must be initialised before being able to load
@@ -62,10 +68,10 @@ init(void)
     target.version.major = 0;
     target.version.minor = 0;
     target.version.patch = 1;
-    plugin_yaml = plugin_load(&target, PLUGIN_VERSION_MINIMUM);
-    if(!plugin_yaml)
+    g_plugin_yaml = plugin_load(g_local_game, &target, PLUGIN_VERSION_MINIMUM);
+    if(!g_plugin_yaml)
         return;
-    if(plugin_start(plugin_yaml) == PLUGIN_FAILURE)
+    if(plugin_start(g_local_game, g_plugin_yaml) == PLUGIN_FAILURE)
     {
         llog(LOG_FATAL, NULL, 1, "Failed to start YAML plugin");
         return;
@@ -75,12 +81,12 @@ init(void)
      * Now that the YAML plugin is loaded, plugin manager can hook in to the
      * services YAML provides.
      */
-    plugin_manager_get_services();
+    plugin_manager_get_services(g_local_game);
 
     /*
      * Try to load and start the core plugins. If that fails, bail out.
      */
-    if(!load_plugins_from_yaml(yml_core_plugins))
+    if(!load_plugins_from_yaml(g_local_game, yml_core_plugins))
     {
         llog(LOG_FATAL, NULL, 1, "Couldn't start all core plugins");
         return;
@@ -94,9 +100,9 @@ init(void)
         uint32_t doc_ID;
 
         struct service_t* start;
-        struct service_t* yaml_load = service_get("yaml.load");
-        struct service_t* yaml_get_value = service_get("yaml.get_value");
-        struct service_t* yaml_destroy = service_get("yaml.destroy");
+        struct service_t* yaml_load         = service_get(g_local_game, "yaml.load");
+        struct service_t* yaml_get_value    = service_get(g_local_game, "yaml.get_value");
+        struct service_t* yaml_destroy      = service_get(g_local_game, "yaml.destroy");
         const char* entry_point_key = "service";
 
         SERVICE_CALL1(yaml_load, &doc_ID, PTR(yml_entry_point));
@@ -109,11 +115,11 @@ init(void)
         if(!start_service_name)
         {
             llog(LOG_FATAL, NULL, 3, "Cannot get value of \"service\" in \"", yml_entry_point ,"\"");
-            SERVICE_CALL_NAME1("yaml.destroy", SERVICE_NO_RETURN, doc_ID);
+            SERVICE_CALL_NAME1(g_local_game, "yaml.destroy", SERVICE_NO_RETURN, doc_ID);
             return;
         }
 
-        start = service_get(start_service_name);
+        start = service_get(g_local_game, start_service_name);
         SERVICE_CALL1(yaml_destroy, SERVICE_NO_RETURN, doc_ID);
         if(!start)
         {
@@ -128,9 +134,10 @@ init(void)
 void
 deinit(void)
 {
-    plugin_manager_deinit();
-    events_deinit();
+    plugin_manager_deinit(g_local_game);
+    events_deinit(g_local_game);
     services_deinit();
+    game_destroy(g_local_game);
 }
 
 int

@@ -1,15 +1,15 @@
-#include "util/services.h"
+#include "util/game.h"
+#include "util/hash.h"
+#include "util/log.h"
+#include "util/map.h"
 #include "util/memory.h"
 #include "util/plugin.h"
+#include "util/services.h"
 #include "util/string.h"
-#include "util/map.h"
-#include "util/hash.h"
-#include <util/log.h>
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
 
-struct map_t g_services;
 char  g_service_internal_no_arg_dummy     = 0;
 
 /*!
@@ -22,7 +22,8 @@ char  g_service_internal_no_arg_dummy     = 0;
  * @param exec The function address of the callback function of the service.
  */
 static char
-service_malloc_and_register(char* full_name,
+service_malloc_and_register(struct game_t* game,
+                            char* full_name,
                             const service_callback_func exec,
                             const char* ret_type,
                             const int argc,
@@ -36,10 +37,9 @@ service_get_c_type_equivalent_from_service_type(const char* type);
 
 /* ------------------------------------------------------------------------- */
 void
-services_init(void)
+services_init(struct game_t* game)
 {
-    map_init_map(&g_services);
-    
+
     /* ------------------------------------------------------------------------
      * Register built-in services 
      * --------------------------------------------------------------------- */
@@ -51,16 +51,12 @@ services_init(void)
 void
 services_deinit(void)
 {
-    MAP_FOR_EACH(&g_services, struct service_t, key, service)
-    {
-        service_free(service);
-    }
-    map_clear_free(&g_services);
 }
 
 /* ------------------------------------------------------------------------- */
 char
-service_register(const struct plugin_t* plugin,
+service_register(struct game_t* game,
+                 const struct plugin_t* plugin,
                  const char* name,
                  const service_callback_func exec,
                  const char* ret_type,
@@ -69,6 +65,7 @@ service_register(const struct plugin_t* plugin,
 {
     char* full_name;
     
+    assert(game);
     assert(plugin);
     assert(name);
     assert(exec);
@@ -78,13 +75,13 @@ service_register(const struct plugin_t* plugin,
     full_name = cat_strings(3, plugin->info.name, ".", name);
     if(!full_name)
         return 0;
-    if(service_get(full_name))
+    if(service_get(game, full_name))
     {
         free_string(full_name);
         return 0;
     }
 
-    if(!service_malloc_and_register(full_name, exec, ret_type, argc, argv))
+    if(!service_malloc_and_register(game, full_name, exec, ret_type, argc, argv))
         return 0;
 
     return 1;
@@ -92,7 +89,8 @@ service_register(const struct plugin_t* plugin,
 
 /* ------------------------------------------------------------------------- */
 static char
-service_malloc_and_register(char* full_name,
+service_malloc_and_register(struct game_t* game,
+                            char* full_name,
                             const service_callback_func exec,
                             const char* ret_type,
                             const int argc,
@@ -100,6 +98,7 @@ service_malloc_and_register(char* full_name,
 {
     struct service_t* service;
     
+    assert(game);
     assert(full_name);
     assert(exec);
     assert(ret_type);
@@ -109,6 +108,7 @@ service_malloc_and_register(char* full_name,
     if(!service)
         OUT_OF_MEMORY("service_malloc_and_register()", 0);
     memset(service, 0, sizeof(struct service_t));
+    service->game = game;
     service->name = full_name;
     service->exec = exec;
     
@@ -147,7 +147,7 @@ service_malloc_and_register(char* full_name,
             ++service->argc;
         }
     }
-    if(!map_insert(&g_services, hash_jenkins_oaat(full_name, strlen(full_name)), service))
+    if(!map_insert(&game->services, hash_jenkins_oaat(full_name, strlen(full_name)), service))
         return 0;
     
     return 1;
@@ -174,13 +174,15 @@ service_free(struct service_t* service)
 
 /* ------------------------------------------------------------------------- */
 char
-service_unregister(const struct plugin_t* plugin,
+service_unregister(struct game_t* game,
+                   const struct plugin_t* plugin,
                    const char* name)
 {
     char* full_name;
     uint32_t hash;
     struct service_t* service;
     
+    assert(game);
     assert(plugin);
     assert(plugin->info.name);
     assert(name);
@@ -192,7 +194,7 @@ service_unregister(const struct plugin_t* plugin,
     /* remove service from map */
     hash = hash_jenkins_oaat(full_name, strlen(full_name));
     free_string(full_name);
-    if(!(service = map_erase(&g_services, hash)))
+    if(!(service = map_erase(&game->services, hash)))
         return 0;
     service_free(service);
 
@@ -208,6 +210,7 @@ service_unregister_all(const struct plugin_t* plugin)
     
     assert(plugin);
     assert(plugin->info.name);
+    assert(plugin->game);
 
     name = cat_strings(2, plugin->info.name, ".");
     if(!name)
@@ -215,12 +218,12 @@ service_unregister_all(const struct plugin_t* plugin)
 
     len = strlen(plugin->info.name);
     {
-        MAP_FOR_EACH(&g_services, struct service_t, key, service)
+        MAP_FOR_EACH(&plugin->game->services, struct service_t, key, service)
         {
             if(strncmp(service->name, name, len) == 0)
             {
                 service_free(service);
-                MAP_ERASE_CURRENT_ITEM_IN_FOR_LOOP(&g_services);
+                MAP_ERASE_CURRENT_ITEM_IN_FOR_LOOP(&plugin->game->services);
             }
         }
     }
@@ -231,13 +234,13 @@ service_unregister_all(const struct plugin_t* plugin)
 
 /* ------------------------------------------------------------------------- */
 struct service_t*
-service_get(const char* name)
+service_get(struct game_t* game, const char* name)
 {
     struct service_t* service;
     
     assert(name);
 
-    if(!(service = map_find(&g_services, hash_jenkins_oaat(name, strlen(name)))))
+    if(!(service = map_find(&game->services, hash_jenkins_oaat(name, strlen(name)))))
         return 0;
 
     return service;

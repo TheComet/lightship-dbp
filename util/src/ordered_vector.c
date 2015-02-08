@@ -241,7 +241,7 @@ ordered_vector_expand(struct ordered_vector_t* vector,
     new_data = (DATA_POINTER_TYPE*)MALLOC(new_count * vector->element_size);
 
     /* if no insertion index is required, copy all data to new memory */
-    if(insertion_index == -1 || insertion_index >= new_count)
+    if(insertion_index == (uint32_t)-1 || insertion_index >= new_count)
         memcpy(new_data, old_data, vector->count * vector->element_size);
 
     /* keep space for one element at the insertion index */

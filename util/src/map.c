@@ -29,7 +29,7 @@ map_destroy(struct map_t* map)
 
 /* ------------------------------------------------------------------------- */
 struct map_key_value_t*
-map_find_lower_bound(struct map_t* map, uint32_t hash)
+map_find_lower_bound(const struct map_t* map, uint32_t hash)
 {
     uint32_t half;
     struct map_key_value_t* middle;
@@ -65,7 +65,7 @@ map_find_lower_bound(struct map_t* map, uint32_t hash)
 
 /* ------------------------------------------------------------------------- */
 void*
-map_find(struct map_t* map, uint32_t hash)
+map_find(const struct map_t* map, uint32_t hash)
 {
     struct map_key_value_t* data = map_find_lower_bound(map, hash);
     if(!data || data->hash != hash)
@@ -164,16 +164,18 @@ map_erase(struct map_t* map, uint32_t hash)
 }
 
 /* ------------------------------------------------------------------------- */
-void
+void*
 map_erase_element(struct map_t* map, void* value)
 {
     void* data;
     uint32_t hash = map_find_element(map, value);
     if(hash == MAP_INVALID_KEY)
-        return;
+        return NULL;
 
     data = map_find_lower_bound(map, hash);
     ordered_vector_erase_element(&map->vector, (DATA_POINTER_TYPE*)data);
+    
+    return value;
 }
 
 /* ------------------------------------------------------------------------- */

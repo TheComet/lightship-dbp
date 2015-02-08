@@ -40,7 +40,6 @@ set (plugin_menu_OUTPUT_NAME
 
 file (GLOB plugin_menu_HEADERS "include/plugin_menu/*.h")
 file (GLOB plugin_menu_SOURCES "src/*.c")
-set (plugin_menu_HEADERS ${plugin_menu_HEADERS} "include/plugin_menu.h")
 
 include_directories ("include")
 
