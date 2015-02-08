@@ -293,6 +293,7 @@ C_HEADER_END
 
 struct event_t
 {
+    struct game_t* game;
     char* name;
     struct unordered_vector_t listeners; /* holds event_listener_t objects */
 };

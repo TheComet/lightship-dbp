@@ -1,12 +1,13 @@
 #include "util/config.h"
 #include "util/events.h"
+#include "util/game.h"
+#include "util/hash.h"
+#include "util/memory.h"
 #include "util/plugin.h"
 #include "util/string.h"
-#include "util/memory.h"
 #include <string.h>
 #include <stdlib.h>
-
-static struct list_t g_events;
+#include <assert.h>
 
 /* ----------------------------------------------------------------------------
  * Built-in events
@@ -55,7 +56,7 @@ event_free(struct event_t* event);
  * @note This does not remove it from the list.
  */
 static void
-event_listener_free(struct event_listener_t* listener);
+event_listener_free_contents(struct event_listener_t* listener);
 
 /*!
  * @brief Allocates and registers an event globally with the specified name.
@@ -66,17 +67,17 @@ event_listener_free(struct event_listener_t* listener);
  * @return The new event object.
  */
 static struct event_t*
-event_malloc_and_register(char* full_name);
+event_malloc_and_register(struct game_t* game, char* full_name);
 
 /* ----------------------------------------------------------------------------
  * Exported functions
  * ------------------------------------------------------------------------- */
 void
-events_init(void)
+events_init(struct game_t* game)
 {
     char* name;
-
-    list_init_list(&g_events);
+    
+    assert(game);
     
     /* ----------------------------
      * Register built-in events 
@@ -84,113 +85,129 @@ events_init(void)
     
     /* All logging events should be done through this event. */
     name = malloc_string(BUILTIN_NAMESPACE_NAME ".log");
-    evt_log = event_malloc_and_register(name);
+    evt_log = event_malloc_and_register(game, name);
     name = malloc_string(BUILTIN_NAMESPACE_NAME ".log_indent");
-    evt_log_indent = event_malloc_and_register(name);
+    evt_log_indent = event_malloc_and_register(game, name);
     name = malloc_string(BUILTIN_NAMESPACE_NAME ".log_unindent");
-    evt_log_unindent = event_malloc_and_register(name);
+    evt_log_unindent = event_malloc_and_register(game, name);
+    
+    { MAP_FOR_EACH(&game->events, struct event_t, key, event)
+    {
+        printf("%s\n", event->name);
+    }}
 }
 
 /* ------------------------------------------------------------------------- */
 void
-events_deinit(void)
+events_deinit(struct game_t* game)
 {
-    LIST_FOR_EACH_ERASE(&g_events, struct event_t, event)
+    MAP_FOR_EACH(&game->events, struct event_t, key, event)
     {
         event_free(event);
-        list_erase_node(&g_events, node_event);
     }
+    map_clear_free(&game->events);
 }
 
 /* ------------------------------------------------------------------------- */
 struct event_t*
-event_create(const struct plugin_t* plugin, const char* name)
+event_create(struct game_t* game, const struct plugin_t* plugin, const char* name)
 {
 
     /* check for duplicate event names */
     char* full_name = event_get_full_name(plugin, name);
-    if(event_get(full_name))
+    if(event_get(game, full_name))
     {
         FREE(full_name);
         return NULL;
     }
     
-    return event_malloc_and_register(full_name);
+    return event_malloc_and_register(game, full_name);
 }
 
 /* ------------------------------------------------------------------------- */
 char
-event_destroy(struct event_t* event_delete)
+event_destroy(struct event_t* event)
 {
-    LIST_FOR_EACH(&g_events, struct event_t, event)
-    {
-        if(event == event_delete)
-        {
-            event_free(event);
-            list_erase_node(&g_events, node_event);
-            return 1;
-        }
-    }
-    return 0;
+    assert(event);
+    
+    if(!map_erase_element(&event->game->events, event))
+        llog(LOG_WARNING, NULL, 1, "Destroying an event that could not be found in the associated game object");
+
+    event_free(event);
+    return 1;
 }
 
 /* ------------------------------------------------------------------------- */
 void
-event_destroy_plugin_event(const struct plugin_t* plugin, const char* name)
+event_destroy_plugin_event(struct game_t* game, const struct plugin_t* plugin, const char* name)
 {
-    char* full_name = event_get_full_name(plugin, name);
-    {
-        LIST_FOR_EACH(&g_events, struct event_t, event)
-        {
-            if(strcmp(event->name, full_name) == 0)
-            {
-                event_free(event);
-                list_erase_node(&g_events, node_event);
-                break;
-            }
-        }
-    }
+    char* full_name;
+    uint32_t hash;
+    struct event_t* event;
+    
+    assert(game);
+    assert(plugin);
+    assert(name);
+    
+    full_name = event_get_full_name(plugin, name);
+    hash = hash_jenkins_oaat(full_name, strlen(full_name));
     FREE(full_name);
+    if(!(event = map_erase(&game->events, hash)))
+        return;
+
+    event_free(event);
 }
 
 /* ------------------------------------------------------------------------- */
 void
 event_destroy_all_plugin_events(const struct plugin_t* plugin)
 {
-    char* name_space = event_get_name_space_name(plugin);
-    int len = strlen(name_space);
-    LIST_FOR_EACH_ERASE(&g_events, struct event_t, event)
+    char* name_space;
+    int len;
+
+    assert(plugin);
+    assert(plugin->game);
+
+    name_space = event_get_name_space_name(plugin);
+    len = strlen(name_space);
+    { MAP_FOR_EACH(&plugin->game->events, struct event_t, key, event)
     {
         if(strncmp(event->name, name_space, len) == 0)
         {
             event_free(event);
-            list_erase_node(&g_events, node_event);
+            MAP_ERASE_CURRENT_ITEM_IN_FOR_LOOP(&plugin->game->events);
         }
-    }
+    }}
     FREE(name_space);
 }
 
 /* ------------------------------------------------------------------------- */
 struct event_t*
-event_get(const char* full_name)
+event_get(const struct game_t* game, const char* full_name)
 {
-    LIST_FOR_EACH(&g_events, struct event_t, event)
-    {
-        if(strcmp(event->name, full_name) == 0)
-            return event;
-    }
-    return NULL;
+    uint32_t hash;
+    
+    assert(game);
+    assert(full_name);
+    
+    hash = hash_jenkins_oaat(full_name, strlen(full_name));
+    return map_find(&game->events, hash);
 }
 
 /* ------------------------------------------------------------------------- */
 char
-event_register_listener(const struct plugin_t* plugin,
+event_register_listener(const struct game_t* game,
+                        const struct plugin_t* plugin,
                         const char* event_full_name,
                         event_callback_func callback)
 {
     struct event_t* event;
     struct event_listener_t* new_listener;
     char* registering_name_space;
+    
+    assert(game);
+    assert(event_full_name);
+    assert(callback);
     
     /* get name space name - if NULL was specified as a plugin, make it builtin */
     if(plugin)
@@ -199,8 +216,7 @@ event_register_listener(const struct plugin_t* plugin,
         registering_name_space = BUILTIN_NAMESPACE_NAME;
     
     /* make sure event exists */
-    event = event_get(event_full_name);
-    if(event == NULL)
+    if(!(event = event_get(game, event_full_name)))
         return 0;
     
     /* make sure plugin hasn't already registered to this event */
@@ -224,10 +240,13 @@ event_register_listener(const struct plugin_t* plugin,
 
 /* ------------------------------------------------------------------------- */
 char
-event_unregister_listener(const char* plugin_name, const char* event_name)
+event_unregister_listener(const struct game_t* game,
+                          const char* plugin_name,
+                          const char* event_name)
 {
-    struct event_t* event = event_get(event_name);
-    if(event == NULL)
+    struct event_t* event;
+    
+    if(!(event = event_get(game, event_name)))
         return 0;
     
     {
@@ -235,7 +254,7 @@ event_unregister_listener(const char* plugin_name, const char* event_name)
         {
             if(strcmp(listener->name_space, plugin_name) == 0)
             {
-                event_listener_free(listener);
+                event_listener_free_contents(listener);
                 unordered_vector_erase_element(&event->listeners, listener);
                 return 1;
             }
@@ -251,7 +270,7 @@ event_unregister_all_listeners(struct event_t* event)
 {
     UNORDERED_VECTOR_FOR_EACH(&event->listeners, struct event_listener_t, listener)
     {
-        event_listener_free(listener);
+        event_listener_free_contents(listener);
     }
     unordered_vector_clear_free(&event->listeners);
 }
@@ -260,17 +279,20 @@ event_unregister_all_listeners(struct event_t* event)
 void
 event_unregister_all_listeners_of_plugin(const struct plugin_t* plugin)
 {
+    char* name_space;
+
+    assert(plugin);
+    assert(plugin->game);
+
     /* 
      * For every listener in every event, search for any listener that belongs
      * to the specified plugin
      */
-    char* name_space = event_get_name_space_name(plugin);
+    name_space = event_get_name_space_name(plugin);
+    { MAP_FOR_EACH(&plugin->game->events, struct event_t, key, event)
     {
-        LIST_FOR_EACH(&g_events, struct event_t, event)
-        {
-            event_unregister_all_listeners_of_name_space(event, name_space);
-        }
-    }
+        event_unregister_all_listeners_of_name_space(event, name_space);
+    }}
     FREE(name_space);
 }
 
@@ -278,20 +300,29 @@ event_unregister_all_listeners_of_plugin(const struct plugin_t* plugin)
  * Static functions
  * ------------------------------------------------------------------------- */
 static struct event_t*
-event_malloc_and_register(char* full_name)
+event_malloc_and_register(struct game_t* game, char* full_name)
 {
+    struct event_t* event;
+    uint32_t hash;
+    
     /* create new event and register to global list of events */
-    struct event_t* event = (struct event_t*)MALLOC(sizeof(struct event_t));
+    event = (struct event_t*)MALLOC(sizeof(struct event_t));
+    if(!event)
+        OUT_OF_MEMORY("event_malloc_and_register()", NULL);
     event->name = full_name;
+    event->game = game;
     unordered_vector_init_vector(&event->listeners, sizeof(struct event_listener_t));
-    list_push(&g_events, event);
+    
+    /* add event to game object */
+    hash = hash_jenkins_oaat(full_name, strlen(full_name));
+    map_insert(&game->events, hash, event);
     return event;
 }
 
 /* ------------------------------------------------------------------------- */
 static void
 event_unregister_all_listeners_of_name_space(struct event_t* event,
-                                            const char* name_space)
+                                             const char* name_space)
 {
     int len = strlen(name_space);
     {
@@ -299,7 +330,7 @@ event_unregister_all_listeners_of_name_space(struct event_t* event,
         {
             if(strncmp(listener->name_space, name_space, len) == 0)
             {
-                event_listener_free(listener);
+                event_listener_free_contents(listener);
                 UNORDERED_VECTOR_ERASE_IN_FOR_LOOP(&event->listeners, struct event_listener_t, listener);
             }
         }
@@ -325,14 +356,14 @@ static void
 event_free(struct event_t* event)
 {
     event_unregister_all_listeners(event);
-    FREE(event->name);
+    free_string(event->name);
     unordered_vector_clear_free(&event->listeners);
     FREE(event);
 }
 
 /* ------------------------------------------------------------------------- */
 static void
-event_listener_free(struct event_listener_t* listener)
+event_listener_free_contents(struct event_listener_t* listener)
 {
     FREE(listener->name_space);
 }

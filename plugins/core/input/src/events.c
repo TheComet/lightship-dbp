@@ -19,27 +19,27 @@ EVENT_C0(evt_action);
 EVENT_C0(evt_cancel);
 
 void
-register_events(const struct plugin_t* plugin)
+register_events(struct game_t* game, const struct plugin_t* plugin)
 {
-    evt_mouse_clicked   = event_create(plugin, "mouse_clicked");
-    evt_mouse_press     = event_create(plugin, "mouse_press");
-    evt_mouse_release   = event_create(plugin, "mouse_release");
-    evt_mouse_move      = event_create(plugin, "mouse_move");
-    evt_up              = event_create(plugin, "up");
-    evt_down            = event_create(plugin, "down");
-    evt_left            = event_create(plugin, "left");
-    evt_right           = event_create(plugin, "right");
-    evt_action          = event_create(plugin, "action");
-    evt_cancel          = event_create(plugin, "cancel");
+    evt_mouse_clicked   = event_create(game, plugin, "mouse_clicked");
+    evt_mouse_press     = event_create(game, plugin, "mouse_press");
+    evt_mouse_release   = event_create(game, plugin, "mouse_release");
+    evt_mouse_move      = event_create(game, plugin, "mouse_move");
+    evt_up              = event_create(game, plugin, "up");
+    evt_down            = event_create(game, plugin, "down");
+    evt_left            = event_create(game, plugin, "left");
+    evt_right           = event_create(game, plugin, "right");
+    evt_action          = event_create(game, plugin, "action");
+    evt_cancel          = event_create(game, plugin, "cancel");
 }
 
 void
-register_event_listeners(const struct plugin_t* plugin)
+register_event_listeners(struct game_t* game, const struct plugin_t* plugin)
 {
-    event_register_listener(plugin, "renderer_gl.mouse_move", on_mouse_move);
-    event_register_listener(plugin, "renderer_gl.mouse_button_press", on_mouse_button_press);
-    event_register_listener(plugin, "renderer_gl.mouse_button_release", on_mouse_button_release);
-    event_register_listener(plugin, "renderer_gl.key_press", on_key_press);
-    event_register_listener(plugin, "renderer_gl.key_release", on_key_release);
+    event_register_listener(game, plugin, "renderer_gl.mouse_move", on_mouse_move);
+    event_register_listener(game, plugin, "renderer_gl.mouse_button_press", on_mouse_button_press);
+    event_register_listener(game, plugin, "renderer_gl.mouse_button_release", on_mouse_button_release);
+    event_register_listener(game, plugin, "renderer_gl.key_press", on_key_press);
+    event_register_listener(game, plugin, "renderer_gl.key_release", on_key_release);
     
 }

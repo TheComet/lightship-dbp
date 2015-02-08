@@ -46,7 +46,6 @@ set (plugin_yaml_OUTPUT_NAME
 
 file (GLOB plugin_yaml_HEADERS "include/plugin_yaml/*.h")
 file (GLOB plugin_yaml_SOURCES "src/*.c")
-set (plugin_yaml_HEADERS ${plugin_yaml_HEADERS} "include/plugin_yaml.h")
 
 include_directories ("include")
 

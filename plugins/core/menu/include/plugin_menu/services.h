@@ -1,6 +1,4 @@
 #include "util/pstdint.h"
-#include "plugin_yaml.h"
-#include "plugin_renderer_gl.h"
 
 struct plugin_t;
 struct ptree_t;

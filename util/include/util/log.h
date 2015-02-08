@@ -5,11 +5,7 @@
 #include "util/pstdint.h"
 #include "util/event_api.h"
 
-#define RETURN_NOTHING
-#define OUT_OF_MEMORY(where, ret_val) do { \
-        llog_critical_use_no_memory("malloc() failed in " where " - not enough memory"); \
-        return ret_val; \
-    } while(0)
+struct game_t;
 
 typedef enum log_level_t
 {
@@ -32,7 +28,7 @@ struct log_t
  * functions.
  */
 LIGHTSHIP_PUBLIC_API void
-llog_init(void);
+llog_init(struct game_t* game);
 
 /*!
  * @brief Opens an indentation level of the log.

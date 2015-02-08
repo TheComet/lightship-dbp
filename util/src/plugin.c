@@ -1,8 +1,9 @@
+#include "util/log.h"
+#include "util/memory.h"
+#include "util/plugin.h"
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include "util/plugin.h"
-#include "util/memory.h"
 
 #define PLUGIN_free_INFO_STRING(plugin, strname) \
     if((plugin)->info.strname) \
@@ -30,18 +31,21 @@ plugin_free_info(struct plugin_t* plugin);
  * Exported functions
  * ------------------------------------------------------------------------- */
 struct plugin_t*
-plugin_create(void)
+plugin_create(struct game_t* game)
 {
     struct plugin_t* plugin = (struct plugin_t*)MALLOC(sizeof(struct plugin_t));
-    plugin_init_plugin(plugin);
+    if(!plugin)
+        OUT_OF_MEMORY("plugin_create()", NULL);
+    plugin_init_plugin(game, plugin);
     return plugin;
 }
 
 /* ------------------------------------------------------------------------- */
 void
-plugin_init_plugin(struct plugin_t* plugin)
+plugin_init_plugin(struct game_t* game, struct plugin_t* plugin)
 {
     memset(plugin, 0, sizeof(struct plugin_t));
+    plugin->game = game;
     plugin->info.language = PLUGIN_PROGRAMMING_LANGUAGE_UNSET;
 }
 

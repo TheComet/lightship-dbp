@@ -105,29 +105,30 @@ event_register_listener(plugin, "plugin_name.jump", on_player_jump);
 
 C_HEADER_BEGIN
 
+struct plugin_t;
+struct log_t;
+struct game_t;
+
 /* ----------------------------
  * Built-in events
  * --------------------------*/
-struct log_t;
 EVENT_H1(evt_log, struct log_t*);
 EVENT_H1(evt_log_indent, const char*);
 EVENT_H0(evt_log_unindent);
-
-struct plugin_t;
 
 /*!
  * @brief Initialises the event system.
  * @note Must be called before calling any other event related functions.
  */
 LIGHTSHIP_PUBLIC_API void
-events_init(void);
+events_init(struct game_t* game);
 
 /*!
  * @brief De-initialises the event system and cleans up any events that weren't
  * removed.
  */
 LIGHTSHIP_PUBLIC_API void
-events_deinit(void);
+events_deinit(struct game_t* game);
 
 /*!
  * @brief Creates and registers a new event in the host program.
@@ -139,11 +140,14 @@ events_deinit(void);
  * @return Returns a new event object which should be stored by the plugin.
  */
 LIGHTSHIP_PUBLIC_API struct event_t*
-event_create(const struct plugin_t* plugin, const char* name);
+event_create(struct game_t* game,
+             const struct plugin_t* plugin,
+             const char* name);
 
 /*!
  * @brief Destroys an event object.
- * @note This also destroys all registered event listeners.
+ * @note This also destroys all registered event listeners and removes it from
+ * the assigned game object.
  * @param[in] event The event object to destroy.
  * @return Returns 1 if successful, 0 if otherwise.
  */
@@ -157,7 +161,9 @@ event_destroy(struct event_t* event_delete);
  * @param[in] name The name of the event.
  */
 LIGHTSHIP_PUBLIC_API void
-event_destroy_plugin_event(const struct plugin_t* plugin, const char* name);
+event_destroy_plugin_event(struct game_t* game,
+                           const struct plugin_t* plugin,
+                           const char* name);
 
 /*!
  * @brief Destroys all events that were registered by the specified plugin.
@@ -173,13 +179,14 @@ event_destroy_all_plugin_events(const struct plugin_t* plugin);
  * event object is returned.
  */
 LIGHTSHIP_PUBLIC_API struct event_t*
-event_get(const char* full_name);
+event_get(const struct game_t* game, const char* full_name);
 
 /*!
  * @brief Registers a listener to the specified event.
  */
 LIGHTSHIP_PUBLIC_API char
-event_register_listener(const struct plugin_t* plugin,
+event_register_listener(const struct game_t* game,
+                        const struct plugin_t* plugin,
                         const char* event_name,
                         event_callback_func callback);
 
@@ -187,7 +194,9 @@ event_register_listener(const struct plugin_t* plugin,
  * @brief Unregisters a listener from the specified event.
  */
 LIGHTSHIP_PUBLIC_API char
-event_unregister_listener(const char* plugin_name, const char* event_name);
+event_unregister_listener(const struct game_t* game,
+                          const char* plugin_name, 
+                          const char* event_name);
 
 /*!
  * @brief Unregisters all listeners from the specified event.
