@@ -1,7 +1,7 @@
 #ifndef LIGHTSHIP_UTIL_LINKED_LIST_H
 #define LIGHTSHIP_UTIL_LINKED_LIST_H
 
-#include "util/config.h"
+#include "util/export.h"
 
 /*!
  * @brief Holds user defined data and information on linked nodes.
@@ -27,21 +27,21 @@ struct list_t
  * @brief Creates a new, empty list.
  * @return A pointer to the new list.
  */
-LIGHTSHIP_PUBLIC_API struct list_t*
+LIGHTSHIP_UTIL_PUBLIC_API struct list_t*
 list_create(void);
 
 /*!
  * @brief Initialises an existing list with default values.
  * @param[in] list The list to initialise.
  */
-LIGHTSHIP_PUBLIC_API void
+LIGHTSHIP_UTIL_PUBLIC_API void
 list_init_list(struct list_t* list);
 
 /*!
  * @brief Destroys a list.
  * @param[in] list The list to destroy.
  */
-LIGHTSHIP_PUBLIC_API void
+LIGHTSHIP_UTIL_PUBLIC_API void
 list_destroy(struct list_t* list);
 
 /*!
@@ -50,7 +50,7 @@ list_destroy(struct list_t* list);
  * @note The data each link held is not FREEd, it is up to you to traverse the
  * list and destroy any data contained within the list before clearing it.
  */
-LIGHTSHIP_PUBLIC_API void
+LIGHTSHIP_UTIL_PUBLIC_API void
 list_clear(struct list_t* list);
 
 /*!
@@ -86,7 +86,7 @@ list_clear(struct list_t* list);
  * @param[in] list The list to add a new node to.
  * @param[in] data The data the new node should reference.
  */
-LIGHTSHIP_PUBLIC_API void
+LIGHTSHIP_UTIL_PUBLIC_API void
 list_push(struct list_t* list, void* data);
 
 /*!
@@ -99,7 +99,7 @@ list_push(struct list_t* list, void* data);
  * @param[in] list The list from which to remove the node.
  * @return Returns the data that was referenced by the now destroyed node.
  */
-LIGHTSHIP_PUBLIC_API void*
+LIGHTSHIP_UTIL_PUBLIC_API void*
 list_pop(struct list_t* list);
 
 /*!
@@ -108,7 +108,7 @@ list_pop(struct list_t* list);
  * @param[in] list The list from which to remove the node.
  * @return Returns the data that was referenced by the now destroyed node.
  */
-LIGHTSHIP_PUBLIC_API void*
+LIGHTSHIP_UTIL_PUBLIC_API void*
 list_erase_node(struct list_t* list, struct list_node_t* node);
 
 /*!
@@ -118,7 +118,7 @@ list_erase_node(struct list_t* list, struct list_node_t* node);
  * @return Returns the data that was referenced by the now destroyed node.
  * If the specified data is not found in the list, NULL is returned.
  */
-LIGHTSHIP_PUBLIC_API void*
+LIGHTSHIP_UTIL_PUBLIC_API void*
 list_erase_element(struct list_t* list, void* data);
 
 /*!

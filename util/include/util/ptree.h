@@ -22,7 +22,7 @@ struct ptree_t
  * @param value The data for the root node to reference. Can be NULL.
  * @return Returns the root node of a new, empty ptree object.
  */
-LIGHTSHIP_PUBLIC_API struct ptree_t*
+LIGHTSHIP_UTIL_PUBLIC_API struct ptree_t*
 ptree_create(const char* key, void* value);
 
 /*!
@@ -32,7 +32,7 @@ ptree_create(const char* key, void* value);
  * @param key The key to give the root node.
  * @param value The data for the root node to reference. Can be NULL.
  */
-LIGHTSHIP_PUBLIC_API void
+LIGHTSHIP_UTIL_PUBLIC_API void
 ptree_init_ptree(struct ptree_t* tree, const char* key, void* value);
 
 /*!
@@ -43,7 +43,7 @@ ptree_init_ptree(struct ptree_t* tree, const char* key, void* value);
  * freed along with the tree, use ptree_destroy_free().
  * @param tree The tree to destroy.
  */
-LIGHTSHIP_PUBLIC_API void
+LIGHTSHIP_UTIL_PUBLIC_API void
 ptree_destroy(struct ptree_t* tree);
 
 /*!
@@ -54,7 +54,7 @@ ptree_destroy(struct ptree_t* tree);
  * be freed along with the tree, use ptree_destroy().
  * @param tree The tree to destroy.
  */
-LIGHTSHIP_PUBLIC_API void
+LIGHTSHIP_UTIL_PUBLIC_API void
 ptree_destroy_free(struct ptree_t* tree);
 
 /*!
@@ -64,7 +64,7 @@ ptree_destroy_free(struct ptree_t* tree);
  * @param data The data the child node should reference. Can be NULL.
  * @return Returns the newly created child.
  */
-LIGHTSHIP_PUBLIC_API struct ptree_t*
+LIGHTSHIP_UTIL_PUBLIC_API struct ptree_t*
 ptree_add_node(struct ptree_t* node, const char* key, void* data);
 
 /*!
@@ -76,7 +76,7 @@ ptree_add_node(struct ptree_t* node, const char* key, void* data);
  * data. ptree then inserts this new data into the copied tree's node.
  * @param func The duplication callback function.
  */
-LIGHTSHIP_PUBLIC_API void
+LIGHTSHIP_UTIL_PUBLIC_API void
 ptree_set_dup_func(struct ptree_t* node, ptree_dup_func func);
 
 /*!
@@ -90,7 +90,7 @@ ptree_set_dup_func(struct ptree_t* node, ptree_dup_func func);
  * of the target node). Set to NULL if you wish to copy the key as well.
  * @return Returns
  */
-LIGHTSHIP_PUBLIC_API struct ptree_t*
+LIGHTSHIP_UTIL_PUBLIC_API struct ptree_t*
 ptree_duplicate_tree(struct ptree_t* target_node, const struct ptree_t* source_node, const char* key);
 
 /*!
@@ -99,7 +99,7 @@ ptree_duplicate_tree(struct ptree_t* target_node, const struct ptree_t* source_n
  * @return Returns the node associated with the specified key if the key was
  * found, NULL if otherwise.
  */
-LIGHTSHIP_PUBLIC_API struct ptree_t*
+LIGHTSHIP_UTIL_PUBLIC_API struct ptree_t*
 ptree_find_local_by_key(const struct ptree_t* node, const char* key);
 
 /*!
@@ -109,10 +109,10 @@ ptree_find_local_by_key(const struct ptree_t* node, const char* key);
  * @return Returns the node associated with the specified key if the key was
  * found, NULL if otherwise.
  */
-LIGHTSHIP_PUBLIC_API struct ptree_t*
+LIGHTSHIP_UTIL_PUBLIC_API struct ptree_t*
 ptree_find_by_key(const struct ptree_t* node, const char* key);
 
-LIGHTSHIP_PUBLIC_API void
+LIGHTSHIP_UTIL_PUBLIC_API void
 ptree_print(const struct ptree_t* tree);
 
 #define PTREE_FOR_EACH(tree, var) \

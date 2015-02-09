@@ -1,4 +1,4 @@
-#include "util/config.h"
+#include "plugin_manager/config.h"
 #include "util/map.h"
 
 struct game_t
@@ -9,8 +9,8 @@ struct game_t
     struct map_t events;
 };
 
-LIGHTSHIP_PUBLIC_API struct game_t*
+PLUGIN_MANAGER_PUBLIC_API struct game_t*
 game_create(const char* name);
 
-LIGHTSHIP_PUBLIC_API void
+PLUGIN_MANAGER_PUBLIC_API void
 game_destroy(struct game_t* game);

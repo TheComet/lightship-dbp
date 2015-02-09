@@ -25,7 +25,7 @@ struct map_t
  * @return Returns the newly created map object. It must be freed with
  * map_destroy() when no longer required.
  */
-LIGHTSHIP_PUBLIC_API struct map_t*
+LIGHTSHIP_UTIL_PUBLIC_API struct map_t*
 map_create(void);
 
 /*!
@@ -35,7 +35,7 @@ map_create(void);
  * been created.
  * @param[in] map The map object to initialise.
  */
-LIGHTSHIP_PUBLIC_API void
+LIGHTSHIP_UTIL_PUBLIC_API void
 map_init_map(struct map_t* map);
 
 /*!
@@ -43,7 +43,7 @@ map_init_map(struct map_t* map);
  * @note Elements inserted into the map are not FREEd.
  * @param[in] map The map object to destroy.
  */
-LIGHTSHIP_PUBLIC_API void
+LIGHTSHIP_UTIL_PUBLIC_API void
 map_destroy(struct map_t* map);
 
 /*!
@@ -57,10 +57,10 @@ map_destroy(struct map_t* map);
  * reason, don't insert stack allocated items into the map.
  * @return Returns 1 if insertion was successful, 0 if otherwise.
  */
-LIGHTSHIP_PUBLIC_API char
+LIGHTSHIP_UTIL_PUBLIC_API char
 map_insert(struct map_t* map, uint32_t hash, void* value);
 
-LIGHTSHIP_PUBLIC_API void
+LIGHTSHIP_UTIL_PUBLIC_API void
 map_set(struct map_t* map, uint32_t hash, void* value);
 
 /*!
@@ -74,10 +74,10 @@ map_set(struct map_t* map, uint32_t hash, void* value);
  * as NULL is a valid thing for a value to be. If you are checking to see if a
  * key exists, use map_key_exists() instead.
  */
-LIGHTSHIP_PUBLIC_API void*
+LIGHTSHIP_UTIL_PUBLIC_API void*
 map_find(const struct map_t* map, uint32_t hash);
 
-LIGHTSHIP_PUBLIC_API uint32_t
+LIGHTSHIP_UTIL_PUBLIC_API uint32_t
 map_find_element(struct map_t* map, void* value);
 
 /*!
@@ -86,7 +86,7 @@ map_find_element(struct map_t* map, void* value);
  * @param key The key to search for.
  * @return 1 if the key was found, 0 if the key was not found.
  */
-LIGHTSHIP_PUBLIC_API char
+LIGHTSHIP_UTIL_PUBLIC_API char
 map_key_exists(struct map_t* map, uint32_t hash);
 
 /*!
@@ -95,7 +95,7 @@ map_key_exists(struct map_t* map, uint32_t hash);
  * @param[in] map The map to generate a key from.
  * @return Returns a key that does not yet exist in the map.
  */
-LIGHTSHIP_PUBLIC_API uint32_t
+LIGHTSHIP_UTIL_PUBLIC_API uint32_t
 map_find_unused_key(struct map_t* map);
 
 /*!
@@ -109,10 +109,10 @@ map_find_unused_key(struct map_t* map);
  * is up to the programmer to correctly free the elements being erased from the
  * map.
  */
-LIGHTSHIP_PUBLIC_API void*
+LIGHTSHIP_UTIL_PUBLIC_API void*
 map_erase(struct map_t* map, uint32_t hash);
 
-LIGHTSHIP_PUBLIC_API void*
+LIGHTSHIP_UTIL_PUBLIC_API void*
 map_erase_element(struct map_t* map, void* value);
 
 /*!
@@ -122,10 +122,10 @@ map_erase_element(struct map_t* map, void* value);
  * been created.
  * @param[in] map The map to clear.
  */
-LIGHTSHIP_PUBLIC_API void
+LIGHTSHIP_UTIL_PUBLIC_API void
 map_clear(struct map_t* map);
 
-LIGHTSHIP_PUBLIC_API void
+LIGHTSHIP_UTIL_PUBLIC_API void
 map_clear_free(struct map_t* map);
 
 /*!
@@ -133,7 +133,7 @@ map_clear_free(struct map_t* map);
  * @param[in] map The map to count the elements of.
  * @return The number of elements in the specified map.
  */
-LIGHTSHIP_PUBLIC_API uint32_t
+LIGHTSHIP_UTIL_PUBLIC_API uint32_t
 map_count(struct map_t* map);
 
 /*!

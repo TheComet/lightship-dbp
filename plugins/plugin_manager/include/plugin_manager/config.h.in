@@ -5,22 +5,14 @@
 #ifndef @PROJECT_NAME@_CONFIG_HPP
 #   define @PROJECT_NAME@_CONFIG_HPP
 
-#   include "util/export.h"
+#   include "plugin_manager/export.h"
 
     /* --------------------------------------------------------------
      * build settings
      * --------------------------------------------------------------*/
 
     #define @PROJECT_NAME@_@BUILD_TYPE@
+    #define BUILTIN_NAMESPACE_NAME "@BUILTIN_NAMESPACE_NAME@"
 
-    #cmakedefine ENABLE_MEMORY_REPORT
-    #cmakedefine ENABLE_MEMORY_BACKTRACE
-    #cmakedefine ENABLE_LOG_TIMESTAMPS
-
-    #cmakedefine HAVE_CURSES
-    #cmakedefine CURSES_HAVE_CURSES_H
-    #cmakedefine CURSES_HAVE_NCURSES_H
-    #cmakedefine CURSES_HAVE_NCURSES_NCURSES_H
-    #cmakedefine CURSES_HAVE_NCURSES_CURSES_H
 
 #endif /* @PROJECT_NAME@_CONFIG_HPP */

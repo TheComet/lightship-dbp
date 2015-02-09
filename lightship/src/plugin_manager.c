@@ -2,10 +2,10 @@
 #include <string.h>
 #include <stdlib.h>
 #include "lightship/plugin_manager.h"
-#include "util/services.h"
-#include "util/events.h"
+#include "plugin_manager/services.h"
+#include "plugin_manager/events.h"
 #include "util/config.h"
-#include "util/plugin.h"
+#include "plugin_manager/plugin.h"
 #include "util/linked_list.h"
 #include "util/unordered_vector.h"
 #include "util/ptree.h"
@@ -46,12 +46,14 @@ static char*
 find_plugin(const struct plugin_info_t* info,
             const plugin_search_criteria_t criteria);
 
+/* ------------------------------------------------------------------------- */
 void
 plugin_manager_init(void)
 {
     list_init_list(&g_plugins);
 }
 
+/* ------------------------------------------------------------------------- */
 void
 plugin_manager_get_services(struct game_t* game)
 {
@@ -61,6 +63,7 @@ plugin_manager_get_services(struct game_t* game)
     yaml_get_value  = service_get(game, "yaml.get_value");
 }
 
+/* ------------------------------------------------------------------------- */
 void
 plugin_manager_deinit(struct game_t* game)
 {
@@ -72,6 +75,7 @@ plugin_manager_deinit(struct game_t* game)
     }
 }
 
+/* ------------------------------------------------------------------------- */
 struct plugin_t*
 plugin_load(struct game_t* game,
             const struct plugin_info_t* plugin_info,
@@ -202,6 +206,7 @@ plugin_load(struct game_t* game,
     return NULL;
 }
 
+/* ------------------------------------------------------------------------- */
 char
 load_plugins_from_yaml(struct game_t* game, const char* filename)
 {
@@ -302,6 +307,7 @@ load_plugins_from_yaml(struct game_t* game, const char* filename)
     return success;
 }
 
+/* ------------------------------------------------------------------------- */
 void
 plugin_unload(struct plugin_t* plugin)
 {
@@ -331,6 +337,7 @@ plugin_unload(struct plugin_t* plugin)
     list_erase_element(&g_plugins, plugin);
 }
 
+/* ------------------------------------------------------------------------- */
 struct plugin_t*
 plugin_get_by_name(struct game_t* game, const char* name)
 {
@@ -342,6 +349,7 @@ plugin_get_by_name(struct game_t* game, const char* name)
     return NULL;
 }
 
+/* ------------------------------------------------------------------------- */
 static char
 plugin_version_acceptable(const struct plugin_info_t* info,
                           const char* file,
@@ -377,6 +385,7 @@ plugin_version_acceptable(const struct plugin_info_t* info,
     return 0;
 }
 
+/* ------------------------------------------------------------------------- */
 static char*
 find_plugin(const struct plugin_info_t* info,
             const plugin_search_criteria_t criteria)

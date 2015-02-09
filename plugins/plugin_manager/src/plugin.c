@@ -1,6 +1,6 @@
 #include "util/log.h"
 #include "util/memory.h"
-#include "util/plugin.h"
+#include "plugin_manager/plugin.h"
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>

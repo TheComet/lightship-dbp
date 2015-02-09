@@ -2,14 +2,14 @@
 #define LIGHTSHIP_UTIL_SERVICE_H
 
 #include "util/pstdint.h"
-#include "util/config.h"
+#include "plugin_manager/config.h"
 
 struct game_t;
 struct service_t;
 
 typedef void (*service_callback_func)(void* ret, const void** argv);
 
-LIGHTSHIP_PUBLIC_API extern char  g_service_internal_no_arg_dummy;
+PLUGIN_MANAGER_PUBLIC_API extern char  g_service_internal_no_arg_dummy;
 
 #define SERVICE(func_name) \
         void func_name(void* ret, const void** argv)

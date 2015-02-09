@@ -1,7 +1,7 @@
 #ifndef LIGHTSHIP_PLUGIN_MANAGER_H
 #define LIGHTSHIP_PLUGIN_MANAGER_H
 
-#include "util/plugin_api.h"
+#include "plugin_manager/plugin_api.h"
 
 /*!
  * @brief Initialises the plugin manager.

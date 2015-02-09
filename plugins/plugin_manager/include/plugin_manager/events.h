@@ -99,9 +99,9 @@ event_register_listener(plugin, "plugin_name.jump", on_player_jump);
 #define LIGHTSHIP_UTIL_EVENTS_H
 
 #include "util/pstdint.h"
-#include "util/config.h"
+#include "plugin_manager/config.h"
 #include "util/linked_list.h"
-#include "util/event_api.h"
+#include "plugin_manager/event_api.h"
 
 C_HEADER_BEGIN
 
@@ -120,14 +120,14 @@ EVENT_H0(evt_log_unindent);
  * @brief Initialises the event system.
  * @note Must be called before calling any other event related functions.
  */
-LIGHTSHIP_PUBLIC_API void
+PLUGIN_MANAGER_PUBLIC_API void
 events_init(struct game_t* game);
 
 /*!
  * @brief De-initialises the event system and cleans up any events that weren't
  * removed.
  */
-LIGHTSHIP_PUBLIC_API void
+PLUGIN_MANAGER_PUBLIC_API void
 events_deinit(struct game_t* game);
 
 /*!
@@ -139,7 +139,7 @@ events_deinit(struct game_t* game);
  * delete it when it is no longer used.
  * @return Returns a new event object which should be stored by the plugin.
  */
-LIGHTSHIP_PUBLIC_API struct event_t*
+PLUGIN_MANAGER_PUBLIC_API struct event_t*
 event_create(struct game_t* game,
              const struct plugin_t* plugin,
              const char* name);
@@ -151,7 +151,7 @@ event_create(struct game_t* game,
  * @param[in] event The event object to destroy.
  * @return Returns 1 if successful, 0 if otherwise.
  */
-LIGHTSHIP_PUBLIC_API char
+PLUGIN_MANAGER_PUBLIC_API char
 event_destroy(struct event_t* event_delete);
 
 /*!
@@ -160,7 +160,7 @@ event_destroy(struct event_t* event_delete);
  * @param[in] plugin The plugin that created the event.
  * @param[in] name The name of the event.
  */
-LIGHTSHIP_PUBLIC_API void
+PLUGIN_MANAGER_PUBLIC_API void
 event_destroy_plugin_event(struct game_t* game,
                            const struct plugin_t* plugin,
                            const char* name);
@@ -170,7 +170,7 @@ event_destroy_plugin_event(struct game_t* game,
  * @note This also destroys all registered event listeners.
  * @param[in] plugin The plugin to destroy the events from.
  */
-LIGHTSHIP_PUBLIC_API void
+PLUGIN_MANAGER_PUBLIC_API void
 event_destroy_all_plugin_events(const struct plugin_t* plugin);
 
 /*!
@@ -178,13 +178,13 @@ event_destroy_all_plugin_events(const struct plugin_t* plugin);
  * @return If the event object does not exist, NULL is returned, otherwise the
  * event object is returned.
  */
-LIGHTSHIP_PUBLIC_API struct event_t*
+PLUGIN_MANAGER_PUBLIC_API struct event_t*
 event_get(const struct game_t* game, const char* full_name);
 
 /*!
  * @brief Registers a listener to the specified event.
  */
-LIGHTSHIP_PUBLIC_API char
+PLUGIN_MANAGER_PUBLIC_API char
 event_register_listener(const struct game_t* game,
                         const struct plugin_t* plugin,
                         const char* event_name,
@@ -193,7 +193,7 @@ event_register_listener(const struct game_t* game,
 /*!
  * @brief Unregisters a listener from the specified event.
  */
-LIGHTSHIP_PUBLIC_API char
+PLUGIN_MANAGER_PUBLIC_API char
 event_unregister_listener(const struct game_t* game,
                           const char* plugin_name, 
                           const char* event_name);
@@ -201,7 +201,7 @@ event_unregister_listener(const struct game_t* game,
 /*!
  * @brief Unregisters all listeners from the specified event.
  */
-LIGHTSHIP_PUBLIC_API void
+PLUGIN_MANAGER_PUBLIC_API void
 event_unregister_all_listeners(struct event_t* event);
 
 /*!
@@ -209,7 +209,7 @@ event_unregister_all_listeners(struct event_t* event);
  * globally.
  * @param[in] plugin The plugin the listeners belong to.
  */
-LIGHTSHIP_PUBLIC_API void
+PLUGIN_MANAGER_PUBLIC_API void
 event_unregister_all_listeners_of_plugin(const struct plugin_t* plugin);
 
 C_HEADER_END

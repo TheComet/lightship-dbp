@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include "util/log.h"
 #include "util/memory.h"
-#include "util/events.h"
+#include "plugin_manager/events.h"
 #include "util/config.h"
 
 #ifdef ENABLE_LOG_TIMESTAMPS
