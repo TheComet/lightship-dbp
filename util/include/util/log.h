@@ -3,7 +3,6 @@
 
 #include "util/config.h"
 #include "util/pstdint.h"
-#include "plugin_manager/event_api.h"
 
 struct game_t;
 
@@ -28,7 +27,7 @@ struct log_t
  * functions.
  */
 LIGHTSHIP_UTIL_PUBLIC_API void
-llog_init(struct game_t* game);
+llog_init(void);
 
 /*!
  * @brief Opens an indentation level of the log.

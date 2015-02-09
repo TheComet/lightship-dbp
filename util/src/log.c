@@ -4,7 +4,6 @@
 #include <stdio.h>
 #include "util/log.h"
 #include "util/memory.h"
-#include "plugin_manager/events.h"
 #include "util/config.h"
 
 #ifdef ENABLE_LOG_TIMESTAMPS
@@ -56,9 +55,6 @@ safe_strcat(char* target, const char* source)
 void
 llog_init(struct game_t* game)
 {
-    event_register_listener(game, NULL, BUILTIN_NAMESPACE_NAME ".log", (event_callback_func)on_llog);
-    event_register_listener(game, NULL, BUILTIN_NAMESPACE_NAME ".log_indent", (event_callback_func)on_llog_indent);
-    
     /* ncurses support -- TODO currently broken and disabled *
 #ifdef HAVE_CURSES
     initscr();
@@ -192,7 +188,7 @@ llog(log_level_t level, const char* plugin, uint32_t num_strs, ...)
     buffer[total_length-2] = '\n';
     buffer[total_length-1] = '\0';
 
-    /* fire event and clean up */
+    /* fire event */
     log_.level = level;
     log_.message = buffer;
     EVENT_FIRE1(evt_log, &log_);
