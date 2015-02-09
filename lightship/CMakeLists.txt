@@ -45,14 +45,11 @@ create_vcproj_userfile (lightship)
 set (PROJECT_NAME "LIGHTSHIP")
 
 configure_file ("${CMAKE_SOURCE_DIR}/common/include/common/export.h.in"
-                "${CMAKE_CURRENT_LIST_DIR}/include/lightship/export.h")
-configure_file ("${CMAKE_CURRENT_LIST_DIR}/include/lightship/config.h.in"
-                "${CMAKE_CURRENT_LIST_DIR}/include/lightship/config.h")
+                "include/lightship/export.h")
+configure_file ("include/lightship/config.h.in"
+                "include/lightship/config.h")
 
-file (WRITE "include/lightship/.gitignore"
-    "*\n"
-    "export.h\n"
-    "config.h\n")
+include_directories ("${CMAKE_CURRENT_BINARY_DIR}/include")
 
 ###############################################################################
 # install targets

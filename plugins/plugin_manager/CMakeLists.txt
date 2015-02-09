@@ -21,7 +21,6 @@ file (GLOB lightship_util_SOURCES "src/*.c")
 
 set (lightship_util_HEADERS ${lightship_util_HEADERS}
     "${CMAKE_CURRENT_LIST_DIR}/include/plugin_manager/config.h.in"
-    "${CMAKE_CURRENT_LIST_DIR}/include/plugin_manager/config.h"
 )
 
 include_directories ("include")
@@ -56,14 +55,11 @@ set (BUILTIN_NAMESPACE_NAME "builtin" CACHE STRING "This is the namespace under 
 message (STATUS "Built-in namespace: ${BUILTIN_NAMESPACE_NAME}")
 
 configure_file ("${CMAKE_SOURCE_DIR}/common/include/common/export.h.in"
-                "${CMAKE_CURRENT_LIST_DIR}/include/plugin_manager/export.h")
-configure_file ("${CMAKE_CURRENT_LIST_DIR}/include/plugin_manager/config.h.in"
-                "${CMAKE_CURRENT_LIST_DIR}/include/plugin_manager/config.h")
+                "include/plugin_manager/export.h")
+configure_file ("include/plugin_manager/config.h.in"
+                "include/plugin_manager/config.h")
 
-file (WRITE "include/plugin_manager/.gitignore"
-    "*\n"
-    "export.h\n"
-    "config.h\n")
+include_directories ("${CMAKE_CURRENT_BINARY_DIR}/include")
 
 ###############################################################################
 # install targets
