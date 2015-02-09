@@ -5,15 +5,16 @@
 
 /* these must be implemented by the plugin */
 struct game_t;
+struct plugin_t;
 typedef struct plugin_t*    (*plugin_init_func)     (struct game_t* game);
 typedef char                (*plugin_start_func)    (struct game_t* game);
 typedef void                (*plugin_stop_func)     (struct game_t* game);
 typedef void                (*plugin_deinit_func)   (void);
 
-#define PLUGIN_INIT()  LIGHTSHIP_PUBLIC_API struct plugin_t* plugin_init(struct game_t* game)
-#define PLUGIN_START() LIGHTSHIP_PUBLIC_API char plugin_start(struct game_t* game)
-#define PLUGIN_STOP()  LIGHTSHIP_PUBLIC_API void plugin_stop(struct game_t* game)
-#define PLUGIN_DEINIT()LIGHTSHIP_PUBLIC_API void plugin_deinit(void)
+#define PLUGIN_INIT()   struct plugin_t* plugin_init(struct game_t* game)
+#define PLUGIN_START()  char plugin_start(struct game_t* game)
+#define PLUGIN_STOP()   void plugin_stop(struct game_t* game)
+#define PLUGIN_DEINIT() void plugin_deinit(void)
 
 typedef enum plugin_result_t
 {

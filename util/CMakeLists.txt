@@ -1,6 +1,4 @@
-project ("util" C)
-
-set (BUILD_TYPE "SHARED")
+set (BUILD_TYPE "SHARED" CACHE STRING "The build type of the utility library")
 
 ###############################################################################
 # compiler flags for this library
@@ -30,54 +28,12 @@ elseif (${PLATFORM} MATCHES "WINDOWS")
 endif ()
 
 ###############################################################################
-# source files and library definition
-###############################################################################
-
-file (GLOB lightship_util_HEADERS "include/util/*.h" ${PLATFORM_HEADER_DIRS})
-file (GLOB lightship_util_SOURCES "src/*.c" ${PLATFORM_SOURCE_DIRS})
-
-set (lightship_util_HEADERS ${lightship_util_HEADERS}
-    "include/util/config.h.in"
-)
-
-add_library (lightship_util ${BUILD_TYPE}
-    ${lightship_util_HEADERS}
-    ${lightship_util_SOURCES}
-)
-
-###############################################################################
-# dynamic linker
-###############################################################################
-
-if (${PLATFORM} MATCHES "LINUX")
-    set (DYNAMIC_LINKER_LIBRARY "dl")
-elseif (${PLATFORM} MATCHES "MAC")
-    set (DYNAMIC_LINKER_LIBRARY "dl")
-endif ()
-
-target_link_libraries (lightship_util
-    ${DYNAMIC_LINKER_LIBRARY}
-)
-
-###############################################################################
-# ncurses for colourful terminal output
-###############################################################################
-
-find_package (Curses)
-if (CURSES_FOUND)
-    include_directories (${CURSES_INCLUDE_DIR})
-    target_link_libraries (lightship_util ${CURSES_LIBRARIES})
-    set (HAVE_CURSES 1)
-endif ()
-
-###############################################################################
 # generate config.h for this library
 ###############################################################################
 
-set (PROJECT_NAME "LIGHTSHIP")
-set (BUILTIN_NAMESPACE_NAME "builtin" CACHE STRING "This is the namespace under which builtin events and services are registered")
+set (PROJECT_NAME "LIGHTSHIP_UTIL")
 
-if (CMAKE_BUILD_TYPE MATCHES Debug)
+if (CMAKE_LIGHTSHIP_UTIL_BUILD_TYPE MATCHES Debug)
     option (ENABLE_MEMORY_REPORT "Keeps track of the number of allocations and de-allocations and prints a report when the program shuts down" ON)
     option (ENABLE_MEMORY_BACKTRACE "Generates backtraces for every malloc(), making it easy to track down memory leaks" ON)
 else ()
@@ -96,12 +52,51 @@ if (WIN32)
     set (MEMORY_ENABLE_BACKTRACE 0)
 endif ()
 
-configure_file ("include/util/config.h.in"
-                "include/util/config.h")
-execute_process (COMMAND cmake -E copy
-    "${CMAKE_BINARY_DIR}/util/include/util/config.h"
-    "${CMAKE_SOURCE_DIR}/util/include/util/config.h"
+configure_file ("${CMAKE_SOURCE_DIR}/common/include/common/export.h.in"
+                "${CMAKE_CURRENT_LIST_DIR}/include/util/export.h")
+configure_file ("${CMAKE_CURRENT_LIST_DIR}/include/util/config.h.in"
+                "${CMAKE_CURRENT_LIST_DIR}/include/util/config.h")
+
+file (WRITE "include/util/.gitignore"
+    "*\n"
+    "config.h\n"
+    "export.h\n")
+
+###############################################################################
+# source files and library definition
+###############################################################################
+
+file (GLOB lightship_util_HEADERS "include/util/*.h" ${PLATFORM_HEADER_DIRS})
+file (GLOB lightship_util_SOURCES "src/*.c" ${PLATFORM_SOURCE_DIRS})
+
+set (lightship_util_HEADERS ${lightship_util_HEADERS}
+    "include/util/config.h.in"
+    "${CMAKE_SOURCE_DIR}/common/include/common/export.h.in"
 )
+
+include_directories ("include")
+
+add_library (lightship_util ${BUILD_TYPE}
+    ${lightship_util_HEADERS}
+    ${lightship_util_SOURCES}
+)
+
+###############################################################################
+# utility library headers
+###############################################################################
+
+include_directories ("${CMAKE_SOURCE_DIR}/plugins/plugin_manager/include")
+
+###############################################################################
+# ncurses for colourful terminal output
+###############################################################################
+
+find_package (Curses)
+if (CURSES_FOUND)
+    include_directories (${CURSES_INCLUDE_DIR})
+    target_link_libraries (lightship_util ${CURSES_LIBRARIES})
+    set (HAVE_CURSES 1)
+endif ()
 
 ###############################################################################
 # install targets

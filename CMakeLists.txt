@@ -136,8 +136,6 @@ endif ()
 ###############################################################################
 
 file (MAKE_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/plugins")
-# ignore auto generated file config.h
-file (WRITE "${CMAKE_SOURCE_DIR}/util/include/util/.gitignore" "config.h")
 
 ###############################################################################
 # Dependency settings
@@ -145,8 +143,9 @@ file (WRITE "${CMAKE_SOURCE_DIR}/util/include/util/.gitignore" "config.h")
 
 option (BUILD_TESTS "Whether or not to build unit tests (note: requires C++)" OFF)
 
-include_directories ("lightship/include")
-include_directories ("util/include")
+# utility library and plugin manager header files are globally accessable
+include_directories ("${CMAKE_SOURCE_DIR}/util/include")
+include_directories ("${CMAKE_SOURCE_DIR}/plugins/plugin_manager/include")
 
 add_subdirectory ("lightship")
 add_subdirectory ("plugins")

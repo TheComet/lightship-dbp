@@ -1,10 +1,10 @@
-#include "util/game.h"
+#include "plugin_manager/game.h"
+#include "plugin_manager/plugin.h"
+#include "plugin_manager/services.h"
 #include "util/hash.h"
 #include "util/log.h"
 #include "util/map.h"
 #include "util/memory.h"
-#include "util/plugin.h"
-#include "util/services.h"
 #include "util/string.h"
 #include <stdlib.h>
 #include <string.h>

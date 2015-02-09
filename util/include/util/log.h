@@ -3,7 +3,7 @@
 
 #include "util/config.h"
 #include "util/pstdint.h"
-#include "util/event_api.h"
+#include "plugin_manager/event_api.h"
 
 struct game_t;
 
@@ -27,7 +27,7 @@ struct log_t
  * @brief Initialises the log. Must be called before using any other log related
  * functions.
  */
-LIGHTSHIP_PUBLIC_API void
+LIGHTSHIP_UTIL_PUBLIC_API void
 llog_init(struct game_t* game);
 
 /*!
@@ -37,7 +37,7 @@ llog_init(struct game_t* game);
  * amount, until llog_unindent() is called.
  * @param[in] indent_name The name of the new indentation level.
  */
-LIGHTSHIP_PUBLIC_API void
+LIGHTSHIP_UTIL_PUBLIC_API void
 llog_indent(const char* indent_name);
 
 /*!
@@ -46,7 +46,7 @@ llog_indent(const char* indent_name);
  * This causes every succeeding call to llog() to be indented one level less
  * than before. If the indent level is at 0, then nothing happens.
  */
-LIGHTSHIP_PUBLIC_API void
+LIGHTSHIP_UTIL_PUBLIC_API void
 llog_unindent(void);
 
 /*!
@@ -60,10 +60,10 @@ llog_unindent(void);
  * together.
  * @param[in] strs... The strings to concatenate and send to the log.
  */
-LIGHTSHIP_PUBLIC_API void
+LIGHTSHIP_UTIL_PUBLIC_API void
 llog(log_level_t level, const char* plugin, uint32_t num_strs, ...);
 
-LIGHTSHIP_PUBLIC_API void
+LIGHTSHIP_UTIL_PUBLIC_API void
 llog_critical_use_no_memory(const char* message);
 
 EVENT_LISTENER1(on_llog_indent, const char* str);

@@ -1,5 +1,5 @@
 #include "plugin_yaml/events.h"
-#include "util/events.h"
+#include "plugin_manager/events.h"
 
 /* -----------------------------------------------------
  * All events this plugin emits

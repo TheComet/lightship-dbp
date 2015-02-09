@@ -1,0 +1,10 @@
+/* --------------------------------------------------------------
+ * Configures prerequisits for this library
+ * --------------------------------------------------------------*/
+
+#ifndef @PROJECT_NAME@_CONFIG_H
+#   define @PROJECT_NAME@_CONFIG_H
+
+#   include "lightship/export.h"
+
+#endif /* @PROJECT_NAME@_CONFIG_H */

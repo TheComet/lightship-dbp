@@ -1,16 +1,16 @@
 #include <stdio.h>
 #include <string.h>
 #include "lightship/plugin_manager.h"
-#include "util/services.h"
-#include "util/events.h"
-#include "util/plugin.h"
+#include "plugin_manager/services.h"
+#include "plugin_manager/events.h"
+#include "plugin_manager/plugin.h"
+#include "plugin_manager/game.h"
 #include "util/unordered_vector.h"
 #include "util/ptree.h"
 #include "util/memory.h"
 #include "util/log.h"
 #include "util/string.h"
 #include "util/pstdint.h"
-#include "util/game.h"
 
 #include "util/map.h"
 

@@ -12,7 +12,7 @@ C_HEADER_BEGIN
  * this library are also freed in this library.
  * @param str The string to free.
  */
-LIGHTSHIP_PUBLIC_API void
+LIGHTSHIP_UTIL_PUBLIC_API void
 free_string(void* str);
 
 /*!
@@ -20,7 +20,7 @@ free_string(void* str);
  * @param[in] num_strs The number of strings that should be concatenated.
  * @param[in] ...str A list of comma-seperated strings to concatenate.
  */
-LIGHTSHIP_PUBLIC_API void
+LIGHTSHIP_UTIL_PUBLIC_API void
 stdout_strings(uint32_t num_strs, ...);
 
 /*!
@@ -28,7 +28,7 @@ stdout_strings(uint32_t num_strs, ...);
  * @param[in] num_strs The number of strings that should be concatenated.
  * @param[in] ...str A list of comma-seperated strings to concatenate.
  */
-LIGHTSHIP_PUBLIC_API void
+LIGHTSHIP_UTIL_PUBLIC_API void
 stderr_strings(uint32_t num_strs, ...);
 
 /*!
@@ -40,7 +40,7 @@ stderr_strings(uint32_t num_strs, ...);
  * @return The new buffer containing all concatenated strings.
  * @warning Use string_free() to free the returned buffer.
  */
-LIGHTSHIP_PUBLIC_API char*
+LIGHTSHIP_UTIL_PUBLIC_API char*
 cat_strings(uint32_t num_strs, ...);
 
 /*!
@@ -51,7 +51,7 @@ cat_strings(uint32_t num_strs, ...);
  * @return The new buffer containing a copy of the input string.
  * @warning Use util_free() to free the returned buffer.
  */
-LIGHTSHIP_PUBLIC_API char*
+LIGHTSHIP_UTIL_PUBLIC_API char*
 malloc_string(const char* str);
 
 /*!
@@ -63,7 +63,7 @@ malloc_string(const char* str);
  * @return The new buffer containing all concatenated strings.
  * @warning Use string_free() to free the returned buffer.
  */
-LIGHTSHIP_PUBLIC_API wchar_t*
+LIGHTSHIP_UTIL_PUBLIC_API wchar_t*
 cat_wstrings(uint32_t num_strs, ...);
 
 /*!
@@ -74,20 +74,20 @@ cat_wstrings(uint32_t num_strs, ...);
  * @return The new buffer containing a copy of the input string.
  * @warning Use util_free() to free the returned buffer.
  */
-LIGHTSHIP_PUBLIC_API wchar_t*
+LIGHTSHIP_UTIL_PUBLIC_API wchar_t*
 malloc_wstring(const wchar_t* wcs);
 
 /*!
  * @brief Checks if a character is a number or not.
  * @return Returns 1 if it is a number, 0 if otherwise.
  */
-LIGHTSHIP_PUBLIC_API char
+LIGHTSHIP_UTIL_PUBLIC_API char
 is_number(const char chr);
 
-LIGHTSHIP_PUBLIC_API wchar_t*
+LIGHTSHIP_UTIL_PUBLIC_API wchar_t*
 strtowcs(const char* str);
 
-LIGHTSHIP_PUBLIC_API char*
+LIGHTSHIP_UTIL_PUBLIC_API char*
 wcstostr(wchar_t* wcs);
 
 C_HEADER_END

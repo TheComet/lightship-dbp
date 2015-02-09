@@ -1,9 +1,9 @@
-#include "util/config.h"
-#include "util/events.h"
-#include "util/game.h"
+#include "plugin_manager/config.h"
+#include "plugin_manager/events.h"
+#include "plugin_manager/game.h"
+#include "plugin_manager/plugin.h"
 #include "util/hash.h"
 #include "util/memory.h"
-#include "util/plugin.h"
 #include "util/string.h"
 #include <string.h>
 #include <stdlib.h>

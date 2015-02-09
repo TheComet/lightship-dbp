@@ -42,7 +42,7 @@ struct unordered_vector_t
  * the vector to store. Typically one would pass sizeof(my_data_type).
  * @return Returns the newly created vector object.
  */
-LIGHTSHIP_PUBLIC_API struct unordered_vector_t*
+LIGHTSHIP_UTIL_PUBLIC_API struct unordered_vector_t*
 unordered_vector_create(const uint32_t element_size);
 
 /*!
@@ -53,7 +53,7 @@ unordered_vector_create(const uint32_t element_size);
  * @param[in] element_size Specifies the size in bytes of the type of data you
  * want the vector to store. Typically one would pass sizeof(my_data_type).
  */
-LIGHTSHIP_PUBLIC_API void
+LIGHTSHIP_UTIL_PUBLIC_API void
 unordered_vector_init_vector(struct unordered_vector_t* vector,
                              const uint32_t element_size);
 
@@ -62,7 +62,7 @@ unordered_vector_init_vector(struct unordered_vector_t* vector,
  * inserted elements.
  * @param[in] vector The vector to destroy.
  */
-LIGHTSHIP_PUBLIC_API void
+LIGHTSHIP_UTIL_PUBLIC_API void
 unordered_vector_destroy(struct unordered_vector_t* vector);
 
 /*!
@@ -72,14 +72,14 @@ unordered_vector_destroy(struct unordered_vector_t* vector);
  * unordered_vector_clear_free().
  * @param[in] vector The vector to clear.
  */
-LIGHTSHIP_PUBLIC_API void
+LIGHTSHIP_UTIL_PUBLIC_API void
 unordered_vector_clear(struct unordered_vector_t* vector);
 
 /*!
  * @brief Erases all elements in a vector and frees their memory.
  * @param[in] vector The vector to clear.
  */
-LIGHTSHIP_PUBLIC_API void
+LIGHTSHIP_UTIL_PUBLIC_API void
 unordered_vector_clear_free(struct unordered_vector_t* vector);
 
 /*!
@@ -100,7 +100,7 @@ unordered_vector_clear_free(struct unordered_vector_t* vector);
  * created. If this is not the case then it could cause undefined behaviour.
  * @return Returns 0 if the push was not successful, 1 if it was successful.
  */
-LIGHTSHIP_PUBLIC_API char
+LIGHTSHIP_UTIL_PUBLIC_API char
 unordered_vector_push(struct unordered_vector_t* vector, void* data);
 
 /*!
@@ -114,7 +114,7 @@ unordered_vector_push(struct unordered_vector_t* vector, void* data);
  * @return A pointer to the allocated memory for the requested element. See
  * warning and use with caution.
  */
-LIGHTSHIP_PUBLIC_API void*
+LIGHTSHIP_UTIL_PUBLIC_API void*
 unordered_vector_push_emplace(struct unordered_vector_t* vector);
 
 /*!
@@ -127,7 +127,7 @@ unordered_vector_push_emplace(struct unordered_vector_t* vector);
  * @return A pointer to the popped element. See warning and use with caution.
  * If there are no elements to pop, NULL is returned.
  */
-LIGHTSHIP_PUBLIC_API void* 
+LIGHTSHIP_UTIL_PUBLIC_API void* 
 unordered_vector_pop(struct unordered_vector_t* vector);
 
 /*!
@@ -139,7 +139,7 @@ unordered_vector_pop(struct unordered_vector_t* vector);
  * @param[in] index The position of the element in the vector to erase. The index
  * ranges from **0** to **unordered_vector_count()-1**.
  */
-LIGHTSHIP_PUBLIC_API void
+LIGHTSHIP_UTIL_PUBLIC_API void
 unordered_vector_erase_index(struct unordered_vector_t* vector, uint32_t index);
 
 /*!
@@ -150,7 +150,7 @@ unordered_vector_erase_index(struct unordered_vector_t* vector, uint32_t index);
  * @param[in] vector The vector from which to erase the data.
  * @param[in] element A pointer to an element within the vector.
  */
-LIGHTSHIP_PUBLIC_API void
+LIGHTSHIP_UTIL_PUBLIC_API void
 unordered_vector_erase_element(struct unordered_vector_t* vector, 
                                void* element);
 
@@ -167,7 +167,7 @@ unordered_vector_erase_element(struct unordered_vector_t* vector,
  * If the specified element doesn't exist (index out of bounds), NULL is
  * returned.
  */
-LIGHTSHIP_PUBLIC_API void*
+LIGHTSHIP_UTIL_PUBLIC_API void*
 unordered_vector_get_element(struct unordered_vector_t*, uint32_t index);
 
 /*!
