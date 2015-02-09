@@ -30,7 +30,7 @@
 #           if defined(__GNUC__)
                 /* cygwin visbibility */
 #               define @PROJECT_NAME@_HELPER_API_EXPORT __attribute__ ((dllexport))
-#               define @PROJECT_NAME@_HELPER_API_IMPORT __attribute__ ((dllimport)
+#               define @PROJECT_NAME@_HELPER_API_IMPORT __attribute__ ((dllimport))
 #           else
                 /* msvc visibility */
 #               define @PROJECT_NAME@_HELPER_API_EXPORT __declspec(dllexport)

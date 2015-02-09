@@ -53,14 +53,11 @@ if (WIN32)
 endif ()
 
 configure_file ("${CMAKE_SOURCE_DIR}/common/include/common/export.h.in"
-                "${CMAKE_CURRENT_LIST_DIR}/include/util/export.h")
-configure_file ("${CMAKE_CURRENT_LIST_DIR}/include/util/config.h.in"
-                "${CMAKE_CURRENT_LIST_DIR}/include/util/config.h")
+                "include/util/export.h")
+configure_file ("include/util/config.h.in"
+                "include/util/config.h")
 
-file (WRITE "include/util/.gitignore"
-    "*\n"
-    "config.h\n"
-    "export.h\n")
+include_directories ("${CMAKE_CURRENT_BINARY_DIR}/include")
 
 ###############################################################################
 # source files and library definition

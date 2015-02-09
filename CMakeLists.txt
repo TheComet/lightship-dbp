@@ -145,7 +145,9 @@ option (BUILD_TESTS "Whether or not to build unit tests (note: requires C++)" OF
 
 # utility library and plugin manager header files are globally accessable
 include_directories ("${CMAKE_SOURCE_DIR}/util/include")
+include_directories ("${CMAKE_BINARY_DIR}/util/include")
 include_directories ("${CMAKE_SOURCE_DIR}/plugins/plugin_manager/include")
+include_directories ("${CMAKE_BINARY_DIR}/plugins/plugin_manager/include")
 
 add_subdirectory ("lightship")
 add_subdirectory ("plugins")
