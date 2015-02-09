@@ -25,7 +25,6 @@ set (lightship_util_HEADERS ${lightship_util_HEADERS}
 )
 
 include_directories ("include")
-include_directories ("${CMAKE_SOURCE_DIR}/util/include")
 
 add_library (plugin_manager ${BUILD_TYPE}
     ${lightship_util_HEADERS}
@@ -45,6 +44,13 @@ endif ()
 target_link_libraries (plugin_manager
     ${DYNAMIC_LINKER_LIBRARY}
 )
+
+###############################################################################
+# utility library
+###############################################################################
+
+target_link_libraries (plugin_manager lightship_util)
+include_directories ("${CMAKE_SOURCE_DIR}/util/include")
 
 ###############################################################################
 # generate config.h for this library
