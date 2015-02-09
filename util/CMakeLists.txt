@@ -52,7 +52,7 @@ if (WIN32)
     set (MEMORY_ENABLE_BACKTRACE 0)
 endif ()
 
-configure_file ("${CMAKE_SOURCE_DIR}/common/include/common/export.h.in"
+configure_file ("${CMAKE_SOURCE_DIR}/util/include/common/export.h.in"
                 "include/util/export.h")
 configure_file ("include/util/config.h.in"
                 "include/util/config.h")
@@ -68,7 +68,7 @@ file (GLOB lightship_util_SOURCES "src/*.c" ${PLATFORM_SOURCE_DIRS})
 
 set (lightship_util_HEADERS ${lightship_util_HEADERS}
     "include/util/config.h.in"
-    "${CMAKE_SOURCE_DIR}/common/include/common/export.h.in"
+    "${CMAKE_SOURCE_DIR}/util/include/common/export.h.in"
 )
 
 include_directories ("include")

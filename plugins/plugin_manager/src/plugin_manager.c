@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include "lightship/plugin_manager.h"
+#include "plugin_manager/plugin_manager.h"
 #include "plugin_manager/services.h"
 #include "plugin_manager/events.h"
 #include "util/config.h"
