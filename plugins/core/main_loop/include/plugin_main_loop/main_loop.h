@@ -36,6 +36,6 @@ main_loop_get_elapsed_time(void);
 EVENT_LISTENER0(on_main_loop_stop);
 
 #ifdef _DEBUG
-#   include "util/event_api.h"
+#   include "plugin_manager/event_api.h"
     EVENT_LISTENER2(on_stats, uint32_t render_frame_rate, uint32_t update_frame_rate);
 #endif

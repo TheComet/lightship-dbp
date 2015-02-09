@@ -1,5 +1,5 @@
 #include "util/config.h"   /* platform macros and definitions */
-#include "util/plugin.h"   /* plugin api */
+#include "plugin_manager/plugin.h"   /* plugin api */
 #include "plugin_main_loop/config.h"  /* configurations for this plugin */
 #include "plugin_main_loop/services.h"
 #include "plugin_main_loop/events.h"
