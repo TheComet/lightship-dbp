@@ -53,6 +53,8 @@ init(void)
      * events)
      */
     llog_init(g_local_game);
+    event_register_listener(g_local_game, NULL, BUILTIN_NAMESPACE_NAME ".log", (event_callback_func)on_llog);
+    event_register_listener(g_local_game, NULL, BUILTIN_NAMESPACE_NAME ".log_indent", (event_callback_func)on_llog_indent);
     
     /*
      * The plugin manager must be initialised before being able to load
