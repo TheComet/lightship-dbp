@@ -17,7 +17,7 @@ game_create(const char* name)
     if(!game)
         OUT_OF_MEMORY("game_create()", NULL);
     memset(game, 0, sizeof(struct game_t));
-    map_init_map(&game->plugins);
+    list_init_list(&game->plugins);
     map_init_map(&game->services);
     map_init_map(&game->events);
     game->name = malloc_string(name);

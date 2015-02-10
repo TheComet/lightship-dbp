@@ -4,8 +4,9 @@
 #include "plugin_manager/plugin_manager.h"
 #include "plugin_manager/services.h"
 #include "plugin_manager/events.h"
-#include "util/config.h"
 #include "plugin_manager/plugin.h"
+#include "plugin_manager/game.h"
+#include "util/config.h"
 #include "util/linked_list.h"
 #include "util/unordered_vector.h"
 #include "util/ptree.h"
@@ -14,13 +15,6 @@
 #include "util/dir.h"
 #include "util/memory.h"
 #include "util/log.h"
-
-static struct list_t g_plugins;
-
-static struct service_t* yaml_load;
-static struct service_t* yaml_destroy;
-static struct service_t* yaml_get_dom;
-static struct service_t* yaml_get_value;
 
 /*!
  * @brief Evaluates whether the specified file is an acceptable plugin to load
@@ -48,30 +42,13 @@ find_plugin(const struct plugin_info_t* info,
 
 /* ------------------------------------------------------------------------- */
 void
-plugin_manager_init(void)
-{
-    list_init_list(&g_plugins);
-}
-
-/* ------------------------------------------------------------------------- */
-void
-plugin_manager_get_services(struct game_t* game)
-{
-    yaml_load       = service_get(game, "yaml.load");
-    yaml_destroy    = service_get(game, "yaml.destroy");
-    yaml_get_dom    = service_get(game, "yaml.get_dom");
-    yaml_get_value  = service_get(game, "yaml.get_value");
-}
-
-/* ------------------------------------------------------------------------- */
-void
 plugin_manager_deinit(struct game_t* game)
 {
     /* unload all plugins */
-    LIST_FOR_EACH_ERASE_R(&g_plugins, struct plugin_t, plugin)
+    LIST_FOR_EACH_ERASE_R(&game->plugins, struct plugin_t, plugin)
     {
         /* NOTE this erases the plugin object from the linked list */
-        plugin_unload(plugin);
+        plugin_unload(game, plugin);
     }
 }
 
@@ -178,7 +155,7 @@ plugin_load(struct game_t* game,
         plugin->start = start_func;
         plugin->stop = stop_func;
         plugin->deinit = deinit_func;
-        list_push(&g_plugins, plugin);
+        list_push(&game->plugins, plugin);
         
         /* print info about loaded plugin */
         llog(LOG_INFO, NULL, 4,
@@ -224,11 +201,11 @@ load_plugins_from_yaml(struct game_t* game, const char* filename)
         return 0;
     
     /* get DOM and get_value service */
-    SERVICE_CALL1(yaml_get_dom, &dom, doc_ID);
+    SERVICE_CALL_NAME1(game, "yaml.get_dom", &dom, doc_ID);
     if(!dom)
     {
         llog(LOG_FATAL, NULL, 1, "Failed to get DOM");
-        SERVICE_CALL1(yaml_destroy, SERVICE_NO_RETURN, doc_ID);
+        SERVICE_CALL_NAME1(game, "yaml.destroy", SERVICE_NO_RETURN, doc_ID);
         return 0;
     }
     
@@ -295,21 +272,21 @@ load_plugins_from_yaml(struct game_t* game, const char* filename)
             if(!plugin_start(game, *pluginp))
             {
                 llog(LOG_ERROR, NULL, 3, "Failed to start plugin \"", (*pluginp)->info.name, "\", unloading...");
-                plugin_unload(*pluginp);
+                plugin_unload(game, *pluginp);
                 success = 0;
             }
         }
     }
 
     /* clean up */
-    SERVICE_CALL1(yaml_destroy, SERVICE_NO_RETURN, doc_ID);
+    SERVICE_CALL_NAME1(game, "yaml.destroy", SERVICE_NO_RETURN, doc_ID);
     unordered_vector_clear_free(&new_plugins);
     return success;
 }
 
 /* ------------------------------------------------------------------------- */
 void
-plugin_unload(struct plugin_t* plugin)
+plugin_unload(struct game_t* game, struct plugin_t* plugin)
 {
     void* module_handle;
     llog(LOG_INFO, NULL, 3, "unloading plugin \"", plugin->info.name, "\"");
@@ -334,14 +311,14 @@ plugin_unload(struct plugin_t* plugin)
     module_handle = plugin->handle;
     plugin_deinit(plugin);
     module_close(module_handle);
-    list_erase_element(&g_plugins, plugin);
+    list_erase_element(&game->plugins, plugin);
 }
 
 /* ------------------------------------------------------------------------- */
 struct plugin_t*
 plugin_get_by_name(struct game_t* game, const char* name)
 {
-    LIST_FOR_EACH(&g_plugins, struct plugin_t, plugin)
+    LIST_FOR_EACH(&game->plugins, struct plugin_t, plugin)
     {
         if(strcmp(name, plugin->info.name) == 0)
             return plugin;
