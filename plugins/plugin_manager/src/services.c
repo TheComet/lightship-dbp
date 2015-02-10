@@ -125,7 +125,7 @@ service_malloc_and_register(struct game_t* game,
         }
         
         /* create argument type vector */
-        service->argv_type = (char**)MALLOC(argc * sizeof(char**));
+        service->argv_type = (char**)MALLOC(argc * sizeof(char*));
         if(!service->argv_type)
         {
             service_free(service);
@@ -281,10 +281,20 @@ service_create_argument_list_from_strings(struct service_t* service, struct orde
             service_script_type_e type = service_get_c_type_equivalent_from_service_type(service->argv_type[i]);
             switch(type)
             {
+                /*
+                 * NOTE: ret[i] *MUST* be assigned a value returned from
+                 * MALLOC(), for it is later passed to FREE() upon
+                 * destruction. We would use malloc_string() and
+                 * strtowcs(), but that would require us to use free_string()
+                 * instead of FREE().
+                 */
                 case SERVICE_SCRIPT_TYPE_STRING:
-                    ret[i] = malloc_string(str);
+                    ret[i] = MALLOC((strlen(str) + 1) * sizeof(char));
+                    strcpy(ret[i], str);
                     break;
                 case SERVICE_SCRIPT_TYPE_WSTRING:
+                    ret[i] = MALLOC((wcslen(str) + 1) * sizeof(wchar_t));
+                    wcscpy(ret[i], str);
                     ret[i] = strtowcs(str);
                     break;
 /* ------------------------------------------------------------------------- */
