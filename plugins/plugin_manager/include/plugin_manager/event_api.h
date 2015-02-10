@@ -2,7 +2,6 @@
 #define LIGHTSHIP_UTIL_EVENT_API_H
 
 #include <stdio.h>
-#include "util/config.h"
 #include "util/unordered_vector.h"
 
 C_HEADER_BEGIN
@@ -248,20 +247,20 @@ EVENT_H(evt_foo, args...);
 @endcode
  */
 #define EVENT_H0(event)                     \
-    EVENT_GEN_DUMMY_FUNCTION_DECL0(event)   \
-    extern struct event_t* event
+	extern struct event_t* event            \
+    EVENT_GEN_DUMMY_FUNCTION_DECL0(event)
 #define EVENT_H1(event, arg1_t)                     \
-    EVENT_GEN_DUMMY_FUNCTION_DECL1(event, arg1_t)   \
-    extern struct event_t* event
+    extern struct event_t* event                    \
+	EVENT_GEN_DUMMY_FUNCTION_DECL1(event, arg1_t)
 #define EVENT_H2(event, arg1_t, arg2_t)                     \
-    EVENT_GEN_DUMMY_FUNCTION_DECL2(event, arg1_t, arg2_t)   \
-    extern struct event_t* event
+	extern struct event_t* event                            \
+    EVENT_GEN_DUMMY_FUNCTION_DECL2(event, arg1_t, arg2_t)
 #define EVENT_H3(event, arg1_t, arg2_t, arg3_t)                     \
-    EVENT_GEN_DUMMY_FUNCTION_DECL3(event, arg1_t, arg2_t, arg3_t)   \
-    extern struct event_t* event
+	extern struct event_t* event                                    \
+    EVENT_GEN_DUMMY_FUNCTION_DECL3(event, arg1_t, arg2_t, arg3_t)
 #define EVENT_H4(event, arg1_t, arg2_t, arg3_t, arg4_t)                     \
-    EVENT_GEN_DUMMY_FUNCTION_DECL4(event, arg1_t, arg2_t, arg3_t, arg4_t)   \
-    extern struct event_t* event
+	extern struct event_t* event                                            \
+    EVENT_GEN_DUMMY_FUNCTION_DECL4(event, arg1_t, arg2_t, arg3_t, arg4_t)
 
 /*!
  * @brief Define an event in a source file with up to 4 arguments.

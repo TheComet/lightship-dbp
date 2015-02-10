@@ -115,31 +115,28 @@ service_malloc_and_register(struct game_t* game,
     /* copy type info */
     {
         int i;
-        char** argv_tmp;
         
         /* copy return type */
-        char* ret_type_tmp = malloc_string(ret_type);
-        if(!ret_type_tmp)
+        service->ret_type = malloc_string(ret_type);
+        if(!service->ret_type)
         {
             service_free(service);
             return 0;
         }
-        memcpy(&service->ret_type, &ret_type_tmp, sizeof(char*));
         
         /* create argument type vector */
-        argv_tmp= (char**)MALLOC(argc * sizeof(char**));
-        if(!argv_tmp)
+        service->argv_type = (char**)MALLOC(argc * sizeof(char**));
+        if(!service->argv_type)
         {
             service_free(service);
             OUT_OF_MEMORY("service_malloc_and_register()", 0);
         }
-        memcpy(&service->argv_type, &argv_tmp, sizeof(char**));
     
         /* copy argument type vector */
         for(i = 0; i != argc; ++i)
         {
-            argv_tmp[i] = malloc_string(argv[i]);
-            if(!argv_tmp[i])
+            service->argv_type[i] = malloc_string(argv[i]);
+            if(!service->argv_type[i])
             {
                 service_free(service);
                 return 0;
