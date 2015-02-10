@@ -1,5 +1,6 @@
 #include "plugin_yaml/config.h"
 #include "plugin_yaml/parser.h"
+#include "plugin_yaml/glob.h"
 #include "util/unordered_vector.h"
 #include "util/log.h"
 #include "util/memory.h"
@@ -8,19 +9,17 @@
 #include "util/hash.h"
 #include <stdlib.h>
 
-struct unordered_vector_t g_open_docs;
-static uint32_t GUID_counter = 1;
-
 void
-parser_init(void)
+parser_init(struct game_t* game)
 {
-    unordered_vector_init_vector(&g_open_docs, sizeof(struct yaml_doc_t));
+    unordered_vector_init_vector(&get_global(game)->parser.open_docs, sizeof(struct yaml_doc_t));
+    get_global(game)->parser.doc_guid_counter = 1;
 }
 
 void
-parser_deinit(void)
+parser_deinit(struct game_t* game)
 {
-    unordered_vector_clear_free(&g_open_docs);
+    unordered_vector_clear_free(&get_global(game)->parser.open_docs);
 }
 
 char
@@ -211,9 +210,9 @@ yaml_load_into_ptree(struct ptree_t* tree, struct ptree_t* root_tree, yaml_parse
 }
 
 static struct yaml_doc_t*
-yaml_get_doc(uint32_t ID)
+yaml_get_doc(struct game_t* game, uint32_t ID)
 {
-    UNORDERED_VECTOR_FOR_EACH(&g_open_docs, struct yaml_doc_t, doc)
+    UNORDERED_VECTOR_FOR_EACH(&get_global(game)->parser.open_docs, struct yaml_doc_t, doc)
     {
         if(doc->ID == ID)
             return doc;
@@ -222,7 +221,7 @@ yaml_get_doc(uint32_t ID)
 }
 
 uint32_t
-yaml_load(const char* filename)
+yaml_load(struct game_t* game, const char* filename)
 {
     FILE* fp;
     struct yaml_doc_t* doc;
@@ -251,8 +250,8 @@ yaml_load(const char* filename)
     }
 
     /* create doc object and initialise parser */
-    doc = (struct yaml_doc_t*)unordered_vector_push_emplace(&g_open_docs);
-    doc->ID = GUID_counter++;
+    doc = (struct yaml_doc_t*)unordered_vector_push_emplace(&get_global(game)->parser.open_docs);
+    doc->ID = get_global(game)->parser.doc_guid_counter++;
     doc->dom = tree;
     
     /* clean up */
@@ -263,18 +262,18 @@ yaml_load(const char* filename)
 }
 
 struct ptree_t*
-yaml_get_dom(uint32_t ID)
+yaml_get_dom(struct game_t* game, uint32_t ID)
 {
-    struct yaml_doc_t* doc = yaml_get_doc(ID);
+    struct yaml_doc_t* doc = yaml_get_doc(game, ID);
     if(!doc)
         return NULL;
     return doc->dom;
 }
 
 const char*
-yaml_get_value(const uint32_t ID, const char* key)
+yaml_get_value(struct game_t* game, const uint32_t ID, const char* key)
 {
-    struct yaml_doc_t* doc = yaml_get_doc(ID);
+    struct yaml_doc_t* doc = yaml_get_doc(game, ID);
     if(!doc)
         return NULL;
     {
@@ -286,14 +285,14 @@ yaml_get_value(const uint32_t ID, const char* key)
 }
 
 void
-yaml_destroy(const uint32_t ID)
+yaml_destroy(struct game_t* game, const uint32_t ID)
 {
-    UNORDERED_VECTOR_FOR_EACH(&g_open_docs, struct yaml_doc_t, doc)
+    UNORDERED_VECTOR_FOR_EACH(&get_global(game)->parser.open_docs, struct yaml_doc_t, doc)
     {
         if(doc->ID == ID)
         {
             ptree_destroy_free(doc->dom);
-            unordered_vector_erase_element(&g_open_docs, doc);
+            unordered_vector_erase_element(&get_global(game)->parser.open_docs, doc);
 
             return;
         }
@@ -303,24 +302,24 @@ yaml_destroy(const uint32_t ID)
 SERVICE(yaml_load_wrapper)
 {
     SERVICE_EXTRACT_ARGUMENT_PTR(0, file_name, const char*);
-    SERVICE_RETURN(yaml_load(file_name), uint32_t);
+    SERVICE_RETURN(yaml_load(service->game, file_name), uint32_t);
 }
 
 SERVICE(yaml_get_dom_wrapper)
 {
     SERVICE_EXTRACT_ARGUMENT(0, id, uint32_t, uint32_t);
-    SERVICE_RETURN(yaml_get_dom(id), struct ptree_t*);
+    SERVICE_RETURN(yaml_get_dom(service->game, id), struct ptree_t*);
 }
 
 SERVICE(yaml_get_value_wrapper)
 {
     SERVICE_EXTRACT_ARGUMENT(0, id, uint32_t, uint32_t);
     SERVICE_EXTRACT_ARGUMENT_PTR(1, key, const char*);
-    SERVICE_RETURN(yaml_get_value(id, key), const char*);
+    SERVICE_RETURN(yaml_get_value(service->game, id, key), const char*);
 }
 
 SERVICE(yaml_destroy_wrapper)
 {
     SERVICE_EXTRACT_ARGUMENT(0, id, uint32_t, uint32_t);
-    yaml_destroy(id);
+    yaml_destroy(service->game, id);
 }

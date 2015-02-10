@@ -292,7 +292,7 @@ plugin_unload(struct game_t* game, struct plugin_t* plugin)
     llog(LOG_INFO, NULL, 3, "unloading plugin \"", plugin->info.name, "\"");
     
     /* stop the plugin */
-    plugin_stop(plugin->game, plugin);
+    plugin_stop(plugin);
     
     /* TODO notify everything that this plugin is about to be unloaded */
 

@@ -22,11 +22,11 @@ plugin_manager_init(struct game_t* game);
  */
 #define plugin_start(game, plugin) ((plugin)->started_successfully = (plugin)->start(game))
 
-#define plugin_stop(game, plugin) do { \
+#define plugin_stop(plugin) do { \
     if((plugin)->started_successfully) \
-        ((plugin)->stop(game)); } while(0)
+        ((plugin)->stop((plugin)->game)); } while(0)
 
-#define plugin_deinit(plugin) do { (plugin)->deinit(); } while(0)
+#define plugin_deinit(plugin) do { (plugin)->deinit((plugin)->game); } while(0)
 
 /*!
  * @brief De-initialises the plugin manager.

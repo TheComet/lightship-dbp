@@ -20,6 +20,7 @@ game_create(const char* name)
     list_init_list(&game->plugins);
     map_init_map(&game->services);
     map_init_map(&game->events);
+    map_init_map(&game->global_data);
     game->name = malloc_string(name);
     
     return game;
