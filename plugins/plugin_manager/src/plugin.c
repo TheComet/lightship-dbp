@@ -1,20 +1,20 @@
 #include "util/log.h"
 #include "util/memory.h"
+#include "util/string.h"
 #include "plugin_manager/plugin.h"
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
 
-#define PLUGIN_free_INFO_STRING(plugin, strname) \
-    if((plugin)->info.strname) \
-        FREE((plugin)->info.strname); \
+#define PLUGIN_FREE_INFO_STRING(plugin, strname)        \
+    if((plugin)->info.strname)                          \
+        free_string((plugin)->info.strname);            \
     (plugin)->info.strname = NULL;
 
-#define PLUGIN_ADD_INFO_STRING(plugin, strname, str) \
-    if(str) \
-    { \
-        (plugin)->info.strname = (char*)MALLOC((strlen(str)+1) * sizeof(char*)); \
-        strcpy((plugin)->info.strname, str); \
+#define PLUGIN_ADD_INFO_STRING(plugin, strname, str)    \
+    if(str)                                             \
+    {                                                   \
+        (plugin)->info.strname = malloc_string(str);    \
     }
 
 /* ----------------------------------------------------------------------------
@@ -103,7 +103,7 @@ plugin_extract_version_from_string(const char* file,
                                    uint32_t* patch)
 {
     /* strtok modifies the character array, copy into temporary */
-    char* buffer = (char*)MALLOC((strlen(file)+1)*sizeof(char*));
+    char* buffer = (char*)MALLOC((strlen(file)+1)*sizeof(char));
     char* temp = buffer;
     char* pch;
     const char* delim = ".";
@@ -156,9 +156,9 @@ plugin_get_version_string(char* str, const struct plugin_info_t* info)
 static void
 plugin_free_info(struct plugin_t* plugin)
 {
-    PLUGIN_free_INFO_STRING(plugin, name)
-    PLUGIN_free_INFO_STRING(plugin, category);
-    PLUGIN_free_INFO_STRING(plugin, author)
-    PLUGIN_free_INFO_STRING(plugin, description)
-    PLUGIN_free_INFO_STRING(plugin, website)
+    PLUGIN_FREE_INFO_STRING(plugin, name)
+    PLUGIN_FREE_INFO_STRING(plugin, category);
+    PLUGIN_FREE_INFO_STRING(plugin, author)
+    PLUGIN_FREE_INFO_STRING(plugin, description)
+    PLUGIN_FREE_INFO_STRING(plugin, website)
 }
