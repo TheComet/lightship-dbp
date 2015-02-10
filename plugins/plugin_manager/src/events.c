@@ -112,7 +112,7 @@ event_create(struct game_t* game, const struct plugin_t* plugin, const char* nam
     char* full_name = event_get_full_name(plugin, name);
     if(event_get(game, full_name))
     {
-        FREE(full_name);
+        free_string(full_name);
         return NULL;
     }
     
@@ -146,7 +146,7 @@ event_destroy_plugin_event(struct game_t* game, const struct plugin_t* plugin, c
     
     full_name = event_get_full_name(plugin, name);
     hash = hash_jenkins_oaat(full_name, strlen(full_name));
-    FREE(full_name);
+    free_string(full_name);
     if(!(event = map_erase(&game->events, hash)))
         return;
 
@@ -173,7 +173,7 @@ event_destroy_all_plugin_events(const struct plugin_t* plugin)
             MAP_ERASE_CURRENT_ITEM_IN_FOR_LOOP(&plugin->game->events);
         }
     }}
-    FREE(name_space);
+    free_string(name_space);
 }
 
 /* ------------------------------------------------------------------------- */
@@ -288,7 +288,7 @@ event_unregister_all_listeners_of_plugin(const struct plugin_t* plugin)
     {
         event_unregister_all_listeners_of_name_space(event, name_space);
     }}
-    FREE(name_space);
+    free_string(name_space);
 }
 
 /* ----------------------------------------------------------------------------
@@ -360,5 +360,5 @@ event_free(struct event_t* event)
 static void
 event_listener_free_contents(struct event_listener_t* listener)
 {
-    FREE(listener->name_space);
+    free_string(listener->name_space);
 }
