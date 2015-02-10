@@ -93,16 +93,18 @@ init(void)
     {
         char* start_service_name;
         uint32_t doc_ID;
-
         struct service_t* start;
         const char* entry_point_key = "service";
 
+        /* load the yaml file */
         SERVICE_CALL_NAME1(g_local_game, "yaml.load", &doc_ID, PTR(yml_entry_point));
         if(!doc_ID)
         {
             llog(LOG_FATAL, NULL, 1, "Cannot get main loop service");
             return;
         }
+        
+        /* search for the entry point key and retrieve its value, which is the name of the service to start with */
         SERVICE_CALL_NAME2(g_local_game, "yaml.get_value", &start_service_name, doc_ID, PTR(entry_point_key));
         if(!start_service_name)
         {
@@ -111,6 +113,7 @@ init(void)
             return;
         }
 
+        /* with the service name retrieved, try to call it */
         start = service_get(g_local_game, start_service_name);
         SERVICE_CALL_NAME1(g_local_game, "yaml.destroy", SERVICE_NO_RETURN, doc_ID);
         if(!start)
