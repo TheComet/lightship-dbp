@@ -4,7 +4,6 @@
 #include <stdio.h>
 #include "util/log.h"
 #include "util/memory.h"
-#include "util/config.h"
 
 #ifdef ENABLE_LOG_TIMESTAMPS
 #   include <time.h>
@@ -30,6 +29,19 @@
 
 static char g_log_indent = 0;
 
+static EVENT_C1(evt_log_indent, const char*);
+static EVENT_C0(evt_log_unindent);
+static EVENT_C1(evt_log, struct log_t*);
+
+static void
+on_llog_indent(const char* str);
+
+static void
+on_llog_unindent(void);
+
+static void
+on_llog(struct log_t* arg);
+
 /* ----------------------------------------------------------------------------
  * Static functions
  * ------------------------------------------------------------------------- */
@@ -53,7 +65,7 @@ safe_strcat(char* target, const char* source)
  * Exported functions
  * ------------------------------------------------------------------------- */
 void
-llog_init(struct game_t* game)
+llog_init(void)
 {
     /* ncurses support -- TODO currently broken and disabled *
 #ifdef HAVE_CURSES
@@ -75,9 +87,30 @@ llog_init(struct game_t* game)
 
 /* ------------------------------------------------------------------------- */
 void
+llog_deinit(void)
+{
+    evt_log = NULL;
+    evt_log_indent = NULL;
+    evt_log_unindent = NULL;
+}
+
+/* ------------------------------------------------------------------------- */
+void
+llog_set_events(struct event_t* on_indent, struct event_t* on_unindent, struct event_t* on_log)
+{
+    evt_log_indent = on_indent;
+    evt_log_unindent = on_unindent;
+    evt_log = on_log;
+}
+
+/* ------------------------------------------------------------------------- */
+void
 llog_indent(const char* indent_name)
 {
-    EVENT_FIRE1(evt_log_indent, indent_name);
+    if(evt_log_indent)
+        EVENT_FIRE1(evt_log_indent, indent_name);
+    on_llog_indent(indent_name);
+
     ++g_log_indent;
 }
 
@@ -85,7 +118,10 @@ llog_indent(const char* indent_name)
 void
 llog_unindent(void)
 {
-    EVENT_FIRE0(evt_log_unindent);
+    if(evt_log_unindent)
+        EVENT_FIRE0(evt_log_unindent);
+    on_llog_unindent();
+
     if(g_log_indent)
         --g_log_indent;
 }
@@ -188,13 +224,17 @@ llog(log_level_t level, const char* plugin, uint32_t num_strs, ...)
     buffer[total_length-2] = '\n';
     buffer[total_length-1] = '\0';
 
-    /* fire event */
+    /* fire event and output mesasge */
     log_.level = level;
     log_.message = buffer;
-    EVENT_FIRE1(evt_log, &log_);
+    if(evt_log)
+        EVENT_FIRE1(evt_log, &log_);
+    on_llog(&log_);
+
     FREE(buffer);
 }
 
+/* ------------------------------------------------------------------------- */
 void
 llog_critical_use_no_memory(const char* message)
 {
@@ -202,15 +242,23 @@ llog_critical_use_no_memory(const char* message)
 }
 
 /* ----------------------------------------------------------------------------
- * Event listeners
+ * Built in event listeners
  * ------------------------------------------------------------------------- */
-EVENT_LISTENER1(on_llog_indent, const char* str)
+static void
+on_llog_indent(const char* str)
 {
     llog(LOG_INFO, NULL, 1, str);
 }
 
 /* ------------------------------------------------------------------------- */
-EVENT_LISTENER1(on_llog, struct log_t* arg)
+static void
+on_llog_unindent(void)
+{
+}
+
+/* ------------------------------------------------------------------------- */
+static void
+on_llog(struct log_t* arg)
 {
     FILE* fp;
     char i;
