@@ -95,18 +95,15 @@ init(void)
         uint32_t doc_ID;
 
         struct service_t* start;
-        struct service_t* yaml_load         = service_get(g_local_game, "yaml.load");
-        struct service_t* yaml_get_value    = service_get(g_local_game, "yaml.get_value");
-        struct service_t* yaml_destroy      = service_get(g_local_game, "yaml.destroy");
         const char* entry_point_key = "service";
 
-        SERVICE_CALL1(yaml_load, &doc_ID, PTR(yml_entry_point));
+        SERVICE_CALL_NAME1(g_local_game, "yaml.load", &doc_ID, PTR(yml_entry_point));
         if(!doc_ID)
         {
             llog(LOG_FATAL, NULL, 1, "Cannot get main loop service");
             return;
         }
-        SERVICE_CALL2(yaml_get_value, &start_service_name, doc_ID, PTR(entry_point_key));
+        SERVICE_CALL_NAME2(g_local_game, "yaml.get_value", &start_service_name, doc_ID, PTR(entry_point_key));
         if(!start_service_name)
         {
             llog(LOG_FATAL, NULL, 3, "Cannot get value of \"service\" in \"", yml_entry_point ,"\"");
@@ -115,7 +112,7 @@ init(void)
         }
 
         start = service_get(g_local_game, start_service_name);
-        SERVICE_CALL1(yaml_destroy, SERVICE_NO_RETURN, doc_ID);
+        SERVICE_CALL_NAME1(g_local_game, "yaml.destroy", SERVICE_NO_RETURN, doc_ID);
         if(!start)
         {
             llog(LOG_FATAL, NULL, 1, "Cannot get main loop service");
