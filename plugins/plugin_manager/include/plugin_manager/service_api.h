@@ -7,12 +7,12 @@
 struct game_t;
 struct service_t;
 
-typedef void (*service_callback_func)(void* ret, const void** argv);
+typedef void (*service_callback_func)(struct service_t* service, void* ret, const void** argv);
 
 PLUGIN_MANAGER_PUBLIC_API extern char  g_service_internal_no_arg_dummy;
 
 #define SERVICE(func_name) \
-        void func_name(void* ret, const void** argv)
+        void func_name(struct service_t* service, void* ret, const void** argv)
 
 #define SERVICE_EXTRACT_ARGUMENT(index, var, cast_from, cast_to) \
     cast_to var = (cast_to) *(cast_from*)argv[index]
@@ -27,25 +27,25 @@ PLUGIN_MANAGER_PUBLIC_API extern char  g_service_internal_no_arg_dummy;
 #define PTR(arg) *(char*)arg
 
 #define SERVICE_CALL0(service, ret_value) do { \
-            ((struct service_t*)service)->exec(ret_value, NULL); \
+            ((struct service_t*)service)->exec(service, ret_value, NULL); \
         } while(0)
 #define SERVICE_CALL1(service, ret_value, arg1) do { \
             const void* service_internal_argv[1]; \
             service_internal_argv[0] = &arg1; \
-            ((struct service_t*)service)->exec(ret_value, service_internal_argv); \
+            ((struct service_t*)service)->exec(service, ret_value, service_internal_argv); \
         } while(0)
 #define SERVICE_CALL2(service, ret_value, arg1, arg2) do { \
             const void* service_internal_argv[2]; \
             service_internal_argv[0] = &arg1; \
             service_internal_argv[1] = &arg2; \
-            ((struct service_t*)service)->exec(ret_value, service_internal_argv); \
+            ((struct service_t*)service)->exec(service, ret_value, service_internal_argv); \
         } while(0)
 #define SERVICE_CALL3(service, ret_value, arg1, arg2, arg3) do { \
             const void* service_internal_argv[3]; \
             service_internal_argv[0] = &arg1; \
             service_internal_argv[1] = &arg2; \
             service_internal_argv[2] = &arg3; \
-            ((struct service_t*)service)->exec(ret_value, service_internal_argv); \
+            ((struct service_t*)service)->exec(service, ret_value, service_internal_argv); \
         } while(0)
 #define SERVICE_CALL4(service, ret_value, arg1, arg2, arg3, arg4) do { \
             const void* service_internal_argv[4]; \
@@ -53,7 +53,7 @@ PLUGIN_MANAGER_PUBLIC_API extern char  g_service_internal_no_arg_dummy;
             service_internal_argv[1] = &arg2; \
             service_internal_argv[2] = &arg3; \
             service_internal_argv[3] = &arg4; \
-            ((struct service_t*)service)->exec(ret_value, service_internal_argv); \
+            ((struct service_t*)service)->exec(service, ret_value, service_internal_argv); \
         } while(0)
 #define SERVICE_CALL5(service, ret_value, arg1, arg2, arg3, arg4, arg5) do { \
             const void* service_internal_argv[5]; \
@@ -62,7 +62,7 @@ PLUGIN_MANAGER_PUBLIC_API extern char  g_service_internal_no_arg_dummy;
             service_internal_argv[2] = &arg3; \
             service_internal_argv[3] = &arg4; \
             service_internal_argv[4] = &arg5; \
-            ((struct service_t*)service)->exec(ret_value, service_internal_argv); \
+            ((struct service_t*)service)->exec(service, ret_value, service_internal_argv); \
         } while(0)
 
 #define SERVICE_INTERNAL_GET_AND_CHECK(game, service_name) \
