@@ -11,10 +11,7 @@
  * manager.
  */
 PLUGIN_MANAGER_PUBLIC_API void
-plugin_manager_init(void);
-
-PLUGIN_MANAGER_PUBLIC_API void
-plugin_manager_get_services(struct game_t* game);
+plugin_manager_init(struct game_t* game);
 
 /*!
  * @brief Starts a loaded plugin.
@@ -83,7 +80,7 @@ load_plugins_from_yaml(struct game_t* game, const char* filename);
  * @param[in] plugin The plugin to unload.
  */
 PLUGIN_MANAGER_PUBLIC_API void
-plugin_unload(struct plugin_t* plugin);
+plugin_unload(struct game_t* game, struct plugin_t* plugin);
 
 /*!
  * @brief Searches all loaded plugins for a matching name.

@@ -60,12 +60,6 @@ init(void)
      */
     llog_set_events(evt_log_indent, evt_log_unindent, evt_log);
 
-    /*
-     * The plugin manager must be initialised before being able to load
-     * plugins.
-     */
-    plugin_manager_init();
-
     /*!
      * Load the YAML plugin. This is required so the plugin manager can parse
      * the core plugins config file and load the core plugins. If the plugin
@@ -83,12 +77,6 @@ init(void)
         llog(LOG_FATAL, NULL, 1, "Failed to start YAML plugin");
         return;
     }
-
-    /*
-     * Now that the YAML plugin is loaded, plugin manager can hook in to the
-     * services YAML provides.
-     */
-    plugin_manager_get_services(g_local_game);
 
     /*
      * Try to load and start the core plugins. If that fails, bail out.
