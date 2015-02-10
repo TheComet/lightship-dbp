@@ -52,10 +52,14 @@ init(void)
      * Enable logging as soon as possible (right after enabling services and
      * events)
      */
-    llog_init(g_local_game);
-    event_register_listener(g_local_game, NULL, BUILTIN_NAMESPACE_NAME ".log", (event_callback_func)on_llog);
-    event_register_listener(g_local_game, NULL, BUILTIN_NAMESPACE_NAME ".log_indent", (event_callback_func)on_llog_indent);
+    llog_init();
     
+    /*
+     * Inform log about the built in events that were created in events_init()
+     * so the log can propagate log messages to listeners.
+     */
+    llog_set_events(evt_log_indent, evt_log_unindent, evt_log);
+
     /*
      * The plugin manager must be initialised before being able to load
      * plugins.
@@ -137,6 +141,7 @@ void
 deinit(void)
 {
     plugin_manager_deinit(g_local_game);
+    llog_deinit();
     events_deinit(g_local_game);
     services_deinit();
     game_destroy(g_local_game);

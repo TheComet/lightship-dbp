@@ -4,6 +4,8 @@
 #include "util/config.h"
 #include "util/pstdint.h"
 
+#include "plugin_manager/event_api.h"
+
 struct game_t;
 
 typedef enum log_level_t
@@ -28,6 +30,12 @@ struct log_t
  */
 LIGHTSHIP_UTIL_PUBLIC_API void
 llog_init(void);
+
+LIGHTSHIP_UTIL_PUBLIC_API void
+llog_deinit(void);
+
+LIGHTSHIP_UTIL_PUBLIC_API void
+llog_set_events(struct event_t* on_indent, struct event_t* on_unindent, struct event_t* on_log);
 
 /*!
  * @brief Opens an indentation level of the log.
@@ -64,8 +72,5 @@ llog(log_level_t level, const char* plugin, uint32_t num_strs, ...);
 
 LIGHTSHIP_UTIL_PUBLIC_API void
 llog_critical_use_no_memory(const char* message);
-
-EVENT_LISTENER1(on_llog_indent, const char* str);
-EVENT_LISTENER1(on_llog, struct log_t* arg);
 
 #endif /* LIGHTSHIP_UTIL_LOG_H */

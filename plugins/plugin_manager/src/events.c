@@ -90,11 +90,6 @@ events_init(struct game_t* game)
     evt_log_indent = event_malloc_and_register(game, name);
     name = malloc_string(BUILTIN_NAMESPACE_NAME ".log_unindent");
     evt_log_unindent = event_malloc_and_register(game, name);
-    
-    { MAP_FOR_EACH(&game->events, struct event_t, key, event)
-    {
-        printf("%s\n", event->name);
-    }}
 }
 
 /* ------------------------------------------------------------------------- */
