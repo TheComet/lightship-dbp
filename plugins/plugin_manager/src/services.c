@@ -293,8 +293,8 @@ service_create_argument_list_from_strings(struct service_t* service, struct orde
                     strcpy(ret[i], str);
                     break;
                 case SERVICE_SCRIPT_TYPE_WSTRING:
-                    ret[i] = MALLOC((wcslen(str) + 1) * sizeof(wchar_t));
-                    wcscpy(ret[i], str);
+                    ret[i] = MALLOC((wcslen((const wchar_t*)str) + 1) * sizeof(wchar_t));
+                    wcscpy(ret[i], (const wchar_t*)str);
                     ret[i] = strtowcs(str);
                     break;
 /* ------------------------------------------------------------------------- */
