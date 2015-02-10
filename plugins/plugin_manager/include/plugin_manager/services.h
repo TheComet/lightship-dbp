@@ -1,7 +1,7 @@
 #ifndef LIGHTSHIP_SERVICES_H
 #define LIGHTSHIP_SERVICES_H
 
-#include "plugin_manager//service_api.h"
+#include "plugin_manager/service_api.h"
 
 C_HEADER_BEGIN
 
@@ -57,7 +57,7 @@ PLUGIN_MANAGER_PUBLIC_API char
 service_register(struct game_t* game,
                  const struct plugin_t* plugin,
                  const char* name,
-                 service_callback_func exec,
+                 const service_callback_func exec,
                  const char* ret_type,
                  const int argc,
                  const char** argv);

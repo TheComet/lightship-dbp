@@ -141,8 +141,8 @@ struct service_t
     struct game_t* game;
     char* name;
     uint32_t argc;
-    const char* ret_type;
-    const char** argv_type;
+    char* ret_type;
+    char** argv_type;
     service_callback_func exec;
 };
 

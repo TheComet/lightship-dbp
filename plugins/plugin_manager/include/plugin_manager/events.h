@@ -99,8 +99,8 @@ event_register_listener(plugin, "plugin_name.jump", on_player_jump);
 #define LIGHTSHIP_UTIL_EVENTS_H
 
 #include "util/pstdint.h"
-#include "plugin_manager/config.h"
 #include "util/linked_list.h"
+#include "plugin_manager/config.h"
 #include "plugin_manager/event_api.h"
 
 C_HEADER_BEGIN
@@ -112,9 +112,9 @@ struct game_t;
 /* ----------------------------
  * Built-in events
  * --------------------------*/
-EVENT_H1(evt_log, struct log_t*);
-EVENT_H1(evt_log_indent, const char*);
-EVENT_H0(evt_log_unindent);
+PLUGIN_MANAGER_PUBLIC_API EVENT_H1(evt_log, struct log_t*);
+PLUGIN_MANAGER_PUBLIC_API EVENT_H1(evt_log_indent, const char*);
+PLUGIN_MANAGER_PUBLIC_API EVENT_H0(evt_log_unindent);
 
 /*!
  * @brief Initialises the event system.

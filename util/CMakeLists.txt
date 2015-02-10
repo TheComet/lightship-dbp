@@ -78,6 +78,9 @@ add_library (lightship_util ${BUILD_TYPE}
     ${lightship_util_SOURCES}
 )
 
+# The library is being built
+add_definitions (${DEFINE_CMD}${PROJECT_NAME}_BUILDING)
+
 ###############################################################################
 # ncurses for colourful terminal output
 ###############################################################################

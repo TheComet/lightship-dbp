@@ -57,7 +57,7 @@ map_find_lower_bound(const struct map_t* map, uint32_t hash)
     }
     
     /* if "data" is pointing outside of the valid elements in the vector, also return NULL */
-    if((intptr_t)data >= (intptr_t)map->vector.data + map->vector.count * map->vector.element_size)
+    if((intptr_t)data >= (intptr_t)map->vector.data + (intptr_t)map->vector.count * (intptr_t)map->vector.element_size)
         return NULL;
     else
         return data;

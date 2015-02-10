@@ -1,8 +1,8 @@
 #ifndef LIGHTSHIP_UTIL_PLUGIN_H
 #define LIGHTSHIP_UTIL_PLUGIN_H
 
-#include "plugin_manager/plugin_api.h"
 #include "plugin_manager/config.h"
+#include "plugin_manager/plugin_api.h"
 
 struct game_t;
 
