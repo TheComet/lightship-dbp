@@ -19,9 +19,11 @@ elseif (${CMAKE_C_COMPILER_ID} STREQUAL "MSVC")
 endif ()
 
 ###############################################################################
-# generate config.h for this plugin
+# generate config.h and export.h for this plugin
 ###############################################################################
 
+set (PROJECT_NAME "PLUGIN_YAML")
+set (BUILD_TYPE "SHARED")
 set (PLUGIN_YAML_VERSION_MAJOR 0)
 set (PLUGIN_YAML_VERSION_MINOR 0)
 set (PLUGIN_YAML_VERSION_PATCH 1)
@@ -35,6 +37,8 @@ set (PLUGIN_YAML_VERSION_STRING
 
 configure_file ("include/plugin_yaml/config.h.in"
                 "${CMAKE_CURRENT_BINARY_DIR}/include/plugin_yaml/config.h")
+configure_file ("${EXPORT_H_TEMPLATE}"
+                "include/plugin_yaml/export.h")
 include_directories ("${CMAKE_CURRENT_BINARY_DIR}/include")
 
 ###############################################################################
@@ -46,6 +50,10 @@ set (plugin_yaml_OUTPUT_NAME
 
 file (GLOB plugin_yaml_HEADERS "include/plugin_yaml/*.h")
 file (GLOB plugin_yaml_SOURCES "src/*.c")
+
+set (plugin_yaml_HEADERS ${plugin_yaml_HEADERS}
+    "${EXPORT_H_TEMPLATE}"
+    "include/plugin_yaml/config.h.in")
 
 include_directories ("include")
 
@@ -63,6 +71,9 @@ set_target_properties (plugin_yaml
 
 # ensure plugin is built before lightship
 add_dependencies (lightship plugin_yaml)
+
+# this library is being built
+add_definitions (${DEFINE_CMD}${PROJECT_NAME}_BUILDING)
 
 ###############################################################################
 # copy plugin to plugins/ folder after build

@@ -21,7 +21,7 @@ set (BUILTIN_NAMESPACE_NAME "builtin" CACHE STRING "This is the namespace under 
 
 message (STATUS "Built-in namespace: ${BUILTIN_NAMESPACE_NAME}")
 
-configure_file ("${CMAKE_SOURCE_DIR}/util/include/common/export.h.in"
+configure_file ("${EXPORT_H_TEMPLATE}"
                 "include/plugin_manager/export.h")
 configure_file ("include/plugin_manager/config.h.in"
                 "include/plugin_manager/config.h")

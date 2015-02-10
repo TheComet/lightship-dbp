@@ -138,6 +138,12 @@ endif ()
 file (MAKE_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/plugins")
 
 ###############################################################################
+# set where the export.h template file is
+###############################################################################
+
+set (EXPORT_H_TEMPLATE "${CMAKE_SOURCE_DIR}/util/include/common/export.h.in")
+
+###############################################################################
 # Dependency settings
 ###############################################################################
 
