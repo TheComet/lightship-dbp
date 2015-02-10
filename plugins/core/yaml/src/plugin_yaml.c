@@ -30,7 +30,7 @@ create_and_init_plugin(struct game_t* game)
     );
 }
 
-PLUGIN_INIT()
+PLUGIN_YAML_PUBLIC_API PLUGIN_INIT()
 {
     create_and_init_plugin(game);
     register_services(game, g_plugin);
@@ -39,19 +39,19 @@ PLUGIN_INIT()
     return g_plugin;
 }
 
-PLUGIN_START()
+PLUGIN_YAML_PUBLIC_API PLUGIN_START()
 {
     register_event_listeners(game, g_plugin);
 
     return PLUGIN_SUCCESS;
 }
 
-PLUGIN_STOP()
+PLUGIN_YAML_PUBLIC_API PLUGIN_STOP()
 {
     parser_deinit();
 }
 
-PLUGIN_DEINIT()
+PLUGIN_YAML_PUBLIC_API PLUGIN_DEINIT()
 {
     plugin_destroy(g_plugin);
 }

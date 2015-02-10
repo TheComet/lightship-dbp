@@ -44,7 +44,7 @@ create_vcproj_userfile (lightship)
 
 set (PROJECT_NAME "LIGHTSHIP")
 
-configure_file ("${CMAKE_SOURCE_DIR}/util/include/common/export.h.in"
+configure_file ("${EXPORT_H_TEMPLATE}"
                 "include/lightship/export.h")
 configure_file ("include/lightship/config.h.in"
                 "include/lightship/config.h")

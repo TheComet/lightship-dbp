@@ -68,7 +68,8 @@ init(void)
 
     /*!
      * Load the YAML plugin. This is required so the plugin manager can parse
-     * the core plugins config file and load the core plugins.
+     * the core plugins config file and load the core plugins. If the plugin
+     * fails to load, bail.
      */
     target.name = "yaml";
     target.version.major = 0;

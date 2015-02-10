@@ -52,7 +52,7 @@ if (WIN32)
     set (MEMORY_ENABLE_BACKTRACE 0)
 endif ()
 
-configure_file ("${CMAKE_SOURCE_DIR}/util/include/common/export.h.in"
+configure_file ("${EXPORT_H_TEMPLATE}"
                 "include/util/export.h")
 configure_file ("include/util/config.h.in"
                 "include/util/config.h")
