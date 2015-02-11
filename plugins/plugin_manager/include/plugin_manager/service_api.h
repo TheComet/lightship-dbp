@@ -9,81 +9,151 @@ struct service_t;
 
 typedef void (*service_callback_func)(struct service_t* service, void* ret, const void** argv);
 
-PLUGIN_MANAGER_PUBLIC_API extern char  g_service_internal_no_arg_dummy;
-
+/*!
+ * @brief Helper macro for defining a service function.
+ * 
+ * This can be used in the header file to create a function prototype as well
+ * as in the source file to define the function body.
+ * 
+ * The resulting function signature defines 3 arguments:
+ *   - service: The service object that called the service function. This can
+ *              be used to extract the game object (service->game), retrieve
+ *              type information about the arguments, or otherwise help
+ *              identify information about the service.
+ *   - ret    : A void* pointing to a location where a return value can be
+ *              written to. See the helper macro SERVICE_RETURN() for more
+ *              information on returning values from service functions.
+ *   - argv   : An argument vector of void** pointing to the memory locations
+ *              where argument types can be read from. See the helper macros
+ *              SERVICE_EXTRACT_ARGUMENT() and SERVICE_EXTRACT_ARGUMENT_PTR()
+ *              for more information on extracting arguments from service
+ *              functions.
+ * @param func_name The name of the service function.
+ */
 #define SERVICE(func_name) \
         void func_name(struct service_t* service, void* ret, const void** argv)
 
+/*!
+ * @brief Helper macro for extracting an argument from an argument vector in a
+ * service function.
+ * @param index The index of the argument, beginning at 0.
+ * @param var The identifier to give the extracted variable.
+ * @param cast_from The type of the value stored at the specified index.
+ * @param cast_to The type to cast the extracted argument to. This is also the
+ * type of *var*.
+ * @note If the argument being extracted is a pointer type, use
+ * SERVICE_EXTRACT_ARGUMENT_PTR() instead.
+ * @note *cast_from* and *cast_to* are necessary because there are two
+ * dereferences. You can think of it as the extracted value being stored into
+ * a "temporary state" before casted to its final type. The type it has in its
+ * temporary state must be equal to the type it had when it was first inserted
+ * into the argument vector. Most of the time, *cast_from* and *cast_to* will
+ * be identical, but there are (rare) cases where they differ, namely in the
+ * renderer plugin with floats: Internally, floats are of type GLfloat, but
+ * because the caller does not have access to GLfloat, he will pass it as a
+ * normal float. In order for the cast from float to GLfloat to be successful,
+ * the void-pointer must first be cast to a float-pointer (*cast_from*), and
+ * finally cast to a GLfloat-pointer (*cast_to*)
+ */
 #define SERVICE_EXTRACT_ARGUMENT(index, var, cast_from, cast_to) \
     cast_to var = (cast_to) *(cast_from*)argv[index]
+
+/*!
+ * @brief Helper macro for extracting a pointer argument from an argument
+ * vector in a service function.
+ * @param index The index of the argument, beginning at 0.
+ * @param var The identifier to give the extracted variable.
+ * @param cast_to The pointer type to cast the extracted argument to. This is
+ * also the type of *var*.
+ * @note If the argument being extracted is not a pointer, use
+ * SERVICE_EXTRACT_ARGUMENT().
+ */
 #define SERVICE_EXTRACT_ARGUMENT_PTR(index, var, cast_to) \
     cast_to var = (cast_to)argv[index]
 
+/*!
+ * @brief Helper macro for returning values from a service function to the
+ * caller.
+ * @param value The identifier of the variable to return.
+ * @param ret_type The type of the return value. This **must** be identical to
+ * the type the caller is expecting to be returned. If this is not the cast,
+ * the returned value will become undefined.
+ */
 #define SERVICE_RETURN(value, ret_type) do { \
-        *(ret_type*)ret = value; return; } while(0)
+        *(ret_type*)ret = (ret_type)value; return; } while(0)
 
+/*!
+ * @brief Passed to one of the SERVICE_CALL* functions to indicate that the
+ * service does not accept return values.
+ */
 #define SERVICE_NO_RETURN NULL
-#define SERVICE_NO_ARGUMENT g_service_internal_no_arg_dummy
+
+/*!
+ * @brief All arguments that are of a pointer type must be passed to a
+ * SERVICE_CALL* function using this macro.
+ * @param arg The pointer argument to pass to the service function call.
+ */
 #define PTR(arg) *(char*)arg
 
-#define SERVICE_CALL0(service, ret_value) do { \
-            ((struct service_t*)service)->exec(service, ret_value, NULL); \
+#define SERVICE_CALL0(service, ret_value) do {                                              \
+            ((struct service_t*)service)->exec(service, ret_value, NULL);                   \
         } while(0)
-#define SERVICE_CALL1(service, ret_value, arg1) do { \
-            const void* service_internal_argv[1]; \
-            service_internal_argv[0] = &arg1; \
-            ((struct service_t*)service)->exec(service, ret_value, service_internal_argv); \
+#define SERVICE_CALL1(service, ret_value, arg1) do {                                        \
+            const void* service_internal_argv[1];                                           \
+            service_internal_argv[0] = &arg1;                                               \
+            ((struct service_t*)service)->exec(service, ret_value, service_internal_argv);  \
         } while(0)
-#define SERVICE_CALL2(service, ret_value, arg1, arg2) do { \
-            const void* service_internal_argv[2]; \
-            service_internal_argv[0] = &arg1; \
-            service_internal_argv[1] = &arg2; \
-            ((struct service_t*)service)->exec(service, ret_value, service_internal_argv); \
+#define SERVICE_CALL2(service, ret_value, arg1, arg2) do {                                  \
+            const void* service_internal_argv[2];                                           \
+            service_internal_argv[0] = &arg1;                                               \
+            service_internal_argv[1] = &arg2;                                               \
+            ((struct service_t*)service)->exec(service, ret_value, service_internal_argv);  \
         } while(0)
-#define SERVICE_CALL3(service, ret_value, arg1, arg2, arg3) do { \
-            const void* service_internal_argv[3]; \
-            service_internal_argv[0] = &arg1; \
-            service_internal_argv[1] = &arg2; \
-            service_internal_argv[2] = &arg3; \
-            ((struct service_t*)service)->exec(service, ret_value, service_internal_argv); \
+#define SERVICE_CALL3(service, ret_value, arg1, arg2, arg3) do {                            \
+            const void* service_internal_argv[3];                                           \
+            service_internal_argv[0] = &arg1;                                               \
+            service_internal_argv[1] = &arg2;                                               \
+            service_internal_argv[2] = &arg3;                                               \
+            ((struct service_t*)service)->exec(service, ret_value, service_internal_argv);  \
         } while(0)
-#define SERVICE_CALL4(service, ret_value, arg1, arg2, arg3, arg4) do { \
-            const void* service_internal_argv[4]; \
-            service_internal_argv[0] = &arg1; \
-            service_internal_argv[1] = &arg2; \
-            service_internal_argv[2] = &arg3; \
-            service_internal_argv[3] = &arg4; \
-            ((struct service_t*)service)->exec(service, ret_value, service_internal_argv); \
+#define SERVICE_CALL4(service, ret_value, arg1, arg2, arg3, arg4) do {                      \
+            const void* service_internal_argv[4];                                           \
+            service_internal_argv[0] = &arg1;                                               \
+            service_internal_argv[1] = &arg2;                                               \
+            service_internal_argv[2] = &arg3;                                               \
+            service_internal_argv[3] = &arg4;                                               \
+            ((struct service_t*)service)->exec(service, ret_value, service_internal_argv);  \
         } while(0)
-#define SERVICE_CALL5(service, ret_value, arg1, arg2, arg3, arg4, arg5) do { \
-            const void* service_internal_argv[5]; \
-            service_internal_argv[0] = &arg1; \
-            service_internal_argv[1] = &arg2; \
-            service_internal_argv[2] = &arg3; \
-            service_internal_argv[3] = &arg4; \
-            service_internal_argv[4] = &arg5; \
-            ((struct service_t*)service)->exec(service, ret_value, service_internal_argv); \
+#define SERVICE_CALL5(service, ret_value, arg1, arg2, arg3, arg4, arg5) do {                \
+            const void* service_internal_argv[5];                                           \
+            service_internal_argv[0] = &arg1;                                               \
+            service_internal_argv[1] = &arg2;                                               \
+            service_internal_argv[2] = &arg3;                                               \
+            service_internal_argv[3] = &arg4;                                               \
+            service_internal_argv[4] = &arg5;                                               \
+            ((struct service_t*)service)->exec(service, ret_value, service_internal_argv);  \
         } while(0)
 
-#define SERVICE_INTERNAL_GET_AND_CHECK(game, service_name) \
-        struct service_t* service_internal_service = service_get(game, service_name); \
-        if(!service_internal_service) \
-            llog(LOG_WARNING, NULL, 3, "Service \"", service_name, "\" does not exist"); \
+#define SERVICE_INTERNAL_GET_AND_CHECK(game, service_name)                                  \
+        struct service_t* service_internal_service = service_get(game, service_name);       \
+        if(!service_internal_service)                                                       \
+            llog(LOG_WARNING, NULL, 3, "Service \"", service_name, "\" does not exist");    \
         else
 
-#define SERVICE_CALL_NAME0(game, service_name, ret_value) do { \
-            SERVICE_INTERNAL_GET_AND_CHECK(game, service_name) \
-            SERVICE_CALL0(service_internal_service, ret_value); \
+#define SERVICE_CALL_NAME0(game, service_name, ret_value) do {                              \
+            SERVICE_INTERNAL_GET_AND_CHECK(game, service_name)                              \
+            SERVICE_CALL0(service_internal_service, ret_value);                             \
         } while(0)
-#define SERVICE_CALL_NAME1(game, service_name, ret_value, arg1) do { \
-            SERVICE_INTERNAL_GET_AND_CHECK(game, service_name) \
-            SERVICE_CALL1(service_internal_service, ret_value, arg1); \
+#define SERVICE_CALL_NAME1(game, service_name, ret_value, arg1) do {                        \
+            SERVICE_INTERNAL_GET_AND_CHECK(game, service_name)                              \
+            SERVICE_CALL1(service_internal_service, ret_value, arg1);                       \
         } while(0)
-#define SERVICE_CALL_NAME2(game, service_name, ret_value, arg1, arg2) do { \
-            SERVICE_INTERNAL_GET_AND_CHECK(game, service_name) \
-            SERVICE_CALL2(service_internal_service, ret_value, arg1, arg2); \
+#define SERVICE_CALL_NAME2(game, service_name, ret_value, arg1, arg2) do {                  \
+            SERVICE_INTERNAL_GET_AND_CHECK(game, service_name)                              \
+            SERVICE_CALL2(service_internal_service, ret_value, arg1, arg2);                 \
         } while(0)
 
+/* XXX STRINGIFY(TYPEOF(x)) doesn't do what you think it does. */
 #if defined(TYPEOF) && defined(_DEBUG)
 #   define SERVICE_TYPECHECK0(service, ret_value) \
             const char* service_internal_ret = STRINGIFY(TYPEOF(ret_value)); \

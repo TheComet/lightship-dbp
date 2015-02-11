@@ -20,7 +20,7 @@ glob_create(struct game_t* game)
 
     glob = (struct glob_t*)MALLOC(sizeof(struct glob_t));
     if(!glob)
-        OUT_OF_MEMORY("[yaml] glob_create()", RETURN_NOTHING);
+        OUT_OF_MEMORY("[" PLUGIN_NAME "] glob_create()", RETURN_NOTHING);
     memset(glob, 0, sizeof(struct glob_t));
     game_add_global(game, global_hash, glob);
 }

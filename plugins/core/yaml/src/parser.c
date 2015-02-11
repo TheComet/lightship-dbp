@@ -9,6 +9,7 @@
 #include "util/hash.h"
 #include <stdlib.h>
 
+/* ------------------------------------------------------------------------- */
 void
 parser_init(struct game_t* game)
 {
@@ -16,12 +17,14 @@ parser_init(struct game_t* game)
     get_global(game)->parser.doc_guid_counter = 1;
 }
 
+/* ------------------------------------------------------------------------- */
 void
 parser_deinit(struct game_t* game)
 {
     unordered_vector_clear_free(&get_global(game)->parser.open_docs);
 }
 
+/* ------------------------------------------------------------------------- */
 char
 yaml_load_into_ptree(struct ptree_t* tree, struct ptree_t* root_tree, yaml_parser_t* parser, char is_sequence)
 {
@@ -68,7 +71,7 @@ yaml_load_into_ptree(struct ptree_t* tree, struct ptree_t* root_tree, yaml_parse
                     break;
                 }
                 {
-                    /* recurse, setting is_sequence to 1 */
+                    /* create child and recurse, setting is_sequence to 1 */
                     struct ptree_t* child = ptree_add_node(tree, key, NULL);
                     ptree_set_dup_func(child, (ptree_dup_func)malloc_string);
                     result = yaml_load_into_ptree(child, root_tree, parser, 1);
@@ -209,6 +212,7 @@ yaml_load_into_ptree(struct ptree_t* tree, struct ptree_t* root_tree, yaml_parse
     return 1;
 }
 
+/* ------------------------------------------------------------------------- */
 static struct yaml_doc_t*
 yaml_get_doc(struct game_t* game, uint32_t ID)
 {
@@ -220,6 +224,7 @@ yaml_get_doc(struct game_t* game, uint32_t ID)
     return NULL;
 }
 
+/* ------------------------------------------------------------------------- */
 uint32_t
 yaml_load(struct game_t* game, const char* filename)
 {
@@ -261,6 +266,7 @@ yaml_load(struct game_t* game, const char* filename)
     return doc->ID;
 }
 
+/* ------------------------------------------------------------------------- */
 struct ptree_t*
 yaml_get_dom(struct game_t* game, uint32_t ID)
 {
@@ -270,6 +276,7 @@ yaml_get_dom(struct game_t* game, uint32_t ID)
     return doc->dom;
 }
 
+/* ------------------------------------------------------------------------- */
 const char*
 yaml_get_value(struct game_t* game, const uint32_t ID, const char* key)
 {
@@ -284,6 +291,7 @@ yaml_get_value(struct game_t* game, const uint32_t ID, const char* key)
     return NULL;
 }
 
+/* ------------------------------------------------------------------------- */
 void
 yaml_destroy(struct game_t* game, const uint32_t ID)
 {
@@ -299,6 +307,9 @@ yaml_destroy(struct game_t* game, const uint32_t ID)
     }
 }
 
+/* ------------------------------------------------------------------------- */
+/* WRAPPERS */
+/* ------------------------------------------------------------------------- */
 SERVICE(yaml_load_wrapper)
 {
     SERVICE_EXTRACT_ARGUMENT_PTR(0, file_name, const char*);
