@@ -11,8 +11,6 @@
 #include <assert.h>
 #include <wchar.h>
 
-char  g_service_internal_no_arg_dummy     = 0;
-
 /*!
  * @brief Allocates and registers a new service. This is for internal use.
  * @param[in] full_name The full name, including namespace, of the service to
