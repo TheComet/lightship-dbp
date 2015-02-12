@@ -1,5 +1,5 @@
 #include "util/pstdint.h"
-#include "util/event_api.h"
+#include "plugin_manager/event_api.h"
 
 EVENT_LISTENER1(on_key_press, uint32_t key);
 EVENT_LISTENER1(on_key_release, uint32_t key);

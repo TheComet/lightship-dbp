@@ -36,7 +36,7 @@ set (PLUGIN_YAML_VERSION_STRING
     "${PLUGIN_YAML_VERSION_MAJOR}.${PLUGIN_YAML_VERSION_MINOR}.${PLUGIN_YAML_VERSION_PATCH}")
 
 configure_file ("include/plugin_yaml/config.h.in"
-                "${CMAKE_CURRENT_BINARY_DIR}/include/plugin_yaml/config.h")
+                "include/plugin_yaml/config.h")
 configure_file ("${EXPORT_H_TEMPLATE}"
                 "include/plugin_yaml/export.h")
 include_directories ("${CMAKE_CURRENT_BINARY_DIR}/include")

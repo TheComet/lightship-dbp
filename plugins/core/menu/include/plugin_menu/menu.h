@@ -1,6 +1,6 @@
 #include "util/pstdint.h"
 #include "util/map.h"
-#include "util/service_api.h"
+#include "plugin_manager/service_api.h"
 
 struct screen_t;
 

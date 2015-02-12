@@ -2,7 +2,7 @@
 #include "plugin_menu/services.h"
 #include "util/map.h"
 #include "util/memory.h"
-#include "util/service_api.h"
+#include "plugin_manager/service_api.h"
 #include <string.h>
 
 static uint32_t guid = 1;
