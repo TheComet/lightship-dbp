@@ -38,15 +38,15 @@ EVENT_LISTENER1(on_event, int arg)
  * @note The event listener must have the same signature as the fired event.
  */
 #define EVENT_LISTENER0(name) \
-    void name(const struct event_t* evt)
+    void name(const struct event_t* event)
 #define EVENT_LISTENER1(name, arg) \
-    void name(const struct event_t* evt, arg)
+    void name(const struct event_t* event, arg)
 #define EVENT_LISTENER2(name, arg1, arg2) \
-    void name(const struct event_t* evt, arg1, arg2)
+    void name(const struct event_t* event, arg1, arg2)
 #define EVENT_LISTENER3(name, arg1, arg2, arg3) \
-    void name(const struct event_t* evt, arg1, arg2, arg3)
+    void name(const struct event_t* event, arg1, arg2, arg3)
 #define EVENT_LISTENER4(name, arg1, arg2, arg3, arg4) \
-    void name(const struct event_t* evt, arg1, arg2, arg3, arg4)
+    void name(const struct event_t* event, arg1, arg2, arg3, arg4)
 
 /*!
  * @brief Generates an event listener function signature typedef.
@@ -247,19 +247,19 @@ EVENT_H(evt_foo, args...);
 @endcode
  */
 #define EVENT_H0(event)                     \
-	extern struct event_t* event;           \
+    extern struct event_t* event;           \
     EVENT_GEN_DUMMY_FUNCTION_DECL0(event)
 #define EVENT_H1(event, arg1_t)                     \
     extern struct event_t* event;                   \
-	EVENT_GEN_DUMMY_FUNCTION_DECL1(event, arg1_t)
+    EVENT_GEN_DUMMY_FUNCTION_DECL1(event, arg1_t)
 #define EVENT_H2(event, arg1_t, arg2_t)                     \
-	extern struct event_t* event;                           \
+    extern struct event_t* event;                           \
     EVENT_GEN_DUMMY_FUNCTION_DECL2(event, arg1_t, arg2_t)
 #define EVENT_H3(event, arg1_t, arg2_t, arg3_t)                     \
-	extern struct event_t* event;                                   \
+    extern struct event_t* event;                                   \
     EVENT_GEN_DUMMY_FUNCTION_DECL3(event, arg1_t, arg2_t, arg3_t)
 #define EVENT_H4(event, arg1_t, arg2_t, arg3_t, arg4_t)                     \
-	extern struct event_t* event;                                           \
+    extern struct event_t* event;                                           \
     EVENT_GEN_DUMMY_FUNCTION_DECL4(event, arg1_t, arg2_t, arg3_t, arg4_t)
 
 /*!

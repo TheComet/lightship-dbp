@@ -16,6 +16,8 @@ endif ()
 # generate config.h for this plugin
 ###############################################################################
 
+set (PROJECT_NAME "PLUGIN_MAIN_LOOP")
+set (BUILD_TYPE "SHARED")
 set (PLUGIN_MAIN_LOOP_VERSION_MAJOR 0)
 set (PLUGIN_MAIN_LOOP_VERSION_MINOR 0)
 set (PLUGIN_MAIN_LOOP_VERSION_PATCH 1)
@@ -28,7 +30,9 @@ set (PLUGIN_MAIN_LOOP_VERSION_STRING
     "${PLUGIN_MAIN_LOOP_VERSION_MAJOR}.${PLUGIN_MAIN_LOOP_VERSION_MINOR}.${PLUGIN_MAIN_LOOP_VERSION_PATCH}")
 
 configure_file ("include/plugin_main_loop/config.h.in"
-                "${CMAKE_CURRENT_BINARY_DIR}/include/plugin_main_loop/config.h")
+                "include/plugin_main_loop/config.h")
+configure_file ("${EXPORT_H_TEMPLATE}"
+                "include/plugin_main_loop/export.h")
 include_directories ("${CMAKE_CURRENT_BINARY_DIR}/include")
 
 ###############################################################################
@@ -40,6 +44,10 @@ set (plugin_main_loop_OUTPUT_NAME
 
 file (GLOB plugin_main_loop_HEADERS "include/plugin_main_loop/*.h")
 file (GLOB plugin_main_loop_SOURCES "src/*.c")
+
+set (plugin_main_loop_HEADERS ${plugin_main_loop_HEADERS}
+    "include/plugin_main_loop/config.h.in"
+    "${EXPORT_H_TEMPLATE}")
 
 include_directories ("include")
 

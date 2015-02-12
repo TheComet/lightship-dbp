@@ -1,5 +1,5 @@
 #include "util/pstdint.h"
-#include "util/event_api.h"
+#include "plugin_manager/event_api.h"
 
 struct plugin_t;
 

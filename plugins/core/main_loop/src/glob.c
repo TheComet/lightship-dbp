@@ -1,5 +1,5 @@
-#include "plugin_yaml/glob.h"
-#include "plugin_yaml/config.h"
+#include "plugin_main_loop/glob.h"
+#include "plugin_main_loop/config.h"
 #include "util/memory.h"
 #include "util/log.h"
 #include "util/hash.h"

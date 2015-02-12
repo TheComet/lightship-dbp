@@ -1,6 +1,6 @@
 #include "input/config.h"   /* configurations for this plugin */
 #include "util/config.h"     /* platform macros and definitions */
-#include "util/plugin.h"     /* plugin api */
+#include "plugin_manager/plugin.h"     /* plugin api */
 #include "plugin_input/services.h" /* plugin services */
 #include "plugin_input/events.h"   /* plugin events */
 

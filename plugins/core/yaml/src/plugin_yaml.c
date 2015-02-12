@@ -1,10 +1,11 @@
-#include "plugin_manager/plugin.h"     /* plugin api */
-#include "plugin_yaml/config.h"   /* configurations for this plugin */
-#include "plugin_yaml/services.h" /* plugin services */
-#include "plugin_yaml/events.h"   /* plugin events */
+#include "plugin_manager/plugin.h"  /* plugin api */
+#include "plugin_yaml/config.h"     /* configurations for this plugin */
+#include "plugin_yaml/services.h"   /* plugin services */
+#include "plugin_yaml/events.h"     /* plugin events */
 #include "plugin_yaml/parser.h"
 #include "plugin_yaml/glob.h"
 
+/* ------------------------------------------------------------------------- */
 struct plugin_t*
 create_and_init_plugin(struct game_t* game)
 {
@@ -32,6 +33,7 @@ create_and_init_plugin(struct game_t* game)
     return plugin;
 }
 
+/* ------------------------------------------------------------------------- */
 PLUGIN_YAML_PUBLIC_API PLUGIN_INIT()
 {
     struct plugin_t* plugin;
@@ -44,9 +46,11 @@ PLUGIN_YAML_PUBLIC_API PLUGIN_INIT()
     register_services(game, plugin);
     register_events(game, plugin);
     parser_init(game);
+    
     return plugin;
 }
 
+/* ------------------------------------------------------------------------- */
 PLUGIN_YAML_PUBLIC_API PLUGIN_START()
 {
     register_event_listeners(game, get_global(game)->plugin.plugin);
@@ -54,11 +58,13 @@ PLUGIN_YAML_PUBLIC_API PLUGIN_START()
     return PLUGIN_SUCCESS;
 }
 
+/* ------------------------------------------------------------------------- */
 PLUGIN_YAML_PUBLIC_API PLUGIN_STOP()
 {
     parser_deinit(game);
 }
 
+/* ------------------------------------------------------------------------- */
 PLUGIN_YAML_PUBLIC_API PLUGIN_DEINIT()
 {
     plugin_destroy(get_global(game)->plugin.plugin);
