@@ -7,6 +7,7 @@
 C_HEADER_BEGIN
 
 struct event_t;
+struct game_t;
 
 /* event callback function signature */
 typedef void (*event_callback_func)();

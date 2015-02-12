@@ -7,7 +7,7 @@
 #include "plugin_manager/services.h"
 
 void
-register_services(struct game_t* game, const struct plugin_t* plugin)
+register_services(struct game_t* game, struct plugin_t* plugin)
 {
     SERVICE_REGISTER0(game, plugin, "window_width",                   window_width_wrapper, uint32_t);
     SERVICE_REGISTER0(game, plugin, "window_height",                  window_height_wrapper, uint32_t);

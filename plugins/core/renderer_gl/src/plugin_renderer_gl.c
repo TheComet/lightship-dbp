@@ -1,51 +1,62 @@
-#include "util/config.h"
-#include "util/log.h"
-#include "util/plugin.h"
-#include "plugin_renderer_gl/2d.h"
 #include "plugin_renderer_gl/config.h"
 #include "plugin_renderer_gl/events.h"
 #include "plugin_renderer_gl/services.h"
+#include "plugin_renderer_gl/glob.h"
+#include "plugin_renderer_gl/2d.h"
 #include "plugin_renderer_gl/sprite.h"
 #include "plugin_renderer_gl/text_manager.h"
 #include "plugin_renderer_gl/text_wrapper.h"
 #include "plugin_renderer_gl/window.h"
+#include "plugin_manager/plugin.h"
+#include "util/log.h"
 #include "glfw3.h"
 #include <stdio.h>
 
-static struct plugin_t* g_plugin = NULL;
-
-void
-set_plugin_info(void)
+/* ------------------------------------------------------------------------- */
+struct plugin_t*
+create_and_init_plugin(struct game_t* game)
 {
+    struct plugin_t* plugin = plugin_create(game);
+    get_global(game)->plugin = plugin;
+
     /* set plugin information */
-    plugin_set_info(g_plugin,
+    plugin_set_info(plugin,
             PLUGIN_NAME,            /* name */
             PLUGIN_CATEGORY,        /* category */
             PLUGIN_AUTHOR,          /* author */
             PLUGIN_DESCRIPTION,     /* description */
             PLUGIN_WEBSITE          /* website */
     );
-    plugin_set_programming_language(g_plugin,
+    plugin_set_programming_language(plugin,
             PLUGIN_PROGRAMMING_LANGUAGE_C
     );
-    plugin_set_version(g_plugin,
+    plugin_set_version(plugin,
             PLUGIN_VERSION_MAJOR,
             PLUGIN_VERSION_MINOR,
             PLUGIN_VERSION_PATCH
     );
+    
+    return plugin;
 }
 
-PLUGIN_INIT()
+/* ------------------------------------------------------------------------- */
+PLUGIN_RENDERER_GL_PUBLIC_API PLUGIN_INIT()
 {
-    g_plugin = plugin_create();
-    set_plugin_info();
-    register_services(g_plugin);
-    register_events(g_plugin);
+    struct plugin_t* plugin;
+    
+    /* init global data */
+    glob_create(game);
 
-    return g_plugin;
+    /* init plugin */
+    plugin = create_and_init_plugin(game);
+    register_services(game, plugin);
+    register_events(game, plugin);
+
+    return plugin;
 }
-#include "plugin_renderer_gl/text.h"
-PLUGIN_START()
+
+/* ------------------------------------------------------------------------- */
+PLUGIN_RENDERER_GL_PUBLIC_API PLUGIN_START()
 {
     /* initialise GLFW */
     if(!glfwInit())
@@ -71,17 +82,20 @@ PLUGIN_START()
     if(!sprite_init())
         return PLUGIN_FAILURE;
 
-    register_event_listeners(g_plugin);
+    register_event_listeners(game, get_global(game)->plugin);
     
-    uint32_t id;
-    struct sprite_t* sprite = sprite_create("menu/join/join.png", 1, 1, 1, &id);
-    sprite_scale(sprite, 0.3);
-    sprite_set_position(sprite, 0.2, 0.7);
+    {
+        uint32_t id;
+        struct sprite_t* sprite = sprite_create("menu/join/join.png", 1, 1, 1, &id);
+        sprite_scale(sprite, 0.3);
+        sprite_set_position(sprite, 0.2, 0.7);
+    }
 
     return PLUGIN_SUCCESS;
 }
 
-PLUGIN_STOP()
+/* ------------------------------------------------------------------------- */
+PLUGIN_RENDERER_GL_PUBLIC_API PLUGIN_STOP()
 {
     sprite_deinit();
     text_wrapper_deinit();
@@ -91,7 +105,8 @@ PLUGIN_STOP()
     glfwTerminate();
 }
 
-PLUGIN_DEINIT()
+/* ------------------------------------------------------------------------- */
+PLUGIN_RENDERER_GL_PUBLIC_API PLUGIN_DEINIT()
 {
-    plugin_destroy(g_plugin);
+    plugin_destroy(get_global(game)->plugin);
 }

@@ -5,18 +5,10 @@
 extern uint32_t global_hash;
 
 struct plugin_t;
-struct game_t;
-
-struct glob_parser_t
-{
-    struct unordered_vector_t open_docs;
-    uint32_t doc_guid_counter;
-};
 
 struct glob_t
 {
     struct plugin_t* plugin;
-    struct glob_parser_t parser;
 };
 
 void
