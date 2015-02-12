@@ -1,5 +1,5 @@
 #include "util/pstdint.h"
-#include "util/service_api.h"
+#include "plugin_manager/service_api.h"
 
 struct map_t;
 struct text_group_t;

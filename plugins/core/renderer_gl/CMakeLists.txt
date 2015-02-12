@@ -42,6 +42,8 @@ endif ()
 # generate config.h for this plugin
 ###############################################################################
 
+set (PROJECT_NAME "PLUGIN_RENDERER_GL")
+set (BUILD_TYPE "SHARED")
 set (PLUGIN_RENDERER_GL_VERSION_MAJOR 0)
 set (PLUGIN_RENDERER_GL_VERSION_MINOR 0)
 set (PLUGIN_RENDERER_GL_VERSION_PATCH 1)
@@ -54,7 +56,9 @@ set (PLUGIN_RENDERER_GL_VERSION_STRING
     "${PLUGIN_RENDERER_GL_VERSION_MAJOR}.${PLUGIN_RENDERER_GL_VERSION_MINOR}.${PLUGIN_RENDERER_GL_VERSION_PATCH}")
 
 configure_file ("include/plugin_renderer_gl/config.h.in"
-                "${CMAKE_CURRENT_BINARY_DIR}/include/plugin_renderer_gl/config.h")
+                "include/plugin_renderer_gl/config.h")
+configure_file ("${EXPORT_H_TEMPLATE}"
+                "include/plugin_renderer_gl/export.h")
 include_directories ("${CMAKE_CURRENT_BINARY_DIR}/include")
 
 ###############################################################################
@@ -66,6 +70,10 @@ set (plugin_renderer_gl_OUTPUT_NAME
 
 file (GLOB plugin_renderer_gl_HEADERS "include/plugin_renderer_gl/*.h")
 file (GLOB plugin_renderer_gl_SOURCES "src/*.c")
+
+set (plugin_renderer_gl_HEADERS ${plugin_renderer_gl_HEADERS}
+    "include/plugin_renderer_gl/config.h.in"
+    "${EXPORT_H_TEMPLATE}")
 
 include_directories ("include")
 

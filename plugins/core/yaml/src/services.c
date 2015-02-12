@@ -3,7 +3,7 @@
 #include "plugin_yaml/parser.h"
 
 void
-register_services(struct game_t* game, const struct plugin_t* plugin)
+register_services(struct game_t* game, struct plugin_t* plugin)
 {
     /* -----------------------------------------------------
      * All services this plugin supports

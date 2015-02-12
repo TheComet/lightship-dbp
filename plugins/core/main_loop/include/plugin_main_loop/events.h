@@ -1,6 +1,7 @@
 #include "plugin_manager/event_api.h"
 
 struct plugin_t;
+struct game_t;
 
 EVENT_H0(evt_render)
 EVENT_H0(evt_update)

@@ -1,6 +1,6 @@
-#include "util/event_api.h"
+#include "plugin_manager/event_api.h"
+#include "plugin_manager/service_api.h"
 #include "util/pstdint.h"
-#include "util/service_api.h"
 
 struct GLFWwindow;
 
