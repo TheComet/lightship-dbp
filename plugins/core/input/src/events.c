@@ -1,4 +1,5 @@
 #include "plugin_manager/events.h"
+#include "plugin_manager/plugin.h"
 #include "plugin_input/events.h"
 #include "plugin_input/mouse.h"
 #include "plugin_input/keyboard.h"
@@ -19,8 +20,9 @@ EVENT_C0(evt_action);
 EVENT_C0(evt_cancel);
 
 void
-register_events(struct game_t* game, const struct plugin_t* plugin)
+register_events(struct plugin_t* plugin)
 {
+    struct game_t* game = plugin->game;
     evt_mouse_clicked   = event_create(game, plugin, "mouse_clicked");
     evt_mouse_press     = event_create(game, plugin, "mouse_press");
     evt_mouse_release   = event_create(game, plugin, "mouse_release");
@@ -34,8 +36,9 @@ register_events(struct game_t* game, const struct plugin_t* plugin)
 }
 
 void
-register_event_listeners(struct game_t* game, const struct plugin_t* plugin)
+register_event_listeners(struct plugin_t* plugin)
 {
+    struct game_t* game = plugin->game;
     event_register_listener(game, plugin, "renderer_gl.mouse_move", on_mouse_move);
     event_register_listener(game, plugin, "renderer_gl.mouse_button_press", on_mouse_button_press);
     event_register_listener(game, plugin, "renderer_gl.mouse_button_release", on_mouse_button_release);

@@ -1,5 +1,5 @@
 #include "util/pstdint.h"
-#include "util/events.h"
+#include "plugin_manager/events.h"
 
 struct mouse_position_t
 {

@@ -4,21 +4,21 @@
  * All events this plugin emits
  * ---------------------------------------------------*/
 
-EVENT_H0(evt_mouse_press);
-EVENT_H0(evt_mouse_release);
-EVENT_H0(evt_mouse_move);
-EVENT_H3(evt_mouse_clicked, char, double, double);
-EVENT_H0(evt_up);
-EVENT_H0(evt_down);
-EVENT_H0(evt_left);
-EVENT_H0(evt_right);
-EVENT_H0(evt_action);
-EVENT_H0(evt_cancel);
+EVENT_H0(evt_mouse_press)
+EVENT_H0(evt_mouse_release)
+EVENT_H0(evt_mouse_move)
+EVENT_H3(evt_mouse_clicked, char, double, double)
+EVENT_H0(evt_up)
+EVENT_H0(evt_down)
+EVENT_H0(evt_left)
+EVENT_H0(evt_right)
+EVENT_H0(evt_action)
+EVENT_H0(evt_cancel)
 
 struct plugin_t;
 
 void
-register_events(struct game_t* game, const struct plugin_t* plugin);
+register_events(struct plugin_t* plugin);
 
 void
-register_event_listeners(struct game_t* game, const struct plugin_t* plugin);
+register_event_listeners(struct plugin_t* plugin);
