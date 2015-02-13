@@ -16,6 +16,8 @@ endif ()
 # generate config.h for this plugin
 ###############################################################################
 
+set (PROJECT_NAME "PLUGIN_INPUT")
+set (BUILD_TYPE "SHARED")
 set (PLUGIN_INPUT_VERSION_MAJOR 0)
 set (PLUGIN_INPUT_VERSION_MINOR 0)
 set (PLUGIN_INPUT_VERSION_PATCH 1)
@@ -28,7 +30,9 @@ set (PLUGIN_INPUT_VERSION_STRING
     "${PLUGIN_INPUT_VERSION_MAJOR}.${PLUGIN_INPUT_VERSION_MINOR}.${PLUGIN_INPUT_VERSION_PATCH}")
 
 configure_file ("include/plugin_input/config.h.in"
-                "${CMAKE_CURRENT_BINARY_DIR}/include/input/config.h")
+                "include/plugin_input/config.h")
+configure_file ("${EXPORT_H_TEMPLATE}"
+                "include/plugin_input/export.h")
 include_directories ("${CMAKE_CURRENT_BINARY_DIR}/include")
 
 ###############################################################################
@@ -40,6 +44,10 @@ set (plugin_input_OUTPUT_NAME
 
 file (GLOB plugin_input_HEADERS "include/plugin_input/*.h")
 file (GLOB plugin_input_SOURCES "src/*.c")
+
+set (plugin_input_HEADERS ${plugin_input_HEADERS}
+    "include/plugin_input/config.h.in"
+    "${EXPORT_H_TEMPLATE}")
 
 include_directories ("include")
 include_directories ("${CMAKE_SOURCE_DIR}/plugins/core/renderer_gl/include")
