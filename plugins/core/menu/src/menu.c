@@ -3,11 +3,11 @@
 #include "plugin_menu/screen.h"
 #include "plugin_menu/services.h"
 #include "plugin_menu/button.h"
+#include "plugin_manager/services.h"
 #include "util/ordered_vector.h"
 #include "util/ptree.h"
 #include "util/memory.h"
 #include "util/log.h"
-#include "util/services.h"
 #include "util/string.h"
 #include <string.h>
 #include <stdlib.h>
@@ -15,28 +15,31 @@
 struct map_t g_menus;
 
 static void
-menu_load_screens(struct menu_t* menu, const struct ptree_t* screen_node);
+menu_load_screens(struct game_t* game, struct menu_t* menu, const struct ptree_t* screen_node);
 
 static void
-menu_load_button(struct screen_t* screen, const struct ptree_t* button_node);
+menu_load_button(struct game_t* game, struct screen_t* screen, const struct ptree_t* button_node);
 
 static void
-menu_load_button_action(struct button_t* button, const struct ptree_t* action_node);
+menu_load_button_action(struct game_t* game, struct button_t* button, const struct ptree_t* action_node);
 
+/* ------------------------------------------------------------------------- */
 void
 menu_init(void)
 {
     map_init_map(&g_menus);
 }
 
+/* ------------------------------------------------------------------------- */
 void
 menu_deinit(void)
 {
     map_clear_free(&g_menus);
 }
 
+/* ------------------------------------------------------------------------- */
 struct menu_t*
-menu_load(const char* file_name)
+menu_load(struct game_t* game, const char* file_name)
 {
     struct menu_t* menu;
     struct ptree_t* dom;
@@ -85,7 +88,7 @@ menu_load(const char* file_name)
     menu->name = malloc_string(menu_name);
     
     /* load all screens into menu structure */
-    menu_load_screens(menu, screens);
+    menu_load_screens(game, menu, screens);
     
     /* screens are hidden by default. Show the screen specified in start_screen */
     {
@@ -102,6 +105,7 @@ menu_load(const char* file_name)
     return menu;
 }
 
+/* ------------------------------------------------------------------------- */
 void
 menu_init_menu(struct menu_t* menu)
 {
@@ -109,6 +113,7 @@ menu_init_menu(struct menu_t* menu)
     map_init_map(&menu->screens);
 }
 
+/* ------------------------------------------------------------------------- */
 void
 menu_destroy(struct menu_t* menu)
 {
@@ -121,6 +126,7 @@ menu_destroy(struct menu_t* menu)
     FREE(menu);
 }
 
+/* ------------------------------------------------------------------------- */
 void
 menu_set_active_screen(struct menu_t* menu, const char* name)
 {
@@ -136,8 +142,11 @@ menu_set_active_screen(struct menu_t* menu, const char* name)
     menu->active_screen = screen;
 }
 
+/* ------------------------------------------------------------------------- */
+/* STATIC FUNCTIONS */
+/* ------------------------------------------------------------------------- */
 static void
-menu_load_screens(struct menu_t* menu, const struct ptree_t* screens)
+menu_load_screens(struct game_t* game, struct menu_t* menu, const struct ptree_t* screens)
 {
     struct map_t created_screen_names;
     map_init_map(&created_screen_names);
@@ -185,7 +194,7 @@ menu_load_screens(struct menu_t* menu, const struct ptree_t* screens)
             { PTREE_FOR_EACH(screen_node, object_node)
             {
                 if(PTREE_HASH_STRING("button") == object_node->hash)
-                    menu_load_button(screen, object_node);
+                    menu_load_button(game, screen, object_node);
             }}
             
             /* hide the screen by default */
@@ -196,8 +205,9 @@ menu_load_screens(struct menu_t* menu, const struct ptree_t* screens)
     map_clear_free(&created_screen_names);
 }
 
+/* ------------------------------------------------------------------------- */
 static void
-menu_load_button(struct screen_t* screen, const struct ptree_t* button_node)
+menu_load_button(struct game_t* game, struct screen_t* screen, const struct ptree_t* button_node)
 {
     struct button_t* button;
 
@@ -227,16 +237,17 @@ menu_load_button(struct screen_t* screen, const struct ptree_t* button_node)
 
     /* extract service name and arguments tied to action, if any */
     if(action_node)
-        menu_load_button_action(button, action_node);
+        menu_load_button_action(game, button, action_node);
 }
 
+/* ------------------------------------------------------------------------- */
 static void
-menu_load_button_action(struct button_t* button, const struct ptree_t* action_node)
+menu_load_button_action(struct game_t* game, struct button_t* button, const struct ptree_t* action_node)
 {
     struct ptree_t* service_node = ptree_find_by_key(action_node, "service");
     if(service_node && service_node->value)
     {
-        struct service_t* action_service = service_get((char*)service_node->value);
+        struct service_t* action_service = service_get(game, (char*)service_node->value);
         if(!action_service)
         {
             llog(LOG_WARNING, PLUGIN_NAME, 3, "Tried to bind button to service \"",
@@ -283,12 +294,15 @@ menu_load_button_action(struct button_t* button, const struct ptree_t* action_no
     }
 }
 
+/* ------------------------------------------------------------------------- */
+/* WRAPPERS */
+/* ------------------------------------------------------------------------- */
 SERVICE(menu_load_wrapper)
 {
     uint32_t id;
     SERVICE_EXTRACT_ARGUMENT_PTR(0, file_name, const char*);
 
-    struct menu_t* menu = menu_load(file_name);
+    struct menu_t* menu = menu_load(service->game, file_name);
     if(!menu)
         SERVICE_RETURN(0, uint32_t);
 
@@ -305,6 +319,7 @@ SERVICE(menu_load_wrapper)
     SERVICE_RETURN(menu->name, const char*);
 }
 
+/* ------------------------------------------------------------------------- */
 SERVICE(menu_destroy_wrapper)
 {
     SERVICE_EXTRACT_ARGUMENT_PTR(0, menu_name, const char*);
@@ -315,6 +330,7 @@ SERVICE(menu_destroy_wrapper)
         menu_destroy(menu);
 }
 
+/* ------------------------------------------------------------------------- */
 SERVICE(menu_set_active_screen_wrapper)
 {
     SERVICE_EXTRACT_ARGUMENT_PTR(0, menu_name, const char*);

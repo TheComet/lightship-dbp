@@ -67,4 +67,5 @@ PLUGIN_MAIN_LOOP_PUBLIC_API PLUGIN_STOP()
 PLUGIN_MAIN_LOOP_PUBLIC_API PLUGIN_DEINIT()
 {
     plugin_destroy(get_global(game)->plugin.plugin);
+    glob_destroy(game);
 }
