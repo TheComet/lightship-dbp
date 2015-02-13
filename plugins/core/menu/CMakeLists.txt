@@ -16,6 +16,8 @@ endif ()
 # generate config.h for this plugin
 ###############################################################################
 
+set (PROJECT_NAME "PLUGIN_MENU")
+set (BUILD_TYPE "SHARED")
 set (PLUGIN_MENU_VERSION_MAJOR 0)
 set (PLUGIN_MENU_VERSION_MINOR 0)
 set (PLUGIN_MENU_VERSION_PATCH 1)
@@ -28,7 +30,9 @@ set (PLUGIN_MENU_VERSION_STRING
     "${PLUGIN_MENU_VERSION_MAJOR}.${PLUGIN_MENU_VERSION_MINOR}.${PLUGIN_MENU_VERSION_PATCH}")
 
 configure_file ("include/plugin_menu/config.h.in"
-                "${CMAKE_CURRENT_BINARY_DIR}/include/plugin_menu/config.h")
+                "include/plugin_menu/config.h")
+configure_file ("${EXPORT_H_TEMPLATE}"
+                "include/plugin_menu/export.h")
 include_directories ("${CMAKE_CURRENT_BINARY_DIR}/include")
 
 ###############################################################################
@@ -40,6 +44,10 @@ set (plugin_menu_OUTPUT_NAME
 
 file (GLOB plugin_menu_HEADERS "include/plugin_menu/*.h")
 file (GLOB plugin_menu_SOURCES "src/*.c")
+
+set (plugin_menu_HEADERS ${plugin_menu_HEADERS}
+    "include/plugin_menu/config.h.in"
+    "${EXPORT_H_TEMPLATE}")
 
 include_directories ("include")
 

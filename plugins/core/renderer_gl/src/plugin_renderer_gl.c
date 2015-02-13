@@ -109,4 +109,5 @@ PLUGIN_RENDERER_GL_PUBLIC_API PLUGIN_STOP()
 PLUGIN_RENDERER_GL_PUBLIC_API PLUGIN_DEINIT()
 {
     plugin_destroy(get_global(game)->plugin);
+    glob_destroy(game);
 }

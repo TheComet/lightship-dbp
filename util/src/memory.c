@@ -165,9 +165,9 @@ memory_deinit(void)
     ignore_map_malloc = 1;
     map_clear(&report);
 }
-#else /* \bENABLE_MEMORY_REPORT\b */
+#else /* ENABLE_MEMORY_REPORT */
 
 void memory_init(void) {}
 void memory_deinit(void) {}
 
-#endif /* \bENABLE_MEMORY_REPORT\b */
+#endif /* ENABLE_MEMORY_REPORT */

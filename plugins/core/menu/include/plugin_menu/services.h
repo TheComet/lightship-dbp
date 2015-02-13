@@ -1,7 +1,6 @@
 #include "util/pstdint.h"
 
 struct plugin_t;
-struct ptree_t;
 struct service_t;
 
 /* extern service function pointers */
@@ -27,10 +26,10 @@ extern struct service_t* text_show;
 extern struct service_t* text_hide;
 
 void
-register_services(const struct plugin_t* plugin);
+register_services(struct plugin_t* plugin);
 
 char
-get_required_services(void);
+get_required_services(struct plugin_t* plugin);
 
 void
-get_optional_services(void);
+get_optional_services(struct plugin_t* plugin);

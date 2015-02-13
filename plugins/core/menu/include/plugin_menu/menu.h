@@ -3,6 +3,7 @@
 #include "plugin_manager/service_api.h"
 
 struct screen_t;
+struct game_t;
 
 struct menu_t
 {
@@ -18,7 +19,7 @@ void
 menu_deinit(void);
 
 struct menu_t*
-menu_load(const char* file_name);
+menu_load(struct game_t* game, const char* file_name);
 
 void
 menu_init_menu(struct menu_t* menu);

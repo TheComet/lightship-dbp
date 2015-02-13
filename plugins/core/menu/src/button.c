@@ -1,10 +1,10 @@
 #include "plugin_menu/button.h"
 #include "plugin_menu/services.h"
 #include "plugin_menu/events.h"
+#include "plugin_manager/services.h"
 #include "util/map.h"
 #include "util/memory.h"
 #include "util/string.h"
-#include "util/services.h"
 #include <string.h>
 #include <wchar.h>
 
@@ -17,6 +17,7 @@ static const char* ttf_filename = "../../plugins/core/menu/ttf/DejaVuSans.ttf";
 static const char* ttf_filename = "ttf/DejaVuSans.ttf";
 #endif
 
+/* ------------------------------------------------------------------------- */
 void button_init(void)
 {
     uint32_t char_size;
@@ -29,12 +30,14 @@ void button_init(void)
     SERVICE_CALL2(text_group_load_character_set, SERVICE_NO_RETURN, font_id, PTR(NULL));
 }
 
+/* ------------------------------------------------------------------------- */
 void button_deinit(void)
 {
     SERVICE_CALL1(text_group_destroy, SERVICE_NO_RETURN, font_id);
     button_destroy_all();
 }
 
+/* ------------------------------------------------------------------------- */
 struct button_t*
 button_create(const char* text, float x, float y, float width, float height)
 {
@@ -53,6 +56,7 @@ button_create(const char* text, float x, float y, float width, float height)
     return btn;
 }
 
+/* ------------------------------------------------------------------------- */
 void
 button_constructor(struct button_t* btn, const char* text, float x, float y, float width, float height)
 {
@@ -93,6 +97,7 @@ button_constructor(struct button_t* btn, const char* text, float x, float y, flo
     map_insert(&g_buttons, btn->base.element.id, btn);
 }
 
+/* ------------------------------------------------------------------------- */
 void
 button_destructor(struct button_t* button)
 {
@@ -100,6 +105,7 @@ button_destructor(struct button_t* button)
     map_erase_element(&g_buttons, button);
 }
 
+/* ------------------------------------------------------------------------- */
 void
 button_destroy(struct button_t* button)
 {
@@ -108,6 +114,7 @@ button_destroy(struct button_t* button)
     FREE(button);
 }
 
+/* ------------------------------------------------------------------------- */
 void
 button_destroy_all(void)
 {
@@ -118,6 +125,7 @@ button_destroy_all(void)
     map_clear_free(&g_buttons);
 }
 
+/* ------------------------------------------------------------------------- */
 void
 button_free_contents(struct button_t* button)
 {
@@ -130,6 +138,7 @@ button_free_contents(struct button_t* button)
     }
 }
 
+/* ------------------------------------------------------------------------- */
 struct button_t*
 button_collision(struct button_t* button, float x, float y)
 {
@@ -165,6 +174,7 @@ button_collision(struct button_t* button, float x, float y)
     return NULL;
 }
 
+/* ------------------------------------------------------------------------- */
 EVENT_LISTENER3(on_mouse_clicked, char mouse_btn, double x, double y)
 {
     struct button_t* button = button_collision(NULL, (float)x, (float)y);
@@ -178,7 +188,8 @@ EVENT_LISTENER3(on_mouse_clicked, char mouse_btn, double x, double y)
         {
             /* Pass vector of args (if there are no args, argv->data should be NULL */
             /* Ignore the return value */
-            button->base.element.action.service->exec(SERVICE_NO_RETURN,
+            button->base.element.action.service->exec(button->base.element.action.service,
+                                                      SERVICE_NO_RETURN,
                                                       (const void**)button->base.element.action.argv);
         }
     }
@@ -198,6 +209,7 @@ SERVICE(button_create_wrapper)
     SERVICE_RETURN(button_create(text, x, y, width, height), struct button_t*);
 }
 
+/* ------------------------------------------------------------------------- */
 SERVICE(button_destroy_wrapper)
 {
     SERVICE_EXTRACT_ARGUMENT(0, id, uint32_t, uint32_t);
@@ -206,6 +218,7 @@ SERVICE(button_destroy_wrapper)
         button_destroy(button);
 }
 
+/* ------------------------------------------------------------------------- */
 SERVICE(button_get_text_wrapper)
 {
     SERVICE_EXTRACT_ARGUMENT(0, id, uint32_t, uint32_t);
