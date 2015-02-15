@@ -2,30 +2,9 @@
 #include "plugin_manager/plugin.h"
 #include "plugin_menu/services.h"
 #include "plugin_menu/button.h"
+#include "plugin_menu/glob.h"
 #include "plugin_menu/menu.h"
-
-/* external services used by this plugin */
-struct service_t* yaml_load = NULL;
-struct service_t* yaml_get_value = NULL;
-struct service_t* yaml_get_dom = NULL;
-struct service_t* yaml_destroy = NULL;
-
-struct service_t* shapes_2d_begin = NULL;
-struct service_t* shapes_2d_end = NULL;
-struct service_t* shapes_2d_destroy = NULL;
-struct service_t* line_2d = NULL;
-struct service_t* box_2d = NULL;
-struct service_t* shapes_2d_show = NULL;
-struct service_t* shapes_2d_hide = NULL;
-
-struct service_t* text_group_create = NULL;
-struct service_t* text_group_destroy = NULL;
-struct service_t* text_group_load_character_set = NULL;
-
-struct service_t* text_create = NULL;
-struct service_t* text_destroy = NULL;
-struct service_t* text_show = NULL;
-struct service_t* text_hide = NULL;
+#include <string.h>
 
 void
 register_services(struct plugin_t* plugin)
@@ -47,43 +26,48 @@ char
 get_required_services(struct plugin_t* plugin)
 {
     struct game_t* game = plugin->game;
-    if(!(yaml_load                      = service_get(game, "yaml.load")))
+    
+    /* get service glob and set every service pointer to NULL */
+    struct glob_services_t* g = &get_global(game)->services;
+    memset(g, 0, sizeof(struct glob_services_t));
+
+    if(!(g->yaml_load                      = service_get(game, "yaml.load")))
         return 0;
-    if(!(yaml_get_value                 = service_get(game, "yaml.get_value")))
+    if(!(g->yaml_get_value                 = service_get(game, "yaml.get_value")))
         return 0;
-    if(!(yaml_get_dom                   = service_get(game, "yaml.get_dom")))
+    if(!(g->yaml_get_dom                   = service_get(game, "yaml.get_dom")))
         return 0;
-    if(!(yaml_destroy                   = service_get(game, "yaml.destroy")))
+    if(!(g->yaml_destroy                   = service_get(game, "yaml.destroy")))
         return 0;
 
-    if(!(shapes_2d_begin                = service_get(game, "renderer_gl.shapes_2d_begin")))
+    if(!(g->shapes_2d_begin                = service_get(game, "renderer_gl.shapes_2d_begin")))
         return 0;
-    if(!(shapes_2d_end                  = service_get(game, "renderer_gl.shapes_2d_end")))
+    if(!(g->shapes_2d_end                  = service_get(game, "renderer_gl.shapes_2d_end")))
         return 0;
-    if(!(shapes_2d_destroy              = service_get(game, "renderer_gl.shapes_2d_destroy")))
+    if(!(g->shapes_2d_destroy              = service_get(game, "renderer_gl.shapes_2d_destroy")))
         return 0;
-    if(!(line_2d                        = service_get(game, "renderer_gl.line_2d")))
+    if(!(g->line_2d                        = service_get(game, "renderer_gl.line_2d")))
         return 0;
-    if(!(box_2d                         = service_get(game, "renderer_gl.box_2d")))
+    if(!(g->box_2d                         = service_get(game, "renderer_gl.box_2d")))
         return 0;
-    if(!(shapes_2d_show                 = service_get(game, "renderer_gl.shapes_2d_show")))
+    if(!(g->shapes_2d_show                 = service_get(game, "renderer_gl.shapes_2d_show")))
         return 0;
-    if(!(shapes_2d_hide                 = service_get(game, "renderer_gl.shapes_2d_hide")))
+    if(!(g->shapes_2d_hide                 = service_get(game, "renderer_gl.shapes_2d_hide")))
         return 0;
     
-    if(!(text_group_create              = service_get(game, "renderer_gl.text_group_create")))
+    if(!(g->text_group_create              = service_get(game, "renderer_gl.text_group_create")))
         return 0;
-    if(!(text_group_destroy             = service_get(game, "renderer_gl.text_group_destroy")))
+    if(!(g->text_group_destroy             = service_get(game, "renderer_gl.text_group_destroy")))
         return 0;
-    if(!(text_group_load_character_set  = service_get(game, "renderer_gl.text_group_load_character_set")))
+    if(!(g->text_group_load_character_set  = service_get(game, "renderer_gl.text_group_load_character_set")))
         return 0;
-    if(!(text_create                    = service_get(game, "renderer_gl.text_create")))
+    if(!(g->text_create                    = service_get(game, "renderer_gl.text_create")))
         return 0;
-    if(!(text_destroy                   = service_get(game, "renderer_gl.text_destroy")))
+    if(!(g->text_destroy                   = service_get(game, "renderer_gl.text_destroy")))
         return 0;
-    if(!(text_show                      = service_get(game, "renderer_gl.text_show")))
+    if(!(g->text_show                      = service_get(game, "renderer_gl.text_show")))
         return 0;
-    if(!(text_hide                      = service_get(game, "renderer_gl.text_hide")))
+    if(!(g->text_hide                      = service_get(game, "renderer_gl.text_hide")))
         return 0;
 
     return 1;

@@ -11,11 +11,15 @@
 static char* g_menu;
 
 /* ------------------------------------------------------------------------- */
-struct plugin_t*
-create_and_init_plugin(struct game_t* game)
+PLUGIN_MENU_PUBLIC_API PLUGIN_INIT()
 {
-    /* create plugin object - host requires this */
-    struct plugin_t* plugin = plugin_create(game);
+    struct plugin_t* plugin;
+    
+    /* init global data */
+    glob_create(game);
+    
+    /* init plugin */
+    plugin = plugin_create(game);
     get_global(game)->plugin = plugin;
     
     /* set plugin information - Change this in the file "CMakeLists.txt" */
@@ -34,35 +38,26 @@ create_and_init_plugin(struct game_t* game)
             PLUGIN_VERSION_MINOR,
             PLUGIN_VERSION_PATCH
     );
-    
-    return plugin;
-}
 
-/* ------------------------------------------------------------------------- */
-PLUGIN_MENU_PUBLIC_API PLUGIN_INIT()
-{
-    struct plugin_t* plugin;
-    
-    /* init global data */
-    glob_create(game);
-    
-    /* init plugin */
-    plugin = create_and_init_plugin(game);
     register_services(plugin);
     register_events(plugin);
+    
     return plugin;
 }
 
 /* ------------------------------------------------------------------------- */
 PLUGIN_MENU_PUBLIC_API PLUGIN_START()
 {
+    struct glob_t* g = get_global(game);
+
     if(!get_required_services(get_global(game)->plugin))
         return PLUGIN_FAILURE;
     get_optional_services(get_global(game)->plugin);
     register_event_listeners(get_global(game)->plugin);
 
-    button_init();
-    menu_init();
+    element_init(g);
+    button_init(g);
+    menu_init(g);
     
     {
         struct service_t* menu_load_service = service_get(game, "menu.load");
@@ -80,12 +75,16 @@ PLUGIN_MENU_PUBLIC_API PLUGIN_START()
 /* ------------------------------------------------------------------------- */
 PLUGIN_MENU_PUBLIC_API PLUGIN_STOP()
 {
+    struct service_t* menu_destroy_service;
+    struct glob_t* g;
+
     /* de-init */
-    struct service_t* menu_destroy_service = service_get(game, "menu.destroy");
+    menu_destroy_service = service_get(game, "menu.destroy");
     SERVICE_CALL1(menu_destroy_service, SERVICE_NO_RETURN, PTR(g_menu));
     
-    menu_deinit();
-    button_deinit();
+    g = get_global(game);
+    menu_deinit(g);
+    button_deinit(g);
 }
 
 /* ------------------------------------------------------------------------- */

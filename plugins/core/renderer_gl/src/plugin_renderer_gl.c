@@ -13,10 +13,15 @@
 #include <stdio.h>
 
 /* ------------------------------------------------------------------------- */
-struct plugin_t*
-create_and_init_plugin(struct game_t* game)
+PLUGIN_RENDERER_GL_PUBLIC_API PLUGIN_INIT()
 {
-    struct plugin_t* plugin = plugin_create(game);
+    struct plugin_t* plugin;
+    
+    /* init global data */
+    glob_create(game);
+
+    /* init plugin */
+    plugin = plugin_create(game);
     get_global(game)->plugin = plugin;
 
     /* set plugin information */
@@ -35,20 +40,7 @@ create_and_init_plugin(struct game_t* game)
             PLUGIN_VERSION_MINOR,
             PLUGIN_VERSION_PATCH
     );
-    
-    return plugin;
-}
 
-/* ------------------------------------------------------------------------- */
-PLUGIN_RENDERER_GL_PUBLIC_API PLUGIN_INIT()
-{
-    struct plugin_t* plugin;
-    
-    /* init global data */
-    glob_create(game);
-
-    /* init plugin */
-    plugin = create_and_init_plugin(game);
     register_services(game, plugin);
     register_events(game, plugin);
 
@@ -87,8 +79,8 @@ PLUGIN_RENDERER_GL_PUBLIC_API PLUGIN_START()
     {
         uint32_t id;
         struct sprite_t* sprite = sprite_create("menu/join/join.png", 1, 1, 1, &id);
-        sprite_scale(sprite, 0.3);
-        sprite_set_position(sprite, 0.2, 0.7);
+        /*sprite_scale(sprite, 0.3);
+        sprite_set_position(sprite, 0.2, 0.7);*/
     }
 
     return PLUGIN_SUCCESS;

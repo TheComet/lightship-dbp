@@ -1,6 +1,8 @@
 #include "util/pstdint.h"
 #include "util/unordered_vector.h"
 
+struct glob_t;
+
 typedef void (*element_destructor_func)(void*);
 
 struct vec2_t
@@ -31,6 +33,7 @@ struct element_data_t
 {
     char visible;
     uint32_t id;
+    struct glob_t* glob;        /* reference to the global struct */
     struct element_gl_t gl;
     struct vec2_t pos;
     struct vec2_t size;
@@ -52,6 +55,9 @@ struct element_t
     } base;
 };
 
+void
+element_init(struct glob_t* g);
+
 /*!
  * @brief Initialises the base struct.
  * @param element The element to initialise.
@@ -63,7 +69,8 @@ struct element_t
  * @param height The height of the menu element in GL screen space.
  */
 void
-element_constructor(struct element_t* element,
+element_constructor(struct glob_t* g,
+                    struct element_t* element,
                     element_destructor_func derived_destructor,
                     float x, float y,
                     float width, float height);

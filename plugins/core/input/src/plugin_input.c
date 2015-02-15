@@ -5,11 +5,15 @@
 #include "plugin_input/glob.h"
 
 /* ------------------------------------------------------------------------- */
-struct plugin_t*
-create_and_init_plugin(struct game_t* game)
+PLUGIN_INPUT_PUBLIC_API PLUGIN_INIT()
 {
-    /* create plugin object - host requires this */
-    struct plugin_t* plugin = plugin_create(game);
+    struct plugin_t* plugin;
+
+    /* init global data */
+    glob_create(game);
+    
+    /* init plugin */
+    plugin = plugin_create(game);
     get_global(game)->plugin = plugin;
     
     /* set plugin information - Change this in the file "CMakeLists.txt" */
@@ -28,20 +32,7 @@ create_and_init_plugin(struct game_t* game)
             PLUGIN_VERSION_MINOR,
             PLUGIN_VERSION_PATCH
     );
-    
-    return plugin;
-}
 
-/* ------------------------------------------------------------------------- */
-PLUGIN_INPUT_PUBLIC_API PLUGIN_INIT()
-{
-    struct plugin_t* plugin;
-
-    /* init global data */
-    glob_create(game);
-    
-    /* init plugin */
-    plugin = create_and_init_plugin(game);
     register_services(plugin);
     register_events(plugin);
     

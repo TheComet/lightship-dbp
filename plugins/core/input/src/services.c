@@ -1,10 +1,6 @@
 #include "plugin_input/services.h"
 #include "plugin_manager/services.h"
 
-/* extern service function pointers *
-window_width_func window_width;
-window_height_func window_height;*/
-
 void
 register_services(struct plugin_t* plugin)
 {

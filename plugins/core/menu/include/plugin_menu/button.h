@@ -5,6 +5,8 @@
 
 #define BUTTON_COLOUR_NORMAL 0xFFFFFFFF
 
+struct glob_t;
+
 struct button_data_t
 {
     union
@@ -27,11 +29,11 @@ struct button_t
 
 #define GET_BUTTON(self) (&(self)->base.button)
 
-void button_init(void);
-void button_deinit(void);
+void button_init(struct glob_t* g);
+void button_deinit(struct glob_t* g);
 
 struct button_t*
-button_create(const char* text, float x, float y, float width, float height);
+button_create(struct glob_t* g, const char* text, float x, float y, float width, float height);
 
 void
 button_constructor(struct button_t* btn, const char* text, float x, float y, float width, float height);
@@ -43,13 +45,10 @@ void
 button_destroy(struct button_t* button);
 
 void
-button_destroy_all(void);
+button_destroy_all(struct glob_t* g);
 
 void
 button_free_contents(struct button_t* button);
-
-wchar_t*
-button_get_text(uint32_t id);
 
 /*!
  * @brief Tests if the specified point is on top of the specified button.
@@ -61,7 +60,7 @@ button_get_text(uint32_t id);
  * no collision.
  */
 struct button_t*
-button_collision(struct button_t* button, float x, float y);
+button_collision(struct glob_t* g, struct button_t* button, float x, float y);
 
 SERVICE(button_create_wrapper);
 SERVICE(button_destroy_wrapper);

@@ -3,6 +3,7 @@
 #include "plugin_menu/screen.h"
 #include "plugin_menu/services.h"
 #include "plugin_menu/button.h"
+#include "plugin_menu/glob.h"
 #include "plugin_manager/services.h"
 #include "util/ordered_vector.h"
 #include "util/ptree.h"
@@ -12,34 +13,32 @@
 #include <string.h>
 #include <stdlib.h>
 
-struct map_t g_menus;
+static void
+menu_load_screens(struct menu_t* menu, const struct ptree_t* screen_node);
 
 static void
-menu_load_screens(struct game_t* game, struct menu_t* menu, const struct ptree_t* screen_node);
+menu_load_button(struct glob_t* g, struct screen_t* screen, const struct ptree_t* button_node);
 
 static void
-menu_load_button(struct game_t* game, struct screen_t* screen, const struct ptree_t* button_node);
-
-static void
-menu_load_button_action(struct game_t* game, struct button_t* button, const struct ptree_t* action_node);
+menu_load_button_action(struct button_t* button, const struct ptree_t* action_node);
 
 /* ------------------------------------------------------------------------- */
 void
-menu_init(void)
+menu_init(struct glob_t* g)
 {
-    map_init_map(&g_menus);
+    map_init_map(&g->menu.menus);
 }
 
 /* ------------------------------------------------------------------------- */
 void
-menu_deinit(void)
+menu_deinit(struct glob_t* g)
 {
-    map_clear_free(&g_menus);
+    map_clear_free(&g->menu.menus);
 }
 
 /* ------------------------------------------------------------------------- */
 struct menu_t*
-menu_load(struct game_t* game, const char* file_name)
+menu_load(struct glob_t* g, const char* file_name)
 {
     struct menu_t* menu;
     struct ptree_t* dom;
@@ -50,11 +49,11 @@ menu_load(struct game_t* game, const char* file_name)
     llog(LOG_INFO, PLUGIN_NAME, 3, "Loading menu from file \"", file_name, "\"");
     
     /* load and parse yaml file, get DOM */
-    SERVICE_CALL1(yaml_load, &doc, PTR(file_name));
-    SERVICE_CALL1(yaml_get_dom, &dom, doc);
+    SERVICE_CALL1(g->services.yaml_load, &doc, PTR(file_name));
+    SERVICE_CALL1(g->services.yaml_get_dom, &dom, doc);
     if(!dom)
     {
-        SERVICE_CALL1(yaml_destroy, SERVICE_NO_RETURN, doc);
+        SERVICE_CALL1(g->services.yaml_destroy, SERVICE_NO_RETURN, doc);
         return NULL;
     }
     
@@ -63,7 +62,7 @@ menu_load(struct game_t* game, const char* file_name)
     if(!screens)
     {
         llog(LOG_ERROR, PLUGIN_NAME, 1, "Failed to find \"screens\" node");
-        SERVICE_CALL1(yaml_destroy, SERVICE_NO_RETURN, doc);
+        SERVICE_CALL1(g->services.yaml_destroy, SERVICE_NO_RETURN, doc);
         return NULL;
     }
     
@@ -75,7 +74,7 @@ menu_load(struct game_t* game, const char* file_name)
         else
         {
             llog(LOG_ERROR, PLUGIN_NAME, 1, "Failed to find \"name\" node");
-            SERVICE_CALL1(yaml_destroy, SERVICE_NO_RETURN, doc);
+            SERVICE_CALL1(g->services.yaml_destroy, SERVICE_NO_RETURN, doc);
             return NULL;
         }
     }
@@ -84,11 +83,14 @@ menu_load(struct game_t* game, const char* file_name)
     menu = (struct menu_t*)MALLOC(sizeof(struct menu_t));
     menu_init_menu(menu);
     
+    /* cache glob */
+    menu->glob = g;
+    
     /* set menu name */
     menu->name = malloc_string(menu_name);
     
     /* load all screens into menu structure */
-    menu_load_screens(game, menu, screens);
+    menu_load_screens(menu, screens);
     
     /* screens are hidden by default. Show the screen specified in start_screen */
     {
@@ -100,7 +102,7 @@ menu_load(struct game_t* game, const char* file_name)
     }
 
     /* clean up */
-    SERVICE_CALL1(yaml_destroy, SERVICE_NO_RETURN, doc);
+    SERVICE_CALL1(g->services.yaml_destroy, SERVICE_NO_RETURN, doc);
 
     return menu;
 }
@@ -146,7 +148,7 @@ menu_set_active_screen(struct menu_t* menu, const char* name)
 /* STATIC FUNCTIONS */
 /* ------------------------------------------------------------------------- */
 static void
-menu_load_screens(struct game_t* game, struct menu_t* menu, const struct ptree_t* screens)
+menu_load_screens(struct menu_t* menu, const struct ptree_t* screens)
 {
     struct map_t created_screen_names;
     map_init_map(&created_screen_names);
@@ -194,7 +196,7 @@ menu_load_screens(struct game_t* game, struct menu_t* menu, const struct ptree_t
             { PTREE_FOR_EACH(screen_node, object_node)
             {
                 if(PTREE_HASH_STRING("button") == object_node->hash)
-                    menu_load_button(game, screen, object_node);
+                    menu_load_button(menu->glob, screen, object_node);
             }}
             
             /* hide the screen by default */
@@ -207,7 +209,7 @@ menu_load_screens(struct game_t* game, struct menu_t* menu, const struct ptree_t
 
 /* ------------------------------------------------------------------------- */
 static void
-menu_load_button(struct game_t* game, struct screen_t* screen, const struct ptree_t* button_node)
+menu_load_button(struct glob_t* g, struct screen_t* screen, const struct ptree_t* button_node)
 {
     struct button_t* button;
 
@@ -228,26 +230,27 @@ menu_load_button(struct game_t* game, struct screen_t* screen, const struct ptre
         text = (char*)text_node->value;
     
     /* add button to current screen */
-    button = button_create(text,  /* text is allowed to be NULL */
-                        atof(x_node->value),
-                        atof(y_node->value),
-                        atof(width_node->value),
-                        atof(height_node->value));
+    button = button_create(g,
+                           text,  /* text is allowed to be NULL */
+                           atof(x_node->value),
+                           atof(y_node->value),
+                           atof(width_node->value),
+                           atof(height_node->value));
     screen_add_element(screen, (struct element_t*)button);
 
     /* extract service name and arguments tied to action, if any */
     if(action_node)
-        menu_load_button_action(game, button, action_node);
+        menu_load_button_action(button, action_node);
 }
 
 /* ------------------------------------------------------------------------- */
 static void
-menu_load_button_action(struct game_t* game, struct button_t* button, const struct ptree_t* action_node)
+menu_load_button_action(struct button_t* button, const struct ptree_t* action_node)
 {
     struct ptree_t* service_node = ptree_find_by_key(action_node, "service");
     if(service_node && service_node->value)
     {
-        struct service_t* action_service = service_get(game, (char*)service_node->value);
+        struct service_t* action_service = service_get(button->base.element.glob->game, (char*)service_node->value);
         if(!action_service)
         {
             llog(LOG_WARNING, PLUGIN_NAME, 3, "Tried to bind button to service \"",
@@ -300,32 +303,34 @@ menu_load_button_action(struct game_t* game, struct button_t* button, const stru
 SERVICE(menu_load_wrapper)
 {
     uint32_t id;
+    struct glob_t* g = get_global(service->game);
     SERVICE_EXTRACT_ARGUMENT_PTR(0, file_name, const char*);
 
-    struct menu_t* menu = menu_load(service->game, file_name);
+    struct menu_t* menu = menu_load(g, file_name);
     if(!menu)
         SERVICE_RETURN(0, uint32_t);
 
     /* cannot have duplicate menu names */
     id = hash_jenkins_oaat(menu->name, strlen(menu->name));
-    if(map_find(&g_menus, id))
+    if(map_find(&g->menu.menus, id))
     {
         llog(LOG_ERROR, PLUGIN_NAME, 3, "Tried to load a menu with duplicate name: \"", menu->name, "\"");
         menu_destroy(menu);
         SERVICE_RETURN(0, uint32_t);
     }
     
-    map_insert(&g_menus, id, menu);
+    map_insert(&g->menu.menus, id, menu);
     SERVICE_RETURN(menu->name, const char*);
 }
 
 /* ------------------------------------------------------------------------- */
 SERVICE(menu_destroy_wrapper)
 {
+    struct glob_t* g = get_global(service->game);
     SERVICE_EXTRACT_ARGUMENT_PTR(0, menu_name, const char*);
 
     uint32_t id = hash_jenkins_oaat(menu_name, strlen(menu_name));
-    struct menu_t* menu = map_erase(&g_menus, id);
+    struct menu_t* menu = map_erase(&g->menu.menus, id);
     if(menu)
         menu_destroy(menu);
 }
@@ -333,11 +338,12 @@ SERVICE(menu_destroy_wrapper)
 /* ------------------------------------------------------------------------- */
 SERVICE(menu_set_active_screen_wrapper)
 {
+    struct glob_t* g = get_global(service->game);
     SERVICE_EXTRACT_ARGUMENT_PTR(0, menu_name, const char*);
     SERVICE_EXTRACT_ARGUMENT_PTR(1, screen_name, const char*);
     
     uint32_t menu_id = hash_jenkins_oaat(menu_name, strlen(menu_name));
-    struct menu_t* menu = map_find(&g_menus, menu_id);
+    struct menu_t* menu = map_find(&g->menu.menus, menu_id);
     if(!menu)
         return;
     
