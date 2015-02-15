@@ -25,35 +25,36 @@ main_loop_init(struct game_t* game)
 static char
 is_time_to_update(struct game_t* game)
 {
+    struct main_loop_t* loop = &get_global(game)->main_loop;
     int64_t elapsed_time = main_loop_get_elapsed_time(game);
 
     /* update internal statistics every second */
-    if(elapsed_time - get_global(game)->main_loop.statistics.last_update >= 1000000)
+    if(elapsed_time - loop->statistics.last_update >= 1000000)
     {
         /* calculate render frame rate and update frame rate */
-        get_global(game)->main_loop.statistics.render_frame_rate = get_global(game)->main_loop.statistics.render_counter_rel;
-        get_global(game)->main_loop.statistics.update_frame_rate = get_global(game)->main_loop.statistics.update_counter_rel;
-        get_global(game)->main_loop.statistics.render_counter_rel = 0;
-        get_global(game)->main_loop.statistics.update_counter_rel = 0;
+        loop->statistics.render_frame_rate = loop->statistics.render_counter_rel;
+        loop->statistics.update_frame_rate = loop->statistics.update_counter_rel;
+        loop->statistics.render_counter_rel = 0;
+        loop->statistics.update_counter_rel = 0;
         
         /* reset timer */
-        get_global(game)->main_loop.statistics.last_update = elapsed_time;
-        EVENT_FIRE2(evt_stats, get_global(game)->main_loop.statistics.render_frame_rate, get_global(game)->main_loop.statistics.update_frame_rate);
+        loop->statistics.last_update = elapsed_time;
+        EVENT_FIRE2(evt_stats, loop->statistics.render_frame_rate, loop->statistics.update_frame_rate);
     }
 
     /* calling this function means a render update occurred */
-    ++get_global(game)->main_loop.statistics.render_counter_rel;
+    ++loop->statistics.render_counter_rel;
     
     /*
      * If time that has passed is smaller than the time that should have passed,
      * it's not time to update yet.
      */
-    if(elapsed_time < get_global(game)->main_loop.update_loop_counter * get_global(game)->main_loop.time_between_frames)
+    if(elapsed_time < loop->update_loop_counter * loop->time_between_frames)
         return 0;
     
     /* game loop needs to be updated, increment counter and return non-zero */
-    ++get_global(game)->main_loop.update_loop_counter;
-    ++get_global(game)->main_loop.statistics.update_counter_rel;
+    ++loop->update_loop_counter;
+    ++loop->statistics.update_counter_rel;
     return 1;
 }
 
@@ -61,24 +62,28 @@ is_time_to_update(struct game_t* game)
 void
 main_loop_reset_timer(struct game_t* game)
 {
-    get_global(game)->main_loop.update_loop_counter = 0;
-    get_global(game)->main_loop.time_begin = get_time_in_microseconds();
-    get_global(game)->main_loop.statistics.last_update = 0;
+    struct main_loop_t* loop = &get_global(game)->main_loop;
+    loop->update_loop_counter = 0;
+    loop->time_begin = get_time_in_microseconds();
+    loop->statistics.last_update = 0;
 }
 
 /* ------------------------------------------------------------------------- */
 int64_t
 main_loop_get_elapsed_time(struct game_t* game)
 {
-    return get_time_in_microseconds() - get_global(game)->main_loop.time_begin;
+    struct main_loop_t* loop = &get_global(game)->main_loop;
+    return get_time_in_microseconds() - loop->time_begin;
 }
 
 /* ------------------------------------------------------------------------- */
 SERVICE(main_loop_start)
 {
+    struct main_loop_t* loop = &get_global(service->game)->main_loop;
+
     main_loop_reset_timer(service->game);
-    get_global(service->game)->main_loop.is_looping = 1;
-    while(get_global(service->game)->main_loop.is_looping)
+    loop->is_looping = 1;
+    while(loop->is_looping)
     {
         int updates = 0;
         
