@@ -13,7 +13,7 @@ void
 register_events(struct plugin_t* plugin)
 {
     struct game_t* game = plugin->game;
-    evt_button_clicked = event_create(game, plugin, "button_clicked");
+    /*evt_button_clicked = event_create(game, plugin, "button_clicked");*/
 }
 
 void

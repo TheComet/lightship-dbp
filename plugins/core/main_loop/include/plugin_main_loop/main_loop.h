@@ -28,13 +28,13 @@ SERVICE(main_loop_start);
 SERVICE(main_loop_stop);
 
 void
-main_loop_init(struct game_t* game);
+main_loop_init(struct main_loop_t* loop);
 
 void
-main_loop_reset_timer(struct game_t* game);
+main_loop_reset_timer(struct main_loop_t* loop);
 
 int64_t
-main_loop_get_elapsed_time(struct game_t* game);
+main_loop_get_elapsed_time(struct main_loop_t* loop);
 
 EVENT_LISTENER0(on_main_loop_stop);
 

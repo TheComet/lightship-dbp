@@ -3,14 +3,14 @@
 struct plugin_t;
 struct game_t;
 
-EVENT_H0(evt_render)
-EVENT_H0(evt_update)
-EVENT_H2(evt_stats, uint32_t, uint32_t)
-EVENT_H0(evt_start)
-EVENT_H0(evt_stop)
+EVENT_H_NO_EXTERN0(evt_render)
+EVENT_H_NO_EXTERN0(evt_update)
+EVENT_H_NO_EXTERN2(evt_stats, uint32_t, uint32_t)
+EVENT_H_NO_EXTERN0(evt_start)
+EVENT_H_NO_EXTERN0(evt_stop)
 
 void
-register_events(struct game_t* game, struct plugin_t* plugin);
+register_events(struct plugin_t* plugin);
 
 void
-register_event_listeners(struct game_t* game, struct plugin_t* plugin);
+register_event_listeners(struct plugin_t* plugin);

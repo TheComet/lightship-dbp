@@ -7,6 +7,15 @@ extern uint32_t global_hash;
 struct plugin_t;
 struct game_t;
 
+struct glob_events_t
+{
+    struct event_t* render;
+    struct event_t* update;
+    struct event_t* stats;
+    struct event_t* start;
+    struct event_t* stop;
+};
+
 struct glob_plugin_t
 {
     struct plugin_t* plugin;
@@ -14,7 +23,8 @@ struct glob_plugin_t
 
 struct glob_t
 {
-    struct glob_plugin_t plugin;
+    struct plugin_t* plugin;
+    struct glob_events_t events;
     struct main_loop_t main_loop;
 };
 

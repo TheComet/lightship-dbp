@@ -90,7 +90,7 @@ plugin_load(struct game_t* game,
         filename = find_plugin(plugin_info, criteria);
         if(!filename)
         {
-            llog(LOG_ERROR, NULL, 1, "Error searching for plugin: Unable to find a file matching the critera");
+            llog(LOG_ERROR, NULL, 3, "Error searching for plugin \"", plugin_info->name, "\": Unable to find a file matching the critera");
             break;
         }
         
