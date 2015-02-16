@@ -16,11 +16,6 @@ struct glob_events_t
     struct event_t* stop;
 };
 
-struct glob_plugin_t
-{
-    struct plugin_t* plugin;
-};
-
 struct glob_t
 {
     struct plugin_t* plugin;
