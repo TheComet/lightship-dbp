@@ -17,6 +17,7 @@ static const char* two_d_shader_file = "../../plugins/core/renderer_gl/fx/line_2
 static const char* two_d_shader_file = "fx/line_2d";
 #endif
 
+/* ------------------------------------------------------------------------- */
 static struct shapes_t*
 shapes_get(uint32_t ID)
 {
@@ -28,6 +29,7 @@ shapes_get(uint32_t ID)
     return NULL;
 }
 
+/* ------------------------------------------------------------------------- */
 char
 init_2d(void)
 {
@@ -38,6 +40,7 @@ init_2d(void)
     return 1;
 }
 
+/* ------------------------------------------------------------------------- */
 void
 deinit_2d(void)
 {
@@ -55,6 +58,7 @@ deinit_2d(void)
         glDeleteProgram(g_line_shader_id);printOpenGLError();
 }
 
+/* ------------------------------------------------------------------------- */
 void
 shapes_2d_begin(void)
 {
@@ -67,6 +71,7 @@ shapes_2d_begin(void)
     g_current_shapes->visible = 1;
 }
 
+/* ------------------------------------------------------------------------- */
 uint32_t
 shapes_2d_end(void)
 {
@@ -107,6 +112,7 @@ shapes_2d_end(void)
     return ID;
 }
 
+/* ------------------------------------------------------------------------- */
 void
 shapes_2d_destroy(uint32_t ID)
 {
@@ -125,6 +131,7 @@ shapes_2d_destroy(uint32_t ID)
     }
 }
 
+/* ------------------------------------------------------------------------- */
 void
 line_2d(float x1, float y1, float x2, float y2, uint32_t colour)
 {
@@ -156,6 +163,7 @@ line_2d(float x1, float y1, float x2, float y2, uint32_t colour)
     *index = g_current_shapes->vertex_data.count - 1;
 }
 
+/* ------------------------------------------------------------------------- */
 void
 box_2d(float x1, float y1, float x2, float y2, uint32_t colour)
 {
@@ -168,6 +176,7 @@ box_2d(float x1, float y1, float x2, float y2, uint32_t colour)
     line_2d(x1, y2, x1, y1, colour);
 }
 
+/* ------------------------------------------------------------------------- */
 void
 shapes_hide(uint32_t ID)
 {
@@ -177,6 +186,7 @@ shapes_hide(uint32_t ID)
     shapes->visible = 0;
 }
 
+/* ------------------------------------------------------------------------- */
 void
 shapes_show(uint32_t ID)
 {
@@ -186,6 +196,7 @@ shapes_show(uint32_t ID)
     shapes->visible = 1;
 }
 
+/* ------------------------------------------------------------------------- */
 void
 draw_2d(void)
 {
@@ -204,6 +215,9 @@ draw_2d(void)
     glBindVertexArray(0);
 }
 
+/* ------------------------------------------------------------------------- */
+/* WRAPPERS */
+/* ------------------------------------------------------------------------- */
 SERVICE(shapes_2d_begin_wrapper)
 {
     shapes_2d_begin();

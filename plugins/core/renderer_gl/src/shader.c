@@ -8,7 +8,9 @@
 
 #include "GL/glew.h"
 
-void check_shader(GLuint shader_ID)
+/* ------------------------------------------------------------------------- */
+void
+check_shader(GLuint shader_ID)
 {
     GLint result = GL_FALSE;
     int info_log_length;
@@ -23,7 +25,9 @@ void check_shader(GLuint shader_ID)
     FREE(message);
 }
 
-void compile_shader(GLuint shader_ID, const char* file_name)
+/* ------------------------------------------------------------------------- */
+void
+compile_shader(GLuint shader_ID, const char* file_name)
 {
     FILE* fp;
     GLchar* code;
@@ -52,7 +56,9 @@ void compile_shader(GLuint shader_ID, const char* file_name)
     FREE(code);
 }
 
-void check_program(GLuint program_ID)
+/* ------------------------------------------------------------------------- */
+void
+check_program(GLuint program_ID)
 {
     GLint result = GL_FALSE;
     int info_log_length;
@@ -67,7 +73,9 @@ void check_program(GLuint program_ID)
     FREE(message);
 }
 
-GLuint shader_load(const char* name)
+/* ------------------------------------------------------------------------- */
+GLuint
+shader_load(const char* name)
 {
     char* vertex_shader;
     char* fragment_shader;
@@ -82,7 +90,9 @@ GLuint shader_load(const char* name)
     return result;
 }
 
-GLuint load_shader_pair(const char* vertex_shader, const char* fragment_shader)
+/* ------------------------------------------------------------------------- */
+GLuint
+load_shader_pair(const char* vertex_shader, const char* fragment_shader)
 {
     GLuint program_ID;
     GLuint vsh_ID;

@@ -4,6 +4,7 @@
 #include "util/pstdint.h"
 #include "glfw3.h"
 
+/* ------------------------------------------------------------------------- */
 void
 key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
@@ -18,6 +19,7 @@ key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
     }
 }
 
+/* ------------------------------------------------------------------------- */
 void
 mouse_position_callback(GLFWwindow* window, double xpos, double ypos)
 {
@@ -28,6 +30,7 @@ mouse_position_callback(GLFWwindow* window, double xpos, double ypos)
     EVENT_FIRE2(evt_mouse_move, norm_x, norm_y);
 }
 
+/* ------------------------------------------------------------------------- */
 void
 mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 {
@@ -41,6 +44,7 @@ mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
     }
 }
 
+/* ------------------------------------------------------------------------- */
 void
 scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {

@@ -139,11 +139,12 @@ target_link_libraries (plugin_renderer_gl freetype)
 include_directories ("ext/stb")
 
 ###############################################################################
-# link lightship utility static library
+# link lightship utility and plugin manager libraries
 ###############################################################################
 
 target_link_libraries (plugin_renderer_gl
     lightship_util
+    plugin_manager
 )
 
 ###############################################################################
