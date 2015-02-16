@@ -185,7 +185,7 @@ EVENT_LISTENER3(on_mouse_clicked, char mouse_btn, double x, double y)
     if(button)
     {
         /* let everything know it was clicked */
-        EVENT_FIRE1(evt_button_clicked, button->base.element.id);
+        EVENT_FIRE_FROM_TEMP1(evt_button_clicked, g->events.button_clicked, button->base.element.id);
         
         /* if button has an action, execute it */
         if(button->base.element.action.service)
