@@ -5,6 +5,7 @@
 #include "util/hash.h"
 #include "util/memory.h"
 #include "util/string.h"
+#include "util/log.h"
 #include <string.h>
 #include <stdlib.h>
 #include <assert.h>

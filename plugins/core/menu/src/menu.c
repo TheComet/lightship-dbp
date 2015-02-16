@@ -135,7 +135,10 @@ menu_set_active_screen(struct menu_t* menu, const char* name)
     uint32_t screen_id = hash_jenkins_oaat(name, strlen(name));
     struct screen_t* screen = map_find(&menu->screens, screen_id);
     if(!screen)
+    {
+        llog(LOG_ERROR, PLUGIN_NAME, 3, "Failed to set the active screen to \"", name, "\": Screen name not found");
         return;
+    }
 
     if(menu->active_screen)
         screen_hide(menu->active_screen);

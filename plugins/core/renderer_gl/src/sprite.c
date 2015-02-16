@@ -1,7 +1,9 @@
 #include "plugin_renderer_gl/shader.h"
 #include "plugin_renderer_gl/sprite.h"
+#include "plugin_renderer_gl/config.h"
 #include "util/map.h"
 #include "util/memory.h"
+#include "util/log.h"
 #include <assert.h>
 #include <string.h>
 
@@ -89,7 +91,10 @@ sprite_create(const char* file_name, uint32_t x_frame_count, uint32_t y_frame_co
     /* force 4 channel data for easy texture upload */
     data = stbi_load(file_name, &x, &y, &n, 4);
     if(!data)
+    {
+        llog(LOG_ERROR, PLUGIN_NAME, 3, "Failed to load image: \"", file_name, "\"");
         return NULL;
+    }
     
     /* create and set up sprite object */
     sprite = (struct sprite_t*)MALLOC(sizeof(struct sprite_t));
