@@ -121,8 +121,22 @@ init(void)
             llog(LOG_FATAL, NULL, 1, "Cannot get main loop service");
             return;
         }
-
-        SERVICE_CALL0(start, SERVICE_NO_RETURN);
+        
+        {
+            struct menu_t;
+            struct menu_t* menu;
+            struct service_t* menu_load_service = service_get(g_local_game, "menu.load");
+            struct service_t* menu_destroy_service = service_get(g_local_game, "menu.destroy");
+#ifdef _DEBUG
+            const char* menu_file_name = "../../plugins/core/menu/cfg/menu.yml";
+#else
+            const char* menu_file_name = "cfg/menu.yml";
+#endif
+            SERVICE_CALL1(menu_load_service, &menu, PTR(menu_file_name));
+            SERVICE_CALL0(start, SERVICE_NO_RETURN);
+            SERVICE_CALL1(menu_destroy_service, SERVICE_NO_RETURN, PTR(menu));
+        }
+    
     }
 }
 

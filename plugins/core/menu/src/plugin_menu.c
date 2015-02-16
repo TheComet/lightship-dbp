@@ -8,8 +8,6 @@
 
 #include "plugin_manager/services.h"
 
-static char* g_menu;
-
 /* ------------------------------------------------------------------------- */
 PLUGIN_MENU_PUBLIC_API PLUGIN_INIT()
 {
@@ -58,16 +56,6 @@ PLUGIN_MENU_PUBLIC_API PLUGIN_START()
     element_init(g);
     button_init(g);
     menu_init(g);
-    
-    {
-        struct service_t* menu_load_service = service_get(game, "menu.load");
-#ifdef _DEBUG
-        const char* menu_file_name = "../../plugins/core/menu/cfg/menu.yml";
-#else
-        const char* menu_file_name = "cfg/menu.yml";
-#endif
-        SERVICE_CALL1(menu_load_service, &g_menu, PTR(menu_file_name));
-    }
 
     return PLUGIN_SUCCESS;
 }
@@ -79,9 +67,6 @@ PLUGIN_MENU_PUBLIC_API PLUGIN_STOP()
     struct glob_t* g;
 
     /* de-init */
-    menu_destroy_service = service_get(game, "menu.destroy");
-    SERVICE_CALL1(menu_destroy_service, SERVICE_NO_RETURN, PTR(g_menu));
-    
     g = get_global(game);
     menu_deinit(g);
     button_deinit(g);

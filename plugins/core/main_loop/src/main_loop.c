@@ -6,9 +6,8 @@
 
 /* ------------------------------------------------------------------------- */
 void
-main_loop_init(struct game_t* game)
+main_loop_init(struct main_loop_t* loop)
 {
-    struct main_loop_t* loop = &get_global(game)->main_loop;
     loop->is_looping = 0;
     loop->fps = 60;
     loop->time_begin = 0;
@@ -23,10 +22,10 @@ main_loop_init(struct game_t* game)
 
 /* ------------------------------------------------------------------------- */
 static char
-is_time_to_update(struct game_t* game)
+is_time_to_update(struct glob_t* g)
 {
-    struct main_loop_t* loop = &get_global(game)->main_loop;
-    int64_t elapsed_time = main_loop_get_elapsed_time(game);
+    struct main_loop_t* loop = &g->main_loop;
+    int64_t elapsed_time = main_loop_get_elapsed_time(loop);
 
     /* update internal statistics every second */
     if(elapsed_time - loop->statistics.last_update >= 1000000)
@@ -39,7 +38,7 @@ is_time_to_update(struct game_t* game)
         
         /* reset timer */
         loop->statistics.last_update = elapsed_time;
-        EVENT_FIRE2(evt_stats, loop->statistics.render_frame_rate, loop->statistics.update_frame_rate);
+        EVENT_FIRE_FROM_TEMP2(evt_stats, g->events.stats, loop->statistics.render_frame_rate, loop->statistics.update_frame_rate);
     }
 
     /* calling this function means a render update occurred */
@@ -60,9 +59,8 @@ is_time_to_update(struct game_t* game)
 
 /* ------------------------------------------------------------------------- */
 void
-main_loop_reset_timer(struct game_t* game)
+main_loop_reset_timer(struct main_loop_t* loop)
 {
-    struct main_loop_t* loop = &get_global(game)->main_loop;
     loop->update_loop_counter = 0;
     loop->time_begin = get_time_in_microseconds();
     loop->statistics.last_update = 0;
@@ -70,30 +68,29 @@ main_loop_reset_timer(struct game_t* game)
 
 /* ------------------------------------------------------------------------- */
 int64_t
-main_loop_get_elapsed_time(struct game_t* game)
+main_loop_get_elapsed_time(struct main_loop_t* loop)
 {
-    struct main_loop_t* loop = &get_global(game)->main_loop;
     return get_time_in_microseconds() - loop->time_begin;
 }
 
 /* ------------------------------------------------------------------------- */
 SERVICE(main_loop_start)
 {
-    struct main_loop_t* loop = &get_global(service->game)->main_loop;
+    struct glob_t* g = get_global(service->game);
 
-    main_loop_reset_timer(service->game);
-    loop->is_looping = 1;
-    while(loop->is_looping)
+    main_loop_reset_timer(&g->main_loop);
+    g->main_loop.is_looping = 1;
+    while(g->main_loop.is_looping)
     {
         int updates = 0;
         
         /* dispatch render event */
-        EVENT_FIRE0(evt_render);
+        EVENT_FIRE_FROM_TEMP0(evt_render, g->events.render);
         
         /* dispatch game loop event */
-        while(is_time_to_update(service->game))
+        while(is_time_to_update(g))
         {
-            EVENT_FIRE0(evt_update);
+            EVENT_FIRE_FROM_TEMP0(evt_update, g->events.render);
             if(++updates >= 10) /* don't allow more than 10 update loops without
                                    a render update */
                 break;
@@ -104,7 +101,7 @@ SERVICE(main_loop_start)
 /* ------------------------------------------------------------------------- */
 SERVICE(main_loop_stop)
 {
-    EVENT_FIRE0(evt_stop);
+    EVENT_FIRE_FROM_TEMP0(evt_stop, get_global(service->game)->events.stop);
 }
 
 /* ------------------------------------------------------------------------- */
