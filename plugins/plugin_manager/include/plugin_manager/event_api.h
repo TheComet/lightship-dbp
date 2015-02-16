@@ -104,7 +104,7 @@ EVENT_LISTENER1(on_event, int arg)
  * This is the closure of the IF_EVENT_VALID condition, which will print
  * the stacktrace.
  */
-#   define REPORT_EVENT_FIRE_FAILURE                                                \
+#   define ELSE_REPORT_EVENT_FIRE_FAILURE                                                \
                 } else {                                                            \
                     uint32_t size, i;                                               \
                     char** backtrace = get_backtrace(&size);                        \
@@ -117,7 +117,7 @@ EVENT_LISTENER1(on_event, int arg)
                 }
 
 #else  /* _DEBUG */
-#   define REPORT_EVENT_FIRE_FAILURE
+#   define ELSE_REPORT_EVENT_FIRE_FAILURE
 #   define IF_EVENT_VALID(event)
 #endif /* _DEBUG */
 
@@ -213,35 +213,35 @@ EVENT_LISTENER1(on_event, int arg)
                 EVENT_ITERATE_LISTENERS_BEGIN(event_name)       \
                     EVENT_FIRE_IMPL0(event_name)                \
                 EVENT_ITERATE_LISTENERS_END                     \
-            REPORT_EVENT_FIRE_FAILURE } while(0)
+            ELSE_REPORT_EVENT_FIRE_FAILURE } while(0)
 #define EVENT_FIRE_FROM_TEMP1(static_name, event_name, arg) do {    \
             EVENT_DUMMY_FUNCTION_SIGNATURE_CHECK1(static_name, arg) \
             IF_EVENT_VALID(event_name)                              \
                 EVENT_ITERATE_LISTENERS_BEGIN(event_name)           \
                     EVENT_FIRE_IMPL1(event_name, arg)               \
                 EVENT_ITERATE_LISTENERS_END                         \
-            REPORT_EVENT_FIRE_FAILURE } while(0)
+            ELSE_REPORT_EVENT_FIRE_FAILURE } while(0)
 #define EVENT_FIRE_FROM_TEMP2(static_name, event_name, arg1, arg2) do {     \
             EVENT_DUMMY_FUNCTION_SIGNATURE_CHECK2(static_name, arg1, arg2)  \
             IF_EVENT_VALID(event_name)                                      \
                 EVENT_ITERATE_LISTENERS_BEGIN(event_name)                   \
                     EVENT_FIRE_IMPL2(event_name, arg1, arg2)                \
                 EVENT_ITERATE_LISTENERS_END                                 \
-            REPORT_EVENT_FIRE_FAILURE } while(0)
+            ELSE_REPORT_EVENT_FIRE_FAILURE } while(0)
 #define EVENT_FIRE_FROM_TEMP3(static_name, event_name, arg1, arg2, arg3) do {       \
             EVENT_DUMMY_FUNCTION_SIGNATURE_CHECK3(static_name, arg1, arg2, arg3)    \
             IF_EVENT_VALID(event_name)                                              \
                 EVENT_ITERATE_LISTENERS_BEGIN(event_name)                           \
                     EVENT_FIRE_IMPL3(event_name, arg1, arg2, arg3)                  \
                 EVENT_ITERATE_LISTENERS_END                                         \
-            REPORT_EVENT_FIRE_FAILURE } while(0)
+            ELSE_REPORT_EVENT_FIRE_FAILURE } while(0)
 #define EVENT_FIRE_FROM_TEMP4(static_name, event_name, arg1, arg2, arg3, arg4) do {     \
             EVENT_DUMMY_FUNCTION_SIGNATURE_CHECK4(static_name, arg1, arg2, arg3, arg4)  \
             IF_EVENT_VALID(event_name)                                                  \
                 EVENT_ITERATE_LISTENERS_BEGIN(event_name)                               \
                     EVENT_FIRE_IMPL4(event_name, arg1, arg2, arg3, arg4)                \
                 EVENT_ITERATE_LISTENERS_END                                             \
-            REPORT_EVENT_FIRE_FAILURE } while(0)
+            ELSE_REPORT_EVENT_FIRE_FAILURE } while(0)
 
 /*!
  * @brief Declare an event in a header file with up to 4 arguments.

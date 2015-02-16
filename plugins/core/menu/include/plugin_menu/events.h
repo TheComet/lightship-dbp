@@ -5,7 +5,7 @@
  * All events this plugin emits
  * ---------------------------------------------------*/
  
-EVENT_H1(evt_button_clicked, uint32_t)
+EVENT_H_NO_EXTERN1(evt_button_clicked, uint32_t)
 
 struct plugin_t;
 

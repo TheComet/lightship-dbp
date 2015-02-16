@@ -6,8 +6,6 @@
 #include "plugin_menu/button.h"
 #include "plugin_menu/menu.h"
 
-#include "plugin_manager/services.h"
-
 /* ------------------------------------------------------------------------- */
 PLUGIN_MENU_PUBLIC_API PLUGIN_INIT()
 {
@@ -63,7 +61,6 @@ PLUGIN_MENU_PUBLIC_API PLUGIN_START()
 /* ------------------------------------------------------------------------- */
 PLUGIN_MENU_PUBLIC_API PLUGIN_STOP()
 {
-    struct service_t* menu_destroy_service;
     struct glob_t* g;
 
     /* de-init */

@@ -47,6 +47,11 @@ struct glob_services_t
     struct service_t* text_hide;
 };
 
+struct glob_events_t
+{
+    struct event_t* button_clicked;
+};
+
 struct glob_t
 {
     struct game_t* game;
@@ -55,6 +60,7 @@ struct glob_t
     struct glob_button_t button;
     struct glob_menu_t menu;
     struct glob_services_t services;
+    struct glob_events_t events;
 };
 
 void

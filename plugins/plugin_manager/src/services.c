@@ -437,6 +437,8 @@ service_get_c_type_equivalent_from_service_type(const char* type)
             /* make sure it's not actually a char** */
             int num_chrs = 0;
             const char* str = type;
+            /* one-liner for counting the number of '*' characters in a string
+             * NOTE: modifies "str" */
             for(num_chrs = 0; str[num_chrs]; str[num_chrs] == '*' ? num_chrs++ : *str++);
             if(num_chrs >= 2)
                 return SERVICE_SCRIPT_TYPE_UNKNOWN;
@@ -449,6 +451,8 @@ service_get_c_type_equivalent_from_service_type(const char* type)
             /* make sure it's not actually a wchar_t** */
             int num_chrs = 0;
             const char* str = type;
+            /* one-liner for counting the number of '*' characters in a string
+             * NOTE: modifies "str" */
             for(num_chrs = 0; str[num_chrs]; str[num_chrs] == '*' ? num_chrs++ : *str++);
             if(num_chrs >= 2)
                 return SERVICE_SCRIPT_TYPE_UNKNOWN;
