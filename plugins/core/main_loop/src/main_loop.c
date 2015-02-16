@@ -42,7 +42,7 @@ is_time_to_update(struct glob_t* g)
     }
 
     /* calling this function means a render update occurred */
-    ++loop->statistics.render_counter_rel;
+    
     
     /*
      * If time that has passed is smaller than the time that should have passed,
@@ -86,12 +86,13 @@ SERVICE(main_loop_start)
         
         /* dispatch render event */
         EVENT_FIRE_FROM_TEMP0(evt_render, g->events.render);
+        ++g->main_loop.statistics.render_counter_rel;
         
         /* dispatch game loop event */
         while(is_time_to_update(g))
         {
-            EVENT_FIRE_FROM_TEMP0(evt_update, g->events.render);
-            if(++updates >= 10) /* don't allow more than 10 update loops without
+            EVENT_FIRE_FROM_TEMP0(evt_update, g->events.update);
+            if(++updates >= 20) /* don't allow more than 20 update loops without
                                    a render update */
                 break;
         }
@@ -101,7 +102,8 @@ SERVICE(main_loop_start)
 /* ------------------------------------------------------------------------- */
 SERVICE(main_loop_stop)
 {
-    EVENT_FIRE_FROM_TEMP0(evt_stop, get_global(service->game)->events.stop);
+    struct glob_t* g = get_global(service->game);
+    EVENT_FIRE_FROM_TEMP0(evt_stop, g->events.stop);
 }
 
 /* ------------------------------------------------------------------------- */
@@ -114,6 +116,6 @@ EVENT_LISTENER0(on_main_loop_stop)
 #ifdef _DEBUG
 EVENT_LISTENER2(on_stats, uint32_t render_frame_rate, uint32_t update_frame_rate)
 {
-    /*printf("render fps: %u, update fps: %u\n", render_frame_rate, update_frame_rate);*/
+    printf("render fps: %u, update fps: %u\n", render_frame_rate, update_frame_rate);
 }
 #endif

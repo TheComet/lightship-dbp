@@ -28,6 +28,7 @@ void register_events(struct plugin_t* plugin)
 void register_event_listeners(struct plugin_t* plugin)
 {
     struct game_t* game = plugin->game;
+    event_register_listener(game, plugin, "main_loop.stop", on_main_loop_stop);
     event_register_listener(game, plugin, "renderer_gl.close_window", on_main_loop_stop);
 #ifdef _DEBUG
     event_register_listener(game, plugin, "main_loop.stats", on_stats);
