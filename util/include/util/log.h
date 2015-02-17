@@ -3,7 +3,6 @@
 
 #include "util/config.h"
 #include "util/pstdint.h"
-
 #include "plugin_manager/event_api.h"
 
 struct game_t;
@@ -23,6 +22,16 @@ struct log_t
     log_level_t level;
     char* message;
 };
+
+/*
+ * Because the utility library cannot link against the plugin manager library
+ * on Windows without causing a circular dependency, these events need to be
+ * exported. The plugin manager library will initialise these events and then
+ * pass them back to the log through a call to llog_set_events().
+ */
+LIGHTSHIP_UTIL_PUBLIC_API EVENT_H0(evt_log_unindent)
+LIGHTSHIP_UTIL_PUBLIC_API EVENT_H1(evt_log, struct log_t*)
+LIGHTSHIP_UTIL_PUBLIC_API EVENT_H1(evt_log_indent, const char*)
 
 /*!
  * @brief Initialises the log. Must be called before using any other log related

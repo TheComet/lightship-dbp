@@ -6,6 +6,7 @@
 #include "util/map.h"
 #include "util/memory.h"
 #include "util/string.h"
+#include "util/log.h"
 #include <string.h>
 #include <wchar.h>
 

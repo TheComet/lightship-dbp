@@ -11,18 +11,10 @@
 #include <assert.h>
 
 /* ----------------------------------------------------------------------------
- * Built-in events
- * ------------------------------------------------------------------------- */
-EVENT_C1(evt_log, struct log_t*);
-EVENT_C1(evt_log_indent, const char*);
-EVENT_C0(evt_log_unindent);
-
-/* ----------------------------------------------------------------------------
  * Static functions
  * ------------------------------------------------------------------------- */
 
 /*!
- * @brief Unregisters any listeners that belong to the specified name_space from
  * the specified event.
  * @param event The event to unregister the listeners from.
  * @param name_space The name_space to search for.
@@ -84,13 +76,14 @@ events_init(struct game_t* game)
      * Register built-in events 
      * --------------------------*/
     
-    /* All logging events should be done through this event. */
+    /* The log will fire these events appropriately whenever something is logged */
     name = malloc_string(BUILTIN_NAMESPACE_NAME ".log");
     evt_log = event_malloc_and_register(game, name);
     name = malloc_string(BUILTIN_NAMESPACE_NAME ".log_indent");
     evt_log_indent = event_malloc_and_register(game, name);
     name = malloc_string(BUILTIN_NAMESPACE_NAME ".log_unindent");
     evt_log_unindent = event_malloc_and_register(game, name);
+    llog_set_events(evt_log_indent, evt_log_unindent, evt_log);
 }
 
 /* ------------------------------------------------------------------------- */

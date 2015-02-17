@@ -92,9 +92,8 @@ EVENT_LISTENER1(on_event, int arg)
  * for event being NULL.
  */
 #ifdef _DEBUG
-#   include <stdlib.h>
 #   include "util/backtrace.h"
-#   include "util/log.h"
+#   include <stdlib.h>
 
 /* this is the check for whether the event object is NULL or not */
 #   define IF_EVENT_VALID(event) \
@@ -243,6 +242,12 @@ EVENT_LISTENER1(on_event, int arg)
                 EVENT_ITERATE_LISTENERS_END                                             \
             ELSE_REPORT_EVENT_FIRE_FAILURE } while(0)
 
+#define EVENT_H_NO_EXTERN0(event)                                   EVENT_GEN_DUMMY_FUNCTION_DECL0(event)
+#define EVENT_H_NO_EXTERN1(event, arg1_t)                           EVENT_GEN_DUMMY_FUNCTION_DECL1(event, arg1_t)
+#define EVENT_H_NO_EXTERN2(event, arg1_t, arg2_t)                   EVENT_GEN_DUMMY_FUNCTION_DECL2(event, arg1_t, arg2_t)
+#define EVENT_H_NO_EXTERN3(event, arg1_t, arg2_t, arg3_t)           EVENT_GEN_DUMMY_FUNCTION_DECL3(event, arg1_t, arg2_t, arg3_t)
+#define EVENT_H_NO_EXTERN4(event, arg1_t, arg2_t, arg3_t, arg4_t)   EVENT_GEN_DUMMY_FUNCTION_DECL4(event, arg1_t, arg2_t, arg3_t, arg4_t)
+
 /*!
  * @brief Declare an event in a header file with up to 4 arguments.
  * @param event The event name. Should match an event name defined using
@@ -268,13 +273,6 @@ EVENT_H(evt_foo, args...);
 #define EVENT_H4(event, arg1, arg2, arg3, arg4)                 \
     extern struct event_t* event;                               \
     EVENT_H_NO_EXTERN4(event, arg1, arg2, arg3, arg4)
-
-#define EVENT_H_NO_EXTERN0(event)                                   EVENT_GEN_DUMMY_FUNCTION_DECL0(event)
-#define EVENT_H_NO_EXTERN1(event, arg1_t)                           EVENT_GEN_DUMMY_FUNCTION_DECL1(event, arg1_t)
-#define EVENT_H_NO_EXTERN2(event, arg1_t, arg2_t)                   EVENT_GEN_DUMMY_FUNCTION_DECL2(event, arg1_t, arg2_t)
-#define EVENT_H_NO_EXTERN3(event, arg1_t, arg2_t, arg3_t)           EVENT_GEN_DUMMY_FUNCTION_DECL3(event, arg1_t, arg2_t, arg3_t)
-#define EVENT_H_NO_EXTERN4(event, arg1_t, arg2_t, arg3_t, arg4_t)   EVENT_GEN_DUMMY_FUNCTION_DECL4(event, arg1_t, arg2_t, arg3_t, arg4_t)
-
 /*!
  * @brief Define an event in a source file with up to 4 arguments.
  * @param event The event name. Should match an event name declared using
@@ -285,24 +283,21 @@ EVENT_H(evt_foo, args...);
 EVENT_C(evt_foo, args...);
 @endcode
  */
-#define EVENT_C0(event)                     \
-    EVENT_GEN_DUMMY_FUNCTION_DEF0(event)    \
-    struct event_t* event = (struct event_t*)0
-#define EVENT_C1(event, arg1_t)                     \
-    EVENT_GEN_DUMMY_FUNCTION_DEF1(event, arg1_t)    \
-    struct event_t* event = (struct event_t*)0
-#define EVENT_C2(event, arg1_t, arg2_t)                     \
-    EVENT_GEN_DUMMY_FUNCTION_DEF2(event, arg1_t, arg2_t)    \
-    struct event_t* event = (struct event_t*)0
-#define EVENT_C3(event, arg1_t, arg2_t, arg3_t)                     \
-    EVENT_GEN_DUMMY_FUNCTION_DEF3(event, arg1_t, arg2_t, arg3_t)    \
-    struct event_t* event = (struct event_t*)0
+#define EVENT_C0(event)                                                     \
+    struct event_t* event = (struct event_t*)0;                             \
+    EVENT_GEN_DUMMY_FUNCTION_DEF0(event)
+#define EVENT_C1(event, arg1_t)                                             \
+    struct event_t* event = (struct event_t*)0;                             \
+    EVENT_GEN_DUMMY_FUNCTION_DEF1(event, arg1_t)
+#define EVENT_C2(event, arg1_t, arg2_t)                                     \
+    struct event_t* event = (struct event_t*)0;                             \
+    EVENT_GEN_DUMMY_FUNCTION_DEF2(event, arg1_t, arg2_t)
+#define EVENT_C3(event, arg1_t, arg2_t, arg3_t)                             \
+    struct event_t* event = (struct event_t*)0;                             \
+    EVENT_GEN_DUMMY_FUNCTION_DEF3(event, arg1_t, arg2_t, arg3_t)
 #define EVENT_C4(event, arg1_t, arg2_t, arg3_t, arg4_t)                     \
-    EVENT_GEN_DUMMY_FUNCTION_DEF4(event, arg1_t, arg2_t, arg3_t, arg4_t)    \
-    struct event_t* event = (struct event_t*)0
-
-#define EVENT_S0(event) \
-    EVENT_DUMMY_FUNCTION_SIGNATURE_CHECK0(event)
+    struct event_t* event = (struct event_t*)0;                             \
+    EVENT_GEN_DUMMY_FUNCTION_DEF4(event, arg1_t, arg2_t, arg3_t, arg4_t)
     
 C_HEADER_END
 

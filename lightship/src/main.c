@@ -33,13 +33,18 @@ init(void)
     struct plugin_info_t target;
     
     /*
+     * Enable logging as soon as possible
+     */
+    llog_init();
+    
+    /*
      * Create the local game instance. This is the context that holds all
      * plugins, services, and events together.
      */
     g_local_game = game_create("localhost");
     if(!g_local_game)
         return;
-
+    
     /*
      * Services and events should be initialised before anything else, as they
      * register built-in mechanics that are required throughout the rest of the
@@ -48,18 +53,6 @@ init(void)
     services_init(g_local_game);
     events_init(g_local_game);
     
-    /*
-     * Enable logging as soon as possible (right after enabling services and
-     * events)
-     */
-    llog_init();
-    
-    /*
-     * Inform log about the built in events that were created in events_init()
-     * so the log can propagate log messages to listeners.
-     */
-    llog_set_events(evt_log_indent, evt_log_unindent, evt_log);
-
     /*!
      * Load the YAML plugin. This is required so the plugin manager can parse
      * the core plugins config file and load the core plugins. If the plugin
