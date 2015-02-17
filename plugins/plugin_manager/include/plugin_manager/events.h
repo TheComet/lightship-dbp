@@ -112,9 +112,6 @@ struct game_t;
 /* ----------------------------
  * Built-in events
  * --------------------------*/
-PLUGIN_MANAGER_PUBLIC_API EVENT_H1(evt_log, struct log_t*)
-PLUGIN_MANAGER_PUBLIC_API EVENT_H1(evt_log_indent, const char*)
-PLUGIN_MANAGER_PUBLIC_API EVENT_H0(evt_log_unindent)
 
 /*!
  * @brief Initialises the event system.

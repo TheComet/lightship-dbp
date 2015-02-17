@@ -1,5 +1,6 @@
 #include "plugin_input/mouse.h"
 #include "plugin_input/events.h"
+#include "util/log.h"
 #include <stdio.h>
 
 /* ------------------------------------------------------------------------- */

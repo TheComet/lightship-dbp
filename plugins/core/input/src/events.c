@@ -8,16 +8,16 @@
  * All events this plugin emits
  * ---------------------------------------------------*/
 
-EVENT_C3(evt_mouse_clicked, char, double, double);
-EVENT_C0(evt_mouse_press);
-EVENT_C0(evt_mouse_release);
-EVENT_C0(evt_mouse_move);
-EVENT_C0(evt_up);
-EVENT_C0(evt_down);
-EVENT_C0(evt_left);
-EVENT_C0(evt_right);
-EVENT_C0(evt_action);
-EVENT_C0(evt_cancel);
+EVENT_C3(evt_mouse_clicked, char, double, double)
+EVENT_C0(evt_mouse_press)
+EVENT_C0(evt_mouse_release)
+EVENT_C0(evt_mouse_move)
+EVENT_C0(evt_up)
+EVENT_C0(evt_down)
+EVENT_C0(evt_left)
+EVENT_C0(evt_right)
+EVENT_C0(evt_action)
+EVENT_C0(evt_cancel)
 
 void
 register_events(struct plugin_t* plugin)

@@ -29,9 +29,9 @@
 
 static char g_log_indent = 0;
 
-static EVENT_C1(evt_log_indent, const char*);
-static EVENT_C0(evt_log_unindent);
-static EVENT_C1(evt_log, struct log_t*);
+EVENT_C0(evt_log_unindent)
+EVENT_C1(evt_log_indent, const char*)
+EVENT_C1(evt_log, struct log_t*)
 
 static void
 on_llog_indent(const char* str);

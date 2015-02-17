@@ -9,7 +9,7 @@
  * All events this plugin emits
  * ---------------------------------------------------*/
 
-EVENT_C1(evt_button_clicked, uint32_t);
+EVENT_C1(evt_button_clicked, uint32_t)
 
 void
 register_events(struct plugin_t* plugin)

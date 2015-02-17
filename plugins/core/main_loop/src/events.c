@@ -4,11 +4,11 @@
 #include "plugin_main_loop/glob.h"
 #include <string.h>
 
-EVENT_C0(evt_render);
-EVENT_C0(evt_update);
-EVENT_C2(evt_stats, uint32_t, uint32_t);
-EVENT_C0(evt_start);
-EVENT_C0(evt_stop);
+EVENT_C0(evt_render)
+EVENT_C0(evt_update)
+EVENT_C2(evt_stats, uint32_t, uint32_t)
+EVENT_C0(evt_start)
+EVENT_C0(evt_stop)
 
 void register_events(struct plugin_t* plugin)
 {
