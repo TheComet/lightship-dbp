@@ -1,6 +1,6 @@
 /*!
- * \file plugin_${NAME}.h
- * \brief API for @NAME@. Should be included by anything using this plugin.
+ * @file plugin_@NAME@.h
+ * @brief API for @NAME@. Should be included by anything using this plugin.
  */
 
 /* ----------------------------------------------------------------------------
