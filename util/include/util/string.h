@@ -90,6 +90,9 @@ strtowcs(const char* str);
 LIGHTSHIP_UTIL_PUBLIC_API char*
 wcstostr(wchar_t* wcs);
 
+LIGHTSHIP_UTIL_PUBLIC_API void
+crlf2lf(char* src);
+
 C_HEADER_END
 
 #endif /* LIGHTSHIP_UTIL_STRING_H */

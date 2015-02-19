@@ -47,6 +47,9 @@ compile_shader(GLuint shader_ID, const char* file_name)
     (void)fread(code, sizeof(char), code_num_bytes, fp);
     code[code_num_bytes] = '\0';
     fclose(fp);
+    
+    /* Because Windows, have to convert CRLF to LF */
+    crlf2lf(code);
 
     /* compile */
     llog(LOG_INFO, PLUGIN_NAME, 3, "compiling shader: \"", file_name, "\"");

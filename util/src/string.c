@@ -290,3 +290,20 @@ wcstostr(wchar_t* wcs)
     *str_it = '\0';
     return str;
 }
+
+/* ------------------------------------------------------------------------- */
+void
+crlf2lf(char* src)
+{
+    char* target = src;
+    while(*src)
+    {
+        if(*src == '\r') /* skip any CRs */
+            ++src;
+        *target++ = *src++;
+    }
+    
+    /* if at least one CR was skipped, a new null-terminator must be set. */
+    if(target != src)
+        *target = '\0';
+}
