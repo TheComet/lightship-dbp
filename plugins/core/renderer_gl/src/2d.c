@@ -145,22 +145,22 @@ line_2d(float x1, float y1, float x2, float y2, uint32_t colour)
     vertex = (struct vertex_2d_t*)unordered_vector_push_emplace(&g_current_shapes->vertex_data);
     vertex->position[0] = x1;
     vertex->position[1] = y1;
-    vertex->diffuse[0] = (float)((colour >> 24) & 0x000000FF) / 255.0;
-    vertex->diffuse[1] = (float)((colour >> 16) & 0x000000FF) / 255.0;
-    vertex->diffuse[2] = (float)((colour >>  8) & 0x000000FF) / 255.0;
-    vertex->diffuse[3] = (float)((colour >>  0) & 0x000000FF) / 255.0;
+    vertex->diffuse[0] = (float)((colour >> 24) & 0x000000FF) / 255.0f;
+    vertex->diffuse[1] = (float)((colour >> 16) & 0x000000FF) / 255.0f;
+    vertex->diffuse[2] = (float)((colour >>  8) & 0x000000FF) / 255.0f;
+    vertex->diffuse[3] = (float)((colour >>  0) & 0x000000FF) / 255.0f;
     index = (INDEX_DATA_TYPE*)unordered_vector_push_emplace(&g_current_shapes->index_data);
-    *index = g_current_shapes->vertex_data.count - 1;
+    *index = (GLushort)g_current_shapes->vertex_data.count - 1;
 
     vertex = (struct vertex_2d_t*)unordered_vector_push_emplace(&g_current_shapes->vertex_data);
     vertex->position[0] = x2;
     vertex->position[1] = y2;
-    vertex->diffuse[0] = (float)((colour >> 24) & 0x000000FF) / 255.0;
-    vertex->diffuse[1] = (float)((colour >> 16) & 0x000000FF) / 255.0;
-    vertex->diffuse[2] = (float)((colour >>  8) & 0x000000FF) / 255.0;
-    vertex->diffuse[3] = (float)((colour >>  0) & 0x000000FF) / 255.0;
+    vertex->diffuse[0] = (float)((colour >> 24) & 0x000000FF) / 255.0f;
+    vertex->diffuse[1] = (float)((colour >> 16) & 0x000000FF) / 255.0f;
+    vertex->diffuse[2] = (float)((colour >>  8) & 0x000000FF) / 255.0f;
+    vertex->diffuse[3] = (float)((colour >>  0) & 0x000000FF) / 255.0f;
     index = (INDEX_DATA_TYPE*)unordered_vector_push_emplace(&g_current_shapes->index_data);
-    *index = g_current_shapes->vertex_data.count - 1;
+    *index = (GLushort)g_current_shapes->vertex_data.count - 1;
 }
 
 /* ------------------------------------------------------------------------- */

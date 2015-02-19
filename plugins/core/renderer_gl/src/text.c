@@ -88,8 +88,8 @@ text_generate_mesh(struct text_t* text)
     base_index = 0;
 
     /* distance between characters */
-    dist_between_chars = 3.0 / (GLfloat)window_width();
-    space_dist = 20.0 / (GLfloat)window_width();
+    dist_between_chars = 3.0f / (GLfloat)window_width();
+    space_dist = 20.0f / (GLfloat)window_width();
     
     /* 
      * If text is centered, figure out total width and set x coordinate
@@ -124,7 +124,7 @@ text_generate_mesh(struct text_t* text)
         }
         
         /* x is now the total width of the string in GL screen space. */
-        x = text->pos.x - (x / 2.0);
+        x = text->pos.x - (x / 2.0f);
         y = text->pos.y;
     }
     else

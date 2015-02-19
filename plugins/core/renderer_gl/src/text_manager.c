@@ -218,7 +218,7 @@ void
 text_group_load_character_set(uint32_t id, const wchar_t* characters)
 {
     const wchar_t* iterator;
-    const wchar_t* null_terminator = L'\0';
+    wchar_t* null_terminator = L'\0';
     struct unordered_vector_t sorted_chars;
     
     struct text_group_t* group = map_find(&g_text_groups, id);
@@ -535,7 +535,7 @@ text_group_sync_with_gpu(struct text_group_t* group)
                 {
                     (*val) += base_index;
                 }}
-                base_index += text->vertex_buffer.count;
+                base_index += (GLushort)text->vertex_buffer.count;
             }
         }
     }

@@ -235,10 +235,10 @@ menu_load_button(struct glob_t* g, struct screen_t* screen, const struct ptree_t
     /* add button to current screen */
     button = button_create(g,
                            text,  /* text is allowed to be NULL */
-                           atof(x_node->value),
-                           atof(y_node->value),
-                           atof(width_node->value),
-                           atof(height_node->value));
+                           (float)atof(x_node->value),
+                           (float)atof(y_node->value),
+                           (float)atof(width_node->value),
+                           (float)atof(height_node->value));
     screen_add_element(screen, (struct element_t*)button);
 
     /* extract service name and arguments tied to action, if any */

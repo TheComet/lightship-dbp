@@ -66,6 +66,9 @@ set_target_properties (plugin_main_loop
 # ensure plugin is built before lightship
 add_dependencies (lightship plugin_main_loop)
 
+# this library is being built
+add_definitions (${DEFINE_CMD}${PROJECT_NAME}_BUILDING)
+
 ###############################################################################
 # copy plugin to plugins/ folder after build
 ###############################################################################

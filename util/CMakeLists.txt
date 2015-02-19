@@ -49,7 +49,7 @@ message (STATUS "Log timestamps: ${ENABLE_LOG_TIMESTAMPS}")
 
 # disable backtraces on Windows, as those aren't implemented yet
 if (WIN32)
-    set (MEMORY_ENABLE_BACKTRACE 0)
+    set (ENABLE_MEMORY_BACKTRACE 0)
 endif ()
 
 configure_file ("${EXPORT_H_TEMPLATE}"
