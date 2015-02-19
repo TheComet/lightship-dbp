@@ -68,7 +68,7 @@ button_constructor(struct button_t* btn, const char* text, float x, float y, flo
     if(text)
     {
         char is_centered = 0;
-        float offy = y + 0.02;
+        float offy = y + 0.02f;
         /* TODO centering code for text */
         /* TODO instead of passing the raw string, add way to pass a "string instance"
         * which can specify the font and size of the string. */
@@ -87,10 +87,10 @@ button_constructor(struct button_t* btn, const char* text, float x, float y, flo
     {
         float x1, y1, x2, y2;
         uint32_t colour = BUTTON_COLOUR_NORMAL;
-        x1 = x - width  * 0.5;
-        y1 = y - height * 0.5;
-        x2 = x + width  * 0.5;
-        y2 = y + height * 0.5;
+        x1 = x - width  * 0.5f;
+        y1 = y - height * 0.5f;
+        x2 = x + width  * 0.5f;
+        y2 = y + height * 0.5f;
         SERVICE_CALL5(g->services.box_2d, SERVICE_NO_RETURN, x1, y1, x2, y2, colour);
     }
     SERVICE_CALL0(g->services.shapes_2d_end, &btn->base.button.shapes_normal_id);

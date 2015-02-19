@@ -66,6 +66,9 @@ set_target_properties (plugin_menu
 # ensure plugin is built before lightship
 add_dependencies (lightship plugin_menu)
 
+# this library is being built
+add_definitions (${DEFINE_CMD}${PROJECT_NAME}_BUILDING)
+
 ###############################################################################
 # copy plugin to plugins/ folder after build
 ###############################################################################

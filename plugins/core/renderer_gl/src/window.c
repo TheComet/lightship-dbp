@@ -49,7 +49,7 @@ window_init(void)
         llog(LOG_ERROR, PLUGIN_NAME, 1, "Failed to initialise GLEW\n");
         return 0;
     }
-    glClearColor(0.0, 0.0, 0.4, 0.0);
+    glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
     
     /* ensure the escape key can be captured */
     glfwSetInputMode(glfw_window, GLFW_STICKY_KEYS, GL_TRUE);

@@ -44,13 +44,13 @@ void
 sprite_deinit(void);
 
 struct sprite_t*
-sprite_create(const char* file_name, uint32_t x_frame_count, uint32_t y_frame_count, uint32_t total_frame_count, uint32_t* id);
+sprite_create(const char* file_name, uint16_t x_frame_count, uint16_t y_frame_count, uint16_t total_frame_count, uint32_t* id);
 
 void
 sprite_destroy(struct sprite_t* sprite);
 
 void
-sprite_set_loop_a_b(struct sprite_t* sprite, uint32_t a, uint32_t b);
+sprite_set_loop_a_b(struct sprite_t* sprite, uint16_t a, uint16_t b);
 
 void
 sprite_play(struct sprite_t* sprite);
