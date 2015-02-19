@@ -1,22 +1,42 @@
+/*!
+ * @file glob.h
+ * @brief Global data struct.
+ * 
+ * TODO add description why this was necessary to do.
+ */
+
 #include "util/pstdint.h"
-#include "util/unordered_vector.h"
 #include "plugin_manager/game.h"
 
 extern uint32_t global_hash;
 
 struct plugin_t;
-struct game_t;
 
-struct glob_parser_t
+struct glob_events_t
 {
-    struct unordered_vector_t open_docs;
-    uint32_t doc_guid_counter;
+    /* add global event objects here as needed */
+    /*
+     * struct event_t* name_1;
+     * struct event_t* name_2;
+     * etc...
+     */
+};
+
+struct glob_services_t
+{
+    /* add global service objects here as needed */
+    /* 
+     * struct service_t* name_1;
+     * struct service_t* name_2;
+     * etc...
+     */
 };
 
 struct glob_t
 {
-    struct plugin_t* plugin;
-    struct glob_parser_t parser;
+    struct plugin_t* plugin;            /* handle of the plugin object that owns this glob */
+    struct glob_events_t events;        
+    struct glob_services_t services;
 };
 
 void

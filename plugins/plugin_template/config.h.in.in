@@ -1,8 +1,29 @@
-#define @NAME_CAPS@_VERSION_MAJOR @PLUGIN_@NAME_CAPS@_VERSION_MAJOR@
-#define @NAME_CAPS@_VERSION_MINOR @PLUGIN_@NAME_CAPS@_VERSION_MINOR@
-#define @NAME_CAPS@_VERSION_PATCH @PLUGIN_@NAME_CAPS@_VERSION_PATCH@
-#define @NAME_CAPS@_NAME "@PLUGIN_@NAME_CAPS@_NAME@"
-#define @NAME_CAPS@_AUTHOR "@PLUGIN_@NAME_CAPS@_AUTHOR@"
-#define @NAME_CAPS@_CATEGORY "@PLUGIN_@NAME_CAPS@_CATEGORY@"
-#define @NAME_CAPS@_DESCRIPTION "@PLUGIN_@NAME_CAPS@_DESCRIPTION@"
-#define @NAME_CAPS@_WEBSITE "@PLUGIN_@NAME_CAPS@_WEBSITE@"
+/* ----------------------------------------------------------------------------
+ * Global includes
+ * ------------------------------------------------------------------------- */
+
+#include "plugin_@NAME@/export.h"
+
+/* ----------------------------------------------------------------------------
+ * Global definitions
+ * ------------------------------------------------------------------------- */
+
+/* Integer - major version */
+#define PLUGIN_@NAME_CAPS@_VERSION_MAJOR @PLUGIN_@NAME_CAPS@_VERSION_MAJOR@
+/* Integer - minor version */
+#define PLUGIN_@NAME_CAPS@_VERSION_MINOR @PLUGIN_@NAME_CAPS@_VERSION_MINOR@
+/* Integer - patch version */
+#define PLUGIN_@NAME_CAPS@_VERSION_PATCH @PLUGIN_@NAME_CAPS@_VERSION_PATCH@
+/* String - Name of the plugin (no spaces or special chars).
+ * The plugin will be registered under this name in the plugin manager, and
+ * will also be used as the namespace for services and events exposed by this
+ * plugin. */
+#define PLUGIN_@NAME_CAPS@_NAME "@PLUGIN_@NAME_CAPS@_NAME@"
+/* String - Name of the author of this plugin */
+#define PLUGIN_@NAME_CAPS@_AUTHOR "@PLUGIN_@NAME_CAPS@_AUTHOR@"
+/* String - Category this plugin fits into */
+#define PLUGIN_@NAME_CAPS@_CATEGORY "@PLUGIN_@NAME_CAPS@_CATEGORY@"
+/* String - Short description of what this plugin does. */
+#define PLUGIN_@NAME_CAPS@_DESCRIPTION "@PLUGIN_@NAME_CAPS@_DESCRIPTION@"
+/* String - URL of a website to refer to */
+#define PLUGIN_@NAME_CAPS@_WEBSITE "@PLUGIN_@NAME_CAPS@_WEBSITE@"

@@ -2,7 +2,7 @@
 #include "util/pstdint.h"
 
 /* -----------------------------------------------------
- * All events this plugin emits
+ * All events this plugin fires
  * ---------------------------------------------------*/
  
 EVENT_H_NO_EXTERN1(evt_button_clicked, uint32_t)

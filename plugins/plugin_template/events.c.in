@@ -1,32 +1,53 @@
+#include "plugin_manager/events.h"
+#include "plugin_manager/plugin.h"
 #include "plugin_@NAME@/events.h"
-#include "util/events.h"
+#include "plugin_@NAME@/glob.h"
 
 /* ----------------------------------------------------------------------------
- * All events this plugin emits
+ * All events this plugin fires
  * ------------------------------------------------------------------------- */
 
 /*
- * EVENT_C(evt_name_1)
- * EVENT_C(evt_name_2)
+ * EVENT_C0(evt_name_1)
+ * EVENT_C0(evt_name_2)
  * etc...
  */
 
+/* ------------------------------------------------------------------------- */
 void
-register_events(const struct plugin_t* plugin)
+register_events(struct plugin_t* plugin)
 {
+    struct game_t* game = plugin->game;
+    
+    /* get events global struct and initialise all event pointers to NULL */
+    /*
+     * See glob.h. All event objects cannot be stored statically. Instead, they
+     * are inserted into a glob struct, which allows each plugin to be loaded
+     * multiple times without static data ever conflicting. Every plugin owns
+     * one glob struct which can be retrieved from the game object.
+     * 
+     * The event objects you want to register can be added to the glob struct
+     * in glob.h.
+     *
+    struct glob_events_t* g = &get_global(game)->events;
+    memset(g, 0, sizeof(struct glob_events_t));*/
+
     /* 
-     * evt_name_1 = event_create(plugin, "name_1");
-     * evt_name_2 = event_create(plugin, "name_2");
+     * g->name_1 = event_create(game, plugin, "name_1");
+     * g->name_2 = event_create(game, plugin, "name_2");
      * etc...
      */
 }
 
+/* ------------------------------------------------------------------------- */
 void
-register_event_listeners(const struct plugin_t* plugin)
+register_event_listeners(struct plugin_t* plugin)
 {
+    struct game_t* game = plugin->game;
+
     /*
-     * event_register_listener(plugin, "something.event", on_callback_1);
-     * event_register_listener(plugin, "something_else.event_2", on_callback_2);
+     * event_register_listener(game, plugin, "something.event", on_callback_1);
+     * event_register_listener(game, plugin, "something_else.event_2", on_callback_2);
      * etc...
      */
 }

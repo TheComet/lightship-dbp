@@ -1,10 +1,5 @@
-#include "util/pstdint.h"
-
 struct plugin_t;
 struct service_t;
-
-/* extern service function pointers */
-
 
 void
 register_services(struct plugin_t* plugin);

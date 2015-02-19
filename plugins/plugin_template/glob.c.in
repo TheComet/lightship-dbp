@@ -1,5 +1,5 @@
-#include "plugin_yaml/glob.h"
-#include "plugin_yaml/config.h"
+#include "plugin_@NAME@/glob.h"
+#include "plugin_@NAME@/config.h"
 #include "util/memory.h"
 #include "util/log.h"
 #include "util/hash.h"
@@ -17,11 +17,11 @@ glob_create(struct game_t* game)
     assert(game);
     assert(!global_hash);
     
-    global_hash = hash_jenkins_oaat(PLUGIN_NAME, strlen(PLUGIN_NAME));
+    global_hash = hash_jenkins_oaat(PLUGIN_@NAME_CAPS@_NAME, strlen(PLUGIN_@NAME_CAPS@_NAME));
 
     glob = (struct glob_t*)MALLOC(sizeof(struct glob_t));
     if(!glob)
-        OUT_OF_MEMORY("[" PLUGIN_NAME "] glob_create()", RETURN_NOTHING);
+        OUT_OF_MEMORY("[" PLUGIN_@NAME_CAPS@_NAME "] glob_create()", RETURN_NOTHING);
     memset(glob, 0, sizeof(struct glob_t));
     game_add_global(game, global_hash, glob);
 }

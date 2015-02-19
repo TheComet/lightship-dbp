@@ -13,22 +13,29 @@ elseif (${CMAKE_C_COMPILER_ID} STREQUAL "MSVC")
 endif ()
 
 ###############################################################################
-# generate config.h for this plugin
+# generate config.h and export.h for this plugin
 ###############################################################################
 
-set (PLUGIN_@NAME_CAPS@_VERSION_MAJOR 0)
-set (PLUGIN_@NAME_CAPS@_VERSION_MINOR 0)
-set (PLUGIN_@NAME_CAPS@_VERSION_PATCH 1)
-set (PLUGIN_@NAME_CAPS@_NAME "@NAME@")
-set (PLUGIN_@NAME_CAPS@_CATEGORY "unknown")
-set (PLUGIN_@NAME_CAPS@_AUTHOR "unknown")
-set (PLUGIN_@NAME_CAPS@_DESCRIPTION "unknown")
-set (PLUGIN_@NAME_CAPS@_WEBSITE "unknown")
+set (PLUGIN_@NAME_CAPS@_VERSION_MAJOR @VERSION_MAJOR@)
+set (PLUGIN_@NAME_CAPS@_VERSION_MINOR @VERSION_MINOR@)
+set (PLUGIN_@NAME_CAPS@_VERSION_PATCH @VERSION_PATCH@)
+set (PLUGIN_@NAME_CAPS@_NAME "@NAME@" CACHE STRING "(No spaces or special chars) - Name of this plugin")
+set (PLUGIN_@NAME_CAPS@_CATEGORY "@CATEGORY@" CACHE STRING "Category of this plugin, for service/event discovery")
+set (PLUGIN_@NAME_CAPS@_AUTHOR "@AUTHOR@" CACHE STRING "Author of this plugin")
+set (PLUGIN_@NAME_CAPS@_DESCRIPTION "@DESCRIPTION@" CACHE STRING "Short description of what this plugin does")
+set (PLUGIN_@NAME_CAPS@_WEBSITE "@WEBSITE@" CACHE STRING "Website to refer to")
 set (PLUGIN_@NAME_CAPS@_VERSION_STRING
     "${PLUGIN_@NAME_CAPS@_VERSION_MAJOR}.${PLUGIN_@NAME_CAPS@_VERSION_MINOR}.${PLUGIN_@NAME_CAPS@_VERSION_PATCH}")
 
 configure_file ("include/plugin_@NAME@/config.h.in"
-                "${CMAKE_CURRENT_BINARY_DIR}/include/plugin_@NAME@/config.h")
+                "include/plugin_@NAME@/config.h")
+
+set (PROJECT_NAME "PLUGIN_@NAME_CAPS@")
+set (BUILD_TYPE "SHARED")
+
+configure_file ("${EXPORT_H_TEMPLATE}"
+                "include/plugin_@NAME@/export.h")
+
 include_directories ("${CMAKE_CURRENT_BINARY_DIR}/include")
 
 ###############################################################################
@@ -68,11 +75,12 @@ add_custom_command (TARGET plugin_@NAME@ POST_BUILD
     "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/plugins/")
 
 ###############################################################################
-# link lightship utility static library
+# link lightship utility and plugin manager libraries
 ###############################################################################
 
 target_link_libraries (plugin_@NAME@
     lightship_util
+    plugin_manager
 )
 
 ###############################################################################
