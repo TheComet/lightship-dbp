@@ -1,13 +1,10 @@
 struct plugin_t;
 
-/* ----------------------------------------------------------------------------
- * Service */
-
 void
-register_services(const struct plugin_t* plugin);
+register_services(struct plugin_t* plugin);
 
 char
-get_required_services(void);
+get_required_services(struct plugin_t* plugin);
 
 void
-get_optional_services(void);
+get_optional_services(struct plugin_t* plugin);

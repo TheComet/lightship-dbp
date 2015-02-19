@@ -46,10 +46,10 @@ PLUGIN_MENU_PUBLIC_API PLUGIN_START()
 {
     struct glob_t* g = get_global(game);
 
-    if(!get_required_services(get_global(game)->plugin))
+    if(!get_required_services(g->plugin))
         return PLUGIN_FAILURE;
-    get_optional_services(get_global(game)->plugin);
-    register_event_listeners(get_global(game)->plugin);
+    get_optional_services(g->plugin);
+    register_event_listeners(g->plugin);
 
     element_init(g);
     button_init(g);

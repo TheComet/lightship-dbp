@@ -6,6 +6,7 @@
 #include "plugin_menu/menu.h"
 #include <string.h>
 
+/* ------------------------------------------------------------------------- */
 void
 register_services(struct plugin_t* plugin)
 {
@@ -22,6 +23,7 @@ register_services(struct plugin_t* plugin)
     SERVICE_REGISTER2(game, plugin, "set_active_screen", menu_set_active_screen_wrapper, void, const char*, const char*);
 }
 
+/* ------------------------------------------------------------------------- */
 char
 get_required_services(struct plugin_t* plugin)
 {
@@ -73,6 +75,7 @@ get_required_services(struct plugin_t* plugin)
     return 1;
 }
 
+/* ------------------------------------------------------------------------- */
 void
 get_optional_services(struct plugin_t* plugin)
 {

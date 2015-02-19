@@ -1,55 +1,74 @@
 #include "plugin_@NAME@/config.h"   /* configurations for this plugin */
-#include "util/config.h"     /* platform macros and definitions */
-#include "util/plugin.h"     /* plugin api */
+#include "plugin_@NAME@/glob.h"
 #include "plugin_@NAME@/services.h" /* plugin services */
 #include "plugin_@NAME@/events.h"   /* plugin events */
+#include "plugin_manager/plugin.h"     /* plugin api */
 
-struct plugin_t* g_plugin = NULL;
-
-void
-create_and_init_plugin(void)
+/* ------------------------------------------------------------------------- */
+PLUGIN_@NAME_CAPS@_PUBLIC_API PLUGIN_INIT()
 {
+    struct plugin_t* plugin;
+    
+    /* init global data */
+    glob_create(game);
+
     /* create plugin object - host requires this */
-    g_plugin = plugin_create();
+    plugin = plugin_create(game);
+    get_global(game)->plugin = plugin;
     
     /* set plugin information - Change this in the file "CMakeLists.txt" */
-    plugin_set_info(g_plugin,
-            @NAME_CAPS@_NAME,         /* name */
-            @NAME_CAPS@_CATEGORY,     /* category */
-            @NAME_CAPS@_AUTHOR,       /* author */
-            @NAME_CAPS@_DESCRIPTION,  /* description */
-            @NAME_CAPS@_WEBSITE       /* website */
+    plugin_set_info(plugin,
+            PLUGIN_@NAME_CAPS@_NAME,         /* name */
+            PLUGIN_@NAME_CAPS@_CATEGORY,     /* category */
+            PLUGIN_@NAME_CAPS@_AUTHOR,       /* author */
+            PLUGIN_@NAME_CAPS@_DESCRIPTION,  /* description */
+            PLUGIN_@NAME_CAPS@_WEBSITE       /* website */
     );
-    plugin_set_programming_language(g_plugin,
+    plugin_set_programming_language(plugin,
             PLUGIN_PROGRAMMING_LANGUAGE_C
     );
-    plugin_set_version(g_plugin,
-            @NAME_CAPS@_VERSION_MAJOR,
-            @NAME_CAPS@_VERSION_MINOR,
-            @NAME_CAPS@_VERSION_PATCH
+    plugin_set_version(plugin,
+            PLUGIN_@NAME_CAPS@_VERSION_MAJOR,
+            PLUGIN_@NAME_CAPS@_VERSION_MINOR,
+            PLUGIN_@NAME_CAPS@_VERSION_PATCH
     );
+
+    register_services(plugin);
+    register_events(plugin);
+    
+    return plugin;
 }
 
-PLUGIN_INIT()
+/* ------------------------------------------------------------------------- */
+PLUGIN_@NAME_CAPS@_PUBLIC_API PLUGIN_START()
 {
-    create_and_init_plugin();
-    register_services(g_plugin);
-    register_events(g_plugin);
-    return g_plugin;
-}
-
-PLUGIN_START()
-{
-    register_event_listeners(g_plugin);
+    struct glob_t* g = get_global(game);
+    
+    /* 
+     * initialise your stuff here
+     */
+    
+    /* hook in to services and events */
+    if(!get_required_services(g->plugin))
+        return PLUGIN_FAILURE;
+    get_optional_services(g->plugin);
+    register_event_listeners(g->plugin);
+    
 
     return PLUGIN_SUCCESS;
 }
 
-PLUGIN_STOP()
+/* ------------------------------------------------------------------------- */
+PLUGIN_@NAME_CAPS@_PUBLIC_API PLUGIN_STOP()
 {
-    plugin_destroy(g_plugin);
+    /* 
+     * de-initialise your stuff here
+     */
 }
 
-PLUGIN_DEINIT()
+/* ------------------------------------------------------------------------- */
+PLUGIN_@NAME_CAPS@_PUBLIC_API PLUGIN_DEINIT()
 {
+    plugin_destroy(get_global(game)->plugin);
+    glob_destroy(game);
 }
