@@ -90,6 +90,14 @@ SERVICE(text_destroy_wrapper)
 /* ------------------------------------------------------------------------- */
 SERVICE(text_set_centered_wrapper)
 {
+    SERVICE_EXTRACT_ARGUMENT(0, text_id, uint32_t, uint32_t);
+    SERVICE_EXTRACT_ARGUMENT(1, is_centered, char, char);
+    
+    struct text_t* text = map_find(&g_texts, text_id);
+    if(!text)
+        return;
+    
+    text_set_centered(text, is_centered);
 }
 
 /* ------------------------------------------------------------------------- */
