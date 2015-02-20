@@ -1,5 +1,6 @@
 #include "plugin_renderer_gl/config.h"
 #include "plugin_renderer_gl/shader.h"
+#include "util/file.h"
 #include "util/memory.h"
 #include "util/log.h"
 #include "util/string.h"
@@ -29,34 +30,22 @@ check_shader(GLuint shader_ID)
 void
 compile_shader(GLuint shader_ID, const char* file_name)
 {
-    FILE* fp;
     GLchar* code;
-    int code_num_bytes;
 
     /* copy file into memory */
-    fp = fopen(file_name, "r");
-    if(!fp)
+    file_load_into_memory(file_name, (void**)&code, 0);
+    if(!code)
     {
-        llog(LOG_ERROR, PLUGIN_NAME, 3, "failed to open file \"", file_name, "\"");
+        llog(LOG_ERROR, PLUGIN_NAME, 3, "failed to load file \"", file_name, "\"");
         return;
     }
-    fseek(fp, 0, SEEK_END);
-    code_num_bytes = ftell(fp);
-    rewind(fp);
-    code = (GLchar*)MALLOC(code_num_bytes + 1);
-    (void)fread(code, sizeof(char), code_num_bytes, fp);
-    code[code_num_bytes] = '\0';
-    fclose(fp);
-    
-    /* Because Windows, have to convert CRLF to LF */
-    crlf2lf(code);
 
     /* compile */
     llog(LOG_INFO, PLUGIN_NAME, 3, "compiling shader: \"", file_name, "\"");
     glShaderSource(shader_ID, 1, (const GLchar**)&code, NULL);
     glCompileShader(shader_ID);
     
-    FREE(code);
+    free_file(code);
 }
 
 /* ------------------------------------------------------------------------- */
