@@ -60,6 +60,14 @@ text_set_position(struct text_t* text, GLfloat x, GLfloat y)
 
 /* ------------------------------------------------------------------------- */
 void
+text_set_centered(struct text_t* text, char centered)
+{
+    text->is_centered = centered;
+    text_group_inform_updated_text_object(text->group);
+}
+
+/* ------------------------------------------------------------------------- */
+void
 text_show(struct text_t* text)
 {
     text->visible = 1;

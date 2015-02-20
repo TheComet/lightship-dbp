@@ -25,8 +25,8 @@ register_services(struct game_t* game, struct plugin_t* plugin)
 
     SERVICE_REGISTER5(game, plugin, "text_create",                    text_create_wrapper, uint32_t, char, uint32_t, float, float, const wchar_t*);
     SERVICE_REGISTER4(game, plugin, "text_destroy",                   text_destroy_wrapper, uint32_t, uint32_t, float, float, const wchar_t*);
-    SERVICE_REGISTER2(game, plugin, "text_set_centered",              text_set_centered_wrapper, void, uint32_t, uint32_t);
-    SERVICE_REGISTER1(game, plugin, "text_set_position",              text_set_position_wrapper, void, uint32_t);
+    SERVICE_REGISTER2(game, plugin, "text_set_centered",              text_set_centered_wrapper, void, uint32_t, char);
+    SERVICE_REGISTER3(game, plugin, "text_set_position",              text_set_position_wrapper, void, uint32_t, float, float);
     SERVICE_REGISTER1(game, plugin, "text_set_string",                text_set_string_wrapper, void, const wchar_t*);
     SERVICE_REGISTER1(game, plugin, "text_show",                      text_show_wrapper, void, uint32_t);
     SERVICE_REGISTER1(game, plugin, "text_hide",                      text_hide_wrapper, void, uint32_t);

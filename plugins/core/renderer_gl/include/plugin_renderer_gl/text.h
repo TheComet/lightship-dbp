@@ -47,6 +47,9 @@ void
 text_destroy(struct text_t* text);
 
 void
+text_set_centered(struct text_t* text, char centered);
+
+void
 text_show(struct text_t* text);
 
 void

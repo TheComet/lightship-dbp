@@ -67,7 +67,7 @@ button_constructor(struct button_t* btn, const char* text, float x, float y, flo
     /* copy wchar_t string into button object */
     if(text)
     {
-        char is_centered = 0;
+        char is_centered = 1;
         float offy = y + 0.02f;
         /* TODO centering code for text */
         /* TODO instead of passing the raw string, add way to pass a "string instance"
