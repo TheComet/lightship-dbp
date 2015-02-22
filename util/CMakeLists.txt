@@ -13,21 +13,6 @@ elseif (${CMAKE_C_COMPILER_ID} STREQUAL "MSVC")
 endif ()
 
 ###############################################################################
-# select platform specific implementation source files
-###############################################################################
-
-if (${PLATFORM} MATCHES "LINUX")
-    set (PLATFORM_HEADER_DIRS "include/util/platform/linux/*.h")
-    set (PLATFORM_SOURCE_DIRS "src/platform/linux/*.c")
-elseif (${PLATFORM} MATCHES "MAC")
-    set (PLATFORM_HEADER_DIRS "include/util/platform/osx/*.h")
-    set (PLATFORM_SOURCE_DIRS "src/platform/osx/*.c")
-elseif (${PLATFORM} MATCHES "WINDOWS")
-    set (PLATFORM_HEADER_DIRS "include/util/platform/win/*.h")
-    set (PLATFORM_SOURCE_DIRS "src/platform/win/*.c")
-endif ()
-
-###############################################################################
 # generate config.h for this library
 ###############################################################################
 
@@ -42,10 +27,12 @@ else ()
 endif ()
 
 option (ENABLE_LOG_TIMESTAMPS "Whether or not to prefix log messages with timestamps" ON)
+option (ENABLE_THREAD_POOL "Enables threading pools." ON)
 
 message (STATUS "Memory reports: ${ENABLE_MEMORY_REPORT}")
 message (STATUS "Backtraces in memory reports: ${ENABLE_MEMORY_BACKTRACE}")
 message (STATUS "Log timestamps: ${ENABLE_LOG_TIMESTAMPS}")
+message (STATUS "Thread pools: ${ENABLE_THREAD_POOL}")
 
 # disable backtraces on Windows, as those aren't implemented yet
 if (WIN32)
@@ -60,11 +47,38 @@ configure_file ("include/util/config.h.in"
 include_directories ("${CMAKE_CURRENT_BINARY_DIR}/include")
 
 ###############################################################################
+# select platform specific implementation source files
+###############################################################################
+
+if (${PLATFORM} MATCHES "LINUX")
+    set (PLATFORM_SOURCE_DIRS ${PLATFORM_SOURCE_DIRS} "src/util/platform/linux/*.c")
+    if (ENABLE_THREAD_POOL)
+        set (PLATFORM_SOURCE_DIRS ${PLATFORM_SOURCE_DIRS} "src/threadpool/platform/linux/*.c")
+    endif ()
+elseif (${PLATFORM} MATCHES "MAC")
+    set (PLATFORM_SOURCE_DIRS ${PLATFORM_SOURCE_DIRS} "src/util/platform/osx/*.c")
+    if (ENABLE_THREAD_POOL)
+        set (PLATFORM_SOURCE_DIRS ${PLATFORM_SOURCE_DIRS} "src/threadpool/platform/osx/*.c")
+    endif ()
+elseif (${PLATFORM} MATCHES "WINDOWS")
+    set (PLATFORM_HEADER_DIRS ${PLATFORM_HEADER_DIRS} "include/util/platform/win/*.h")
+    set (PLATFORM_SOURCE_DIRS ${PLATFORM_SOURCE_DIRS} "src/util/platform/win/*.c")
+    if (ENABLE_THREAD_POOL)
+        set (PLATFORM_SOURCE_DIRS ${PLATFORM_SOURCE_DIRS} "src/threadpool/platform/win/*.c")
+    endif ()
+endif ()
+
+###############################################################################
 # source files and library definition
 ###############################################################################
 
-file (GLOB lightship_util_HEADERS "include/util/*.h" ${PLATFORM_HEADER_DIRS})
-file (GLOB lightship_util_SOURCES "src/*.c" ${PLATFORM_SOURCE_DIRS})
+file (GLOB lightship_util_HEADERS
+    "include/util/*.h"
+    "include/threadpool/*.h"
+    ${PLATFORM_HEADER_DIRS})
+file (GLOB lightship_util_SOURCES
+    "src/util/*.c"
+    ${PLATFORM_SOURCE_DIRS})
 
 set (lightship_util_HEADERS ${lightship_util_HEADERS}
     "include/util/config.h.in"
@@ -104,6 +118,16 @@ if (CURSES_FOUND)
     include_directories (${CURSES_INCLUDE_DIR})
     target_link_libraries (lightship_util ${CURSES_LIBRARIES})
     set (HAVE_CURSES 1)
+endif ()
+
+###############################################################################
+# threads
+###############################################################################
+
+if (ENABLE_THREAD_POOL)
+    if (${PLATFORM} MATCHES "LINUX")
+        target_link_libraries(lightship_util pthread)
+    endif ()
 endif ()
 
 ###############################################################################
