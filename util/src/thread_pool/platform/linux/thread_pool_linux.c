@@ -122,7 +122,7 @@ thread_pool_process_while_active(struct thread_pool_t* pool)
      */
     
     
-    for(;;)
+    while(pool->active)
     {
         struct thread_pool_job_t* pjob, job;
         

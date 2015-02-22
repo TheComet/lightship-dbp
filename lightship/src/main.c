@@ -145,9 +145,9 @@ deinit(void)
 #include "thread_pool/thread_pool.h"
 void shit(void* p)
 {
-    puts("doing shit");
+    puts("worker thread test");
     volatile int i;
-    for(i = 0; i != 1000000000; ++i)
+    for(i = 0; i != 100000000; ++i)
     {
     }
 }
@@ -163,10 +163,9 @@ main(int argc, char** argv)
     memory_init();
     
     struct thread_pool_t* pool = thread_pool_create(0);
-    sleep(1);
     
     int i;
-    for(i = 0; i != 10; ++i)
+    for(i = 0; i != 100; ++i)
         thread_pool_queue(pool, shit, NULL);
     
 
