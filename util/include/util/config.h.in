@@ -16,6 +16,7 @@
     #cmakedefine ENABLE_MEMORY_REPORT
     #cmakedefine ENABLE_MEMORY_BACKTRACE
     #cmakedefine ENABLE_LOG_TIMESTAMPS
+    #cmakedefine ENABLE_THREAD_POOL
 
     #cmakedefine HAVE_CURSES
     #cmakedefine CURSES_HAVE_CURSES_H
