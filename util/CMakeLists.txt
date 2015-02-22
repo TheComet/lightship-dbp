@@ -53,18 +53,18 @@ include_directories ("${CMAKE_CURRENT_BINARY_DIR}/include")
 if (${PLATFORM} MATCHES "LINUX")
     set (PLATFORM_SOURCE_DIRS ${PLATFORM_SOURCE_DIRS} "src/util/platform/linux/*.c")
     if (ENABLE_THREAD_POOL)
-        set (PLATFORM_SOURCE_DIRS ${PLATFORM_SOURCE_DIRS} "src/threadpool/platform/linux/*.c")
+        set (PLATFORM_SOURCE_DIRS ${PLATFORM_SOURCE_DIRS} "src/thread_pool/platform/linux/*.c")
     endif ()
 elseif (${PLATFORM} MATCHES "MAC")
     set (PLATFORM_SOURCE_DIRS ${PLATFORM_SOURCE_DIRS} "src/util/platform/osx/*.c")
     if (ENABLE_THREAD_POOL)
-        set (PLATFORM_SOURCE_DIRS ${PLATFORM_SOURCE_DIRS} "src/threadpool/platform/osx/*.c")
+        set (PLATFORM_SOURCE_DIRS ${PLATFORM_SOURCE_DIRS} "src/thread_pool/platform/osx/*.c")
     endif ()
 elseif (${PLATFORM} MATCHES "WINDOWS")
     set (PLATFORM_HEADER_DIRS ${PLATFORM_HEADER_DIRS} "include/util/platform/win/*.h")
     set (PLATFORM_SOURCE_DIRS ${PLATFORM_SOURCE_DIRS} "src/util/platform/win/*.c")
     if (ENABLE_THREAD_POOL)
-        set (PLATFORM_SOURCE_DIRS ${PLATFORM_SOURCE_DIRS} "src/threadpool/platform/win/*.c")
+        set (PLATFORM_SOURCE_DIRS ${PLATFORM_SOURCE_DIRS} "src/thread_pool/platform/win/*.c")
     endif ()
 endif ()
 
@@ -74,7 +74,7 @@ endif ()
 
 file (GLOB lightship_util_HEADERS
     "include/util/*.h"
-    "include/threadpool/*.h"
+    "include/thread_pool/*.h"
     ${PLATFORM_HEADER_DIRS})
 file (GLOB lightship_util_SOURCES
     "src/util/*.c"

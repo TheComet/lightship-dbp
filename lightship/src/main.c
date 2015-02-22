@@ -142,6 +142,15 @@ deinit(void)
     services_deinit();
     game_destroy(g_local_game);
 }
+#include "thread_pool/thread_pool.h"
+void shit(void* p)
+{
+    puts("doing shit");
+    volatile int i;
+    for(i = 0; i != 1000000000; ++i)
+    {
+    }
+}
 
 int
 main(int argc, char** argv)
@@ -152,9 +161,20 @@ main(int argc, char** argv)
 
     /* first thing - initialise memory management */
     memory_init();
+    
+    struct thread_pool_t* pool = thread_pool_create(0);
+    sleep(1);
+    
+    int i;
+    for(i = 0; i != 10; ++i)
+        thread_pool_queue(pool, shit, NULL);
+    
 
     /* initialise everything else */
     init();
+    
+    
+    thread_pool_destroy(pool);
 
     /* clean up */
     deinit();

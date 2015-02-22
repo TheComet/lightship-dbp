@@ -1,4 +1,6 @@
-#include "threadpool/threadpool.h"
+#include "thread_pool/thread_pool.h"
+#include "util/unordered_vector.h"
+#include "util/memory.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -20,10 +22,17 @@ struct thread_pool_t
     pthread_t* thread;
     pthread_mutex_t mutex;
     pthread_cond_t cv;
+    struct unordered_vector_t jobs;
+};
+
+struct thread_pool_job_t
+{
+    thread_pool_job_func func;
+    void* data;
 };
 
 static void*
-thread_pool_entry_point(struct thread_pool_t* pool);
+thread_pool_worker(struct thread_pool_t* pool);
 
 static void
 thread_pool_init_pool(struct thread_pool_t* pool, int num_threads);
@@ -62,7 +71,7 @@ struct thread_pool_t*
 thread_pool_create(int num_threads)
 {
     /* create and init thread pool object */
-    struct thread_pool_t* pool = (struct thread_pool_t*)malloc(sizeof(struct thread_pool_t));
+    struct thread_pool_t* pool = (struct thread_pool_t*)MALLOC(sizeof(struct thread_pool_t));
     thread_pool_init_pool(pool, num_threads);
     return pool;
 }
@@ -82,25 +91,64 @@ thread_pool_destroy(struct thread_pool_t* pool)
         pthread_join(pool->thread[i], NULL);
 
     /* clean up */
-    free(pool->thread);
+    unordered_vector_clear_free(&pool->jobs);
+    FREE(pool->thread);
     pthread_mutex_destroy(&pool->mutex);
     pthread_cond_destroy(&pool->cv);
-    free(pool);
+    FREE(pool);
+}
+
+/* ------------------------------------------------------------------------- */
+void
+thread_pool_queue(struct thread_pool_t* pool, thread_pool_job_func func, void* data)
+{
+    struct thread_pool_job_t* job;
+    pthread_mutex_lock(&pool->mutex);
+    job = unordered_vector_push_emplace(&pool->jobs);
+    job->func = func;
+    job->data = data;
+    pthread_cond_signal(&pool->cv);
+    pthread_mutex_unlock(&pool->mutex);
 }
 
 /* ------------------------------------------------------------------------- */
 /* STATIC FUNCTIONS */
 /* ------------------------------------------------------------------------- */
+static void
+thread_pool_process_while_active(struct thread_pool_t* pool)
+{
+    /* 
+     * mutex must be locked at this point
+     */
+    
+    
+    for(;;)
+    {
+        struct thread_pool_job_t* pjob, job;
+        
+        /* pop from work queue and do work until there is no more work */
+        pjob = unordered_vector_pop(&pool->jobs);
+        while(!pjob)
+        {
+            if(!pool->active)
+                return;
+            pthread_cond_wait(&pool->cv, &pool->mutex);
+            pjob = unordered_vector_pop(&pool->jobs);
+        }
+
+        job = *pjob;
+        pthread_mutex_unlock(&pool->mutex);
+        job.func(job.data);
+        pthread_mutex_lock(&pool->mutex);
+        pjob = unordered_vector_pop(&pool->jobs);
+    }
+}
+
 static void*
-thread_pool_entry_point(struct thread_pool_t* pool)
+thread_pool_worker(struct thread_pool_t* pool)
 {
     pthread_mutex_lock(&pool->mutex);
-    while(pool->active)
-    {
-        /* pop from work queue and do work until there is no more work */
-
-        pthread_cond_wait(&pool->cv, &pool->mutex);
-    }
+    thread_pool_process_while_active(pool);
     pthread_mutex_unlock(&pool->mutex);
     pthread_exit(NULL);
 }
@@ -111,6 +159,9 @@ thread_pool_init_pool(struct thread_pool_t* pool, int num_threads)
 {
     pthread_attr_t attr;
     int i;
+    
+    /* init jobs */
+    unordered_vector_init_vector(&pool->jobs, sizeof(struct thread_pool_job_t));
 
     /* set pool to active, so threads know to not exit */
     pool->active = 1;
@@ -130,9 +181,9 @@ thread_pool_init_pool(struct thread_pool_t* pool, int num_threads)
         pool->num_threads = get_number_of_cores();
 
     /* launch threads and make them idle */
-    pool->thread = (pthread_t*)malloc(pool->num_threads * sizeof(pthread_t));
+    pool->thread = (pthread_t*)MALLOC(pool->num_threads * sizeof(pthread_t));
     for(i = 0; i != pool->num_threads; ++i)
-        pthread_create(&pool->thread[i], &attr, (void*(*)(void*))thread_pool_entry_point, pool);
+        pthread_create(&pool->thread[i], &attr, (void*(*)(void*))thread_pool_worker, pool);
 
     /* clean up */
     pthread_attr_destroy(&attr);
