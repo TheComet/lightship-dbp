@@ -13,6 +13,33 @@ static intptr_t deallocations = 0;
 static intptr_t ignore_map_malloc = 0;
 static struct map_t report;
 
+/* need a mutex to make malloc_debug() and free_debug() thread safe */
+/* NOTE: Mutex must be recursive */
+#ifdef ENABLE_MULTITHREADING
+#   ifdef LIGHTSHIP_UTIL_PLATFORM_LINUX
+#       include <pthread.h>
+#       define MUTEX pthread_mutex_t
+#       define MUTEX_LOCK(x) pthread_mutex_lock(&(x));
+#       define MUTEX_UNLOCK(x) pthread_mutex_unlock(&(x));
+#       define MUTEX_INIT(x) do {                                           \
+            pthread_mutexattr_t attr;                                       \
+            pthread_mutexattr_init(&attr);                                  \
+            pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);      \
+            pthread_mutex_init(&(x), &attr);                                \
+            pthread_mutexattr_destroy(&attr);                               \
+        } while(0);
+            
+#   else
+#       error Dont know how to create a mutex for the target platform. Either disable ENABLE_MULTITHREADING or implement the missing feature.
+#   endif
+    static MUTEX mutex;
+#else /* ENABLE_MULTITHREADING */
+#   define mutex
+#   define MUTEX_LOCK(x)
+#   define MUTEX_UNLOCK(x)
+#   define MUTEX_INIT(x)
+#endif /* ENABLE_MULTITHREADING */
+
 struct report_info_t
 {
     intptr_t location;
@@ -31,6 +58,7 @@ memory_init(void)
     deallocations = 0;
     ignore_map_malloc = 0;
     map_init_map(&report);
+    MUTEX_INIT(mutex)
 }
 
 /* ------------------------------------------------------------------------- */
@@ -38,6 +66,9 @@ void*
 malloc_debug(intptr_t size)
 {
     void* p = malloc(size);
+    
+    MUTEX_LOCK(mutex)
+    
     if(p)
         ++allocations;
     
@@ -57,7 +88,9 @@ malloc_debug(intptr_t size)
         map_insert(&report, (intptr_t)p, info);
         ignore_map_malloc = 0;
     }
-
+    
+    MUTEX_UNLOCK(mutex)
+    
     return p;
 }
 
@@ -65,6 +98,8 @@ malloc_debug(intptr_t size)
 void
 free_debug(void* ptr)
 {
+    MUTEX_LOCK(mutex)
+
     /* remove the memory location from the vector */
     if(!ignore_map_malloc)
     {
@@ -100,11 +135,14 @@ free_debug(void* ptr)
         }
     }
     
-    free(ptr);
     if(ptr)
         ++deallocations;
     else
         fprintf(stderr, "Warning: free(NULL)\n");
+    
+    MUTEX_UNLOCK(mutex)
+    
+    free(ptr);
 }
 
 /* ------------------------------------------------------------------------- */
