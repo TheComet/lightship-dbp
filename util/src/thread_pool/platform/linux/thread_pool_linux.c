@@ -1,5 +1,6 @@
 #include "thread_pool/thread_pool.h"
 #include "util/unordered_vector.h"
+#include "util/log.h"
 #include "util/memory.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -147,9 +148,15 @@ thread_pool_process_while_active(struct thread_pool_t* pool)
 static void*
 thread_pool_worker(struct thread_pool_t* pool)
 {
+    char thread_self_str[sizeof(int)*8+3];
+    sprintf(thread_self_str, "0x%lx", (intptr_t)pthread_self());
+    llog(LOG_INFO, NULL, 3, "Worker thread ", thread_self_str, " started");
+    
     pthread_mutex_lock(&pool->mutex);
     thread_pool_process_while_active(pool);
     pthread_mutex_unlock(&pool->mutex);
+    
+    llog(LOG_INFO, NULL, 3, "Worker thread ", thread_self_str, " stopping");
     pthread_exit(NULL);
 }
 
@@ -159,6 +166,10 @@ thread_pool_init_pool(struct thread_pool_t* pool, int num_threads)
 {
     pthread_attr_t attr;
     int i;
+    char thread_self_str[sizeof(int)*8+3];
+    
+    sprintf(thread_self_str, "0x%lx", (intptr_t)pthread_self());
+    llog(LOG_INFO, NULL, 2, "Thread pool initialising on thread ", thread_self_str);
     
     /* init jobs */
     unordered_vector_init_vector(&pool->jobs, sizeof(struct thread_pool_job_t));
