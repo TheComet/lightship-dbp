@@ -7,16 +7,16 @@ typedef void (*thread_pool_job_func)(void*);
 
 #ifdef ENABLE_THREAD_POOL
 
-uint32_t
+LIGHTSHIP_UTIL_PUBLIC_API uint32_t
 get_number_of_cores();
 
-struct thread_pool_t*
+LIGHTSHIP_UTIL_PUBLIC_API struct thread_pool_t*
 thread_pool_create(int num_threads);
 
-void
+LIGHTSHIP_UTIL_PUBLIC_API void
 thread_pool_destroy(struct thread_pool_t* pool);
 
-void
+LIGHTSHIP_UTIL_PUBLIC_API void
 thread_pool_queue(struct thread_pool_t* pool, thread_pool_job_func func, void* data);
 
 #else /* ENABLE_THREAD_POOL */
