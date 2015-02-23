@@ -16,7 +16,8 @@ static struct map_t report;
 /* need a mutex to make malloc_debug() and free_debug() thread safe */
 /* NOTE: Mutex must be recursive */
 #ifdef ENABLE_MULTITHREADING
-#   ifdef LIGHTSHIP_UTIL_PLATFORM_LINUX
+    /* linux or mac */
+#   if defined(LIGHTSHIP_UTIL_PLATFORM_LINUX) || defined(LIGHTSHIP_UTIL_PLATFORM_MACOSX)
 #       include <pthread.h>
 #       define MUTEX pthread_mutex_t
 #       define MUTEX_LOCK(x) pthread_mutex_lock(&(x));
