@@ -117,6 +117,8 @@ thread_pool_queue(struct thread_pool_t* pool, thread_pool_job_func func, void* d
 static void
 thread_pool_process_while_active(struct thread_pool_t* pool)
 {
+    struct thread_pool_job_t* pjob, job;
+    
     /* 
      * mutex must be locked at this point
      */
@@ -124,23 +126,21 @@ thread_pool_process_while_active(struct thread_pool_t* pool)
     
     while(pool->active)
     {
-        struct thread_pool_job_t* pjob, job;
-        
         /* pop from work queue and do work until there is no more work */
         pjob = unordered_vector_pop(&pool->jobs);
         while(!pjob)
         {
+            pthread_cond_wait(&pool->cv, &pool->mutex);
             if(!pool->active)
                 return;
-            pthread_cond_wait(&pool->cv, &pool->mutex);
             pjob = unordered_vector_pop(&pool->jobs);
         }
 
-        job = *pjob;
+        job = *pjob; /* copy job before unlocking, pointer is only valid as long
+                        as we were the last one to manipulate the vector */
         pthread_mutex_unlock(&pool->mutex);
         job.func(job.data);
         pthread_mutex_lock(&pool->mutex);
-        pjob = unordered_vector_pop(&pool->jobs);
     }
 }
 
