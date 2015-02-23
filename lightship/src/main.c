@@ -142,13 +142,91 @@ deinit(void)
     services_deinit();
     game_destroy(g_local_game);
 }
+
 #include "thread_pool/thread_pool.h"
-void shit(void* p)
+#include <stdlib.h>
+void work1(void* p)
+{
+    volatile int i;
+    for(i = 0; i != 10; ++i)
+    {
+    }
+}
+
+void work2(void* p)
+{
+    volatile int i;
+    for(i = 0; i != 100; ++i)
+    {
+    }
+}
+
+void work3(void* p)
+{
+    volatile int i;
+    for(i = 0; i != 1000; ++i)
+    {
+    }
+}
+
+void work4(void* p)
 {
     volatile int i;
     for(i = 0; i != 10000; ++i)
     {
     }
+}
+
+void work5(void* p)
+{
+    volatile int i;
+    for(i = 0; i != 100000; ++i)
+    {
+    }
+}
+
+void
+do_thread_test()
+{
+    int i;
+    struct thread_pool_t* pool;
+    
+    puts("THREAD POOL LOAD TEST 1 (5,000,000 x 10)");
+    pool = thread_pool_create(0);
+    for(i = 0; i != 5000000; ++i)
+        thread_pool_queue(pool, work1, NULL);
+    thread_pool_destroy(pool);
+    
+    sleep(1);
+    
+    puts("THREAD POOL LOAD TEST 2 (5,000,000 x 100)");
+    pool = thread_pool_create(0);
+    for(i = 0; i != 5000000; ++i)
+        thread_pool_queue(pool, work2, NULL);
+    thread_pool_destroy(pool);
+    
+    sleep(1);
+    
+    puts("THREAD POOL LOAD TEST 3 (10,000,000 x 1,000)");
+    pool = thread_pool_create(0);
+    for(i = 0; i != 10000000; ++i)
+        thread_pool_queue(pool, work3, NULL);
+    sleep(5);
+    thread_pool_destroy(pool);
+    
+    puts("THREAD POOL LOAD TEST 4 (1,000,000 x 10,000)");
+    pool = thread_pool_create(0);
+    for(i = 0; i != 1000000; ++i)
+        thread_pool_queue(pool, work4, NULL);
+    sleep(5);
+    thread_pool_destroy(pool);
+    
+    puts("THREAD POOL LOAD TEST 5 (1,000,000 x 100,000)");
+    pool = thread_pool_create(0);
+    for(i = 0; i != 1000000; ++i)
+        thread_pool_queue(pool, work5, NULL);
+    sleep(5);
+    thread_pool_destroy(pool);
 }
 
 int
@@ -160,17 +238,12 @@ main(int argc, char** argv)
 
     /* first thing - initialise memory management */
     memory_init();
-    
-    struct thread_pool_t* pool = thread_pool_create(0);
-    
-    int i;
-    for(i = 0; i != 1000000; ++i)
-        thread_pool_queue(pool, shit, NULL);
+    do_thread_test();
+    memory_deinit();
+    return 0;
 
     /* initialise everything else */
     init();
-    
-    thread_pool_destroy(pool);
 
     /* clean up */
     deinit();
