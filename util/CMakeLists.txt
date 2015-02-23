@@ -27,7 +27,10 @@ else ()
 endif ()
 
 option (ENABLE_LOG_TIMESTAMPS "Whether or not to prefix log messages with timestamps" ON)
-option (ENABLE_THREAD_POOL "Enables threading pools." ON)
+option (ENABLE_MULTITHREADING "Whether or not to use multithreading" ON)
+if (ENABLE_MULTITHREADING)
+    option (ENABLE_THREAD_POOL "Enables threading pools." ON)
+endif ()
 
 message (STATUS "Memory reports: ${ENABLE_MEMORY_REPORT}")
 message (STATUS "Backtraces in memory reports: ${ENABLE_MEMORY_BACKTRACE}")
