@@ -11,7 +11,7 @@ LIGHTSHIP_UTIL_PUBLIC_API uint32_t
 get_number_of_cores();
 
 LIGHTSHIP_UTIL_PUBLIC_API struct thread_pool_t*
-thread_pool_create(int num_threads);
+thread_pool_create(uint32_t num_threads, uint32_t buffer_size_in_bytes);
 
 LIGHTSHIP_UTIL_PUBLIC_API void
 thread_pool_destroy(struct thread_pool_t* pool);

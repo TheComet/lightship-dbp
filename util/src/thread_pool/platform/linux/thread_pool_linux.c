@@ -36,7 +36,7 @@ typedef enum buffer_flags_e
 } buffer_flags_e;
 
 static void
-ring_buffer_init_buffer(struct ring_buffer_t* rb, intptr_t element_size);
+ring_buffer_init_buffer(struct ring_buffer_t* rb, intptr_t element_size, uint32_t buffer_size_in_bytes);
 
 static void
 ring_buffer_free_contents(struct ring_buffer_t* rb);
@@ -66,7 +66,7 @@ static void*
 thread_pool_worker(struct thread_pool_t* pool);
 
 static void
-thread_pool_init_pool(struct thread_pool_t* pool, int num_threads);
+thread_pool_init_pool(struct thread_pool_t* pool, uint32_t num_threads, uint32_t buffer_size_in_bytes);
 
 /* ------------------------------------------------------------------------- */
 uint32_t
@@ -99,11 +99,11 @@ get_number_of_cores()
 
 /* ------------------------------------------------------------------------- */
 struct thread_pool_t*
-thread_pool_create(int num_threads)
+thread_pool_create(uint32_t num_threads, uint32_t buffer_size_in_bytes)
 {
     /* create and init thread pool object */
     struct thread_pool_t* pool = (struct thread_pool_t*)MALLOC(sizeof(struct thread_pool_t));
-    thread_pool_init_pool(pool, num_threads);
+    thread_pool_init_pool(pool, num_threads, buffer_size_in_bytes);
     return pool;
 }
 
@@ -333,7 +333,7 @@ thread_pool_worker(struct thread_pool_t* pool)
 
 /* ------------------------------------------------------------------------- */
 static void
-thread_pool_init_pool(struct thread_pool_t* pool, int num_threads)
+thread_pool_init_pool(struct thread_pool_t* pool, uint32_t num_threads, uint32_t buffer_size_in_bytes)
 {
     char thread_self_str[sizeof(int)*8+3];
     
@@ -343,7 +343,7 @@ thread_pool_init_pool(struct thread_pool_t* pool, int num_threads)
     memset(pool, 0, sizeof(struct thread_pool_t));
     
     /* init ring buffer (job queue) */
-    ring_buffer_init_buffer(&pool->rb, sizeof(struct thread_pool_job_t));
+    ring_buffer_init_buffer(&pool->rb, sizeof(struct thread_pool_job_t), buffer_size_in_bytes);
     
     /* initialise mutexes and conditional variables */
     pthread_cond_init(&pool->cv, NULL);
@@ -384,11 +384,12 @@ thread_pool_init_pool(struct thread_pool_t* pool, int num_threads)
 
 /* ------------------------------------------------------------------------- */
 void
-ring_buffer_init_buffer(struct ring_buffer_t* rb, intptr_t element_size)
+ring_buffer_init_buffer(struct ring_buffer_t* rb, intptr_t element_size, uint32_t buffer_size_in_bytes)
 {
     memset(rb, 0, sizeof(struct ring_buffer_t));
     rb->element_size = element_size;
-    ring_buffer_resize(rb, RING_BUFFER_FIXED_SIZE);
+    buffer_size_in_bytes = (buffer_size_in_bytes != 0 ? buffer_size_in_bytes : RING_BUFFER_FIXED_SIZE);
+    ring_buffer_resize(rb, buffer_size_in_bytes);
 }
 
 /* ------------------------------------------------------------------------- */
