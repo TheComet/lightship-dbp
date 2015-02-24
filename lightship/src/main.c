@@ -202,43 +202,49 @@ do_thread_test()
     int i;
     struct thread_pool_t* pool;
     
+    puts("=======================================");
     puts("THREAD POOL EMPTY TEST (10,000,000 x 1)");
-    pool = thread_pool_create(0);
+    pool = thread_pool_create(0, 0);
     for(i = 0; i != 10000000; ++i)
         thread_pool_queue(pool, work_empty, NULL);
     sleep(5);
     thread_pool_destroy(pool);
     
+    puts("=======================================");
     puts("THREAD POOL LOAD TEST 1 (10,000,000 x 10)");
-    pool = thread_pool_create(0);
+    pool = thread_pool_create(0, 0);
     for(i = 0; i != 10000000; ++i)
         thread_pool_queue(pool, work1, NULL);
     sleep(5);
     thread_pool_destroy(pool);
     
+    puts("=======================================");
     puts("THREAD POOL LOAD TEST 2 (10,000,000 x 100)");
-    pool = thread_pool_create(0);
+    pool = thread_pool_create(0, 0);
     for(i = 0; i != 10000000; ++i)
         thread_pool_queue(pool, work2, NULL);
     sleep(5);
     thread_pool_destroy(pool);
     
+    puts("=======================================");
     puts("THREAD POOL LOAD TEST 3 (10,000,000 x 1,000)");
-    pool = thread_pool_create(0);
+    pool = thread_pool_create(0, 0);
     for(i = 0; i != 100000000; ++i)
         thread_pool_queue(pool, work3, NULL);
     sleep(5);
     thread_pool_destroy(pool);
     
+    puts("=======================================");
     puts("THREAD POOL LOAD TEST 4 (1,000,000 x 10,000)");
-    pool = thread_pool_create(0);
+    pool = thread_pool_create(0, 0);
     for(i = 0; i != 1000000; ++i)
         thread_pool_queue(pool, work4, NULL);
     sleep(5);
     thread_pool_destroy(pool);
     
+    puts("=======================================");
     puts("THREAD POOL LOAD TEST 5 (1,000,000 x 100,000)");
-    pool = thread_pool_create(0);
+    pool = thread_pool_create(0, 1000001);
     for(i = 0; i != 1000000; ++i)
         thread_pool_queue(pool, work5, NULL);
     sleep(5);
