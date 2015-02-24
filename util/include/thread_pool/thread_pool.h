@@ -19,6 +19,12 @@ thread_pool_destroy(struct thread_pool_t* pool);
 LIGHTSHIP_UTIL_PUBLIC_API void
 thread_pool_queue(struct thread_pool_t* pool, thread_pool_job_func func, void* data);
 
+LIGHTSHIP_UTIL_PUBLIC_API void
+thread_pool_suspend(struct thread_pool_t* pool);
+
+LIGHTSHIP_UTIL_PUBLIC_API void
+thread_pool_resume(struct thread_pool_t* pool);
+
 #else /* ENABLE_THREAD_POOL */
 #   define get_number_of_cores() 1
 #   define thread_pool_create(x) (struct thread_pool_t*)1;
