@@ -195,17 +195,15 @@ do_thread_test()
     pool = thread_pool_create(0);
     for(i = 0; i != 5000000; ++i)
         thread_pool_queue(pool, work1, NULL);
+    sleep(5);
     thread_pool_destroy(pool);
-    
-    sleep(1);
     
     puts("THREAD POOL LOAD TEST 2 (5,000,000 x 100)");
     pool = thread_pool_create(0);
     for(i = 0; i != 5000000; ++i)
         thread_pool_queue(pool, work2, NULL);
+    sleep(5);
     thread_pool_destroy(pool);
-    
-    sleep(1);
     
     puts("THREAD POOL LOAD TEST 3 (10,000,000 x 1,000)");
     pool = thread_pool_create(0);

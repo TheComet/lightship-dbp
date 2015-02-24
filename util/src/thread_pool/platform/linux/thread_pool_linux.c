@@ -1,5 +1,4 @@
 #include "thread_pool/thread_pool.h"
-#include "util/unordered_vector.h"
 #include "util/log.h"
 #include "util/memory.h"
 #include <stdio.h>
@@ -16,6 +15,38 @@
 #   include <unistd.h>
 #endif
 
+#define DATA_POINTER_TYPE unsigned char
+struct ring_buffer_t
+{
+    intptr_t num_jobs;
+    intptr_t element_size;
+    intptr_t flg_buffer_size_in_bytes;
+    intptr_t write_pos;
+    intptr_t read_pos;
+    DATA_POINTER_TYPE* obj_buffer;
+    DATA_POINTER_TYPE* flg_buffer;
+};
+
+typedef enum buffer_flags_e
+{
+    FLAG_FREE = 0,
+    FLAG_WRITE_IN_PROGRESS = 1,
+    FLAG_USED = 2,
+    FLAG_READ_IN_PROGRESS = 3
+} buffer_flags_e;
+
+static struct ring_buffer_t*
+ring_buffer_create(intptr_t element_size);
+
+static void
+ring_buffer_init_buffer(struct ring_buffer_t* rb, intptr_t element_size);
+
+static void
+ring_buffer_destroy(struct ring_buffer_t* rb);
+
+static void
+ring_buffer_free_contents(struct ring_buffer_t* rb);
+
 struct thread_pool_t
 {
     int num_threads;
@@ -23,7 +54,7 @@ struct thread_pool_t
     pthread_t* thread;
     pthread_mutex_t mutex;
     pthread_cond_t cv;
-    struct unordered_vector_t jobs;
+    struct ring_buffer_t rb;
 };
 
 struct thread_pool_job_t
@@ -92,7 +123,7 @@ thread_pool_destroy(struct thread_pool_t* pool)
         pthread_join(pool->thread[i], NULL);
 
     /* clean up */
-    unordered_vector_clear_free(&pool->jobs);
+    ring_buffer_free_contents(&pool->rb);
     FREE(pool->thread);
     pthread_mutex_destroy(&pool->mutex);
     pthread_cond_destroy(&pool->cv);
@@ -103,45 +134,58 @@ thread_pool_destroy(struct thread_pool_t* pool)
 void
 thread_pool_queue(struct thread_pool_t* pool, thread_pool_job_func func, void* data)
 {
+    intptr_t write_pos;
+    intptr_t obj_ptr_offset;
     struct thread_pool_job_t* job;
-    pthread_mutex_lock(&pool->mutex);
-    job = unordered_vector_push_emplace(&pool->jobs);
+    
+    /* fetch and wrap write position */
+    write_pos = __sync_fetch_and_add(&pool->rb.write_pos, 1) % pool->rb.flg_buffer_size_in_bytes;
+    /* calculate absolute address of where to store object in the object buffer */
+    obj_ptr_offset = write_pos * pool->rb.element_size;
+    /* Set flag to "write in progress"
+     * Spin lock on overflow, wait until buffer is free again */
+    while(!__sync_bool_compare_and_swap(&(pool->rb.flg_buffer[write_pos]), FLAG_FREE, FLAG_WRITE_IN_PROGRESS));
+    /* TODO resize buffer? possible? */
+    
+    job = (struct thread_pool_job_t*)(pool->rb.obj_buffer + obj_ptr_offset);
     job->func = func;
     job->data = data;
+    
+    /* buffer is ready for reading */
+    __sync_bool_compare_and_swap(&(pool->rb.flg_buffer[write_pos]), FLAG_WRITE_IN_PROGRESS, FLAG_USED);
+    
+    /* wake up a worker thread */
     pthread_cond_signal(&pool->cv);
-    pthread_mutex_unlock(&pool->mutex);
 }
 
 /* ------------------------------------------------------------------------- */
 /* STATIC FUNCTIONS */
 /* ------------------------------------------------------------------------- */
 static void
-thread_pool_process_while_active(struct thread_pool_t* pool)
+thread_pool_worker_handler(struct thread_pool_t* pool)
 {
-    struct thread_pool_job_t* pjob, job;
-    
-    /* 
-     * mutex must be locked at this point
-     */
-    
+    struct thread_pool_job_t* job;
+    intptr_t read_pos;
     
     while(pool->active)
     {
-        /* pop from work queue and do work until there is no more work */
-        pjob = unordered_vector_pop(&pool->jobs);
-        while(!pjob)
+        /* get a unique read position in the buffer */
+        read_pos = __sync_fetch_and_add(&pool->rb.read_pos, 1) % pool->rb.flg_buffer_size_in_bytes;
+        
+        /* even if there is no data there, we can wait until there is */
+        while(!__sync_bool_compare_and_swap(&(pool->rb.flg_buffer[read_pos]), FLAG_USED, FLAG_READ_IN_PROGRESS))
         {
-            pthread_cond_wait(&pool->cv, &pool->mutex);
             if(!pool->active)
                 return;
-            pjob = unordered_vector_pop(&pool->jobs);
+            pthread_mutex_lock(&pool->mutex);
+            pthread_cond_wait(&pool->cv, &pool->mutex);
+            pthread_mutex_unlock(&pool->mutex);
         }
 
-        job = *pjob; /* copy job before unlocking, pointer is only valid as long
-                        as we were the last one to manipulate the vector */
-        pthread_mutex_unlock(&pool->mutex);
-        job.func(job.data);
-        pthread_mutex_lock(&pool->mutex);
+        /* exec job and set flag to free once done */
+        job = (struct thread_pool_job_t*)(pool->rb.obj_buffer + read_pos * pool->rb.element_size);
+        job->func(job->data);
+        __sync_bool_compare_and_swap(&(pool->rb.flg_buffer[read_pos]), FLAG_READ_IN_PROGRESS, FLAG_FREE);
     }
 }
 
@@ -152,9 +196,7 @@ thread_pool_worker(struct thread_pool_t* pool)
     sprintf(thread_self_str, "0x%lx", (intptr_t)pthread_self());
     llog(LOG_INFO, NULL, 3, "Worker thread ", thread_self_str, " started");
     
-    pthread_mutex_lock(&pool->mutex);
-    thread_pool_process_while_active(pool);
-    pthread_mutex_unlock(&pool->mutex);
+    thread_pool_worker_handler(pool);
     
     llog(LOG_INFO, NULL, 3, "Worker thread ", thread_self_str, " stopping");
     pthread_exit(NULL);
@@ -172,7 +214,7 @@ thread_pool_init_pool(struct thread_pool_t* pool, int num_threads)
     llog(LOG_INFO, NULL, 2, "Thread pool initialising on thread ", thread_self_str);
     
     /* init jobs */
-    unordered_vector_init_vector(&pool->jobs, sizeof(struct thread_pool_job_t));
+    ring_buffer_init_buffer(&pool->rb, sizeof(struct thread_pool_job_t));
 
     /* set pool to active, so threads know to not exit */
     pool->active = 1;
@@ -198,5 +240,75 @@ thread_pool_init_pool(struct thread_pool_t* pool, int num_threads)
 
     /* clean up */
     pthread_attr_destroy(&attr);
+}
+
+/* ------------------------------------------------------------------------- */
+/* LOCK FREE RING BUFFER IMPLEMENTATION */
+/* ------------------------------------------------------------------------- */
+
+static void
+ring_buffer_resize(struct ring_buffer_t* rb, intptr_t new_size);
+
+/* ------------------------------------------------------------------------- */
+struct ring_buffer_t*
+ring_buffer_create(intptr_t element_size)
+{
+    struct ring_buffer_t* rb = (struct ring_buffer_t*)MALLOC(sizeof(struct ring_buffer_t));
+    ring_buffer_init_buffer(rb, element_size);
+    return rb;
+}
+
+/* ------------------------------------------------------------------------- */
+void
+ring_buffer_init_buffer(struct ring_buffer_t* rb, intptr_t element_size)
+{
+    memset(rb, 0, sizeof(struct ring_buffer_t));
+    rb->element_size = element_size;
+    ring_buffer_resize(rb, 1000000);
+}
+
+/* ------------------------------------------------------------------------- */
+void
+ring_buffer_destroy(struct ring_buffer_t* rb)
+{
+    ring_buffer_free_contents(rb);
+    FREE(rb);
+}
+
+/* ------------------------------------------------------------------------- */
+void
+ring_buffer_free_contents(struct ring_buffer_t* rb)
+{
+    rb->flg_buffer_size_in_bytes = 0;
+    FREE(rb->flg_buffer);
+    rb->flg_buffer = NULL;
+    rb->obj_buffer = NULL;
+}
+
+/* ------------------------------------------------------------------------- */
+/* STATIC FUNCTIONS */
+/* ------------------------------------------------------------------------- */
+static void
+ring_buffer_resize(struct ring_buffer_t* rb, intptr_t new_size)
+{
+    DATA_POINTER_TYPE* buffer;
+    DATA_POINTER_TYPE* old_buffer;
+    intptr_t buffer_size;
+    
+    /*
+     * NOTE: Mutex should be locked at this point.
+     */
+    buffer_size = new_size + /* flg_buffer */
+                  new_size * rb->element_size; /* obj_buffer */
+    buffer = (DATA_POINTER_TYPE*)MALLOC(buffer_size);
+    memset(buffer, 0, buffer_size);
+    old_buffer = rb->flg_buffer;
+    rb->flg_buffer = buffer;
+    rb->obj_buffer = buffer + new_size;
+    rb->flg_buffer_size_in_bytes = new_size;
+    if(!old_buffer)
+        return;
+    
+    FREE(old_buffer);
 }
 
