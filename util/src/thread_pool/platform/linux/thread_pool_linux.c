@@ -119,7 +119,9 @@ thread_pool_destroy(struct thread_pool_t* pool)
      */
     thread_pool_suspend(pool);
     {
+        pthread_mutex_lock(&pool->mutex);
         pthread_cond_signal(&pool->realloc_cv);
+        pthread_mutex_unlock(&pool->mutex);
         pthread_join(pool->realloc_thread, NULL);
     }
 
@@ -138,11 +140,10 @@ thread_pool_ring_buffer_realloc_thread(struct thread_pool_t* pool)
     /*
      * Suspend this thread until a reallocation event occurs.
      */
+    pthread_mutex_lock(&pool->mutex);
     while(pool->active)
     {
-        pthread_mutex_lock(&pool->mutex);
         pthread_cond_wait(&pool->realloc_cv, &pool->mutex);
-        pthread_mutex_unlock(&pool->mutex);
         if(!pool->active)
             break;
         
@@ -153,11 +154,14 @@ thread_pool_ring_buffer_realloc_thread(struct thread_pool_t* pool)
          *  - realloc
          *  - resume worker threads.
          */
+        pthread_mutex_unlock(&pool->mutex);
         thread_pool_suspend(pool);
         /* expand by factor 2 */
         ring_buffer_resize(&pool->rb, pool->rb.flg_buffer_size_in_bytes << 1);
         thread_pool_resume(pool);
+        pthread_mutex_lock(&pool->mutex);
     }
+    pthread_mutex_unlock(&pool->mutex);
     
     pthread_exit(NULL);
 }
@@ -245,8 +249,8 @@ thread_pool_suspend(struct thread_pool_t* pool)
         return;
     }
     pool->active = 0;
-    pthread_mutex_unlock(&pool->mutex);
     pthread_cond_broadcast(&pool->cv);
+    pthread_mutex_unlock(&pool->mutex);
     for(i = 0; i != pool->num_threads; ++i)
         pthread_join(pool->thread[i], NULL);
 }
@@ -297,16 +301,18 @@ thread_pool_worker_handler(struct thread_pool_t* pool)
         flag_buffer = &(pool->rb.flg_buffer[read_pos]);
         
         /* even if there is no data there, we can wait until there is */
-        while(!__sync_bool_compare_and_swap(flag_buffer, FLAG_READ_ME, FLAG_READ_IN_PROGRESS))
+        if(!__sync_bool_compare_and_swap(flag_buffer, FLAG_READ_ME, FLAG_READ_IN_PROGRESS))
         {
+            pthread_mutex_lock(&pool->mutex);
+            while(!__sync_bool_compare_and_swap(flag_buffer, FLAG_READ_ME, FLAG_READ_IN_PROGRESS) && pool->active)
+                pthread_cond_wait(&pool->cv, &pool->mutex);
             if(!pool->active)
             {
                 /* restore unprocessed job - required for suspend/resume */
                 __sync_fetch_and_sub(&pool->rb.read_pos, 1);
+                pthread_mutex_unlock(&pool->mutex);
                 return;
             }
-            pthread_mutex_lock(&pool->mutex);
-            pthread_cond_wait(&pool->cv, &pool->mutex);
             pthread_mutex_unlock(&pool->mutex);
         }
 
@@ -352,6 +358,9 @@ thread_pool_init_pool(struct thread_pool_t* pool, int num_threads)
     
     /* allocate buffer to store thread objects */
     pool->thread = (pthread_t*)MALLOC(pool->num_threads * sizeof(pthread_t));
+    
+    /* launches all worker threads */
+    thread_pool_resume(pool);
 
     /* 
      * If ENABLE_RING_BUFFER_REALLOC is enabled, then the worker threads are
@@ -367,9 +376,6 @@ thread_pool_init_pool(struct thread_pool_t* pool, int num_threads)
         pthread_create(&pool->realloc_thread, &attr, (void*(*)(void*))thread_pool_ring_buffer_realloc_thread, pool);
         pthread_attr_destroy(&attr);
     }
-    
-    /* launches all worker threads */
-    thread_pool_resume(pool);
 }
 
 /* ------------------------------------------------------------------------- */
@@ -416,7 +422,6 @@ ring_buffer_resize(struct ring_buffer_t* rb, intptr_t new_size)
     buffer_size = new_size + /* flg_buffer */
                   new_size * rb->element_size; /* obj_buffer */
     buffer = (DATA_POINTER_TYPE*)MALLOC(buffer_size);
-    memset(buffer, 0, buffer_size);
     
     /* wrap read and write pointers to new size */
     if(rb->flg_buffer_size_in_bytes)
@@ -432,6 +437,10 @@ ring_buffer_resize(struct ring_buffer_t* rb, intptr_t new_size)
         memcpy(buffer, old_buffer, old_buffer_size);
         /* object buffer */
         memcpy(buffer, old_buffer + old_buffer_size, old_buffer_size * rb->element_size);
+    }
+    else
+    {
+        memset(buffer, 0, buffer_size);
     }
     
     /* set pointers and new size correctly */
