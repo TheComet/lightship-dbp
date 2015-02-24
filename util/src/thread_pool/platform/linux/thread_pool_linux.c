@@ -131,6 +131,7 @@ thread_pool_queue(struct thread_pool_t* pool, thread_pool_job_func func, void* d
     intptr_t write_pos;
     intptr_t obj_ptr_offset;
     struct thread_pool_job_t* job;
+    DATA_POINTER_TYPE* flag_buffer;
     
     /* fetch and wrap write position */
     write_pos = __sync_fetch_and_add(&pool->rb.write_pos, 1) % pool->rb.flg_buffer_size_in_bytes;
@@ -138,7 +139,8 @@ thread_pool_queue(struct thread_pool_t* pool, thread_pool_job_func func, void* d
     obj_ptr_offset = write_pos * pool->rb.element_size;
     /* Set flag to "write in progress"
      * Spin lock on overflow, wait until buffer is free again */
-    while(!__sync_bool_compare_and_swap(&(pool->rb.flg_buffer[write_pos]), FLAG_FREE, FLAG_WRITE_IN_PROGRESS));
+    flag_buffer = &(pool->rb.flg_buffer[write_pos]);
+    while(!__sync_bool_compare_and_swap(flag_buffer, FLAG_FREE, FLAG_WRITE_IN_PROGRESS));
     /* TODO resize buffer? possible? */
     
     job = (struct thread_pool_job_t*)(pool->rb.obj_buffer + obj_ptr_offset);
@@ -146,7 +148,7 @@ thread_pool_queue(struct thread_pool_t* pool, thread_pool_job_func func, void* d
     job->data = data;
     
     /* buffer is ready for reading */
-    __sync_bool_compare_and_swap(&(pool->rb.flg_buffer[write_pos]), FLAG_WRITE_IN_PROGRESS, FLAG_READ_ME);
+    __sync_bool_compare_and_swap(flag_buffer, FLAG_WRITE_IN_PROGRESS, FLAG_READ_ME);
     
     /* wake up a worker thread */
     pthread_cond_signal(&pool->cv);
