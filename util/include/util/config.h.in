@@ -19,6 +19,8 @@
     #cmakedefine ENABLE_MULTITHREADING
 #   ifdef ENABLE_MULTITHREADING
     #cmakedefine ENABLE_THREAD_POOL
+    #cmakedefine ENABLE_RING_BUFFER_REALLOC
+    #define RING_BUFFER_FIXED_SIZE @RING_BUFFER_FIXED_SIZE@
 #   endif
 
     #cmakedefine HAVE_CURSES
