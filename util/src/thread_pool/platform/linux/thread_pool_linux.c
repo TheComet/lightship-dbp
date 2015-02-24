@@ -31,18 +31,12 @@ typedef enum buffer_flags_e
 {
     FLAG_FREE = 0,
     FLAG_WRITE_IN_PROGRESS = 1,
-    FLAG_USED = 2,
+    FLAG_READ_ME = 2,
     FLAG_READ_IN_PROGRESS = 3
 } buffer_flags_e;
 
-static struct ring_buffer_t*
-ring_buffer_create(intptr_t element_size);
-
 static void
 ring_buffer_init_buffer(struct ring_buffer_t* rb, intptr_t element_size);
-
-static void
-ring_buffer_destroy(struct ring_buffer_t* rb);
 
 static void
 ring_buffer_free_contents(struct ring_buffer_t* rb);
@@ -152,7 +146,7 @@ thread_pool_queue(struct thread_pool_t* pool, thread_pool_job_func func, void* d
     job->data = data;
     
     /* buffer is ready for reading */
-    __sync_bool_compare_and_swap(&(pool->rb.flg_buffer[write_pos]), FLAG_WRITE_IN_PROGRESS, FLAG_USED);
+    __sync_bool_compare_and_swap(&(pool->rb.flg_buffer[write_pos]), FLAG_WRITE_IN_PROGRESS, FLAG_READ_ME);
     
     /* wake up a worker thread */
     pthread_cond_signal(&pool->cv);
@@ -173,7 +167,7 @@ thread_pool_worker_handler(struct thread_pool_t* pool)
         read_pos = __sync_fetch_and_add(&pool->rb.read_pos, 1) % pool->rb.flg_buffer_size_in_bytes;
         
         /* even if there is no data there, we can wait until there is */
-        while(!__sync_bool_compare_and_swap(&(pool->rb.flg_buffer[read_pos]), FLAG_USED, FLAG_READ_IN_PROGRESS))
+        while(!__sync_bool_compare_and_swap(&(pool->rb.flg_buffer[read_pos]), FLAG_READ_ME, FLAG_READ_IN_PROGRESS))
         {
             if(!pool->active)
                 return;
@@ -250,29 +244,12 @@ static void
 ring_buffer_resize(struct ring_buffer_t* rb, intptr_t new_size);
 
 /* ------------------------------------------------------------------------- */
-struct ring_buffer_t*
-ring_buffer_create(intptr_t element_size)
-{
-    struct ring_buffer_t* rb = (struct ring_buffer_t*)MALLOC(sizeof(struct ring_buffer_t));
-    ring_buffer_init_buffer(rb, element_size);
-    return rb;
-}
-
-/* ------------------------------------------------------------------------- */
 void
 ring_buffer_init_buffer(struct ring_buffer_t* rb, intptr_t element_size)
 {
     memset(rb, 0, sizeof(struct ring_buffer_t));
     rb->element_size = element_size;
     ring_buffer_resize(rb, 1000000);
-}
-
-/* ------------------------------------------------------------------------- */
-void
-ring_buffer_destroy(struct ring_buffer_t* rb)
-{
-    ring_buffer_free_contents(rb);
-    FREE(rb);
 }
 
 /* ------------------------------------------------------------------------- */
@@ -286,8 +263,6 @@ ring_buffer_free_contents(struct ring_buffer_t* rb)
 }
 
 /* ------------------------------------------------------------------------- */
-/* STATIC FUNCTIONS */
-/* ------------------------------------------------------------------------- */
 static void
 ring_buffer_resize(struct ring_buffer_t* rb, intptr_t new_size)
 {
@@ -298,17 +273,24 @@ ring_buffer_resize(struct ring_buffer_t* rb, intptr_t new_size)
     /*
      * NOTE: Mutex should be locked at this point.
      */
+    
+    /* callocate new buffer */
+    old_buffer = rb->flg_buffer;
     buffer_size = new_size + /* flg_buffer */
                   new_size * rb->element_size; /* obj_buffer */
     buffer = (DATA_POINTER_TYPE*)MALLOC(buffer_size);
     memset(buffer, 0, buffer_size);
-    old_buffer = rb->flg_buffer;
+    
+    /* swap old with new */
+    if(old_buffer)
+        memcpy(buffer, old_buffer, buffer_size);
+    
+    /* set pointers and new size correctly */
     rb->flg_buffer = buffer;
     rb->obj_buffer = buffer + new_size;
     rb->flg_buffer_size_in_bytes = new_size;
     if(!old_buffer)
         return;
-    
     FREE(old_buffer);
 }
 
