@@ -30,6 +30,8 @@ option (ENABLE_LOG_TIMESTAMPS "Whether or not to prefix log messages with timest
 option (ENABLE_MULTITHREADING "Whether or not to use multithreading" ON)
 if (ENABLE_MULTITHREADING)
     option (ENABLE_THREAD_POOL "Enables threading pools." ON)
+    option (ENABLE_RING_BUFFER_REALLOC "Causes the thread pool's ring buffer to automatically reallocate when necessary" ON)
+    set (RING_BUFFER_FIXED_SIZE "4096" CACHE STRING "If ENABLE_RING_BUFFER_REALLOC is disabled, this determins the fixed size in bytes of the ring buffer. Note that this is also the start size of the ring buffer")
 endif ()
 
 message (STATUS "Memory reports: ${ENABLE_MEMORY_REPORT}")
