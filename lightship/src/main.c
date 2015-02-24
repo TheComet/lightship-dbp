@@ -145,6 +145,11 @@ deinit(void)
 
 #include "thread_pool/thread_pool.h"
 #include <stdlib.h>
+#include <unistd.h>
+void work_empty(void* p)
+{
+}
+
 void work1(void* p)
 {
     volatile int i;
@@ -186,28 +191,41 @@ void work5(void* p)
 }
 
 void
+work6(void* p)
+{
+    puts("hello");
+}
+
+void
 do_thread_test()
 {
     int i;
     struct thread_pool_t* pool;
     
-    puts("THREAD POOL LOAD TEST 1 (5,000,000 x 10)");
+    puts("THREAD POOL EMPTY TEST (1,000,000 x 1)");
     pool = thread_pool_create(0);
-    for(i = 0; i != 5000000; ++i)
+    for(i = 0; i != 1000000; ++i)
+        thread_pool_queue(pool, work_empty, NULL);
+    sleep(5);
+    thread_pool_destroy(pool);
+    
+    puts("THREAD POOL LOAD TEST 1 (1,000,000 x 10)");
+    pool = thread_pool_create(0);
+    for(i = 0; i != 1000000; ++i)
         thread_pool_queue(pool, work1, NULL);
     sleep(5);
     thread_pool_destroy(pool);
     
-    puts("THREAD POOL LOAD TEST 2 (5,000,000 x 100)");
+    puts("THREAD POOL LOAD TEST 2 (1,000,000 x 100)");
     pool = thread_pool_create(0);
-    for(i = 0; i != 5000000; ++i)
+    for(i = 0; i != 1000000; ++i)
         thread_pool_queue(pool, work2, NULL);
     sleep(5);
     thread_pool_destroy(pool);
     
-    puts("THREAD POOL LOAD TEST 3 (10,000,000 x 1,000)");
+    puts("THREAD POOL LOAD TEST 3 (1,000,000 x 1,000)");
     pool = thread_pool_create(0);
-    for(i = 0; i != 10000000; ++i)
+    for(i = 0; i != 1000000; ++i)
         thread_pool_queue(pool, work3, NULL);
     sleep(5);
     thread_pool_destroy(pool);
