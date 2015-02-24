@@ -66,10 +66,23 @@ endforeach( OUTPUTCONFIG CMAKE_CONFIGURATION_TYPES )
 # compiler definitions and flags
 ###############################################################################
 
+if(${PLATFORM} MATCHES "LINUX")
+    option (ENABLE_PROFILING "Compiles with -pg on linux" OFF)
+endif ()
+
 if (${CMAKE_C_COMPILER_ID} STREQUAL "GNU")
     set (DEFINE_CMD -D)
+    if (ENABLE_PROFILING)
+        add_definitions(-pg)
+        set (CMAKE_EXE_LINKER_FLAGS -pg)
+        set (CMAKE_LIBRARY_LINKER_FLAGS -pg)
+        set (CMAKE_MODULE_LINKER_FLAGS -pg)
+    endif ()
 elseif (${CMAKE_C_COMPILER_ID} STREQUAL "Clang")
     set (DEFINE_CMD -D)
+    if (ENABLE_PROFILING)
+        add_definitions(-pg)
+    endif ()
 elseif (${CMAKE_C_COMPILER_ID} STREQUAL "Intel")
 elseif (${CMAKE_C_COMPILER_ID} STREQUAL "MSVC")
     set (DEFINE_CMD /D)
