@@ -15,17 +15,7 @@
 #   include <unistd.h>
 #endif
 
-#define DATA_POINTER_TYPE unsigned char
-struct ring_buffer_t
-{
-    intptr_t num_jobs;
-    intptr_t element_size;
-    intptr_t flg_buffer_size_in_bytes;
-    intptr_t write_pos;
-    intptr_t read_pos;
-    DATA_POINTER_TYPE* obj_buffer;
-    DATA_POINTER_TYPE* flg_buffer;
-};
+static uint32_t g_max_buf_size = RING_BUFFER_MAX_SIZE;
 
 typedef enum buffer_flags_e
 {
@@ -34,6 +24,37 @@ typedef enum buffer_flags_e
     FLAG_READ_ME = 2,
     FLAG_READ_IN_PROGRESS = 3
 } buffer_flags_e;
+
+#define DATA_POINTER_TYPE unsigned char
+struct ring_buffer_t
+{
+    intptr_t element_size;
+    intptr_t flg_buffer_size_in_bytes;
+    intptr_t write_pos;
+    intptr_t read_pos;
+    DATA_POINTER_TYPE* obj_buffer;
+    DATA_POINTER_TYPE* flg_buffer;
+};
+
+struct thread_pool_t
+{
+    int num_threads;
+    char active;
+    unsigned char num_active_threads;
+    pthread_t* thread;
+    pthread_t realloc_thread;
+    pthread_cond_t cv;
+    pthread_cond_t realloc_cv;
+    pthread_cond_t job_finished_cv;
+    pthread_mutex_t mutex;
+    struct ring_buffer_t rb;
+};
+
+struct thread_pool_job_t
+{
+    thread_pool_job_func func;
+    void* data;
+};
 
 static void
 ring_buffer_init_buffer(struct ring_buffer_t* rb, intptr_t element_size, uint32_t buffer_size_in_bytes);
@@ -44,29 +65,16 @@ ring_buffer_free_contents(struct ring_buffer_t* rb);
 static void
 ring_buffer_resize(struct ring_buffer_t* rb, intptr_t new_size);
 
-struct thread_pool_t
-{
-    int num_threads;
-    char active;
-    pthread_t* thread;
-    pthread_t realloc_thread;
-    pthread_cond_t realloc_cv;
-    pthread_mutex_t mutex;
-    pthread_cond_t cv;
-    struct ring_buffer_t rb;
-};
-
-struct thread_pool_job_t
-{
-    thread_pool_job_func func;
-    void* data;
-};
-
 static void*
 thread_pool_worker(struct thread_pool_t* pool);
 
 static void
 thread_pool_init_pool(struct thread_pool_t* pool, uint32_t num_threads, uint32_t buffer_size_in_bytes);
+
+#ifdef ENABLE_RING_BUFFER_REALLOC
+static void*
+thread_pool_ring_buffer_realloc_thread(struct thread_pool_t* pool);
+#endif
 
 /* ------------------------------------------------------------------------- */
 uint32_t
@@ -98,6 +106,13 @@ get_number_of_cores()
 }
 
 /* ------------------------------------------------------------------------- */
+void
+thread_pool_set_max_buffer_size(uint32_t maximum_buffer_size)
+{
+    g_max_buf_size = maximum_buffer_size;
+}
+
+/* ------------------------------------------------------------------------- */
 struct thread_pool_t*
 thread_pool_create(uint32_t num_threads, uint32_t buffer_size_in_bytes)
 {
@@ -112,58 +127,28 @@ void
 thread_pool_destroy(struct thread_pool_t* pool)
 {
     /*
-     * If ENABLE_RING_BUFFER_REALLOC is enabled, then shutting down the
-     * reallocation thread will also shut down all worker threads. If the
-     * option is not enabled, we have to shut down the worker threads from
-     * here.
+     * Shut down worker threads.
      */
     thread_pool_suspend(pool);
-    {
-        pthread_mutex_lock(&pool->mutex);
-        pthread_cond_signal(&pool->realloc_cv);
-        pthread_mutex_unlock(&pool->mutex);
-        pthread_join(pool->realloc_thread, NULL);
-    }
+    
+    /*
+     * If ENABLE_RING_BUFFER_REALLOC is enabled, shut down reallocation thread.
+     */
+#ifdef ENABLE_RING_BUFFER_REALLOC
+    pthread_mutex_lock(&pool->mutex);
+    pthread_cond_signal(&pool->realloc_cv);
+    pthread_mutex_unlock(&pool->mutex);
+    pthread_join(pool->realloc_thread, NULL);
+#endif
 
     /* clean up */
     ring_buffer_free_contents(&pool->rb);
     FREE(pool->thread);
     pthread_mutex_destroy(&pool->mutex);
     pthread_cond_destroy(&pool->cv);
+    pthread_cond_destroy(&pool->realloc_cv);
+    pthread_cond_destroy(&pool->job_finished_cv);
     FREE(pool);
-}
-
-/* ------------------------------------------------------------------------- */
-static void*
-thread_pool_ring_buffer_realloc_thread(struct thread_pool_t* pool)
-{
-    /*
-     * Suspend this thread until a reallocation event occurs.
-     */
-    pthread_mutex_lock(&pool->mutex);
-    while(pool->active)
-    {
-        pthread_cond_wait(&pool->realloc_cv, &pool->mutex);
-        if(!pool->active)
-            break;
-        
-        /* 
-         * Reallocation event received. The safest approach, although not that
-         * fast, is:
-         *  - shut down worker threads.
-         *  - realloc
-         *  - resume worker threads.
-         */
-        pthread_mutex_unlock(&pool->mutex);
-        thread_pool_suspend(pool);
-        /* expand by factor 2 */
-        ring_buffer_resize(&pool->rb, pool->rb.flg_buffer_size_in_bytes << 1);
-        thread_pool_resume(pool);
-        pthread_mutex_lock(&pool->mutex);
-    }
-    pthread_mutex_unlock(&pool->mutex);
-    
-    pthread_exit(NULL);
 }
 
 /* ------------------------------------------------------------------------- */
@@ -171,7 +156,7 @@ void
 thread_pool_queue(struct thread_pool_t* pool, thread_pool_job_func func, void* data)
 {
     /*
-     * WARNING: This function is not thread safe if ENABLE_RING_BUFFER_ALLOC is enabled.
+     * WARNING: This function is not thread safe if ENABLE_RING_BUFFER_REALLOC is enabled.
      * This is to favour speed. You can of course use your own mutex if inserting from
      * multiple threads to get around this.
      */
@@ -181,10 +166,12 @@ thread_pool_queue(struct thread_pool_t* pool, thread_pool_job_func func, void* d
     struct thread_pool_job_t* job;
     DATA_POINTER_TYPE* flag_buffer;
     
-    /* fetch and wrap write position */
+    /* fetch, increment and wrap write position */
     write_pos = __sync_fetch_and_add(&pool->rb.write_pos, 1) % pool->rb.flg_buffer_size_in_bytes;
     /* calculate relative address of where to store object in the object buffer */
     obj_ptr_offset = write_pos * pool->rb.element_size;
+    /* cache flag buffer, it's used multiple times */
+    flag_buffer = &(pool->rb.flg_buffer[write_pos]);
     
     /* 
      * Set flag to "write in progress" in flag buffer.
@@ -192,15 +179,14 @@ thread_pool_queue(struct thread_pool_t* pool, thread_pool_job_func func, void* d
      * spinlock until one of the worker threads completes and frees a job, or
      * reallocate the ring buffer.
      */
-    flag_buffer = &(pool->rb.flg_buffer[write_pos]);
     if(!__sync_bool_compare_and_swap(flag_buffer, FLAG_FREE, FLAG_WRITE_IN_PROGRESS))
     {
-/*#ifdef ENABLE_RING_BUFFER_REALLOC*/
+#ifdef ENABLE_RING_BUFFER_REALLOC
         /*
          * Since this thread has failed to insert the new job into the queue,
-         * and - if it is a pool thread - will have to terminate before
-         * reallocation, the only choice left is to execute the job immediately
-         * before reallocation.
+         * and - if it happens to be a pool thread - it will have to terminate 
+         * before reallocation, the only choice left is to execute the job
+         * immediately before reallocation.
          */
         func(data);
         
@@ -208,16 +194,17 @@ thread_pool_queue(struct thread_pool_t* pool, thread_pool_job_func func, void* d
          * write_pos was incremented, but we already executed the job that would
          * have been inserted at that position. Therefore, it can be decremented
          * again.
+         * NOTE: This is the reason why this function isn't thread safe.
          */
         __sync_fetch_and_sub(&pool->rb.write_pos, 1);
         
         /*
-         * Ready for reallocation.
+         * Signal reallocation thread.
          */
         pthread_cond_signal(&pool->realloc_cv);
         
         return;
-/*#endif*/
+#endif
     }
     
     /*
@@ -241,7 +228,7 @@ thread_pool_suspend(struct thread_pool_t* pool)
 {
     int i;
 
-    /* exit all threads */
+    /* join all worker threads */
     pthread_mutex_lock(&pool->mutex);
     if(!pool->active) /* already suspended */
     {
@@ -276,7 +263,7 @@ thread_pool_resume(struct thread_pool_t* pool)
     pthread_attr_init(&attr);
     pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
 
-    /* launch threads and make them idle */
+    /* launch worker threads */
     for(i = 0; i != pool->num_threads; ++i)
         pthread_create(&(pool->thread[i]), &attr, (void*(*)(void*))thread_pool_worker, pool);
 
@@ -285,7 +272,69 @@ thread_pool_resume(struct thread_pool_t* pool)
 }
 
 /* ------------------------------------------------------------------------- */
+void
+thread_pool_wait_for_jobs(struct thread_pool_t* pool)
+{
+    /* wake up a worker and wait for it to go back to sleep */
+    pthread_mutex_lock(&pool->mutex);
+    pthread_cond_signal(&pool->cv);
+    while(__sync_fetch_and_add(&pool->num_active_threads, 0))
+        pthread_cond_wait(&pool->job_finished_cv, &pool->mutex);
+    pthread_mutex_unlock(&pool->mutex);
+}
+
+/* ------------------------------------------------------------------------- */
 /* STATIC FUNCTIONS */
+/* ------------------------------------------------------------------------- */
+static void
+thread_pool_init_pool(struct thread_pool_t* pool, uint32_t num_threads, uint32_t buffer_size_in_bytes)
+{
+    char thread_self_str[sizeof(int)*8+3];
+    
+    sprintf(thread_self_str, "0x%lx", (intptr_t)pthread_self());
+    llog(LOG_INFO, NULL, 2, "Thread pool initialising on thread ", thread_self_str);
+    
+    memset(pool, 0, sizeof(struct thread_pool_t));
+    
+    /* init ring buffer (job queue) */
+    ring_buffer_init_buffer(&pool->rb, sizeof(struct thread_pool_job_t), buffer_size_in_bytes);
+    
+    /* initialise mutexes and conditional variables */
+    pthread_mutex_init(&pool->mutex, NULL);
+    pthread_cond_init(&pool->cv, NULL);
+    pthread_cond_init(&pool->realloc_cv, NULL);
+    pthread_cond_init(&pool->job_finished_cv, NULL);
+    
+    /* set number of threads to create - if num_threads is 0, set it to the number of CPU cores present */
+    if(num_threads)
+        pool->num_threads = num_threads;
+    else
+        pool->num_threads = get_number_of_cores();
+    
+    /* allocate buffer to store thread objects */
+    pool->thread = (pthread_t*)MALLOC(pool->num_threads * sizeof(pthread_t));
+    
+    /* launches all worker threads */
+    thread_pool_resume(pool);
+
+    /* 
+     * If ENABLE_RING_BUFFER_REALLOC is enabled, then launch a helper thread
+     * to take over the task of reallocating the ring buffer when it runs
+     * out of space.
+     */
+#ifdef ENABLE_RING_BUFFER_REALLOC
+    {
+        pthread_attr_t attr;
+
+        /* for portability, explicitely create threads in a joinable state */
+        pthread_attr_init(&attr);
+        pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
+        pthread_create(&pool->realloc_thread, &attr, (void*(*)(void*))thread_pool_ring_buffer_realloc_thread, pool);
+        pthread_attr_destroy(&attr);
+    }
+#endif
+}
+
 /* ------------------------------------------------------------------------- */
 static void
 thread_pool_worker_handler(struct thread_pool_t* pool)
@@ -303,7 +352,11 @@ thread_pool_worker_handler(struct thread_pool_t* pool)
         /* even if there is no data there, we can wait until there is */
         if(!__sync_bool_compare_and_swap(flag_buffer, FLAG_READ_ME, FLAG_READ_IN_PROGRESS))
         {
+            /* let everything know this thread is now inactive */
+            __sync_fetch_and_sub(&pool->num_active_threads, 1);
+            
             pthread_mutex_lock(&pool->mutex);
+            pthread_cond_broadcast(&pool->job_finished_cv);
             while(!__sync_bool_compare_and_swap(flag_buffer, FLAG_READ_ME, FLAG_READ_IN_PROGRESS) && pool->active)
                 pthread_cond_wait(&pool->cv, &pool->mutex);
             if(!pool->active)
@@ -311,9 +364,11 @@ thread_pool_worker_handler(struct thread_pool_t* pool)
                 /* restore unprocessed job - required for suspend/resume */
                 __sync_fetch_and_sub(&pool->rb.read_pos, 1);
                 pthread_mutex_unlock(&pool->mutex);
+                __sync_fetch_and_add(&pool->num_active_threads, 1);
                 return;
             }
             pthread_mutex_unlock(&pool->mutex);
+            __sync_fetch_and_add(&pool->num_active_threads, 1);
         }
 
         /* exec job and set flag to free once done */
@@ -327,61 +382,49 @@ thread_pool_worker_handler(struct thread_pool_t* pool)
 static void*
 thread_pool_worker(struct thread_pool_t* pool)
 {
+    __sync_fetch_and_add(&pool->num_active_threads, 1);
     thread_pool_worker_handler(pool);
+    __sync_fetch_and_sub(&pool->num_active_threads, 1);
     pthread_exit(NULL);
 }
 
 /* ------------------------------------------------------------------------- */
-static void
-thread_pool_init_pool(struct thread_pool_t* pool, uint32_t num_threads, uint32_t buffer_size_in_bytes)
+#ifdef ENABLE_RING_BUFFER_REALLOC
+static void*
+thread_pool_ring_buffer_realloc_thread(struct thread_pool_t* pool)
 {
-    char thread_self_str[sizeof(int)*8+3];
-    
-    sprintf(thread_self_str, "0x%lx", (intptr_t)pthread_self());
-    llog(LOG_INFO, NULL, 2, "Thread pool initialising on thread ", thread_self_str);
-    
-    memset(pool, 0, sizeof(struct thread_pool_t));
-    
-    /* init ring buffer (job queue) */
-    ring_buffer_init_buffer(&pool->rb, sizeof(struct thread_pool_job_t), buffer_size_in_bytes);
-    
-    /* initialise mutexes and conditional variables */
-    pthread_cond_init(&pool->cv, NULL);
-    pthread_mutex_init(&pool->mutex, NULL);
-    pthread_cond_init(&pool->realloc_cv, NULL);
-    
-    /* set number of threads to create - if num_threads is 0, set it to the number of CPU cores present */
-    if(num_threads)
-        pool->num_threads = num_threads;
-    else
-        pool->num_threads = get_number_of_cores();
-    
-    /* allocate buffer to store thread objects */
-    pool->thread = (pthread_t*)MALLOC(pool->num_threads * sizeof(pthread_t));
-    
-    /* launches all worker threads */
-    thread_pool_resume(pool);
-
-    /* 
-     * If ENABLE_RING_BUFFER_REALLOC is enabled, then the worker threads are
-     * launched from the reallocation thread. If this option is disabled,
-     * they can be launched from here directly.
+    /*
+     * Suspend this thread until a reallocation event occurs.
      */
+    pthread_mutex_lock(&pool->mutex);
+    while(pool->active)
     {
-        pthread_attr_t attr;
-
-        /* for portability, explicitely create threads in a joinable state */
-        pthread_attr_init(&attr);
-        pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
-        pthread_create(&pool->realloc_thread, &attr, (void*(*)(void*))thread_pool_ring_buffer_realloc_thread, pool);
-        pthread_attr_destroy(&attr);
+        pthread_cond_wait(&pool->realloc_cv, &pool->mutex);
+        if(!pool->active)
+            break;
+        
+        /* 
+         * Reallocation event received. The safest approach, although not that
+         * fast, is:
+         *  - shut down worker threads.
+         *  - realloc
+         *  - resume worker threads.
+         */
+        pthread_mutex_unlock(&pool->mutex);
+        thread_pool_suspend(pool);
+        /* expand by factor 2 */
+        ring_buffer_resize(&pool->rb, pool->rb.flg_buffer_size_in_bytes << 1);
+        thread_pool_resume(pool);
+        pthread_mutex_lock(&pool->mutex);
     }
+    
+    pthread_mutex_unlock(&pool->mutex);
+    pthread_exit(NULL);
 }
+#endif
 
 /* ------------------------------------------------------------------------- */
 /* LOCK FREE RING BUFFER IMPLEMENTATION */
-/* ------------------------------------------------------------------------- */
-
 /* ------------------------------------------------------------------------- */
 void
 ring_buffer_init_buffer(struct ring_buffer_t* rb, intptr_t element_size, uint32_t buffer_size_in_bytes)
@@ -409,11 +452,17 @@ ring_buffer_resize(struct ring_buffer_t* rb, intptr_t new_size)
     DATA_POINTER_TYPE* buffer;
     DATA_POINTER_TYPE* old_buffer;
     intptr_t buffer_size, old_buffer_size;
+    char new_size_str[sizeof(int)*8+3];
     
     /*
      * NOTE: Mutex should be locked at this point.
      */
-    char new_size_str[sizeof(int)*8+3];
+    
+    /* don't go over maximum buffer size */
+    if(new_size > (intptr_t)g_max_buf_size)
+        return;
+    
+    /* log */
     sprintf(new_size_str, "0x%lx", new_size);
     llog(LOG_INFO, NULL, 2, "Ring buffer resize: ", new_size_str);
     

@@ -10,6 +10,9 @@ typedef void (*thread_pool_job_func)(void*);
 LIGHTSHIP_UTIL_PUBLIC_API uint32_t
 get_number_of_cores();
 
+LIGHTSHIP_UTIL_PUBLIC_API void
+thread_pool_set_max_buffer_size(uint32_t maximum_buffer_size);
+
 LIGHTSHIP_UTIL_PUBLIC_API struct thread_pool_t*
 thread_pool_create(uint32_t num_threads, uint32_t buffer_size_in_bytes);
 
@@ -24,6 +27,9 @@ thread_pool_suspend(struct thread_pool_t* pool);
 
 LIGHTSHIP_UTIL_PUBLIC_API void
 thread_pool_resume(struct thread_pool_t* pool);
+
+LIGHTSHIP_UTIL_PUBLIC_API void
+thread_pool_wait_for_jobs(struct thread_pool_t* pool);
 
 #else /* ENABLE_THREAD_POOL */
 #   define get_number_of_cores() 1
