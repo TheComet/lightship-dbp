@@ -1,9 +1,50 @@
+/*!
+ * @file thread_pool_linux.c
+ * @brief Thread pool using a lock-free, dynamically resizable ring buffer
+ * implementation for job storage.
+ * 
+ * Overview of implementation
+ * ==========================
+ * 
+ * 
+ * Requirements, Design Decisions, Problems and Solutions Explained
+ * ================================================================
+ * 1. Requirements
+ * ------------
+ * A thread pool supporting a user defined number of threads. Inserting jobs
+ * must be thread safe and fast.
+ * 
+ * In order for jobs to be inserted and erased, an underlying thread safe
+ * container must be created in order to hold pending job objects.
+ * 
+ * Job objects hold a function pointer and a data pointer, making it possible
+ * for workers to call said functions with a single, user-defined argument.
+ * 
+ * 
+ * 2. Design Decisions
+ * ----------------
+ * Worker threads with nothing to do shall be suspended, freeing processing
+ * power. This will be achieved with condition variables.
+ * 
+ * The most optimal container to use for storing job objects is a ring buffer,
+ * since it fulfills the requirement of an ordered container, and it doesn't
+ * require for elements to be shifted around when inserting or deleting.
+ * 
+ * The ring buffer will utilise atomic operations where possible in order to
+ * speed up performance.
+ * 
+ * 
+ * 3. Problems and Solutions
+ * -------------------------
+ */
+
 #include "thread_pool/thread_pool.h"
 #include "util/log.h"
 #include "util/memory.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
 #include <pthread.h>
 
 #ifdef _WIN32
@@ -15,17 +56,16 @@
 #   include <unistd.h>
 #endif
 
+/* this constant can be configured in CMakeLists.txt */
 static uint32_t g_max_buf_size = RING_BUFFER_MAX_SIZE;
 
-typedef enum buffer_flags_e
-{
-    FLAG_FREE = 0,
-    FLAG_WRITE_IN_PROGRESS = 1,
-    FLAG_READ_ME = 2,
-    FLAG_READ_IN_PROGRESS = 3
-} buffer_flags_e;
-
 #define DATA_POINTER_TYPE unsigned char
+
+/*!
+ * @brief Ring buffer object.
+ * 
+ * 
+ */
 struct ring_buffer_t
 {
     intptr_t element_size;
@@ -35,6 +75,33 @@ struct ring_buffer_t
     DATA_POINTER_TYPE* obj_buffer;
     DATA_POINTER_TYPE* flg_buffer;
 };
+
+/*!
+ * @brief Flag buffer values.
+ * 
+ * Meaning:
+ * + FLAG_FREE              : The corresponding read/write position is empty.
+ *                            It is ready to accept data. Before writing data,
+ *                            the flag must be changed to FLAG_WRITE_IN_PROGRESS.
+ * + FLAG_WRITE_IN_PROGRESS : The corresponding read/write position is in the
+ *                            process of being written to. Once writing is
+ *                            finished, the flag must be changed to
+ *                            FLAG_READ_ME.
+ * + FLAG_READ_ME           : The corresponding read/write position contains
+ *                            data ready for reading. Before reading data, the
+ *                            flag must be changed to FLAG_READ_IN_PROGRESS.
+ * + FLAG_READ_IN_PROGRESS  : The corresponding read/write position is currently
+ *                            being read from. Once reading is complete, the
+ *                            flag must be changed back to FLAG_FREE so it can
+ *                            be written to again.
+ */
+typedef enum ring_buffer_flags_e
+{
+    FLAG_FREE = 0,
+    FLAG_WRITE_IN_PROGRESS = 1,
+    FLAG_READ_ME = 2,
+    FLAG_READ_IN_PROGRESS = 3
+} ring_buffer_flags_e;
 
 struct thread_pool_t
 {
@@ -56,22 +123,63 @@ struct thread_pool_job_t
     void* data;
 };
 
+/*!
+ * @brief Initialises the specified ring buffer object.
+ * @param rb The ring buffer object to initialise.
+ * @param element_size The size of the elements this ring buffer will be
+ * storing in bytes. One can pass the return value of sizeof().
+ * @param buffer_size_in_bytes The initial size of the ring buffer in bytes.
+ * If a value of 0 is specified, then the size of the buffer shall be
+ * initialised to RING_BUFFER_FIXED_SIZE. This value can be configured in
+ * CMakeLists.txt.
+ */
 static void
 ring_buffer_init_buffer(struct ring_buffer_t* rb, intptr_t element_size, uint32_t buffer_size_in_bytes);
 
+/*!
+ * @brief De-initialises the specified ring buffer object.
+ * @note Threads shall not access the ring buffer during or after this call.
+ * @param rb The ring buffer object to de-initialise.
+ */
 static void
-ring_buffer_free_contents(struct ring_buffer_t* rb);
+ring_buffer_deinit_buffer(struct ring_buffer_t* rb);
 
+/*!
+ * @brief Resizes the ring buffer to the specified size.
+ * @note Threads shall not access the ring buffer during this call.
+ * @param rb The ring buffer to resize.
+ * @param new_size Size in bytes to resize the buffer to.
+ */
 static void
 ring_buffer_resize(struct ring_buffer_t* rb, intptr_t new_size);
 
+/*!
+ * @brief This is the entry point for worker threads.
+ * @param pool The pool the launched thread should work for.
+ */
 static void*
 thread_pool_worker(struct thread_pool_t* pool);
 
+/*!
+ * @brief Initialises a thread pool object.
+ * 
+ * @note This includes launching all of the worker threads and realloc thread.
+ * @param pool The pool object to initialise.
+ * @param num_threads The number of worker threads to launch. This does not
+ * include the reallocation thread.
+ * @param buffer_size_in_bytes The initial size of the ring buffer in bytes.
+ * If a value of 0 is specified, then the size of the buffer shall be
+ * initialised to RING_BUFFER_FIXED_SIZE. This value can be configured in
+ * CMakeLists.txt.
+ */
 static void
 thread_pool_init_pool(struct thread_pool_t* pool, uint32_t num_threads, uint32_t buffer_size_in_bytes);
 
 #ifdef ENABLE_RING_BUFFER_REALLOC
+/*!
+ * @brief This is the entry point for the reallocation thread.
+ * @param pool The pool to reallocate for.
+ */
 static void*
 thread_pool_ring_buffer_realloc_thread(struct thread_pool_t* pool);
 #endif
@@ -142,7 +250,7 @@ thread_pool_destroy(struct thread_pool_t* pool)
 #endif
 
     /* clean up */
-    ring_buffer_free_contents(&pool->rb);
+    ring_buffer_deinit_buffer(&pool->rb);
     FREE(pool->thread);
     pthread_mutex_destroy(&pool->mutex);
     pthread_cond_destroy(&pool->cv);
@@ -201,7 +309,9 @@ thread_pool_queue(struct thread_pool_t* pool, thread_pool_job_func func, void* d
         /*
          * Signal reallocation thread.
          */
+        pthread_mutex_lock(&pool->mutex);
         pthread_cond_signal(&pool->realloc_cv);
+        pthread_mutex_unlock(&pool->mutex);
         
         return;
 #endif
@@ -219,7 +329,9 @@ thread_pool_queue(struct thread_pool_t* pool, thread_pool_job_func func, void* d
     __sync_bool_compare_and_swap(flag_buffer, FLAG_WRITE_IN_PROGRESS, FLAG_READ_ME);
     
     /* wake up a worker thread */
+    pthread_mutex_lock(&pool->mutex);
     pthread_cond_signal(&pool->cv);
+    pthread_mutex_unlock(&pool->mutex);
 }
 
 /* ------------------------------------------------------------------------- */
@@ -278,7 +390,7 @@ thread_pool_wait_for_jobs(struct thread_pool_t* pool)
     /* wake up a worker and wait for it to go back to sleep */
     pthread_mutex_lock(&pool->mutex);
     pthread_cond_signal(&pool->cv);
-    while(__sync_fetch_and_add(&pool->num_active_threads, 0))
+    while(pool->num_active_threads)
         pthread_cond_wait(&pool->job_finished_cv, &pool->mutex);
     pthread_mutex_unlock(&pool->mutex);
 }
@@ -352,23 +464,21 @@ thread_pool_worker_handler(struct thread_pool_t* pool)
         /* even if there is no data there, we can wait until there is */
         if(!__sync_bool_compare_and_swap(flag_buffer, FLAG_READ_ME, FLAG_READ_IN_PROGRESS))
         {
-            /* let everything know this thread is now inactive */
-            __sync_fetch_and_sub(&pool->num_active_threads, 1);
-            
             pthread_mutex_lock(&pool->mutex);
+            --pool->num_active_threads;
             pthread_cond_broadcast(&pool->job_finished_cv);
             while(!__sync_bool_compare_and_swap(flag_buffer, FLAG_READ_ME, FLAG_READ_IN_PROGRESS) && pool->active)
                 pthread_cond_wait(&pool->cv, &pool->mutex);
+            __sync_fetch_and_add(&pool->num_active_threads, 1);
             if(!pool->active)
             {
                 /* restore unprocessed job - required for suspend/resume */
                 __sync_fetch_and_sub(&pool->rb.read_pos, 1);
                 pthread_mutex_unlock(&pool->mutex);
-                __sync_fetch_and_add(&pool->num_active_threads, 1);
                 return;
             }
+            ++pool->num_active_threads;
             pthread_mutex_unlock(&pool->mutex);
-            __sync_fetch_and_add(&pool->num_active_threads, 1);
         }
 
         /* exec job and set flag to free once done */
@@ -382,9 +492,17 @@ thread_pool_worker_handler(struct thread_pool_t* pool)
 static void*
 thread_pool_worker(struct thread_pool_t* pool)
 {
-    __sync_fetch_and_add(&pool->num_active_threads, 1);
+    pthread_mutex_lock(&pool->mutex);
+    ++pool->num_active_threads;
+    pthread_mutex_unlock(&pool->mutex);
+    
     thread_pool_worker_handler(pool);
-    __sync_fetch_and_sub(&pool->num_active_threads, 1);
+    
+    pthread_mutex_lock(&pool->mutex);
+    --pool->num_active_threads;
+    pthread_cond_broadcast(&pool->job_finished_cv);
+    pthread_mutex_unlock(&pool->mutex);
+    
     pthread_exit(NULL);
 }
 
@@ -437,7 +555,7 @@ ring_buffer_init_buffer(struct ring_buffer_t* rb, intptr_t element_size, uint32_
 
 /* ------------------------------------------------------------------------- */
 void
-ring_buffer_free_contents(struct ring_buffer_t* rb)
+ring_buffer_deinit_buffer(struct ring_buffer_t* rb)
 {
     rb->flg_buffer_size_in_bytes = 0;
     FREE(rb->flg_buffer);
