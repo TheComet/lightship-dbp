@@ -284,6 +284,16 @@ do_thread_test()
     int64_t timer;
     
     thread_pool_set_max_buffer_size(0x40000000); /* 1 GB */
+    
+    pool = thread_pool_create(1, 0);
+    thread_pool_queue(pool, work6, NULL);
+    thread_pool_queue(pool, work6, NULL);
+    thread_pool_queue(pool, work6, NULL);
+    thread_pool_queue(pool, work6, NULL);
+    thread_pool_queue(pool, work6, NULL);
+    thread_pool_wait_for_jobs(pool);
+    thread_pool_destroy(pool);
+    return;
 
     puts("=======================================");
     puts("EMPTY TEST (10,000,000 x 1)");
