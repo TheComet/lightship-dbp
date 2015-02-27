@@ -391,8 +391,8 @@ do_thread_test()
     {
         int x, y;
         struct mandel_t m_b;
-        m_b.w = 1920;
-        m_b.h = 1080;
+        m_b.w = 100;
+        m_b.h = 100;
         m_b.pixel_buffer = malloc(m_b.w * m_b.h * 4);
         m_b.zoom = 1;
         m_b.moveX = -0.5;
