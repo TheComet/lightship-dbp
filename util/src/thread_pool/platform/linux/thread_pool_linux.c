@@ -59,6 +59,9 @@
 /* this constant can be configured in CMakeLists.txt */
 static uint32_t g_max_buf_size = RING_BUFFER_MAX_SIZE;
 
+#ifdef DATA_POINTER_TYPE
+#   undef DATA_POINTER_TYPE
+#endif
 #define DATA_POINTER_TYPE unsigned char
 
 /*!
@@ -297,6 +300,7 @@ thread_pool_queue(struct thread_pool_t* pool, thread_pool_job_func func, void* d
      */
     if(!__sync_bool_compare_and_swap(flag_buffer, FLAG_FREE, FLAG_WRITE_IN_PROGRESS))
     {
+        
 #ifdef ENABLE_RING_BUFFER_REALLOC
         /*
          * Since this thread has failed to insert the new job into the queue,
@@ -465,44 +469,58 @@ thread_pool_worker_handler(struct thread_pool_t* pool)
     struct thread_pool_job_t* job;
     intptr_t read_pos;
     DATA_POINTER_TYPE* flag_buffer;
+    ring_buffer_flags_e flag;
     
     while(__sync_fetch_and_add(&pool->active, 0))
     {
         /* get a unique read position in the buffer */
         read_pos = __sync_fetch_and_add(&pool->rb.read_pos, 1) % pool->rb.flg_buffer_size_in_bytes;
         flag_buffer = &(pool->rb.flg_buffer[read_pos]);
+        flag = __sync_fetch_and_add(flag_buffer, 0);
         
         /* even if there is no data there, we can wait until there is */
-        if(!__sync_bool_compare_and_swap(flag_buffer, FLAG_READ_ME, FLAG_READ_IN_PROGRESS))
+        if(flag == FLAG_READ_ME)
         {
-            /*
-             * This thread is going to sleep - if active thread counter reaches
-             * 0, signal threads waiting for all jobs to complete
-             */
-            pthread_mutex_lock(&pool->worker_mutex);
-            --pool->num_active_threads;
-            if(!pool->num_active_threads)
-                pthread_cond_broadcast(&pool->job_finished_cv);
-            /* don't unlock mutex here, see next comment */
-            
-            /* 
-             * Wait for wakeup signal.
-             * Wakeup should only occur if either the pool is shutting down,
-             * or a job is available. Go back to sleep if a wakeup flag was
-             * set by accident.
-             */
-            /* don't lock mutex, it's already locked */
-            while(__sync_fetch_and_add(&pool->active, 0) && !__sync_bool_compare_and_swap(flag_buffer, FLAG_READ_ME, FLAG_READ_IN_PROGRESS))
-                pthread_cond_wait(&pool->worker_wakeup_cv, &pool->worker_mutex);
-            ++pool->num_active_threads;
-            pthread_mutex_unlock(&pool->worker_mutex);
-            
-            /* if the pool is no longer active, don't process the job */
-            if(!__sync_fetch_and_add(&pool->active, 0))
+            __sync_bool_compare_and_swap(flag_buffer, FLAG_READ_ME, FLAG_READ_IN_PROGRESS);
+        }
+        else
+        {
+            if(flag == FLAG_WRITE_IN_PROGRESS)
             {
-                /* restore unprocessed job - required for suspend/resume */
-                __sync_fetch_and_sub(&pool->rb.read_pos, 1);
-                return;
+                /* spin lock until value has been written */
+                while(!__sync_bool_compare_and_swap(flag_buffer, FLAG_READ_ME, FLAG_READ_IN_PROGRESS));
+            }
+            else
+            {
+                /*
+                * This thread is going to sleep - if active thread counter reaches
+                * 0, signal threads waiting for all jobs to complete
+                */
+                pthread_mutex_lock(&pool->worker_mutex);
+                --pool->num_active_threads;
+                if(!pool->num_active_threads)
+                    pthread_cond_broadcast(&pool->job_finished_cv);
+                /* don't unlock mutex here, see next comment */
+                
+                /* 
+                * Wait for wakeup signal.
+                * Wakeup should only occur if either the pool is shutting down,
+                * or a job is available. Go back to sleep if a wakeup flag was
+                * set by accident.
+                */
+                /* don't lock mutex, it's already locked */
+                while(__sync_fetch_and_add(&pool->active, 0) && !__sync_bool_compare_and_swap(flag_buffer, FLAG_READ_ME, FLAG_READ_IN_PROGRESS))
+                    pthread_cond_wait(&pool->worker_wakeup_cv, &pool->worker_mutex);
+                ++pool->num_active_threads;
+                pthread_mutex_unlock(&pool->worker_mutex);
+                
+                /* if the pool is no longer active, don't process the job */
+                if(!__sync_fetch_and_add(&pool->active, 0))
+                {
+                    /* restore unprocessed job - required for suspend/resume */
+                    __sync_fetch_and_sub(&pool->rb.read_pos, 1);
+                    return;
+                }
             }
         }
         
