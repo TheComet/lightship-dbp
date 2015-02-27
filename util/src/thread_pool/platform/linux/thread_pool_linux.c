@@ -492,7 +492,7 @@ thread_pool_worker_handler(struct thread_pool_t* pool)
              * set by accident.
              */
             /* don't lock mutex, it's already locked */
-            while(pool->active && !__sync_bool_compare_and_swap(flag_buffer, FLAG_READ_ME, FLAG_READ_IN_PROGRESS))
+            while(__sync_fetch_and_add(&pool->active, 0) && !__sync_bool_compare_and_swap(flag_buffer, FLAG_READ_ME, FLAG_READ_IN_PROGRESS))
                 pthread_cond_wait(&pool->worker_wakeup_cv, &pool->worker_mutex);
             ++pool->num_active_threads;
             pthread_mutex_unlock(&pool->worker_mutex);
