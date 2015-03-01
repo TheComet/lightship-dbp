@@ -290,7 +290,7 @@ thread_pool_queue(struct thread_pool_t* pool, thread_pool_job_func func, void* d
     /* calculate relative address of where to store object in the object buffer */
     obj_ptr_offset = write_pos * pool->rb.element_size;
     /* cache flag buffer, it's used multiple times */
-    flag_buffer = &(pool->rb.flg_buffer[write_pos]);
+    flag_buffer = pool->rb.flg_buffer + write_pos;
     
     /* 
      * Set flag to "write in progress" in flag buffer.
@@ -298,7 +298,7 @@ thread_pool_queue(struct thread_pool_t* pool, thread_pool_job_func func, void* d
      * spinlock until one of the worker threads completes and frees a job, or
      * reallocate the ring buffer.
      */
-    if(!__sync_bool_compare_and_swap(flag_buffer, FLAG_FREE, FLAG_WRITE_IN_PROGRESS))
+    while(!__sync_bool_compare_and_swap(flag_buffer, FLAG_FREE, FLAG_WRITE_IN_PROGRESS))
     {
         
 #ifdef ENABLE_RING_BUFFER_REALLOC
@@ -418,6 +418,7 @@ thread_pool_init_pool(struct thread_pool_t* pool, uint32_t num_threads, uint32_t
     /* init ring buffer (job queue) */
     ring_buffer_init_buffer(&pool->rb, sizeof(struct thread_pool_job_t), buffer_size_in_bytes);
     
+    
     /* initialise mutexes and conditional variables */
 #ifdef ENABLE_RING_BUFFER_REALLOC
     pthread_cond_init(&pool->realloc_cv, NULL);
@@ -473,10 +474,13 @@ thread_pool_worker_handler(struct thread_pool_t* pool)
     
     while(__sync_fetch_and_add(&pool->active, 0))
     {
-        /* get a unique read position in the buffer */
+        /* get a unique read position in the buffer *
         read_pos = __sync_fetch_and_add(&pool->rb.read_pos, 1) % pool->rb.flg_buffer_size_in_bytes;
-        flag_buffer = &(pool->rb.flg_buffer[read_pos]);
-        flag = __sync_fetch_and_add(flag_buffer, 0);
+        flag_buffer = pool->rb.flg_buffer + read_pos;
+        flag = __sync_fetch_and_add(flag_buffer, 0);*/
+        pthread_mutex_lock(&pool->worker_mutex);
+        /* TODO insert and delete with mutexes instead of atomics */
+        pthread_mutex_unlock(&pool->worker_mutex);
         
         /* even if there is no data there, we can wait until there is */
         if(flag == FLAG_READ_ME)
@@ -493,9 +497,9 @@ thread_pool_worker_handler(struct thread_pool_t* pool)
             else
             {
                 /*
-                * This thread is going to sleep - if active thread counter reaches
-                * 0, signal threads waiting for all jobs to complete
-                */
+                 * This thread is going to sleep - if active thread counter reaches
+                 * 0, signal threads waiting for all jobs to complete
+                 */
                 pthread_mutex_lock(&pool->worker_mutex);
                 --pool->num_active_threads;
                 if(!pool->num_active_threads)
@@ -503,11 +507,11 @@ thread_pool_worker_handler(struct thread_pool_t* pool)
                 /* don't unlock mutex here, see next comment */
                 
                 /* 
-                * Wait for wakeup signal.
-                * Wakeup should only occur if either the pool is shutting down,
-                * or a job is available. Go back to sleep if a wakeup flag was
-                * set by accident.
-                */
+                 * Wait for wakeup signal.
+                 * Wakeup should only occur if either the pool is shutting down,
+                 * or a job is available. Go back to sleep if a wakeup flag was
+                 * set by accident.
+                 */
                 /* don't lock mutex, it's already locked */
                 while(__sync_fetch_and_add(&pool->active, 0) && !__sync_bool_compare_and_swap(flag_buffer, FLAG_READ_ME, FLAG_READ_IN_PROGRESS))
                     pthread_cond_wait(&pool->worker_wakeup_cv, &pool->worker_mutex);

@@ -191,9 +191,15 @@ void work5(void* p)
     }
 }
 
+#include <pthread.h>
+static int cnt = 0;
 void work6(void* p)
 {
-    puts("hi");
+    volatile int i;
+    printf("%d\n", __sync_fetch_and_add(&cnt, 1));
+    for(i = 0; i != 10; ++i)
+    {
+    }
 }
 
 struct depth_info_t
@@ -223,7 +229,6 @@ struct mandel_t
     double zoom, moveX, moveY;
     int max_iterations;
 };
-static int cnt = 0;
 void
 work_mandel(struct mandel_t* m)
 {
@@ -231,8 +236,6 @@ work_mandel(struct mandel_t* m)
     double newRe, newIm, oldRe, oldIm;
     int i;
     uint32_t* colourp;
-    
-    __sync_fetch_and_add(&cnt, 1);
     
     colourp = (uint32_t*)(m->pixel_buffer + (m->pos.x * m->h + m->pos.y));
 
@@ -286,7 +289,15 @@ do_thread_test()
     int64_t timer1, timer2;
     
     thread_pool_set_max_buffer_size(0x4000000); /* 1 GB */
-/*
+    
+    pool = thread_pool_create(0, 50);
+    for(i = 0; i != 10000; ++i)
+        thread_pool_queue(pool, work6, NULL);
+    thread_pool_wait_for_jobs(pool);
+    fprintf(stderr, "%d\n", cnt);
+    thread_pool_destroy(pool);
+    
+    /*
     puts("=======================================");
     puts("EMPTY TEST (10,000,000 x 1)");
     puts("=======================================");
@@ -381,7 +392,7 @@ do_thread_test()
     printf("insertion time (ms): %ld\n", (int64_t)((get_time_in_microseconds() - timer1) * 0.001));
     thread_pool_wait_for_jobs(pool);
     printf("job time (ms): %ld\n", (int64_t)((get_time_in_microseconds() - timer2) * 0.001));
-    thread_pool_destroy(pool);*/
+    thread_pool_destroy(pool);*
     
     puts("=======================================");
     puts("CALCULATING MANDELBROT (1920x1080, maxiter=10000");
@@ -415,7 +426,7 @@ do_thread_test()
         printf("%d\n", cnt);
         free(m_b.pixel_buffer);
     }
-    thread_pool_destroy(pool);
+    thread_pool_destroy(pool);*/
 }
 
 int
