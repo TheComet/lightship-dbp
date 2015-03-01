@@ -202,7 +202,7 @@ memory_deinit(void)
     printf("=========================================\n");
     ++allocations; /* this is the single allocation still held by the report vector */
     ignore_map_malloc = 1;
-    map_clear(&report);
+    map_clear_free(&report);
 }
 #else /* ENABLE_MEMORY_REPORT */
 
