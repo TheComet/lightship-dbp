@@ -27,31 +27,9 @@ static struct game_t* g_local_game = NULL;
 
 typedef void (*start_loop_func)(void);
 
-void
-init(void)
+char load_core_plugins()
 {
     struct plugin_info_t target;
-    
-    /*
-     * Enable logging as soon as possible
-     */
-    llog_init();
-    
-    /*
-     * Create the local game instance. This is the context that holds all
-     * plugins, services, and events together.
-     */
-    g_local_game = game_create("localhost");
-    if(!g_local_game)
-        return;
-    
-    /*
-     * Services and events should be initialised before anything else, as they
-     * register built-in mechanics that are required throughout the rest of the
-     * program (such as the log event).
-     */
-    services_init(g_local_game);
-    events_init(g_local_game);
     
     /*!
      * Load the YAML plugin. This is required so the plugin manager can parse
@@ -64,11 +42,11 @@ init(void)
     target.version.patch = 1;
     g_plugin_yaml = plugin_load(g_local_game, &target, PLUGIN_VERSION_MINIMUM);
     if(!g_plugin_yaml)
-        return;
+        return 0;
     if(plugin_start(g_local_game, g_plugin_yaml) == PLUGIN_FAILURE)
     {
         llog(LOG_FATAL, NULL, 1, "Failed to start YAML plugin");
-        return;
+        return 0;
     }
 
     /*
@@ -77,8 +55,48 @@ init(void)
     if(!load_plugins_from_yaml(g_local_game, yml_core_plugins))
     {
         llog(LOG_FATAL, NULL, 1, "Couldn't start all core plugins");
-        return;
+        return 0;
     }
+    
+    return 1;
+}
+
+char
+init(void)
+{
+    /*
+     * Enable logging as soon as possible
+     */
+    llog_init();
+    
+    /*
+     * Create the local game instance. This is the context that holds all
+     * plugins, services, and events together.
+     */
+    g_local_game = game_create("localhost");
+    if(!g_local_game)
+        return 0;
+    
+    /*
+     * Services and events should be initialised before anything else, as they
+     * register built-in mechanics that are required throughout the rest of the
+     * program (such as the log event).
+     */
+    services_init(g_local_game);
+    events_init(g_local_game);
+    
+    /*
+     * Load and start the core plugins specified in the plugins YAML file.
+     */
+    if(!load_core_plugins())
+        return 0;
+    
+    return 1;
+}
+
+void
+run_game()
+{
 
     /* 
      * Try to get the main loop service and start running the game
@@ -119,15 +137,15 @@ init(void)
             struct menu_t;
             struct menu_t* menu;
             struct service_t* menu_load_service = service_get(g_local_game, "menu.load");
-            struct service_t* menu_destroy_service = service_get(g_local_game, "menu.destroy");
+            struct service_t* menu_destroy_service = service_get(g_local_game, "menu.destroy");/*
 #ifdef _DEBUG
             const char* menu_file_name = "../../plugins/core/menu/cfg/menu.yml";
 #else
             const char* menu_file_name = "cfg/menu.yml";
 #endif
-            SERVICE_CALL1(menu_load_service, &menu, PTR(menu_file_name));
+            SERVICE_CALL1(menu_load_service, &menu, PTR(menu_file_name));*/
             SERVICE_CALL0(start, SERVICE_NO_RETURN);
-            SERVICE_CALL1(menu_destroy_service, SERVICE_NO_RETURN, PTR(menu));
+            /*SERVICE_CALL1(menu_destroy_service, SERVICE_NO_RETURN, PTR(menu));*/
         }
     
     }
@@ -221,7 +239,7 @@ work_mandel(struct mandel_t* m)
     int i;
     uint32_t* colourp;
     
-    colourp = (uint32_t*)(m->pixel_buffer + (m->pos.x * m->h + m->pos.y));
+    colourp = (uint32_t*)m->pixel_buffer + (m->pos.y * m->w + m->pos.x);
 
     /* 
      * calculate the initial real and imaginary part of z, based on
@@ -248,12 +266,12 @@ work_mandel(struct mandel_t* m)
     }
     
     if(i == m->max_iterations)
-        *colourp = 0x00000000; /* black */
+        *colourp = 0xFF000000; /* black */
     else
     {
         double z = sqrt(newRe * newRe + newIm * newIm);
         int brightness = 255. * log2(1.75 + i - log2(log2(z))) / log2((double)m->max_iterations);
-        *colourp = (brightness << 16) | (brightness << 8) | 0xFF;
+        *colourp = 0xFF000000 | (brightness << 16) | (brightness << 8);
     }
     
     free(m);
@@ -267,7 +285,7 @@ do_thread_test()
     int64_t timer1, timer2;
     
     thread_pool_set_max_buffer_size(0x4000000); /* 1 GB */
-/*
+
     puts("=======================================");
     puts("EMPTY TEST (1,000,000 x 1)");
     puts("=======================================");
@@ -350,18 +368,18 @@ do_thread_test()
     printf("insertion time (ms): %ld\n", (int64_t)((get_time_in_microseconds() - timer1) * 0.001));
     thread_pool_wait_for_jobs(pool);
     printf("job time (ms): %ld\n", (int64_t)((get_time_in_microseconds() - timer2) * 0.001));
-    thread_pool_destroy(pool);*/
+    thread_pool_destroy(pool);
     
     puts("=======================================");
-    puts("CALCULATING MANDELBROT (1920x1080, maxiter=10000");
+    puts("CALCULATING MANDELBROT (1536x1536, maxiter=10000");
     puts("=======================================");
     pool = thread_pool_create(0, 1000000);
     timer1 = timer2 = get_time_in_microseconds();
     {
         int x, y;
         struct mandel_t m_b;
-        m_b.w = 1920;
-        m_b.h = 1080;
+        m_b.w = 1536;
+        m_b.h = 1536;
         m_b.pixel_buffer = malloc(m_b.w * m_b.h * 4);
         m_b.zoom = 1;
         m_b.moveX = -0.5;
@@ -381,6 +399,44 @@ do_thread_test()
         printf("insertion time (ms): %ld\n", (int64_t)((get_time_in_microseconds() - timer1) * 0.001));
         thread_pool_wait_for_jobs(pool);
         printf("job time (ms): %ld\n", (int64_t)((get_time_in_microseconds() - timer2) * 0.001));
+        
+        init();
+        {
+            uint16_t one = 1;
+            uint32_t sprite;
+            uint32_t font_id, text_id;
+            char text_centered = 1;
+            uint32_t text_size = 20;
+            float text_pos_x = 0;
+            float text_pos_y = 0.8;
+            SERVICE_CALL_NAME6(g_local_game,
+                            "renderer_gl.sprite_create_from_memory",
+                            &sprite,
+                            PTR(m_b.pixel_buffer),
+                            m_b.w, m_b.h,
+                            one, one, one
+                            );
+            SERVICE_CALL_NAME2(g_local_game,
+                               "renderer_gl.text_group_create",
+                               &font_id,
+                               "../../plugins/core/menu/ttf/DejaVuSans.ttf",
+                               text_size);
+            SERVICE_CALL_NAME2(g_local_game,
+                               "renderer_gl.text_group_load_character_set",
+                               SERVICE_NO_RETURN,
+                               font_id,
+                               PTR(NULL));
+            SERVICE_CALL_NAME5(g_local_game,
+                               "renderer_gl.text_create",
+                               &text_id,
+                               font_id,
+                               text_centered,
+                               text_pos_x, text_pos_y,
+                               L"Close Window to Exit");
+        }
+        run_game();
+        deinit();
+        
         free(m_b.pixel_buffer);
     }
     thread_pool_destroy(pool);

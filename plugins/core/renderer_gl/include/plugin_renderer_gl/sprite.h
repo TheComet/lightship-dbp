@@ -44,7 +44,20 @@ void
 sprite_deinit(void);
 
 struct sprite_t*
-sprite_create(const char* file_name, uint16_t x_frame_count, uint16_t y_frame_count, uint16_t total_frame_count, uint32_t* id);
+sprite_create(const char* file_name,
+              uint16_t x_frame_count,
+              uint16_t y_frame_count,
+              uint16_t total_frame_count,
+              uint32_t* id);
+
+struct sprite_t*
+sprite_create_from_memory(const unsigned char* pixel_buffer,
+                          uint16_t img_width,
+                          uint16_t img_height,
+                          uint16_t x_frame_count,
+                          uint16_t y_frame_count,
+                          uint16_t total_frame_count,
+                          uint32_t* id);
 
 void
 sprite_destroy(struct sprite_t* sprite);
@@ -80,6 +93,7 @@ void
 sprite_draw(void);
 
 SERVICE(sprite_create_wrapper);
+SERVICE(sprite_create_from_memory_wrapper);
 SERVICE(sprite_destroy_wrapper);
 SERVICE(sprite_position_wrapper);
 SERVICE(sprite_scale_wrapper);

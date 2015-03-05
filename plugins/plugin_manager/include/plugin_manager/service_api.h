@@ -133,6 +133,16 @@ typedef void (*service_callback_func)(struct service_t* service, void* ret, cons
             service_internal_argv[4] = &arg5;                                                   \
             ((struct service_t*)service)->exec(service, ret_value, service_internal_argv);      \
         } while(0)
+#define SERVICE_CALL6(service, ret_value, arg1, arg2, arg3, arg4, arg5, arg6) do {              \
+            const void* service_internal_argv[6];                                               \
+            service_internal_argv[0] = &arg1;                                                   \
+            service_internal_argv[1] = &arg2;                                                   \
+            service_internal_argv[2] = &arg3;                                                   \
+            service_internal_argv[3] = &arg4;                                                   \
+            service_internal_argv[4] = &arg5;                                                   \
+            service_internal_argv[5] = &arg6;                                                   \
+            ((struct service_t*)service)->exec(service, ret_value, service_internal_argv);      \
+        } while(0)
 
 #define SERVICE_INTERNAL_GET_AND_CHECK(game, service_name)                                      \
         struct service_t* service_internal_service = service_get(game, service_name);           \
@@ -163,6 +173,10 @@ typedef void (*service_callback_func)(struct service_t* service, void* ret, cons
 #define SERVICE_CALL_NAME5(game, service_name, ret_value, arg1, arg2, arg3, arg4, arg5) do {    \
             SERVICE_INTERNAL_GET_AND_CHECK(game, service_name)                                  \
             SERVICE_CALL5(service_internal_service, ret_value, arg1, arg2, arg3, arg4, arg5);   \
+        } while(0)
+#define SERVICE_CALL_NAME6(game, service_name, ret_value, arg1, arg2, arg3, arg4, arg5, arg6) do {  \
+            SERVICE_INTERNAL_GET_AND_CHECK(game, service_name)                                      \
+            SERVICE_CALL6(service_internal_service, ret_value, arg1, arg2, arg3, arg4, arg5, arg6); \
         } while(0)
 
 /* XXX STRINGIFY(TYPEOF(x)) doesn't do what you think it does. *
@@ -216,6 +230,11 @@ typedef void (*service_callback_func)(struct service_t* service, void* ret, cons
             const char* ret = STRINGIFY(ret_type);                                                                      \
             const char* argv[] = {STRINGIFY(arg1), STRINGIFY(arg2), STRINGIFY(arg3), STRINGIFY(arg4), STRINGIFY(arg5)}; \
             service_register(game, plugin, service_name, callback, ret, 5, argv);                                       \
+        } while(0)
+#define SERVICE_REGISTER6(game, plugin, service_name, callback, ret_type, arg1, arg2, arg3, arg4, arg5, arg6) do {            \
+            const char* ret = STRINGIFY(ret_type);                                                                      \
+            const char* argv[] = {STRINGIFY(arg1), STRINGIFY(arg2), STRINGIFY(arg3), STRINGIFY(arg4), STRINGIFY(arg5), STRINGIFY(arg6)}; \
+            service_register(game, plugin, service_name, callback, ret, 6, argv);                                       \
         } while(0)
 /*
 #define SERVICE_REGISTER6(game, plugin, service_name, callback, ret_type, arg1, arg2, arg3, arg4, arg5, arg6) do {                      \
