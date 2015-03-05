@@ -1,5 +1,6 @@
 #include "plugin_renderer_gl/services.h"
 #include "plugin_renderer_gl/2d.h"
+#include "plugin_renderer_gl/sprite.h"
 #include "plugin_renderer_gl/text_wrapper.h"
 #include "plugin_renderer_gl/text_manager.h"
 #include "plugin_renderer_gl/text.h"
@@ -18,7 +19,11 @@ register_services(struct game_t* game, struct plugin_t* plugin)
     SERVICE_REGISTER1(game, plugin, "shapes_2d_destroy",              shapes_2d_destroy_wrapper, void, uint32_t);
     SERVICE_REGISTER1(game, plugin, "shapes_2d_show",                 shapes_show_wrapper, void, uint32_t);
     SERVICE_REGISTER1(game, plugin, "shapes_2d_hide",                 shapes_hide_wrapper, void, uint32_t);
-
+    
+    SERVICE_REGISTER4(game, plugin, "sprite_create",                  sprite_create_wrapper, uint32_t, char*, uint16_t, uint16_t, uint16_t);
+    SERVICE_REGISTER6(game, plugin, "sprite_create_from_memory",      sprite_create_from_memory_wrapper, uint32_t, unsigned char*, uint16_t, uint16_t, uint16_t, uint16_t, uint16_t);
+    SERVICE_REGISTER1(game, plugin, "sprite_destroy",                 sprite_destroy_wrapper, void, uint32_t);
+    
     SERVICE_REGISTER2(game, plugin, "text_group_create",              text_group_create_wrapper, uint32_t, const char*, uint32_t);
     SERVICE_REGISTER1(game, plugin, "text_group_destroy",             text_group_destroy_wrapper, void, uint32_t);
     SERVICE_REGISTER2(game, plugin, "text_group_load_character_set",  text_group_load_character_set_wrapper, void, uint32_t, const wchar_t*);

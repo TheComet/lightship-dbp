@@ -77,10 +77,14 @@ sprite_deinit(void)
 
 /* ------------------------------------------------------------------------- */
 struct sprite_t*
-sprite_create(const char* file_name, uint16_t x_frame_count, uint16_t y_frame_count, uint16_t total_frame_count, uint32_t* id)
+sprite_create(const char* file_name,
+              uint16_t x_frame_count,
+              uint16_t y_frame_count,
+              uint16_t total_frame_count,
+              uint32_t* id)
 {
+    unsigned char* pixel_buffer;
     int x, y, n;
-    unsigned char* data;
     struct sprite_t* sprite;
     
     assert(file_name);
@@ -89,12 +93,35 @@ sprite_create(const char* file_name, uint16_t x_frame_count, uint16_t y_frame_co
     assert(total_frame_count >= 1);
 
     /* force 4 channel data for easy texture upload */
-    data = stbi_load(file_name, &x, &y, &n, 4);
-    if(!data)
+    pixel_buffer = stbi_load(file_name, &x, &y, &n, 4);
+    if(!pixel_buffer)
     {
         llog(LOG_ERROR, PLUGIN_NAME, 3, "Failed to load image: \"", file_name, "\"");
         return NULL;
     }
+    
+    sprite = sprite_create_from_memory(pixel_buffer, x, y, x_frame_count, y_frame_count, total_frame_count, id);
+    stbi_image_free(pixel_buffer);
+    
+    return sprite;
+}
+
+/* ------------------------------------------------------------------------- */
+struct sprite_t*
+sprite_create_from_memory(const unsigned char* pixel_buffer,
+                          uint16_t img_width,
+                          uint16_t img_height,
+                          uint16_t x_frame_count,
+                          uint16_t y_frame_count,
+                          uint16_t total_frame_count,
+                          uint32_t* id)
+{
+    struct sprite_t* sprite;
+    
+    assert(pixel_buffer);
+    assert(x_frame_count >= 1);
+    assert(y_frame_count >= 1);
+    assert(total_frame_count >= 1);
     
     /* create and set up sprite object */
     sprite = (struct sprite_t*)MALLOC(sizeof(struct sprite_t));
@@ -105,8 +132,8 @@ sprite_create(const char* file_name, uint16_t x_frame_count, uint16_t y_frame_co
     sprite->animation.state = SPRITE_ANIMATION_STOP;
     sprite->animation.frame_b = total_frame_count;
     sprite->animation.total_frame_count = total_frame_count;
-    sprite->aspect_ratio = (float)x / (float)y;
-    if(x > y)
+    sprite->aspect_ratio = (float)img_width / (float)img_height;
+    if(img_width > img_height)
     {
         sprite->size.x = 1.0;
         sprite->size.y = sprite->size.x / sprite->aspect_ratio;
@@ -123,11 +150,9 @@ sprite_create(const char* file_name, uint16_t x_frame_count, uint16_t y_frame_co
     /* create GL texture and hand over pixel data */
     glGenTextures(1, &sprite->gl.tex);printOpenGLError();
     glBindTexture(GL_TEXTURE_2D, sprite->gl.tex);printOpenGLError();
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, x, y, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);printOpenGLError();
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, img_width, img_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixel_buffer);printOpenGLError();
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);printOpenGLError();
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);printOpenGLError();
-    
-    stbi_image_free(data);
     
     return sprite;
 }
@@ -228,11 +253,40 @@ sprite_draw(void)
 /* ------------------------------------------------------------------------- */
 SERVICE(sprite_create_wrapper)
 {
+    SERVICE_EXTRACT_ARGUMENT_PTR(0, file_name, const char*);
+    SERVICE_EXTRACT_ARGUMENT(1, x_frame_count, uint16_t, uint16_t);
+    SERVICE_EXTRACT_ARGUMENT(2, y_frame_count, uint16_t, uint16_t);
+    SERVICE_EXTRACT_ARGUMENT(3, total_frame_count, uint16_t, uint16_t);
+    uint32_t id;
+    
+    if(sprite_create(file_name, x_frame_count, y_frame_count, total_frame_count, &id))
+        SERVICE_RETURN(id, uint32_t);
+    SERVICE_RETURN(0, uint32_t);
+}
+
+/* ------------------------------------------------------------------------- */
+SERVICE(sprite_create_from_memory_wrapper)
+{
+    SERVICE_EXTRACT_ARGUMENT_PTR(0, pixel_buffer, const unsigned char*);
+    SERVICE_EXTRACT_ARGUMENT(1, img_width, uint16_t, uint16_t);
+    SERVICE_EXTRACT_ARGUMENT(2, img_height, uint16_t, uint16_t);
+    SERVICE_EXTRACT_ARGUMENT(3, x_frame_count, uint16_t, uint16_t);
+    SERVICE_EXTRACT_ARGUMENT(4, y_frame_count, uint16_t, uint16_t);
+    SERVICE_EXTRACT_ARGUMENT(5, total_frame_count, uint16_t, uint16_t);
+    uint32_t id;
+    
+    if(sprite_create_from_memory(pixel_buffer, img_width, img_height, x_frame_count, y_frame_count, total_frame_count, &id))
+        SERVICE_RETURN(id, uint32_t);
+    SERVICE_RETURN(0, uint32_t);
 }
 
 /* ------------------------------------------------------------------------- */
 SERVICE(sprite_destroy_wrapper)
 {
+    SERVICE_EXTRACT_ARGUMENT(0, id, uint32_t, uint32_t);
+    struct sprite_t* sprite = map_find(&g_sprites, id);
+    if(sprite)
+        sprite_destroy(sprite);
 }
 
 /* ------------------------------------------------------------------------- */
