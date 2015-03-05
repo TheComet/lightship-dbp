@@ -33,6 +33,6 @@ thread_pool_wait_for_jobs(struct thread_pool_t* pool);
 
 #else /* ENABLE_THREAD_POOL */
 #   define get_number_of_cores() 1
-#   define thread_pool_create(x) (struct thread_pool_t*)1;
+#   define thread_pool_create(x) (struct thread_pool_t*) 1;
 #   define thread_pool_destroy(x)
 #endif /* ENABLE_THREAD_POOL */

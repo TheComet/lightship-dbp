@@ -191,22 +191,6 @@ void work5(void* p)
     }
 }
 
-#include <pthread.h>
-static int cnt = 0;
-void work6(void* p)
-{
-    volatile int i;
-    printf("%d\n", __sync_fetch_and_add(&cnt, 1));
-    for(i = 0; i != 10; ++i)
-    {
-    }
-}
-
-struct depth_info_t
-{
-    struct thread_pool_t* pool;
-};
-
 void work_recurse(struct thread_pool_t* pool)
 {
     volatile int i;
@@ -276,12 +260,6 @@ work_mandel(struct mandel_t* m)
 }
 
 void
-mandel_wrapper(struct thread_pool_t* pool)
-{
-    
-}
-
-void
 do_thread_test()
 {
     int i;
@@ -289,19 +267,11 @@ do_thread_test()
     int64_t timer1, timer2;
     
     thread_pool_set_max_buffer_size(0x4000000); /* 1 GB */
-    
-    pool = thread_pool_create(0, 50);
-    for(i = 0; i != 10000; ++i)
-        thread_pool_queue(pool, work6, NULL);
-    thread_pool_wait_for_jobs(pool);
-    fprintf(stderr, "%d\n", cnt);
-    thread_pool_destroy(pool);
-    
-    /*
+/*
     puts("=======================================");
-    puts("EMPTY TEST (10,000,000 x 1)");
+    puts("EMPTY TEST (1,000,000 x 1)");
     puts("=======================================");
-    pool = thread_pool_create(0, 0);
+    pool = thread_pool_create(0, 1000000);
     timer1 = timer2 = get_time_in_microseconds();
     for(i = 0; i != 1000000; ++i)
         thread_pool_queue(pool, work_empty, NULL);
@@ -311,9 +281,9 @@ do_thread_test()
     thread_pool_destroy(pool);
     
     puts("=======================================");
-    puts("LOAD TEST 1 (10,000,000 x 10)");
+    puts("LOAD TEST 1 (1,000,000 x 10)");
     puts("=======================================");
-    pool = thread_pool_create(0, 0);
+    pool = thread_pool_create(0, 1000000);
     timer1 = timer2 = get_time_in_microseconds();
     for(i = 0; i != 1000000; ++i)
         thread_pool_queue(pool, work1, NULL);
@@ -323,9 +293,9 @@ do_thread_test()
     thread_pool_destroy(pool);
     
     puts("=======================================");
-    puts("LOAD TEST 2 (10,000,000 x 100)");
+    puts("LOAD TEST 2 (1,000,000 x 100)");
     puts("=======================================");
-    pool = thread_pool_create(0, 0);
+    pool = thread_pool_create(0, 1000000);
     timer1 = timer2 = get_time_in_microseconds();
     for(i = 0; i != 1000000; ++i)
         thread_pool_queue(pool, work2, NULL);
@@ -335,23 +305,11 @@ do_thread_test()
     thread_pool_destroy(pool);
     
     puts("=======================================");
-    puts("THREAD POOL LOAD TEST 3.1 (10,000,000 x 1,000)");
+    puts("LOAD TEST 3 (1,000,000 x 1,000)");
     puts("=======================================");
-    pool = thread_pool_create(0, 0);
+    pool = thread_pool_create(0, 1000000);
     timer1 = timer2 = get_time_in_microseconds();
-    for(i = 0; i != 10000000; ++i)
-        thread_pool_queue(pool, work3, NULL);
-    printf("insertion time (ms): %ld\n", (int64_t)((get_time_in_microseconds() - timer1) * 0.001));
-    thread_pool_wait_for_jobs(pool);
-    printf("job time (ms): %ld\n", (int64_t)((get_time_in_microseconds() - timer2) * 0.001));
-    thread_pool_destroy(pool);
-    
-    puts("=======================================");
-    puts("LOAD TEST 3.2 (prealloc) (10,000,000 x 1,000)");
-    puts("=======================================");
-    pool = thread_pool_create(0, 0x8000000);
-    timer1 = timer2 = get_time_in_microseconds();
-    for(i = 0; i != 10000000; ++i)
+    for(i = 0; i != 1000000; ++i)
         thread_pool_queue(pool, work3, NULL);
     printf("insertion time (ms): %ld\n", (int64_t)((get_time_in_microseconds() - timer1) * 0.001));
     thread_pool_wait_for_jobs(pool);
@@ -361,7 +319,7 @@ do_thread_test()
     puts("=======================================");
     puts("LOAD TEST 4 (1,000,000 x 10,000)");
     puts("=======================================");
-    pool = thread_pool_create(0, 0);
+    pool = thread_pool_create(0, 1000000);
     timer1 = timer2 = get_time_in_microseconds();
     for(i = 0; i != 1000000; ++i)
         thread_pool_queue(pool, work4, NULL);
@@ -371,11 +329,11 @@ do_thread_test()
     thread_pool_destroy(pool);
     
     puts("=======================================");
-    puts("LOAD TEST 5 (1,000,000 x 100,000)");
+    puts("LOAD TEST 5 (100,000 x 100,000)");
     puts("=======================================");
-    pool = thread_pool_create(0, 1000001);
+    pool = thread_pool_create(0, 1000000);
     timer1 = timer2 = get_time_in_microseconds();
-    for(i = 0; i != 1000000; ++i)
+    for(i = 0; i != 100000; ++i)
         thread_pool_queue(pool, work5, NULL);
     printf("insertion time (ms): %ld\n", (int64_t)((get_time_in_microseconds() - timer1) * 0.001));
     thread_pool_wait_for_jobs(pool);
@@ -385,25 +343,25 @@ do_thread_test()
     puts("=======================================");
     puts("RECURSIVE INSERT (1000^2)");
     puts("=======================================");
-    pool = thread_pool_create(0, 0);
+    pool = thread_pool_create(0, 1000000);
     timer1 = timer2 = get_time_in_microseconds();
     for(i = 0; i != 1000; ++i)
         thread_pool_queue(pool, (void(*)(void*))work_recurse, pool);
     printf("insertion time (ms): %ld\n", (int64_t)((get_time_in_microseconds() - timer1) * 0.001));
     thread_pool_wait_for_jobs(pool);
     printf("job time (ms): %ld\n", (int64_t)((get_time_in_microseconds() - timer2) * 0.001));
-    thread_pool_destroy(pool);*
+    thread_pool_destroy(pool);*/
     
     puts("=======================================");
     puts("CALCULATING MANDELBROT (1920x1080, maxiter=10000");
     puts("=======================================");
-    pool = thread_pool_create(0, 0);
+    pool = thread_pool_create(0, 1000000);
     timer1 = timer2 = get_time_in_microseconds();
     {
         int x, y;
         struct mandel_t m_b;
-        m_b.w = 100;
-        m_b.h = 100;
+        m_b.w = 1920;
+        m_b.h = 1080;
         m_b.pixel_buffer = malloc(m_b.w * m_b.h * 4);
         m_b.zoom = 1;
         m_b.moveX = -0.5;
@@ -423,10 +381,9 @@ do_thread_test()
         printf("insertion time (ms): %ld\n", (int64_t)((get_time_in_microseconds() - timer1) * 0.001));
         thread_pool_wait_for_jobs(pool);
         printf("job time (ms): %ld\n", (int64_t)((get_time_in_microseconds() - timer2) * 0.001));
-        printf("%d\n", cnt);
         free(m_b.pixel_buffer);
     }
-    thread_pool_destroy(pool);*/
+    thread_pool_destroy(pool);
 }
 
 int
