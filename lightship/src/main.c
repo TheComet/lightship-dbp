@@ -270,7 +270,7 @@ work_mandel(struct mandel_t* m)
     else
     {
         double z = sqrt(newRe * newRe + newIm * newIm);
-        int brightness = 255. * log2(1.75 + i - log2(log2(z))) / log2((double)m->max_iterations);
+        int brightness = 255. * log2(1.75 + i*5 - log2(log2(z))) / log2((double)m->max_iterations);
         *colourp = 0xFF000000 | (brightness << 16) | (brightness << 8);
     }
     
@@ -406,16 +406,15 @@ do_thread_test()
             uint32_t sprite;
             uint32_t font_id, text_id;
             char text_centered = 1;
-            uint32_t text_size = 20;
+            uint32_t text_size = 9;
             float text_pos_x = 0;
             float text_pos_y = 0.8;
             SERVICE_CALL_NAME6(g_local_game,
-                            "renderer_gl.sprite_create_from_memory",
-                            &sprite,
-                            PTR(m_b.pixel_buffer),
-                            m_b.w, m_b.h,
-                            one, one, one
-                            );
+                               "renderer_gl.sprite_create_from_memory",
+                               &sprite,
+                               PTR(m_b.pixel_buffer),
+                               m_b.w, m_b.h,
+                               one, one, one);
             SERVICE_CALL_NAME2(g_local_game,
                                "renderer_gl.text_group_create",
                                &font_id,
