@@ -45,7 +45,11 @@ list_clear(struct list_t* list)
 void
 list_push(struct list_t* list, void* data)
 {
-    struct list_node_t* node = (struct list_node_t*)MALLOC(sizeof(struct list_node_t));
+    struct list_node_t* node;
+    node = (struct list_node_t*)MALLOC(sizeof(struct list_node_t));
+    if(!node)
+        OUT_OF_MEMORY("list_push()", RETURN_NOTHING);
+    
     /* first element being inserted, set tail */
     if(!list->head)
         list->tail = node;

@@ -77,69 +77,32 @@ free_string(void* ptr)
 void
 stdout_strings(uint32_t num_strs, ...)
 {
-    uint32_t total_length = 0;
     uint32_t i;
-    char* buffer;
     va_list ap;
     
     assert(num_strs);
-
-    /* compute total length of all strings combined and allocate a buffer able
-     * to contain all strings plus a null terminator */
+    
     va_start(ap, num_strs);
     for(i = 0; i != num_strs; ++i)
-        total_length += safe_strlen(va_arg(ap, char*));
+        fprintf(stdout, "%s", va_arg(ap, char*));
+    fprintf(stdout, "\n");
     va_end(ap);
-
-    
-    buffer = (char*)MALLOC((total_length+1) * sizeof(char));
-    if(!buffer)
-        OUT_OF_MEMORY("stdout_strings()", RETURN_NOTHING);
-    
-    /* concatenate all strings into the allocated buffer */
-    va_start(ap, num_strs);
-    safe_strcpy(buffer, va_arg(ap, char*));
-    for(i = 1; i < num_strs; ++i)
-        safe_strcat(buffer, va_arg(ap, char*));
-    va_end(ap);
-
-    /* print to stdout and clean up */
-    fprintf(stdout, "%s\n", buffer);
-    FREE(buffer);
 }
 
 /* ------------------------------------------------------------------------- */
 void
 stderr_strings(uint32_t num_strs, ...)
 {
-    uint32_t total_length = 0;
     uint32_t i;
-    char* buffer;
     va_list ap;
     
     assert(num_strs);
     
-    /* compute total length of all strings combined and allocate a buffer able
-     * to contain all strings plus a null terminator */
     va_start(ap, num_strs);
     for(i = 0; i != num_strs; ++i)
-        total_length += safe_strlen(va_arg(ap, char*));
+        fprintf(stdout, "%s", va_arg(ap, char*));
+    fprintf(stdout, "\n");
     va_end(ap);
-    
-    buffer = (char*)MALLOC((total_length+1) * sizeof(char));
-    if(!buffer)
-        OUT_OF_MEMORY("stderr_strings()", RETURN_NOTHING);
-    
-    /* concatenate all strings into the allocated buffer */
-    va_start(ap, num_strs);
-    safe_strcpy(buffer, va_arg(ap, char*));
-    for(i = 1; i < num_strs; ++i)
-        safe_strcat(buffer, va_arg(ap, char*));
-    va_end(ap);
-
-    /* print to stderr and clean up */
-    fprintf(stderr, "%s\n", buffer);
-    FREE(buffer);
 }
 
 /* ------------------------------------------------------------------------- */
