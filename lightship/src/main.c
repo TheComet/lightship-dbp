@@ -10,7 +10,7 @@ main(int argc, char** argv)
     puts("=========================================");
 
     init();
-    
+    /*
     {
         struct menu_t;
         struct menu_t* menu;
@@ -24,7 +24,9 @@ main(int argc, char** argv)
         SERVICE_CALL1(menu_load_service, &menu, PTR(menu_file_name));
         run_game();
         SERVICE_CALL1(menu_destroy_service, SERVICE_NO_RETURN, PTR(menu));
-    }
+    }*/
+    
+    run_game();
     
     deinit();
 
