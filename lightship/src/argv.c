@@ -64,20 +64,32 @@ argv_parse(int argc, char** argv)
             /* For every character in argument */
             for(; *arg; ++arg)
             {
+                /* display help */
                 if(*arg == 'h')
                     arg_obj->show_help = 1;
+                /* server mode */
+                if(*arg == 's')
+                    arg_obj->is_server = 1;
             }
         }
         
         /* double dash? */
         if(switch_type == DOUBLE_DASH)
         {
+            /* Double dash with no arguments? Stop parsing args */
+            if(*arg == '\0')
+                break;
+            
+            /* display help */
             if(strcmp(arg, "help") == 0)
                 arg_obj->show_help = 1;
+            /* server mode */
+            if(strcmp(arg, "server") == 0)
+                arg_obj->is_server = 1;
         }
     }
     
-    /* option conflicts/dependencies */
+    /* resolve any conflicts/dependencies in the switches*/
     if(arg_obj->show_help)     /* if the user requested help, don't start the game */
         arg_obj->run_game = 0;
     

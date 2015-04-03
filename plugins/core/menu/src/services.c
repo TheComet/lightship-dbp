@@ -15,12 +15,12 @@ register_services(struct plugin_t* plugin)
      * ---------------------------------------------------*/
 
     struct game_t* game = plugin->game;
-    SERVICE_REGISTER5(game, plugin, "button_create", button_create_wrapper, uint32_t, const char*, float, float, float, float);
-    SERVICE_REGISTER1(game, plugin, "button_destroy", button_destroy_wrapper, void, uint32_t);
-    SERVICE_REGISTER1(game, plugin, "button_get_text", button_get_text_wrapper, wchar_t*, uint32_t);
-    SERVICE_REGISTER1(game, plugin, "load", menu_load_wrapper, const char*, const char*);
-    SERVICE_REGISTER1(game, plugin, "destroy", menu_destroy_wrapper, void, const char*);
-    SERVICE_REGISTER2(game, plugin, "set_active_screen", menu_set_active_screen_wrapper, void, const char*, const char*);
+    SERVICE_REGISTER5(game, plugin, "button_create",        button_create_wrapper, uint32_t, const char*, float, float, float, float);
+    SERVICE_REGISTER1(game, plugin, "button_destroy",       button_destroy_wrapper, void, uint32_t);
+    SERVICE_REGISTER1(game, plugin, "button_get_text",      button_get_text_wrapper, wchar_t*, uint32_t);
+    SERVICE_REGISTER1(game, plugin, "load",                 menu_load_wrapper, const char*, const char*);
+    SERVICE_REGISTER1(game, plugin, "destroy",              menu_destroy_wrapper, void, const char*);
+    SERVICE_REGISTER2(game, plugin, "set_active_screen",    menu_set_active_screen_wrapper, void, const char*, const char*);
 }
 
 /* ------------------------------------------------------------------------- */

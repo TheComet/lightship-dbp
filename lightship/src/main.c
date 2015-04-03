@@ -13,14 +13,20 @@ main(int argc, char** argv)
     
     if(args->run_game)
     {
+        const char* menu_file_name;
         struct menu_t;
         struct menu_t* menu;
-        struct service_t* menu_load_service = service_get(g_local_game, "menu.load");
-        struct service_t* menu_destroy_service = service_get(g_local_game, "menu.destroy");
+        struct service_t* menu_load_service;
+        struct service_t* menu_destroy_service;
+        
+        init_game(args->is_server);
+        
+        menu_load_service = service_get(g_localhost, "menu.load");
+        menu_destroy_service = service_get(g_localhost, "menu.destroy");
 #ifdef _DEBUG
-        const char* menu_file_name = "../../plugins/core/menu/cfg/menu.yml";
+        menu_file_name = "../../plugins/core/menu/cfg/menu.yml";
 #else
-        const char* menu_file_name = "cfg/menu.yml";
+        menu_file_name = "cfg/menu.yml";
 #endif
         SERVICE_CALL1(menu_load_service, &menu, PTR(menu_file_name));
         run_game();

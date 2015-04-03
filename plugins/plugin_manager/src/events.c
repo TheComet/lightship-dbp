@@ -65,7 +65,7 @@ event_malloc_and_register(struct game_t* game, char* full_name);
 /* ----------------------------------------------------------------------------
  * Exported functions
  * ------------------------------------------------------------------------- */
-void
+char
 events_init(struct game_t* game)
 {
     char* name;
@@ -84,6 +84,8 @@ events_init(struct game_t* game)
     name = malloc_string(BUILTIN_NAMESPACE_NAME ".log_unindent");
     evt_log_unindent = event_malloc_and_register(game, name);
     llog_set_events(evt_log_indent, evt_log_unindent, evt_log);
+    
+    return 1;
 }
 
 /* ------------------------------------------------------------------------- */

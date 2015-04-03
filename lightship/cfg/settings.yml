@@ -19,10 +19,6 @@ plugins:
         name: menu
         version: "0.0.1"
         version_policy: minimum
-    d_example:
-        name: d_example
-        version: "0.0.1"
-        version_policy: minimum
 
 ###############################################################################
 # Main loop service to call when game is ready to start
