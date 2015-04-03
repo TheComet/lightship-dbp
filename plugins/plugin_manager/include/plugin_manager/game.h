@@ -25,7 +25,7 @@ game_create(const char* name, game_network_role_e net_role);
 PLUGIN_MANAGER_PUBLIC_API void
 game_destroy(struct game_t* game);
 
-PLUGIN_MANAGER_PUBLIC_API void
+PLUGIN_MANAGER_PUBLIC_API char
 game_connect(struct game_t* game, const char* address);
 
 PLUGIN_MANAGER_PUBLIC_API void

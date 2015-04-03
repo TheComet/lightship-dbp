@@ -117,7 +117,7 @@ struct game_t;
  * @brief Initialises the event system.
  * @note Must be called before calling any other event related functions.
  */
-PLUGIN_MANAGER_PUBLIC_API void
+PLUGIN_MANAGER_PUBLIC_API char
 events_init(struct game_t* game);
 
 /*!

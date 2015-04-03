@@ -10,7 +10,7 @@
  * Must be called before calling any other functions related to the plugin
  * manager.
  */
-PLUGIN_MANAGER_PUBLIC_API void
+PLUGIN_MANAGER_PUBLIC_API char
 plugin_manager_init(struct game_t* game);
 
 /*!

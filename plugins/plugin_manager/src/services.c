@@ -35,7 +35,7 @@ static service_script_type_e
 service_get_c_type_equivalent_from_service_type(const char* type);
 
 /* ------------------------------------------------------------------------- */
-void
+char
 services_init(struct game_t* game)
 {
 
@@ -43,12 +43,12 @@ services_init(struct game_t* game)
      * Register built-in services 
      * --------------------------------------------------------------------- */
     
-    
+    return 1;
 }
 
 /* ------------------------------------------------------------------------- */
 void
-services_deinit(void)
+services_deinit(struct game_t* game)
 {
 }
 

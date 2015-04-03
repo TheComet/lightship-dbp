@@ -35,7 +35,7 @@ typedef enum service_script_type_e
  * @brief Initialises the service system. This must be called before calling any
  * other service related functions.
  */
-PLUGIN_MANAGER_PUBLIC_API void
+PLUGIN_MANAGER_PUBLIC_API char
 services_init(struct game_t* game);
 
 /*!
@@ -43,7 +43,7 @@ services_init(struct game_t* game);
  * any memory allocated by the system before shutdown.
  */
 PLUGIN_MANAGER_PUBLIC_API void
-services_deinit(void);
+services_deinit(struct game_t* game);
 
 /*!
  * @brief Registers a service to the global service directory.
