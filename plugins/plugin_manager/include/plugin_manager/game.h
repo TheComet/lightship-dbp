@@ -7,10 +7,10 @@ struct glob_t;
 struct game_t
 {
     char* name;
-    struct list_t plugins;
-    struct map_t services;
-    struct map_t events;
-    struct map_t global_data;
+    struct list_t plugins;      /* list of active plugins used by this game */
+    struct map_t services;      /* maps service names to active services used by this game */
+    struct map_t events;        /* maps event names to active events used by this game */
+    struct map_t global_data;   /* maps hashed plugin names to glob structs used by this game */
 };
 
 PLUGIN_MANAGER_PUBLIC_API struct game_t*

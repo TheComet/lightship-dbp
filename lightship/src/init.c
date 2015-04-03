@@ -142,4 +142,9 @@ deinit(void)
     events_deinit(g_local_game);
     services_deinit();
     game_destroy(g_local_game);
+    
+    /*
+     * De-init memory management last
+     */
+    memory_deinit();
 }

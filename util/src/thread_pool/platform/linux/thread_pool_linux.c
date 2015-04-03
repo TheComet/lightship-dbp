@@ -23,19 +23,20 @@
  * 
  * 2. Design Decisions
  * ----------------
- * Worker threads with nothing to do shall be suspended, freeing processing
- * power. This will be achieved with condition variables.
+ * Worker threads with nothing to do shall be suspended, freeing CPU resources.
+ * This will be achieved with condition variables.
  * 
  * The most optimal container to use for storing job objects is a ring buffer,
  * since it fulfills the requirement of an ordered container, and it doesn't
  * require for elements to be shifted around when inserting or deleting.
  * 
- * The ring buffer will utilise atomic operations where possible in order to
- * speed up performance.
+ * The ring buffer is especially suited for this job, as it can utilise atomic
+ * operations for incrementing and decrementing the read/write positions.
  * 
  * 
  * 3. Problems and Solutions
  * -------------------------
+ * 
  */
 
 #include "thread_pool/thread_pool.h"
@@ -258,7 +259,7 @@ thread_pool_queue(struct thread_pool_t* pool, thread_pool_job_func func, void* d
     
     /* 
      * Set flag to "write in progress" in flag buffer.
-     * Ifthe  buffer overflows, spinlock until one of the worker threads
+     * If the buffer overflows, spinlock until one of the worker threads
      * completes and frees a job.
      */
     while(!__sync_bool_compare_and_swap(flag_buffer, FLAG_FREE, FLAG_WRITE_IN_PROGRESS))
