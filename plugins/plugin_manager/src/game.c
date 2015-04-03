@@ -7,7 +7,7 @@
 
 /* ------------------------------------------------------------------------- */
 struct game_t*
-game_create(const char* name)
+game_create(const char* name, game_network_role_e net_role)
 {
     struct game_t* game;
     

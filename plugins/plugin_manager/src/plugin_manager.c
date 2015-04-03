@@ -188,7 +188,7 @@ char
 load_plugins_from_yaml(struct game_t* game, const char* filename)
 {
     struct plugin_info_t target;
-    struct ptree_t* dom;
+    struct ptree_t* plugins;
     struct unordered_vector_t new_plugins;
     uint32_t doc_ID;
     char success = 1;
@@ -200,18 +200,18 @@ load_plugins_from_yaml(struct game_t* game, const char* filename)
     if(!doc_ID)
         return 0;
     
-    /* get DOM and get_value service */
-    SERVICE_CALL_NAME1(game, "yaml.get_dom", &dom, doc_ID);
-    if(!dom)
+    /* get "plugins" section */
+    SERVICE_CALL_NAME2(game, "yaml.get_node", &plugins, doc_ID, "plugins");
+    if(!plugins)
     {
-        llog(LOG_FATAL, NULL, 1, "Failed to get DOM");
+        llog(LOG_INFO, NULL, 3, "\"", filename, "\" contains no plugins to load");
         SERVICE_CALL_NAME1(game, "yaml.destroy", SERVICE_NO_RETURN, doc_ID);
-        return 0;
+        return 1;
     }
     
-    /* load all plugins in DOM */
+    /* load all plugins under the "plugins" section */
     {
-        UNORDERED_VECTOR_FOR_EACH(&dom->children, struct ptree_t, child)
+        UNORDERED_VECTOR_FOR_EACH(&plugins->children, struct ptree_t, child)
         {
             struct plugin_t* plugin;
             plugin_search_criteria_t criteria;
