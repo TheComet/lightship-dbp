@@ -6,11 +6,9 @@
 #include "util/memory.h"
 
 #ifdef _DEBUG
-static const char* yml_core_plugins = "../../lightship/cfg/core-plugins.yml";
-static const char* yml_entry_point = "../../lightship/cfg/entry-point.yml";
+static const char* yml_settings = "../../lightship/cfg/settings.yml";
 #else
-static const char* yml_core_plugins = "cfg/core-plugins.yml";
-static const char* yml_entry_point = "cfg/entry-point.yml";
+static const char* yml_settings = "cfg/settings.yml";
 #endif
 
 static struct plugin_t* g_plugin_yaml = NULL;
@@ -44,7 +42,7 @@ load_core_plugins()
     /*
      * Try to load and start the core plugins. If that fails, bail out.
      */
-    if(!load_plugins_from_yaml(g_local_game, yml_core_plugins))
+    if(!load_plugins_from_yaml(g_local_game, yml_settings))
     {
         llog(LOG_FATAL, NULL, 1, "Couldn't start all core plugins");
         return 0;
@@ -70,7 +68,7 @@ init(void)
      * Create the local game instance. This is the context that holds all
      * plugins, services, and events together.
      */
-    g_local_game = game_create("localhost");
+    g_local_game = game_create("localhost", GAME_HOST);
     if(!g_local_game)
         return 0;
     
@@ -101,10 +99,10 @@ run_game()
         char* start_service_name;
         uint32_t doc_ID;
         struct service_t* start;
-        const char* entry_point_key = "service";
+        const char* entry_point_key = "main_loop.service";
 
         /* load the yaml file */
-        SERVICE_CALL_NAME1(g_local_game, "yaml.load", &doc_ID, PTR(yml_entry_point));
+        SERVICE_CALL_NAME1(g_local_game, "yaml.load", &doc_ID, PTR(yml_settings));
         if(!doc_ID)
         {
             llog(LOG_FATAL, NULL, 1, "Cannot get main loop service");
@@ -115,7 +113,7 @@ run_game()
         SERVICE_CALL_NAME2(g_local_game, "yaml.get_value", &start_service_name, doc_ID, PTR(entry_point_key));
         if(!start_service_name)
         {
-            llog(LOG_FATAL, NULL, 3, "Cannot get value of \"service\" in \"", yml_entry_point ,"\"");
+            llog(LOG_FATAL, NULL, 5, "Cannot get value of \"", entry_point_key, "\" in \"", yml_settings ,"\"");
             SERVICE_CALL_NAME1(g_local_game, "yaml.destroy", SERVICE_NO_RETURN, doc_ID);
             return;
         }
