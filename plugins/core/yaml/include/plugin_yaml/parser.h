@@ -28,10 +28,14 @@ yaml_get_dom(struct game_t* game, uint32_t ID);
 const char*
 yaml_get_value(struct game_t* game, const uint32_t ID, const char* key);
 
+struct ptree_t*
+yaml_get_node(struct game_t* game, const uint32_t ID, const char* key);
+
 void
 yaml_destroy(struct game_t* game, const uint32_t ID);
 
 SERVICE(yaml_load_wrapper);
 SERVICE(yaml_get_dom_wrapper);
 SERVICE(yaml_get_value_wrapper);
+SERVICE(yaml_get_node_wrapper);
 SERVICE(yaml_destroy_wrapper);

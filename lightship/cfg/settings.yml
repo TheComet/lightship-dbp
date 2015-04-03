@@ -1,0 +1,55 @@
+###############################################################################
+# Core plugins to load at startup
+###############################################################################
+
+plugins:
+    loop:
+        name: main_loop
+        version: "0.0.1"
+        version_policy: minimum
+    renderer:
+        name: renderer_gl
+        version: "0.0.1"
+        version_policy: minimum
+    input:
+        name: input
+        version: "0.0.1"
+        version_policy: minimum
+    menu:
+        name: menu
+        version: "0.0.1"
+        version_policy: minimum
+    d_example:
+        name: d_example
+        version: "0.0.1"
+        version_policy: minimum
+
+###############################################################################
+# Main loop service to call when game is ready to start
+###############################################################################
+
+main_loop:
+    service: "main_loop.start"
+
+###############################################################################
+# Client settings
+###############################################################################
+
+client:
+    hosts:
+      - "localhost"
+      - "game.pixelcloud.ch"
+
+###############################################################################
+# Server settings
+###############################################################################
+
+server:
+    name: "Lightship Server"
+    port: 9111
+    ip_whitelist: false
+    ip_ban_file: banned_ips.txt
+    max_games: 5
+    max_connections: 20
+
+

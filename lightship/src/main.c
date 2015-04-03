@@ -1,16 +1,17 @@
 #include <stdio.h>
+#include "lightship/argv.h"
 #include "lightship/init.h"
 #include "plugin_manager/services.h"
 
 int
 main(int argc, char** argv)
 {
-    puts("=========================================");
-    puts("Starting lightship");
-    puts("=========================================");
+    struct arg_obj_t* args;
 
     init();
+    args = argv_parse(argc, argv);
     
+    if(args->run_game)
     {
         struct menu_t;
         struct menu_t* menu;
@@ -26,6 +27,7 @@ main(int argc, char** argv)
         SERVICE_CALL1(menu_destroy_service, SERVICE_NO_RETURN, PTR(menu));
     }
     
+    argv_free(args);
     deinit();
 
     return 0;

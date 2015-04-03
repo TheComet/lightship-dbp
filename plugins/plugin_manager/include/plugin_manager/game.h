@@ -2,6 +2,12 @@
 #include "util/map.h"
 #include "util/linked_list.h"
 
+typedef enum game_network_role_e
+{
+    GAME_CLIENT = 1,
+    GAME_HOST = 2
+} game_network_role_e;
+
 struct glob_t;
 
 struct game_t
@@ -14,10 +20,16 @@ struct game_t
 };
 
 PLUGIN_MANAGER_PUBLIC_API struct game_t*
-game_create(const char* name);
+game_create(const char* name, game_network_role_e net_role);
 
 PLUGIN_MANAGER_PUBLIC_API void
 game_destroy(struct game_t* game);
+
+PLUGIN_MANAGER_PUBLIC_API void
+game_connect(struct game_t* game, const char* address);
+
+PLUGIN_MANAGER_PUBLIC_API void
+game_disconnect(struct game_t* game);
 
 #define game_add_global(game, hash, glob) map_insert(&(game)->global_data, hash, glob)
 #define game_get_global(game, hash) map_find(&(game)->global_data, hash)

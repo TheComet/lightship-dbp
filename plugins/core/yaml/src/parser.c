@@ -280,15 +280,21 @@ yaml_get_dom(struct game_t* game, uint32_t ID)
 const char*
 yaml_get_value(struct game_t* game, const uint32_t ID, const char* key)
 {
+    struct ptree_t* node = yaml_get_node(game, ID, key);
+    if(node)
+        return (char*)node->value;
+    return NULL;
+}
+
+
+/* ------------------------------------------------------------------------- */
+struct ptree_t*
+yaml_get_node(struct game_t* game, const uint32_t ID, const char* key)
+{
     struct yaml_doc_t* doc = yaml_get_doc(game, ID);
     if(!doc)
         return NULL;
-    {
-        const struct ptree_t* node = ptree_find_by_key(doc->dom, key);
-        if(node)
-            return (char*)node->value;
-    }
-    return NULL;
+    return ptree_find_by_key(doc->dom, key);
 }
 
 /* ------------------------------------------------------------------------- */
@@ -327,6 +333,13 @@ SERVICE(yaml_get_value_wrapper)
     SERVICE_EXTRACT_ARGUMENT(0, id, uint32_t, uint32_t);
     SERVICE_EXTRACT_ARGUMENT_PTR(1, key, const char*);
     SERVICE_RETURN(yaml_get_value(service->game, id, key), const char*);
+}
+
+SERVICE(yaml_get_node_wrapper)
+{
+    SERVICE_EXTRACT_ARGUMENT(0, id, uint32_t, uint32_t);
+    SERVICE_EXTRACT_ARGUMENT_PTR(1, key, const char*);
+    SERVICE_RETURN(yaml_get_node(service->game, id, key), struct ptree_t*);
 }
 
 SERVICE(yaml_destroy_wrapper)
