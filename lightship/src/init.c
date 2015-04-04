@@ -5,6 +5,8 @@
 #include "util/log.h"
 #include "util/memory.h"
 
+struct ptree_t;
+
 #ifdef _DEBUG
 static const char* yml_settings = "../../lightship/cfg/settings.yml";
 #else
@@ -12,6 +14,7 @@ static const char* yml_settings = "cfg/settings.yml";
 #endif
 
 static struct plugin_t* g_plugin_yaml = NULL;
+static uint32_t g_settings_doc_id;
 struct game_t* g_localhost = NULL;
 struct game_t* g_client = NULL;
 
@@ -21,7 +24,9 @@ typedef void (*start_loop_func)(void);
 char
 load_core_plugins(struct game_t* game)
 {
+    
     struct plugin_info_t target;
+    struct ptree_t* plugins_node;
     
     /*!
      * Load the YAML plugin. This is required so the plugin manager can parse
@@ -40,11 +45,23 @@ load_core_plugins(struct game_t* game)
         llog(LOG_FATAL, NULL, 1, "Failed to start YAML plugin");
         return 0;
     }
-
+    
     /*
      * Try to load and start the core plugins. If that fails, bail out.
      */
-    if(!load_plugins_from_yaml(game, yml_settings))
+    SERVICE_CALL_NAME1(game, "yaml.load", &g_settings_doc_id, PTR(yml_settings));
+    if(!g_settings_doc_id)
+    {
+        llog(LOG_WARNING, NULL, 3, "Config file \"", yml_settings, "\" was not found. No core plugins will be loaded");
+        return 1;
+    }
+    SERVICE_CALL_NAME2(game, "yaml.get_node", &plugins_node, g_settings_doc_id, "plugins");
+    if(!plugins_node)
+    {
+        llog(LOG_WARNING, NULL, 1, "Config file \"", yml_settings, "\" doesn't contain any plugins to load");
+        return 1;
+    }
+    if(!load_plugins_from_yaml_dom(game, plugins_node))
     {
         llog(LOG_FATAL, NULL, 1, "Couldn't start all core plugins");
         return 0;
@@ -55,7 +72,7 @@ load_core_plugins(struct game_t* game)
 
 /* -------------------------------------------------------------------------- */
 char
-init(void)
+init()
 {
     /*
      * Initialise memory management first.
@@ -83,7 +100,7 @@ init_game(char is_server)
         return 0;
 
     /*
-     * Load and start the core plugins specified in the plugins YAML file.
+     * Load and start the core plugins specified in the settings YAML file.
      */
     if(!load_core_plugins(g_localhost))
         return 0;
@@ -96,6 +113,8 @@ init_game(char is_server)
         g_client = game_create("localclient", GAME_CLIENT);
         if(!g_client)
             return 0;
+        
+        game_connect(g_client, "localhost");
     }
     
     return 1;
@@ -110,33 +129,22 @@ run_game()
      */
     {
         char* start_service_name;
-        uint32_t doc_ID;
         struct service_t* start;
         const char* entry_point_key = "main_loop.service";
 
-        /* load the yaml file */
-        SERVICE_CALL_NAME1(g_localhost, "yaml.load", &doc_ID, PTR(yml_settings));
-        if(!doc_ID)
-        {
-            llog(LOG_FATAL, NULL, 1, "Cannot get main loop service");
-            return;
-        }
-        
         /* search for the entry point key and retrieve its value, which is the name of the service to start with */
-        SERVICE_CALL_NAME2(g_localhost, "yaml.get_value", &start_service_name, doc_ID, PTR(entry_point_key));
+        SERVICE_CALL_NAME2(g_localhost, "yaml.get_value", &start_service_name, g_settings_doc_id, PTR(entry_point_key));
         if(!start_service_name)
         {
             llog(LOG_FATAL, NULL, 5, "Cannot get value of \"", entry_point_key, "\" in \"", yml_settings ,"\"");
-            SERVICE_CALL_NAME1(g_localhost, "yaml.destroy", SERVICE_NO_RETURN, doc_ID);
             return;
         }
 
         /* with the service name retrieved, try to call it */
         start = service_get(g_localhost, start_service_name);
-        SERVICE_CALL_NAME1(g_localhost, "yaml.destroy", SERVICE_NO_RETURN, doc_ID);
         if(!start)
         {
-            llog(LOG_FATAL, NULL, 1, "Cannot get main loop service");
+            llog(LOG_FATAL, NULL, 3, "Cannot get main loop service with name \"", start_service_name, "\"");
             return;
         }
         
@@ -159,6 +167,7 @@ deinit(void)
     /* clean up local host */
     if(g_localhost)
     {
+        SERVICE_CALL_NAME1(g_localhost, "yaml.destroy", SERVICE_NO_RETURN, g_settings_doc_id);
         game_destroy(g_localhost);
         g_localhost = NULL;
     }

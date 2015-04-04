@@ -4,6 +4,8 @@
 #include "plugin_manager/config.h"
 #include "plugin_manager/plugin_api.h"
 
+struct ptree_t;
+
 /*!
  * @brief Initialises the plugin manager.
  * 
@@ -73,7 +75,7 @@ plugin_load(struct game_t* game,
             plugin_search_criteria_t criteria);
 
 PLUGIN_MANAGER_PUBLIC_API char
-load_plugins_from_yaml(struct game_t* game, const char* filename);
+load_plugins_from_yaml_dom(struct game_t* game, const struct ptree_t* plugins_node);
 
 /*!
  * @brief Unloads the specified plugin.
