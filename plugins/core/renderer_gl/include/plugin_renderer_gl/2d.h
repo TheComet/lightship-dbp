@@ -1,6 +1,6 @@
 #include "GL/glew.h"
 #include "util/unordered_vector.h"
-#include "plugin_manager/service_api.h"
+#include "framework/service_api.h"
 
 struct shapes_t
 {

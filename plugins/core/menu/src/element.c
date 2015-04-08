@@ -1,7 +1,7 @@
 #include "plugin_menu/element.h"
 #include "plugin_menu/services.h"
 #include "plugin_menu/glob.h"
-#include "plugin_manager/service_api.h"
+#include "framework/service_api.h"
 #include "util/map.h"
 #include "util/memory.h"
 #include <string.h>

@@ -1,5 +1,5 @@
 #include "plugin_menu/config.h"   /* configurations for this plugin */
-#include "plugin_manager/plugin.h"     /* plugin api */
+#include "framework/plugin.h"     /* plugin api */
 #include "plugin_menu/services.h" /* plugin services */
 #include "plugin_menu/events.h"   /* plugin events */
 #include "plugin_menu/glob.h"

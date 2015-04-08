@@ -1,5 +1,5 @@
 #include "util/pstdint.h"
-#include "plugin_manager/game.h"
+#include "framework/game.h"
 #include "plugin_main_loop/main_loop.h"
 
 extern uint32_t global_hash;

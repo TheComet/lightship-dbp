@@ -1,6 +1,6 @@
 #include "plugin_renderer_gl/events.h"
 #include "plugin_renderer_gl/window.h"
-#include "plugin_manager/event_api.h"
+#include "framework/event_api.h"
 #include "util/pstdint.h"
 #include "util/log.h"
 #include "glfw3.h"

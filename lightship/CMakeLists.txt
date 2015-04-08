@@ -34,7 +34,7 @@ add_executable (lightship
 target_link_libraries (lightship
     m
     lightship_util
-    plugin_manager
+    framework
 )
 
 # generates the correct project files for visual studio, setting the correct

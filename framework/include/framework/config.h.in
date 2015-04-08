@@ -5,7 +5,7 @@
 #ifndef @PROJECT_NAME@_CONFIG_HPP
 #   define @PROJECT_NAME@_CONFIG_HPP
 
-#   include "plugin_manager/export.h"
+#   include "framework/export.h"
 
     /* --------------------------------------------------------------
      * build settings

@@ -1,4 +1,4 @@
-#include "plugin_manager/plugin.h"  /* plugin api */
+#include "framework/plugin.h"  /* plugin api */
 #include "plugin_yaml/config.h"     /* configurations for this plugin */
 #include "plugin_yaml/services.h"   /* plugin services */
 #include "plugin_yaml/events.h"     /* plugin events */

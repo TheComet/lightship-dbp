@@ -1,5 +1,5 @@
-#include "plugin_manager/services.h"
-#include "plugin_manager/plugin.h"
+#include "framework/services.h"
+#include "framework/plugin.h"
 #include "plugin_menu/services.h"
 #include "plugin_menu/button.h"
 #include "plugin_menu/glob.h"

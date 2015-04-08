@@ -1,5 +1,5 @@
-#include "plugin_manager/events.h"
-#include "plugin_manager/plugin.h"
+#include "framework/events.h"
+#include "framework/plugin.h"
 #include "plugin_input/events.h"
 #include "plugin_input/mouse.h"
 #include "plugin_input/keyboard.h"

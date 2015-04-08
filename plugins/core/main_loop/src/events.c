@@ -1,5 +1,5 @@
-#include "plugin_manager/events.h"
-#include "plugin_manager/plugin_api.h"
+#include "framework/events.h"
+#include "framework/plugin_api.h"
 #include "plugin_main_loop/events.h"
 #include "plugin_main_loop/glob.h"
 #include <string.h>

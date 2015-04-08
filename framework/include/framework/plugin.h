@@ -1,8 +1,8 @@
 #ifndef LIGHTSHIP_UTIL_PLUGIN_H
 #define LIGHTSHIP_UTIL_PLUGIN_H
 
-#include "plugin_manager/config.h"
-#include "plugin_manager/plugin_api.h"
+#include "framework/config.h"
+#include "framework/plugin_api.h"
 
 struct game_t;
 
@@ -13,21 +13,21 @@ struct game_t;
  * no longer needed.
  * @return Returns the newly created plugin object.
  */
-PLUGIN_MANAGER_PUBLIC_API struct plugin_t*
+FRAMEWORK_PUBLIC_API struct plugin_t*
 plugin_create(struct game_t* game);
 
 /*!
  * @brief Initialises a plugin object.
  * @param[in] plugin The plugin to initialise.
  */
-PLUGIN_MANAGER_PUBLIC_API void
+FRAMEWORK_PUBLIC_API void
 plugin_init_plugin(struct game_t* game, struct plugin_t* plugin);
 
 /*!
  * @brief Destroys a plugin object.
  * @param[in] plugin The plugin to destroy.
  */
-PLUGIN_MANAGER_PUBLIC_API void
+FRAMEWORK_PUBLIC_API void
 plugin_destroy(struct plugin_t* plugin);
 
 /*!
@@ -41,7 +41,7 @@ plugin_destroy(struct plugin_t* plugin);
  * @param[in] description A short description about what your plugin does.
  * @param[in] website A URL to your website.
  */
-PLUGIN_MANAGER_PUBLIC_API void
+FRAMEWORK_PUBLIC_API void
 plugin_set_info(struct plugin_t* plugin,
                 const char* name,
                 const char* category,
@@ -54,7 +54,7 @@ plugin_set_info(struct plugin_t* plugin,
  * @param[in] plugin The plugin to set.
  * @param[in] language The programming language.
  */
-PLUGIN_MANAGER_PUBLIC_API void
+FRAMEWORK_PUBLIC_API void
 plugin_set_programming_language(struct plugin_t* plugin,
                                 plugin_programming_language_t language);
 
@@ -65,7 +65,7 @@ plugin_set_programming_language(struct plugin_t* plugin,
  * @param[in] minor The minor version.
  * @param[in] patch The patch version.
  */
-PLUGIN_MANAGER_PUBLIC_API void
+FRAMEWORK_PUBLIC_API void
 plugin_set_version(struct plugin_t* plugin,
                    uint32_t major,
                    uint32_t minior,
@@ -79,7 +79,7 @@ plugin_set_version(struct plugin_t* plugin,
  * @param [out] patch Where to store the patch number.
  * @return Returns 1 if successful, 0 if otherwise.
  */
-PLUGIN_MANAGER_PUBLIC_API char
+FRAMEWORK_PUBLIC_API char
 plugin_extract_version_from_string(const char* file,
                                    uint32_t* major,
                                    uint32_t* minor,
@@ -93,7 +93,7 @@ plugin_extract_version_from_string(const char* file,
  * @param[in] info The plugin info struct from which to generate the version
  * string.
  */
-PLUGIN_MANAGER_PUBLIC_API void
+FRAMEWORK_PUBLIC_API void
 plugin_get_version_string(char* str, const struct plugin_info_t* info);
 
 #endif /* LIGHTSHIP_UTIL_PLUGIN_H */

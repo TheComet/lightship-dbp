@@ -1,7 +1,7 @@
-#include "plugin_manager/plugin_manager.h"
-#include "plugin_manager/events.h"
-#include "plugin_manager/services.h"
-#include "plugin_manager/game.h"
+#include "framework/plugin_manager.h"
+#include "framework/events.h"
+#include "framework/services.h"
+#include "framework/game.h"
 #include "util/log.h"
 #include "util/memory.h"
 

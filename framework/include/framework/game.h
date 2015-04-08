@@ -1,4 +1,4 @@
-#include "plugin_manager/config.h"
+#include "framework/config.h"
 #include "util/map.h"
 #include "util/linked_list.h"
 
@@ -19,16 +19,16 @@ struct game_t
     struct map_t global_data;   /* maps hashed plugin names to glob structs used by this game */
 };
 
-PLUGIN_MANAGER_PUBLIC_API struct game_t*
+FRAMEWORK_PUBLIC_API struct game_t*
 game_create(const char* name, game_network_role_e net_role);
 
-PLUGIN_MANAGER_PUBLIC_API void
+FRAMEWORK_PUBLIC_API void
 game_destroy(struct game_t* game);
 
-PLUGIN_MANAGER_PUBLIC_API char
+FRAMEWORK_PUBLIC_API char
 game_connect(struct game_t* game, const char* address);
 
-PLUGIN_MANAGER_PUBLIC_API void
+FRAMEWORK_PUBLIC_API void
 game_disconnect(struct game_t* game);
 
 #define game_add_global(game, hash, glob) map_insert(&(game)->global_data, hash, glob)

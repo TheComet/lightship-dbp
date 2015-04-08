@@ -1,4 +1,4 @@
-#include "plugin_manager/events.h"
+#include "framework/events.h"
 #include "plugin_renderer_gl/events.h"
 #include "plugin_renderer_gl/window.h"
 

@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include "lightship/argv.h"
 #include "lightship/init.h"
-#include "plugin_manager/services.h"
+#include "framework/services.h"
 
 int
 main(int argc, char** argv)
