@@ -72,6 +72,8 @@ events_init(struct game_t* game)
     
     assert(game);
     
+    map_init_map(&game->events);
+    
     /* ----------------------------
      * Register built-in events 
      * --------------------------*/

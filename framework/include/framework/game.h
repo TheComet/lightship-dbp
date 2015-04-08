@@ -2,6 +2,8 @@
 #include "util/map.h"
 #include "util/linked_list.h"
 
+struct net_connection_t;
+
 typedef enum game_network_role_e
 {
     GAME_CLIENT = 1,
@@ -13,6 +15,8 @@ struct glob_t;
 struct game_t
 {
     char* name;
+    game_network_role_e network_role;
+    struct net_connection_t* connection;
     struct list_t plugins;      /* list of active plugins used by this game */
     struct map_t services;      /* maps service names to active services used by this game */
     struct map_t events;        /* maps event names to active events used by this game */
