@@ -1,7 +1,7 @@
 #include "plugin_menu/element.h"
 #include "util/pstdint.h"
-#include "plugin_manager/event_api.h"
-#include "plugin_manager/service_api.h"
+#include "framework/event_api.h"
+#include "framework/service_api.h"
 
 #define BUTTON_COLOUR_NORMAL 0xFFFFFFFF
 

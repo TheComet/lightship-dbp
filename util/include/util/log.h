@@ -3,7 +3,7 @@
 
 #include "util/config.h"
 #include "util/pstdint.h"
-#include "plugin_manager/event_api.h"
+#include "framework/event_api.h"
 
 struct game_t;
 

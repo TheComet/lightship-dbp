@@ -1,5 +1,5 @@
 #include "plugin_input/services.h"
-#include "plugin_manager/services.h"
+#include "framework/services.h"
 
 void
 register_services(struct plugin_t* plugin)

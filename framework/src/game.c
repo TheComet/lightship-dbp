@@ -1,7 +1,7 @@
-#include "plugin_manager/game.h"
-#include "plugin_manager/plugin_manager.h"
-#include "plugin_manager/services.h"
-#include "plugin_manager/events.h"
+#include "framework/game.h"
+#include "framework/plugin_manager.h"
+#include "framework/services.h"
+#include "framework/events.h"
 #include "util/memory.h"
 #include "util/log.h"
 #include "util/string.h"
@@ -39,7 +39,7 @@ game_create(const char* name, game_network_role_e net_role)
     map_init_map(&game->global_data);
     
     /* initialise plugin manager, services, and events for this game instance */
-    if(!plugin_manager_init(game))
+    if(!framework_init(game))
         return 0;
     if(!services_init(game))
         return 0;
@@ -59,7 +59,7 @@ game_destroy(struct game_t* game)
     /* deinit plugin manager, services, and events (in reverse order) */
     events_deinit(game);
     services_deinit(game);
-    plugin_manager_deinit(game);
+    framework_deinit(game);
 
     /* clean up data held by game object */
     map_clear_free(&game->global_data);

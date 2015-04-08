@@ -1,8 +1,8 @@
 #ifndef LIGHTSHIP_PLUGIN_MANAGER_H
 #define LIGHTSHIP_PLUGIN_MANAGER_H
 
-#include "plugin_manager/config.h"
-#include "plugin_manager/plugin_api.h"
+#include "framework/config.h"
+#include "framework/plugin_api.h"
 
 struct ptree_t;
 
@@ -12,8 +12,8 @@ struct ptree_t;
  * Must be called before calling any other functions related to the plugin
  * manager.
  */
-PLUGIN_MANAGER_PUBLIC_API char
-plugin_manager_init(struct game_t* game);
+FRAMEWORK_PUBLIC_API char
+framework_init(struct game_t* game);
 
 /*!
  * @brief Starts a loaded plugin.
@@ -35,8 +35,8 @@ plugin_manager_init(struct game_t* game);
  * 
  * This will unload all plugins cleanly and clean up any memory being used.
  */
-PLUGIN_MANAGER_PUBLIC_API void
-plugin_manager_deinit(struct game_t* game);
+FRAMEWORK_PUBLIC_API void
+framework_deinit(struct game_t* game);
 
 /*!
  * @brief Loads the specified plugin.
@@ -69,19 +69,19 @@ plugin_manager_deinit(struct game_t* game);
  * @return Returns NULL if unsuccessful, otherwise a pointer to the plugin is
  * returned.
  */
-PLUGIN_MANAGER_PUBLIC_API struct plugin_t*
+FRAMEWORK_PUBLIC_API struct plugin_t*
 plugin_load(struct game_t* game,
             const struct plugin_info_t* plugin_info,
             plugin_search_criteria_t criteria);
 
-PLUGIN_MANAGER_PUBLIC_API char
+FRAMEWORK_PUBLIC_API char
 load_plugins_from_yaml_dom(struct game_t* game, const struct ptree_t* plugins_node);
 
 /*!
  * @brief Unloads the specified plugin.
  * @param[in] plugin The plugin to unload.
  */
-PLUGIN_MANAGER_PUBLIC_API void
+FRAMEWORK_PUBLIC_API void
 plugin_unload(struct game_t* game, struct plugin_t* plugin);
 
 /*!
@@ -90,7 +90,7 @@ plugin_unload(struct game_t* game, struct plugin_t* plugin);
  * @return Returns the plugin if a matching name was found. Returns NULL on
  * failure.
  */
-PLUGIN_MANAGER_PUBLIC_API struct plugin_t*
+FRAMEWORK_PUBLIC_API struct plugin_t*
 plugin_get_by_name(struct game_t* game, const char* name);
 
 #endif /* LIGHTSHIP_PLUGIN_MANAGER_H */

@@ -2,7 +2,7 @@
 #define LIGHTSHIP_UTIL_SERVICE_H
 
 #include "util/pstdint.h"
-#include "plugin_manager/config.h"
+#include "framework/config.h"
 
 struct game_t;
 struct service_t;

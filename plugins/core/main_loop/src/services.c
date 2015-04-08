@@ -1,5 +1,5 @@
-#include "plugin_manager/services.h"
-#include "plugin_manager/plugin_api.h"
+#include "framework/services.h"
+#include "framework/plugin_api.h"
 #include "plugin_main_loop/services.h"
 #include "plugin_main_loop/main_loop.h"
 

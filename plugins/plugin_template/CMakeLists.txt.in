@@ -78,12 +78,12 @@ add_custom_command (TARGET plugin_@NAME@ POST_BUILD
     "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/plugins/")
 
 ###############################################################################
-# link lightship utility and plugin manager libraries
+# link lightship utility and plugin framework
 ###############################################################################
 
 target_link_libraries (plugin_@NAME@
     lightship_util
-    plugin_manager
+    framework
 )
 
 ###############################################################################

@@ -1,11 +1,11 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include "plugin_manager/plugin_manager.h"
-#include "plugin_manager/services.h"
-#include "plugin_manager/events.h"
-#include "plugin_manager/plugin.h"
-#include "plugin_manager/game.h"
+#include "framework/plugin_manager.h"
+#include "framework/services.h"
+#include "framework/events.h"
+#include "framework/plugin.h"
+#include "framework/game.h"
 #include "util/config.h"
 #include "util/linked_list.h"
 #include "util/unordered_vector.h"
@@ -42,14 +42,14 @@ find_plugin(const struct plugin_info_t* info,
 
 /* ------------------------------------------------------------------------- */
 char
-plugin_manager_init(struct game_t* game)
+framework_init(struct game_t* game)
 {
     return 1;
 }
 
 /* ------------------------------------------------------------------------- */
 void
-plugin_manager_deinit(struct game_t* game)
+framework_deinit(struct game_t* game)
 {
     /* unload all plugins */
     LIST_FOR_EACH_ERASE_R(&game->plugins, struct plugin_t, plugin)

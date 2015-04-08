@@ -4,7 +4,7 @@
 #include "plugin_menu/services.h"
 #include "plugin_menu/button.h"
 #include "plugin_menu/glob.h"
-#include "plugin_manager/services.h"
+#include "framework/services.h"
 #include "util/ordered_vector.h"
 #include "util/ptree.h"
 #include "util/memory.h"

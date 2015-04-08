@@ -1,6 +1,6 @@
 #include "plugin_renderer_gl/glutils.h"
 #include "util/pstdint.h"
-#include "plugin_manager/service_api.h"
+#include "framework/service_api.h"
 
 typedef enum sprite_animation_e
 {

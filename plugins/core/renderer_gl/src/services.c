@@ -5,7 +5,7 @@
 #include "plugin_renderer_gl/text_manager.h"
 #include "plugin_renderer_gl/text.h"
 #include "plugin_renderer_gl/window.h"
-#include "plugin_manager/services.h"
+#include "framework/services.h"
 
 void
 register_services(struct game_t* game, struct plugin_t* plugin)

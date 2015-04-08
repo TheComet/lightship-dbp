@@ -1,8 +1,8 @@
 #include "plugin_menu/events.h"
 #include "plugin_menu/button.h"
 #include "plugin_menu/glob.h"
-#include "plugin_manager/events.h"
-#include "plugin_manager/plugin.h"
+#include "framework/events.h"
+#include "framework/plugin.h"
 #include <string.h>
 
 /* -----------------------------------------------------

@@ -7,7 +7,7 @@
 #include "plugin_renderer_gl/text_manager.h"
 #include "plugin_renderer_gl/text_wrapper.h"
 #include "plugin_renderer_gl/window.h"
-#include "plugin_manager/plugin.h"
+#include "framework/plugin.h"
 #include "util/log.h"
 #include "glfw3.h"
 #include <stdio.h>

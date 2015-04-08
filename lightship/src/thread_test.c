@@ -3,7 +3,7 @@
 #include "thread_pool/thread_pool.h"
 #include "util/time.h"
 #include "util/log.h"
-#include "plugin_manager/services.h"
+#include "framework/services.h"
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdio.h>
