@@ -3,11 +3,24 @@
 #include "util/memory.h"
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <arpa/inet.h>
 #include <netdb.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <string.h>
+#include <stdio.h>
 
+static char*
+get_sockaddr_ip_str(const struct sockaddr* addr);
+
+static void
+log_addrinfo_error(const char* message, const struct addrinfo* addr);
+
+static struct net_connection_t*
+net_udp(const char* node, const char* port, uint32_t max_connections, char is_host);
+
+/* ------------------------------------------------------------------------- */
+/* EXPORTED FUNCTIONS */
 /* ------------------------------------------------------------------------- */
 char
 net_init(void)
@@ -23,10 +36,116 @@ net_deinit(void)
 
 /* ------------------------------------------------------------------------- */
 struct net_connection_t*
-net_host_udp(const char* node, const char* port, uint32_t max_connections)
+net_host_udp(const char* port, uint32_t max_connections)
 {
-    struct addrinfo hints, *res, *p, *addr;
+    return net_udp(NULL, port, max_connections, 1);
+}
+
+/* ------------------------------------------------------------------------- */
+struct net_connection_t*
+net_join_udp(const char* node, const char* port)
+{
+    return net_udp(node, port, 1, 0);
+}
+
+/* ------------------------------------------------------------------------- */
+void
+net_disconnect(struct net_connection_t* connection)
+{
+    if(connection->sockfd != -1)
+        close(connection->sockfd);
+    FREE(connection);
+}
+
+/* ------------------------------------------------------------------------- */
+/* STATIC FUNCTIONS */
+/* ------------------------------------------------------------------------- */
+static char*
+get_sockaddr_ip_str(const struct sockaddr* addr)
+{
+    char* s = NULL;
+    
+    switch(addr->sa_family)
+    {
+        case AF_INET:
+        {
+            struct sockaddr_in *addr_in = (struct sockaddr_in *)addr;
+            s = (char*)MALLOC(INET_ADDRSTRLEN);
+            inet_ntop(AF_INET, &(addr_in->sin_addr), s, INET_ADDRSTRLEN);
+            break;
+        }
+        
+        case AF_INET6:
+        {
+            struct sockaddr_in6 *addr_in6 = (struct sockaddr_in6 *)addr;
+            s = (char*)MALLOC(INET6_ADDRSTRLEN);
+            inet_ntop(AF_INET6, &(addr_in6->sin6_addr), s, INET6_ADDRSTRLEN);
+            break;
+        }
+        
+        default:
+            s = (char*)MALLOC(sizeof(char) * 8);
+            strcpy(s, "unknown");
+            break;
+    }
+    
+    return s;
+}
+
+/* ------------------------------------------------------------------------- */
+static void
+log_addrinfo_error(const char* message, const struct addrinfo* addr)
+{
+    /* create format string */
+    const char format_str[] = "socket info:\n"
+                              "  family:        %d\n"
+                              "  type:          %d\n"
+                              "  protocol:      %d\n"
+                              "  address:       %s\n\n"
+                              "constants:\n"
+                              "  families\n"
+                              "    AF_UNSPEC:   %d\n"
+                              "    AF_INET:     %d\n"
+                              "    AF_INET6:    %d\n"
+                              "  types\n"
+                              "    SOCK_STREAM: %d\n"
+                              "    SOCK_DGRAM:  %d\n";
+    
+    /* we're copying the format string, 8 integers, and an IP address into 
+     * the message string */
+    char info_str[sizeof(format_str) + sizeof(int)*8*8 + INET6_ADDRSTRLEN];
+    
+    /* get ip address from address info struct */
+    char* ip_str = get_sockaddr_ip_str(addr->ai_addr);
+    
+    /* do format copy */
+    sprintf(info_str, format_str,
+            addr->ai_family, addr->ai_socktype, addr->ai_protocol, ip_str,
+            AF_UNSPEC, AF_INET, AF_INET6,
+            SOCK_STREAM, SOCK_DGRAM);
+    
+    /* log message along with info string */
+    llog(LOG_ERROR, NULL, 2, message, info_str);
+    
+    FREE(ip_str);
+}
+
+/* ------------------------------------------------------------------------- */
+static struct net_connection_t*
+net_udp(const char* node, const char* port, uint32_t max_connections, char is_host)
+{
+    struct addrinfo hints, *res, *p;
     struct net_connection_t* connection;
+    
+    /* create connection object */
+    connection = (struct net_connection_t*)MALLOC(sizeof *connection);
+    if(!connection)
+        OUT_OF_MEMORY("net_host_udp()", NULL);
+    
+    /* init connection */
+    memset(connection, 0, sizeof *connection);
+    connection->sockfd = -1; /* set to invalid sockfd */
+    connection->max_connections = max_connections;
     
     /* fill in hints */
     memset(&hints, 0, sizeof hints);
@@ -38,69 +157,49 @@ net_host_udp(const char* node, const char* port, uint32_t max_connections)
     if(getaddrinfo(NULL, port, &hints, &res) != 0)
     {
         llog(LOG_ERROR, NULL, 1, "getaddrinfo() failed in net_host_udp()");
+        net_disconnect(connection);
         return NULL;
     }
     
-    /* Filter through list and find a suitable address. Prefer IPv6 over IPv4 */
-    addr = NULL;
-    for(p = res; p != NULL; ++p)
+    /* Filter through list and create and bind the first socket we can */
+    for(p = res; p != NULL; p = p->ai_next)
     {
-        /* Found IPv4. If address not yet determined, set to IPv4 */
-        if(!addr && p->ai_family == AF_INET)
-            addr = p;
+        /* create socket */
+        connection->sockfd = socket(p->ai_family,
+                                    p->ai_socktype,
+                                    p->ai_protocol);
+        if(connection->sockfd == -1)
+        {
+            log_addrinfo_error("Failed to create socket()\n", p);
+            continue;
+        }
         
-        /* Found IPv6. If address not yet determined, set to IPv6. If address
-         * already determined, only set to IPv6 if the determined address is
-         * not IPv6 */
-        if(p->ai_family == AF_INET6)
-            if(!addr || addr->ai_family != AF_INET6)
-                addr = p;
-    }
-    
-    /* create connection object */
-    connection = (struct net_connection_t*)MALLOC(sizeof connection);
-    if(!connection)
-        OUT_OF_MEMORY("net_host_udp()", NULL);
-    memset(connection, 0, sizeof *connection);
-    connection->max_connections = max_connections;
-    
-    /* create socket */
-    connection->sockfd = socket(addr->ai_family,
-                                addr->ai_socktype,
-                                addr->ai_protocol);
-    if(connection->sockfd < 0)
-    {
-        llog(LOG_ERROR, NULL, 1, "Failed to create socket()");
-        net_disconnect(connection);
-        return NULL;
-    }
-    
-    /* bind the socket */
-    if(bind(connection->sockfd, addr->ai_addr, addr->ai_addrlen) < 0)
-    {
-        llog(LOG_ERROR, NULL, 1, "Failed to bind() socket.");
-        net_disconnect(connection);
-        return NULL;
+        /* bind socket if host */
+        if(is_host)
+        {
+            if(bind(connection->sockfd, p->ai_addr, p->ai_addrlen) == -1)
+            {
+                close(connection->sockfd);
+                connection->sockfd = -1;
+                log_addrinfo_error("Failed to bind() socket\n", p);
+                continue;
+            }
+        }
+        
+        /* success! */
+        break;
     }
     
     /* done with address info */
     freeaddrinfo(res);
     
+    /* make sure bind was successful */
+    if(p == NULL)
+    {
+        llog(LOG_ERROR, NULL, 1, "Failed to set up host");
+        net_disconnect(connection);
+        return NULL;
+    }
+    
     return connection;
-}
-
-/* ------------------------------------------------------------------------- */
-struct net_connection_t*
-net_join_udp(const char* node, const char* port)
-{
-    struct addrinfo hints, *res, *p, *addr;
-}
-
-/* ------------------------------------------------------------------------- */
-void
-net_disconnect(struct net_connection_t* connection)
-{
-    if(connection->sockfd)
-        close(connection->sockfd);
-    FREE(connection);
 }
