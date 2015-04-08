@@ -42,14 +42,15 @@ find_plugin(const struct plugin_info_t* info,
 
 /* ------------------------------------------------------------------------- */
 char
-framework_init(struct game_t* game)
+plugin_manager_init(struct game_t* game)
 {
+    list_init_list(&game->plugins);
     return 1;
 }
 
 /* ------------------------------------------------------------------------- */
 void
-framework_deinit(struct game_t* game)
+plugin_manager_deinit(struct game_t* game)
 {
     /* unload all plugins */
     LIST_FOR_EACH_ERASE_R(&game->plugins, struct plugin_t, plugin)

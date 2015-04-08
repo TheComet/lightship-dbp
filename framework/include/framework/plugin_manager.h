@@ -13,7 +13,7 @@ struct ptree_t;
  * manager.
  */
 FRAMEWORK_PUBLIC_API char
-framework_init(struct game_t* game);
+plugin_manager_init(struct game_t* game);
 
 /*!
  * @brief Starts a loaded plugin.
@@ -36,7 +36,7 @@ framework_init(struct game_t* game);
  * This will unload all plugins cleanly and clean up any memory being used.
  */
 FRAMEWORK_PUBLIC_API void
-framework_deinit(struct game_t* game);
+plugin_manager_deinit(struct game_t* game);
 
 /*!
  * @brief Loads the specified plugin.

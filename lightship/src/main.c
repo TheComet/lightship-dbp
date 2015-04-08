@@ -10,7 +10,6 @@ main(int argc, char** argv)
 
     init();
     args = argv_parse(argc, argv);
-    
     if(args->run_game)
     {
         const char* menu_file_name;
@@ -20,7 +19,7 @@ main(int argc, char** argv)
         struct service_t* menu_destroy_service;
         
         init_game(args->is_server);
-        
+
         menu_load_service = service_get(g_localhost, "menu.load");
         menu_destroy_service = service_get(g_localhost, "menu.destroy");
 #ifdef _DEBUG

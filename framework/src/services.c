@@ -38,6 +38,7 @@ service_get_c_type_equivalent_from_service_type(const char* type);
 char
 services_init(struct game_t* game)
 {
+    map_init_map(&game->services);
 
     /* ------------------------------------------------------------------------
      * Register built-in services 
@@ -50,6 +51,8 @@ services_init(struct game_t* game)
 void
 services_deinit(struct game_t* game)
 {
+    /* TODO Automatically unregister any left over services? */
+    map_clear_free(&game->services);
 }
 
 /* ------------------------------------------------------------------------- */
