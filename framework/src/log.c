@@ -3,7 +3,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "framework/log.h"
-#include "framework/glob.h"
 #include "framework/game.h"
 #include "util/memory.h"
 
@@ -63,7 +62,6 @@ safe_strcat(char* target, const char* source)
 char
 llog_init(struct game_t* game)
 {
-    struct framework_glob_t* g;
     /* ncurses support -- TODO currently broken and disabled *
 #ifdef HAVE_CURSES
     initscr();
@@ -82,8 +80,7 @@ llog_init(struct game_t* game)
 #endif  */
     
     /* initialise indent level */
-    g = framework_get_global(game);
-    g->log.indent_level = 0;
+    game->log.indent_level = 0;
     
     return 1;
 }
@@ -98,8 +95,6 @@ llog_deinit(struct game_t* game)
 void
 llog_indent(struct game_t* game, const char* indent_name)
 {
-    struct framework_glob_t* g;
-    
     /* can't indent if game is NULL, because the indent level is stored per
      * game */
     if(!game)
@@ -107,20 +102,17 @@ llog_indent(struct game_t* game, const char* indent_name)
         llog(LOG_WARNING, NULL, NULL, 1, "llog_indent() was called with a NULL game object");
         return;
     }
-    
-    g = framework_get_global(game);
-    EVENT_FIRE_FROM_TEMP1(evt_log_indent, g->event.log_indent, indent_name);
+
+    EVENT_FIRE_FROM_TEMP1(evt_log_indent, game->event.log_indent, indent_name);
     on_llog_indent(game, indent_name);
 
-    ++g->log.indent_level;
+    ++game->log.indent_level;
 }
 
 /* ------------------------------------------------------------------------- */
 void
 llog_unindent(struct game_t* game)
 {
-    struct framework_glob_t* g;
-    
     /* can't unindent if game is NULL, because the indent level is stored per
      * game object */
     if(!game)
@@ -129,12 +121,11 @@ llog_unindent(struct game_t* game)
         return;
     }
     
-    g = framework_get_global(game);
-    EVENT_FIRE_FROM_TEMP0(evt_log_unindent, g->event.log_unindent);
+    EVENT_FIRE_FROM_TEMP0(evt_log_unindent, game->event.log_unindent);
     on_llog_unindent(game);
 
-    if(g->log.indent_level)
-        --g->log.indent_level;
+    if(game->log.indent_level)
+        --game->log.indent_level;
 }
 
 /* ------------------------------------------------------------------------- */
@@ -154,11 +145,6 @@ llog(log_level_e level, const struct game_t* game, const char* plugin, uint32_t 
     uint32_t total_length = 0;
     char* buffer = NULL;
     char* prefix = NULL;
-    struct framework_glob_t* g = NULL;
-    
-    /* get global data if game is not NULL */
-    if(game)
-        g = framework_get_global(game);
 
     /* 
      * Get timestamp string.
@@ -251,7 +237,7 @@ llog(log_level_e level, const struct game_t* game, const char* plugin, uint32_t 
 
     /* fire event and output mesasge */
     if(game)
-        EVENT_FIRE_FROM_TEMP2(evt_log, g->event.log, level, (const char*)buffer);
+        EVENT_FIRE_FROM_TEMP2(evt_log, game->event.log, level, (const char*)buffer);
     on_llog(game, level, buffer);
 
     FREE(buffer);
@@ -285,15 +271,6 @@ on_llog(const struct game_t* game, log_level_e level, const char* message)
 {
     FILE* fp;
     char i;
-    struct framework_glob_t* g;
-    
-    /* get global data for indentation if possible */
-    if(game)
-    {
-        g = framework_get_global(game);
-        for(i = 0; i != g->log.indent_level; ++i)
-            fprintf(fp, "    ");
-    }
     
     /* determine output stream */
     switch(level)
@@ -307,6 +284,12 @@ on_llog(const struct game_t* game, log_level_e level, const char* message)
             break;
     }
 
+    /* get global data for indentation if possible */
+    if(game)
+    {
+        for(i = 0; i != game->log.indent_level; ++i)
+            fprintf(fp, "    ");
+    }
     
     fprintf(fp, "%s\n", message);
 }
