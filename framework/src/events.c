@@ -3,7 +3,6 @@
 #include "framework/game.h"
 #include "framework/plugin.h"
 #include "framework/log.h"
-#include "framework/glob.h"
 #include "util/hash.h"
 #include "util/memory.h"
 #include "util/string.h"
@@ -74,9 +73,6 @@ events_init(struct game_t* game)
     
     assert(game);
     
-    /* get global struct */
-    g = framework_get_global(game);
-    
     /* this holds all of the game's events */
     map_init_map(&game->events);
     
@@ -89,11 +85,11 @@ events_init(struct game_t* game)
     
         /* The log will fire these events appropriately whenever something is logged */
         name = malloc_string(BUILTIN_NAMESPACE_NAME ".log");            if(!name) break;
-        g->event.log = event_malloc_and_register(game, name);           if(!g->event.log) break;
+        game->event.log = event_malloc_and_register(game, name);           if(!game->event.log) break;
         name = malloc_string(BUILTIN_NAMESPACE_NAME ".log_indent");     if(!name) break;
-        g->event.log_indent = event_malloc_and_register(game, name);    if(!g->event.log_indent) break;
+        game->event.log_indent = event_malloc_and_register(game, name);    if(!game->event.log_indent) break;
         name = malloc_string(BUILTIN_NAMESPACE_NAME ".log_unindent");   if(!name) break;
-        g->event.log_unindent = event_malloc_and_register(game, name);  if(!g->event.log_unindent) break;
+        game->event.log_unindent = event_malloc_and_register(game, name);  if(!game->event.log_unindent) break;
         
         return 1;
     }

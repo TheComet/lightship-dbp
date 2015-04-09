@@ -1,5 +1,4 @@
 #include "framework/game.h"
-#include "framework/glob.h"
 #include "framework/plugin_manager.h"
 #include "framework/services.h"
 #include "framework/events.h"
@@ -49,9 +48,6 @@ game_create(const char* name, game_network_role_e net_role)
                 break;
         }
         
-        /* initialise our portion of global data in the game object */
-        framework_glob_create(game);
-        
         /* initialise plugin manager, services, and events for this game instance */
         if(!llog_init(game))
             break;
@@ -85,9 +81,6 @@ game_destroy(struct game_t* game)
     plugin_manager_deinit(game);
     events_deinit(game);
     services_deinit(game);
-    
-    /* remove our portion of global data from the game object */
-    framework_glob_destroy(game);
 
     /* clean up data held by game object */
     map_clear_free(&game->global_data);

@@ -11,11 +11,25 @@ typedef enum game_network_role_e
     GAME_HOST = 2
 } game_network_role_e;
 
+struct framework_glob_events_t
+{
+    struct event_t* log;
+    struct event_t* log_indent;
+    struct event_t* log_unindent;
+};
+
+struct framework_glob_log_t
+{
+    char indent_level;
+};
+
 struct game_t
 {
     char* name;
     game_network_role_e network_role;
     struct net_connection_t* connection;
+    struct framework_glob_events_t event;
+    struct framework_glob_log_t log;
     struct list_t plugins;      /* list of active plugins used by this game */
     struct map_t services;      /* maps service names to active services used by this game */
     struct map_t events;        /* maps event names to active events used by this game */
