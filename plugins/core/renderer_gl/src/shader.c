@@ -51,7 +51,7 @@ compile_shader(struct glob_t* g, GLuint shader_ID, const char* file_name)
 
 /* ------------------------------------------------------------------------- */
 void
-check_program(GLuint program_ID)
+check_program(struct glob_t* g, GLuint program_ID)
 {
     GLint result = GL_FALSE;
     int info_log_length;
@@ -62,7 +62,7 @@ check_program(GLuint program_ID)
     message = (char*)MALLOC(info_log_length);
     glGetProgramInfoLog(program_ID, info_log_length, NULL, message);
     if(result == GL_FALSE)
-        llog(LOG_ERROR, PLUGIN_NAME, 1, message);
+        llog(LOG_ERROR, g->game, PLUGIN_NAME, 1, message);
     FREE(message);
 }
 
@@ -107,7 +107,7 @@ load_shader_pair(struct glob_t* g,
     glAttachShader(program_ID, vsh_ID);
     glAttachShader(program_ID, fsh_ID);
     glLinkProgram(program_ID);
-    check_program(program_ID);
+    check_program(g, program_ID);
     
     glDeleteShader(vsh_ID);
     glDeleteShader(fsh_ID);

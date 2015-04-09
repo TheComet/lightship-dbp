@@ -48,7 +48,7 @@ game_create(const char* name, game_network_role_e net_role)
                 break;
         }
         
-        /* initialise plugin manager, services, and events for this game instance */
+        /* initialise all services for this game */
         if(!llog_init(game))
             break;
         if(!services_init(game))
@@ -81,6 +81,7 @@ game_destroy(struct game_t* game)
     plugin_manager_deinit(game);
     events_deinit(game);
     services_deinit(game);
+    llog_deinit(game);
 
     /* clean up data held by game object */
     map_clear_free(&game->global_data);

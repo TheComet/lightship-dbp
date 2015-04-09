@@ -69,7 +69,6 @@ char
 events_init(struct game_t* game)
 {
     char* name;
-    struct framework_glob_t* g;
     
     assert(game);
     
