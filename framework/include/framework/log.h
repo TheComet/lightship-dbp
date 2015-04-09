@@ -5,6 +5,7 @@
 #include "util/pstdint.h"
 #include "framework/event_api.h"
 
+struct log_t;
 struct game_t;
 
 typedef enum log_level_e
@@ -17,6 +18,7 @@ typedef enum log_level_e
     LOG_NONE = 5
 } log_level_e;
 
+/* built in events */
 EVENT_H2(evt_log, log_level_e, const char*)
 EVENT_H1(evt_log_indent, const char*)
 EVENT_H0(evt_log_unindent)

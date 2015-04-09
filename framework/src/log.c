@@ -272,7 +272,7 @@ on_llog(const struct game_t* game, log_level_e level, const char* message)
     FILE* fp;
     char i;
     
-    /* determine output stream */
+    /* determine output stream for console output */
     switch(level)
     {
         case LOG_INFO:
