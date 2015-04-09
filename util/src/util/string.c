@@ -3,7 +3,6 @@
 #include <stdlib.h>
 #include <wchar.h>
 #include <assert.h>
-#include "util/log.h"
 #include "util/memory.h"
 #include "util/string.h"
 
@@ -125,7 +124,10 @@ cat_strings(uint32_t num_strs, ...)
     
     buffer = (char*)MALLOC((total_length+1) * sizeof(char));
     if(!buffer)
-        OUT_OF_MEMORY("cat_strings()", NULL);
+    {
+        fprintf(stderr, "malloc() failed in cat_strings() -- not enough memory\n");
+        return NULL;
+    }
     
     /* concatenate all strings into the allocated buffer */
     va_start(ap, num_strs);
@@ -146,7 +148,10 @@ malloc_string(const char* str)
 
     buffer = (char*)MALLOC((strlen(str)+1) * sizeof(char));
     if(!buffer)
-        OUT_OF_MEMORY("malloc_string()", NULL);
+    {
+        fprintf(stderr, "malloc() failed in malloc_string() -- not enough memory\n");
+        return NULL;
+    }
     
     strcpy(buffer, str);
     return buffer;
@@ -172,7 +177,10 @@ cat_wstrings(uint32_t num_strs, ...)
     
     buffer = (wchar_t*)MALLOC((total_length+1) * sizeof(wchar_t));
     if(!buffer)
-        OUT_OF_MEMORY("cat_wstrings()", NULL);
+    {
+        fprintf(stderr, "malloc() failed in cat_wstrings() -- not enough memory\n");
+        return NULL;
+    }
     
     /* concatenate all strings into the allocated buffer */
     va_start(ap, num_strs);
@@ -193,7 +201,10 @@ malloc_wstring(const wchar_t* wcs)
 
     buffer = (wchar_t*)MALLOC((wcslen(wcs)+1) * sizeof(wchar_t));
     if(!buffer)
-        OUT_OF_MEMORY("malloc_wstring()", NULL);
+    {
+        fprintf(stderr, "malloc() failed in malloc_wstring() -- not enough memory\n");
+        return NULL;
+    }
 
     wcscpy(buffer, wcs);
     return buffer;
@@ -224,7 +235,10 @@ strtowcs(const char* str)
 
     wcs = (wchar_t*)MALLOC((len + 1) * sizeof(wchar_t));
     if(!wcs)
-        OUT_OF_MEMORY("strtowcs()", NULL);
+    {
+        fprintf(stderr, "malloc() failed in strtowcs() -- not enough memory\n");
+        return NULL;
+    }
 
     for(wcs_it = wcs; *str; ++str)
         *wcs_it++ = (wchar_t)*str;
@@ -246,7 +260,10 @@ wcstostr(wchar_t* wcs)
 
     str = (char*)MALLOC((len + 1) * sizeof(char));
     if(!str)
-        OUT_OF_MEMORY("wcstostr()", NULL);
+    {
+        fprintf(stderr, "malloc() failed in wcstostr() -- not enough memory\n");
+        return NULL;
+    }
 
     for(str_it = str; *wcs; ++wcs)
         *str_it++ = (char)*wcs;

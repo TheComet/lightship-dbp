@@ -1,9 +1,11 @@
 #include "plugin_renderer_gl/shader.h"
 #include "plugin_renderer_gl/sprite.h"
 #include "plugin_renderer_gl/config.h"
+#include "plugin_renderer_gl/glob.h"
+#include "framework/game.h"
+#include "framework/log.h"
 #include "util/map.h"
 #include "util/memory.h"
-#include "util/log.h"
 #include <assert.h>
 #include <string.h>
 
@@ -40,11 +42,11 @@ static const char* sprite_shader_file = "fx/sprite";
 
 /* ------------------------------------------------------------------------- */
 char
-sprite_init(void)
+sprite_init(struct glob_t* g)
 {
     map_init_map(&g_sprites);
     
-    g_sprite_shader_id = shader_load(sprite_shader_file);printOpenGLError();
+    g_sprite_shader_id = shader_load(g, sprite_shader_file);printOpenGLError();
     g_uniform_sprite_position_location = glGetUniformLocation(g_sprite_shader_id, "spritePosition");
     g_uniform_sprite_size_location     = glGetUniformLocation(g_sprite_shader_id, "spriteSize");
     
@@ -77,7 +79,8 @@ sprite_deinit(void)
 
 /* ------------------------------------------------------------------------- */
 struct sprite_t*
-sprite_create(const char* file_name,
+sprite_create(struct glob_t* g,
+              const char* file_name,
               uint16_t x_frame_count,
               uint16_t y_frame_count,
               uint16_t total_frame_count,
@@ -96,7 +99,7 @@ sprite_create(const char* file_name,
     pixel_buffer = stbi_load(file_name, &x, &y, &n, 4);
     if(!pixel_buffer)
     {
-        llog(LOG_ERROR, PLUGIN_NAME, 3, "Failed to load image: \"", file_name, "\"");
+        llog(LOG_ERROR, g->game, PLUGIN_NAME, 3, "Failed to load image: \"", file_name, "\"");
         return NULL;
     }
     
@@ -253,13 +256,14 @@ sprite_draw(void)
 /* ------------------------------------------------------------------------- */
 SERVICE(sprite_create_wrapper)
 {
+    uint32_t id;
     SERVICE_EXTRACT_ARGUMENT_PTR(0, file_name, const char*);
     SERVICE_EXTRACT_ARGUMENT(1, x_frame_count, uint16_t, uint16_t);
     SERVICE_EXTRACT_ARGUMENT(2, y_frame_count, uint16_t, uint16_t);
     SERVICE_EXTRACT_ARGUMENT(3, total_frame_count, uint16_t, uint16_t);
-    uint32_t id;
+    struct glob_t* g = get_global(service->game);
     
-    if(sprite_create(file_name, x_frame_count, y_frame_count, total_frame_count, &id))
+    if(sprite_create(g, file_name, x_frame_count, y_frame_count, total_frame_count, &id))
         SERVICE_RETURN(id, uint32_t);
     SERVICE_RETURN(0, uint32_t);
 }

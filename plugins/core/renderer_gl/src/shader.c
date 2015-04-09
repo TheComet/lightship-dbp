@@ -1,8 +1,9 @@
 #include "plugin_renderer_gl/config.h"
 #include "plugin_renderer_gl/shader.h"
+#include "plugin_renderer_gl/glob.h"
+#include "framework/log.h"
 #include "util/file.h"
 #include "util/memory.h"
-#include "util/log.h"
 #include "util/string.h"
 #include <stdio.h>
 #include <string.h>
@@ -11,7 +12,7 @@
 
 /* ------------------------------------------------------------------------- */
 void
-check_shader(GLuint shader_ID)
+check_shader(struct glob_t* g, GLuint shader_ID)
 {
     GLint result = GL_FALSE;
     int info_log_length;
@@ -22,13 +23,13 @@ check_shader(GLuint shader_ID)
     message = (char*)MALLOC(info_log_length);
     glGetShaderInfoLog(shader_ID, info_log_length, NULL, message);
     if(result == GL_FALSE)
-        llog(LOG_ERROR, PLUGIN_NAME, 1, message);
+        llog(LOG_ERROR, g->game, PLUGIN_NAME, 1, message);
     FREE(message);
 }
 
 /* ------------------------------------------------------------------------- */
 void
-compile_shader(GLuint shader_ID, const char* file_name)
+compile_shader(struct glob_t* g, GLuint shader_ID, const char* file_name)
 {
     GLchar* code;
 
@@ -36,12 +37,12 @@ compile_shader(GLuint shader_ID, const char* file_name)
     file_load_into_memory(file_name, (void**)&code, 0);
     if(!code)
     {
-        llog(LOG_ERROR, PLUGIN_NAME, 3, "failed to load file \"", file_name, "\"");
+        llog(LOG_ERROR, g->game, PLUGIN_NAME, 3, "failed to load file \"", file_name, "\"");
         return;
     }
 
     /* compile */
-    llog(LOG_INFO, PLUGIN_NAME, 3, "compiling shader: \"", file_name, "\"");
+    llog(LOG_INFO, g->game, PLUGIN_NAME, 3, "compiling shader: \"", file_name, "\"");
     glShaderSource(shader_ID, 1, (const GLchar**)&code, NULL);
     glCompileShader(shader_ID);
     
@@ -67,7 +68,7 @@ check_program(GLuint program_ID)
 
 /* ------------------------------------------------------------------------- */
 GLuint
-shader_load(const char* name)
+shader_load(struct glob_t* g, const char* name)
 {
     char* vertex_shader;
     char* fragment_shader;
@@ -75,7 +76,7 @@ shader_load(const char* name)
 
     vertex_shader = cat_strings(2, name, ".vsh");
     fragment_shader = cat_strings(2, name, ".fsh");
-    result = load_shader_pair(vertex_shader, fragment_shader);
+    result = load_shader_pair(g, vertex_shader, fragment_shader);
     
     free_string(vertex_shader);
     free_string(fragment_shader);
@@ -84,7 +85,9 @@ shader_load(const char* name)
 
 /* ------------------------------------------------------------------------- */
 GLuint
-load_shader_pair(const char* vertex_shader, const char* fragment_shader)
+load_shader_pair(struct glob_t* g,
+                 const char* vertex_shader,
+                 const char* fragment_shader)
 {
     GLuint program_ID;
     GLuint vsh_ID;
@@ -93,13 +96,13 @@ load_shader_pair(const char* vertex_shader, const char* fragment_shader)
     /* compile shaders */
     vsh_ID = glCreateShader(GL_VERTEX_SHADER);
     fsh_ID = glCreateShader(GL_FRAGMENT_SHADER);
-    compile_shader(vsh_ID, vertex_shader);
-    check_shader(vsh_ID);
-    compile_shader(fsh_ID, fragment_shader);
-    check_shader(fsh_ID);
+    compile_shader(g, vsh_ID, vertex_shader);
+    check_shader(g, vsh_ID);
+    compile_shader(g, fsh_ID, fragment_shader);
+    check_shader(g, fsh_ID);
 
     /* link program */
-    llog(LOG_INFO, PLUGIN_NAME, 1, "linking program");
+    llog(LOG_INFO, g->game, PLUGIN_NAME, 1, "linking program");
     program_ID = glCreateProgram();
     glAttachShader(program_ID, vsh_ID);
     glAttachShader(program_ID, fsh_ID);

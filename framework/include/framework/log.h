@@ -7,7 +7,7 @@
 
 struct game_t;
 
-typedef enum log_level_t
+typedef enum log_level_e
 {
     LOG_INFO = 0,
     LOG_WARNING = 1, 
@@ -15,33 +15,21 @@ typedef enum log_level_t
     LOG_FATAL = 3,
     LOG_USER = 4,
     LOG_NONE = 5
-} log_level_t;
+} log_level_e;
 
-struct log_t
-{
-    log_level_t level;
-    char* message;
-};
-
-/*
- * Because the utility library cannot link against the plugin manager library
- * on Windows without causing a circular dependency, these events need to be
- * exported. The plugin manager library will initialise these events and then
- * pass them back to the log through a call to llog_set_events().
- */
-LIGHTSHIP_UTIL_PUBLIC_API EVENT_H0(evt_log_unindent)
-LIGHTSHIP_UTIL_PUBLIC_API EVENT_H1(evt_log, struct log_t*)
-LIGHTSHIP_UTIL_PUBLIC_API EVENT_H1(evt_log_indent, const char*)
+EVENT_H2(evt_log, log_level_e, const char*)
+EVENT_H1(evt_log_indent, const char*)
+EVENT_H0(evt_log_unindent)
 
 /*!
  * @brief Initialises the log. Must be called before using any other log related
  * functions.
  */
-LIGHTSHIP_UTIL_PUBLIC_API void
-llog_init(void);
+LIGHTSHIP_UTIL_PUBLIC_API char
+llog_init(struct game_t* game);
 
 LIGHTSHIP_UTIL_PUBLIC_API void
-llog_deinit(void);
+llog_deinit(struct game_t* game);
 
 LIGHTSHIP_UTIL_PUBLIC_API void
 llog_set_events(struct event_t* on_indent, struct event_t* on_unindent, struct event_t* on_log);
@@ -54,7 +42,7 @@ llog_set_events(struct event_t* on_indent, struct event_t* on_unindent, struct e
  * @param[in] indent_name The name of the new indentation level.
  */
 LIGHTSHIP_UTIL_PUBLIC_API void
-llog_indent(const char* indent_name);
+llog_indent(struct game_t* game, const char* indent_name);
 
 /*!
  * @brief Closes one indentation level of the log.
@@ -63,7 +51,7 @@ llog_indent(const char* indent_name);
  * than before. If the indent level is at 0, then nothing happens.
  */
 LIGHTSHIP_UTIL_PUBLIC_API void
-llog_unindent(void);
+llog_unindent(struct game_t* game);
 
 /*!
  * @brief Fires a log event with the specified information.
@@ -77,7 +65,7 @@ llog_unindent(void);
  * @param[in] strs... The strings to concatenate and send to the log.
  */
 LIGHTSHIP_UTIL_PUBLIC_API void
-llog(log_level_t level, const char* plugin, uint32_t num_strs, ...);
+llog(log_level_e level, const struct game_t* game, const char* plugin, uint32_t num_strs, ...);
 
 LIGHTSHIP_UTIL_PUBLIC_API void
 llog_critical_use_no_memory(const char* message);

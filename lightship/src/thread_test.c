@@ -1,9 +1,9 @@
 #include "lightship/thread_test.h"
 #include "lightship/init.h"
 #include "thread_pool/thread_pool.h"
-#include "util/time.h"
-#include "util/log.h"
+#include "framework/log.h"
 #include "framework/services.h"
+#include "util/time.h"
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdio.h>

@@ -147,7 +147,7 @@ typedef void (*service_callback_func)(struct service_t* service, void* ret, cons
 #define SERVICE_INTERNAL_GET_AND_CHECK(game, service_name)                                      \
         struct service_t* service_internal_service = service_get(game, service_name);           \
         if(!service_internal_service)                                                           \
-            llog(LOG_WARNING, NULL, 3, "Service \"", service_name, "\" does not exist");        \
+            llog(LOG_WARNING, game, NULL, 3, "Service \"", service_name, "\" does not exist");        \
         else
 
 #define SERVICE_CALL_NAME0(game, service_name, ret_value) do {                                  \

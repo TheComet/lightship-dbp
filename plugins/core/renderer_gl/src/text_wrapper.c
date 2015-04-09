@@ -1,6 +1,8 @@
+#include "plugin_renderer_gl/glob.h"
 #include "plugin_renderer_gl/text_wrapper.h"
 #include "plugin_renderer_gl/text.h"
 #include "plugin_renderer_gl/text_manager.h"
+#include "framework/game.h"
 #include "util/map.h"
 
 static struct map_t g_text_groups;
@@ -41,8 +43,9 @@ SERVICE(text_group_create_wrapper)
 {
     SERVICE_EXTRACT_ARGUMENT_PTR(0, file_name, const char*);
     SERVICE_EXTRACT_ARGUMENT(1, char_size, uint32_t, uint32_t);
+    struct glob_t* g = get_global(service->game);
 
-    SERVICE_RETURN(text_group_create(file_name, char_size), uint32_t);
+    SERVICE_RETURN(text_group_create(g, file_name, char_size), uint32_t);
     
 }
 
@@ -59,8 +62,9 @@ SERVICE(text_group_load_character_set_wrapper)
 {
     SERVICE_EXTRACT_ARGUMENT(0, id, uint32_t, uint32_t);
     SERVICE_EXTRACT_ARGUMENT_PTR(1, characters, wchar_t*);
+    struct glob_t* g = get_global(service->game);
 
-    text_group_load_character_set(id, characters);
+    text_group_load_character_set(g, id, characters);
 }
 
 /* ------------------------------------------------------------------------- */
@@ -73,9 +77,10 @@ SERVICE(text_create_wrapper)
     SERVICE_EXTRACT_ARGUMENT(2, x, float, GLfloat);
     SERVICE_EXTRACT_ARGUMENT(3, y, float, GLfloat);
     SERVICE_EXTRACT_ARGUMENT_PTR(4, string, wchar_t*);
+    struct glob_t* g = get_global(service->game);
     
     struct text_group_t* group = text_group_get(group_id);
-    struct text_t* text = text_create(group, centered, x, y, string);
+    struct text_t* text = text_create(g, group, centered, x, y, string);
     uint32_t text_id = guid++;
     map_insert(&g_texts, text_id, text);
     

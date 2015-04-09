@@ -1,12 +1,13 @@
 #include "plugin_renderer_gl/config.h"
+#include "plugin_renderer_gl/glob.h"
 #include "plugin_renderer_gl/window.h"
 #include "plugin_renderer_gl/events.h"
 #include "plugin_renderer_gl/input.h"
 #include "plugin_renderer_gl/2d.h"
 #include "plugin_renderer_gl/sprite.h"
 #include "plugin_renderer_gl/text_manager.h"
+#include "framework/log.h"
 #include "util/linked_list.h"
-#include "util/log.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -17,7 +18,7 @@
 struct window_t g_window;
 
 char
-window_init(void)
+window_init(struct glob_t* g)
 {
     GLFWwindow* glfw_window;
     
@@ -39,14 +40,14 @@ window_init(void)
     glfw_window = glfwCreateWindow(g_window.width, g_window.height, "Light Ship", NULL, NULL);
     if(glfw_window == NULL)
     {
-        llog(LOG_ERROR, PLUGIN_NAME, 1, "Failed to open glfw window. If you have an Intel GPU, they are not 3.3 compatible.");
+        llog(LOG_ERROR, g->game, PLUGIN_NAME, 1, "Failed to open glfw window. If you have an Intel GPU, they are not 3.3 compatible.");
         return 0;
     }
     glfwMakeContextCurrent(glfw_window); /* initialise GLEW */
     glewExperimental = 1; /* needed in core profile */
     if(glewInit() != GLEW_OK)
     {
-        llog(LOG_ERROR, PLUGIN_NAME, 1, "Failed to initialise GLEW\n");
+        llog(LOG_ERROR, g->game, PLUGIN_NAME, 1, "Failed to initialise GLEW\n");
         return 0;
     }
     glClearColor(0.0f, 0.0f, 0.4f, 0.0f);

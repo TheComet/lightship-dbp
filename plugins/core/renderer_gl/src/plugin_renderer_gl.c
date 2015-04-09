@@ -7,8 +7,9 @@
 #include "plugin_renderer_gl/text_manager.h"
 #include "plugin_renderer_gl/text_wrapper.h"
 #include "plugin_renderer_gl/window.h"
+#include "framework/game.h"
 #include "framework/plugin.h"
-#include "util/log.h"
+#include "framework/log.h"
 #include "glfw3.h"
 #include <stdio.h>
 
@@ -50,35 +51,40 @@ PLUGIN_RENDERER_GL_PUBLIC_API PLUGIN_INIT()
 /* ------------------------------------------------------------------------- */
 PLUGIN_RENDERER_GL_PUBLIC_API PLUGIN_START()
 {
+    struct glob_t* g;
+    
+    /* get global struct */
+    g = get_global(game);
+    
     /* initialise GLFW */
     if(!glfwInit())
     {
-        llog(LOG_ERROR, PLUGIN_NAME, 1, "Failed to initialise glfw");
+        llog(LOG_ERROR, game, PLUGIN_NAME, 1, "Failed to initialise glfw");
         return PLUGIN_FAILURE;
     }
 
     /* creates the window */
-    if(!window_init())
+    if(!window_init(g))
         return PLUGIN_FAILURE;
     
     /* clear any GL errors caused by glfw and glew */
     glGetError();
 
     /* init graphics components */
-    if(!init_2d())
+    if(!init_2d(g))
         return PLUGIN_FAILURE;
-    if(!text_manager_init())
+    if(!text_manager_init(g))
         return PLUGIN_FAILURE;
     if(!text_wrapper_init())
         return PLUGIN_FAILURE;
-    if(!sprite_init())
+    if(!sprite_init(g))
         return PLUGIN_FAILURE;
 
     register_event_listeners(game, get_global(game)->plugin);
     
     {
         uint32_t id;
-        struct sprite_t* sprite = sprite_create("menu/join/join.png", 1, 1, 1, &id);
+        struct sprite_t* sprite = sprite_create(g, "menu/join/join.png", 1, 1, 1, &id);
         /*sprite_scale(sprite, 0.3);
         sprite_set_position(sprite, 0.2, 0.7);*/
     }

@@ -2,6 +2,8 @@
 #include "util/pstdint.h"
 #include "framework/service_api.h"
 
+struct glob_t;
+
 typedef enum sprite_animation_e
 {
     SPRITE_ANIMATION_STOP,
@@ -38,13 +40,14 @@ struct sprite_t
 };
 
 char
-sprite_init(void);
+sprite_init(struct glob_t* g);
 
 void
 sprite_deinit(void);
 
 struct sprite_t*
-sprite_create(const char* file_name,
+sprite_create(struct glob_t* g,
+              const char* file_name,
               uint16_t x_frame_count,
               uint16_t y_frame_count,
               uint16_t total_frame_count,

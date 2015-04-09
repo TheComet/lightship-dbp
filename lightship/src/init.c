@@ -2,7 +2,7 @@
 #include "framework/events.h"
 #include "framework/services.h"
 #include "framework/game.h"
-#include "util/log.h"
+#include "framework/log.h"
 #include "util/memory.h"
 
 struct ptree_t;
@@ -42,7 +42,7 @@ load_core_plugins(struct game_t* game)
         return 0;
     if(plugin_start(game, g_plugin_yaml) == PLUGIN_FAILURE)
     {
-        llog(LOG_FATAL, NULL, 1, "Failed to start YAML plugin");
+        llog(LOG_FATAL, game, NULL, 1, "Failed to start YAML plugin");
         return 0;
     }
     
@@ -52,18 +52,18 @@ load_core_plugins(struct game_t* game)
     SERVICE_CALL_NAME1(game, "yaml.load", &g_settings_doc_id, PTR(yml_settings));
     if(!g_settings_doc_id)
     {
-        llog(LOG_WARNING, NULL, 3, "Config file \"", yml_settings, "\" was not found. No core plugins will be loaded");
+        llog(LOG_WARNING, game, NULL, 3, "Config file \"", yml_settings, "\" was not found. No core plugins will be loaded");
         return 1;
     }
     SERVICE_CALL_NAME2(game, "yaml.get_node", &plugins_node, g_settings_doc_id, "plugins");
     if(!plugins_node)
     {
-        llog(LOG_WARNING, NULL, 1, "Config file \"", yml_settings, "\" doesn't contain any plugins to load");
+        llog(LOG_WARNING, game, NULL, 1, "Config file \"", yml_settings, "\" doesn't contain any plugins to load");
         return 1;
     }
     if(!load_plugins_from_yaml_dom(game, plugins_node))
     {
-        llog(LOG_FATAL, NULL, 1, "Couldn't start all core plugins");
+        llog(LOG_FATAL, game, NULL, 1, "Couldn't start all core plugins");
         return 0;
     }
     
@@ -78,11 +78,6 @@ init()
      * Initialise memory management first.
      */
     memory_init();
-    
-    /*
-     * Enable logging as soon as possible
-     */
-    llog_init();
     
     return 1;
 }
@@ -136,7 +131,7 @@ run_game()
         SERVICE_CALL_NAME2(g_localhost, "yaml.get_value", &start_service_name, g_settings_doc_id, PTR(entry_point_key));
         if(!start_service_name)
         {
-            llog(LOG_FATAL, NULL, 5, "Cannot get value of \"", entry_point_key, "\" in \"", yml_settings ,"\"");
+            llog(LOG_FATAL, g_localhost, NULL, 5, "Cannot get value of \"", entry_point_key, "\" in \"", yml_settings ,"\"");
             return;
         }
 
@@ -144,7 +139,7 @@ run_game()
         start = service_get(g_localhost, start_service_name);
         if(!start)
         {
-            llog(LOG_FATAL, NULL, 3, "Cannot get main loop service with name \"", start_service_name, "\"");
+            llog(LOG_FATAL, g_localhost, NULL, 3, "Cannot get main loop service with name \"", start_service_name, "\"");
             return;
         }
         
@@ -171,10 +166,6 @@ deinit(void)
         game_destroy(g_localhost);
         g_localhost = NULL;
     }
-    
-    
-    /* de-init log */
-    llog_deinit();
     
     /*
      * De-init memory management last

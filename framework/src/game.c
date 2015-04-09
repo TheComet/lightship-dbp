@@ -1,9 +1,10 @@
 #include "framework/game.h"
+#include "framework/glob.h"
 #include "framework/plugin_manager.h"
 #include "framework/services.h"
 #include "framework/events.h"
+#include "framework/log.h"
 #include "util/memory.h"
-#include "util/log.h"
 #include "util/string.h"
 #include "util/net.h"
 #include <string.h>
@@ -24,7 +25,7 @@ game_create(const char* name, game_network_role_e net_role)
         game_mode_str = "server";
     else
         game_mode_str = "client";
-    llog(LOG_INFO, NULL, 5, "Creating game \"", name, "\" with mode \"", game_mode_str, "\"");
+    llog(LOG_INFO, NULL, NULL, 5, "Creating game \"", name, "\" with mode \"", game_mode_str, "\"");
 
     /* allocate game object */
     game = (struct game_t*)MALLOC(sizeof(struct game_t));
@@ -48,7 +49,12 @@ game_create(const char* name, game_network_role_e net_role)
                 break;
         }
         
+        /* initialise our portion of global data in the game object */
+        framework_glob_create(game);
+        
         /* initialise plugin manager, services, and events for this game instance */
+        if(!llog_init(game))
+            break;
         if(!services_init(game))
             break;
         if(!events_init(game))
@@ -79,6 +85,9 @@ game_destroy(struct game_t* game)
     plugin_manager_deinit(game);
     events_deinit(game);
     services_deinit(game);
+    
+    /* remove our portion of global data from the game object */
+    framework_glob_destroy(game);
 
     /* clean up data held by game object */
     map_clear_free(&game->global_data);

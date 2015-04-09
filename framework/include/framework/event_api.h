@@ -103,16 +103,16 @@ EVENT_LISTENER1(on_event, int arg)
  * This is the closure of the IF_EVENT_VALID condition, which will print
  * the stacktrace.
  */
-#   define ELSE_REPORT_EVENT_FIRE_FAILURE                                                \
+#   define ELSE_REPORT_EVENT_FIRE_FAILURE(event)                                    \
                 } else {                                                            \
                     uint32_t size, i;                                               \
                     char** backtrace = get_backtrace(&size);                        \
-                    llog(LOG_ERROR, NULL, 1, "Cannot fire event for it is NULL");   \
-                    llog_indent("Backtrace");                                       \
+                    llog(LOG_ERROR, (event)->game, NULL, 1, "Cannot fire event for it is NULL");\
+                    llog_indent((event)->game, "Backtrace");                        \
                     for(i = 0; i != size; ++i)                                      \
-                        llog(LOG_ERROR, NULL, 1, backtrace[i]);                     \
+                        llog(LOG_ERROR, (event)->game, NULL, 1, backtrace[i]);      \
                     if(backtrace) free(backtrace);                                  \
-                    llog_unindent();                                                \
+                    llog_unindent((event)->game);                                   \
                 }
 
 #else  /* _DEBUG */
@@ -206,41 +206,41 @@ EVENT_LISTENER1(on_event, int arg)
 #define EVENT_FIRE3(event, arg1, arg2, arg3)        EVENT_FIRE_FROM_TEMP3(event, event, arg1, arg2, arg3)
 #define EVENT_FIRE4(event, arg1, arg2, arg3, arg4)  EVENT_FIRE_FROM_TEMP4(event, event, arg1, arg2, arg3, arg4)
 
-#define EVENT_FIRE_FROM_TEMP0(static_name, event_name) do {     \
+#define EVENT_FIRE_FROM_TEMP0(static_name, event) do {          \
             EVENT_DUMMY_FUNCTION_SIGNATURE_CHECK0(static_name)  \
-            IF_EVENT_VALID(event_name)                          \
-                EVENT_ITERATE_LISTENERS_BEGIN(event_name)       \
-                    EVENT_FIRE_IMPL0(event_name)                \
+            IF_EVENT_VALID(event)                               \
+                EVENT_ITERATE_LISTENERS_BEGIN(event)            \
+                    EVENT_FIRE_IMPL0(event)                     \
                 EVENT_ITERATE_LISTENERS_END                     \
-            ELSE_REPORT_EVENT_FIRE_FAILURE } while(0)
-#define EVENT_FIRE_FROM_TEMP1(static_name, event_name, arg) do {    \
+            ELSE_REPORT_EVENT_FIRE_FAILURE(event) } while(0)
+#define EVENT_FIRE_FROM_TEMP1(static_name, event, arg) do {         \
             EVENT_DUMMY_FUNCTION_SIGNATURE_CHECK1(static_name, arg) \
-            IF_EVENT_VALID(event_name)                              \
-                EVENT_ITERATE_LISTENERS_BEGIN(event_name)           \
-                    EVENT_FIRE_IMPL1(event_name, arg)               \
+            IF_EVENT_VALID(event)                                   \
+                EVENT_ITERATE_LISTENERS_BEGIN(event)                \
+                    EVENT_FIRE_IMPL1(event, arg)                    \
                 EVENT_ITERATE_LISTENERS_END                         \
-            ELSE_REPORT_EVENT_FIRE_FAILURE } while(0)
-#define EVENT_FIRE_FROM_TEMP2(static_name, event_name, arg1, arg2) do {     \
+            ELSE_REPORT_EVENT_FIRE_FAILURE(event) } while(0)
+#define EVENT_FIRE_FROM_TEMP2(static_name, event, arg1, arg2) do {          \
             EVENT_DUMMY_FUNCTION_SIGNATURE_CHECK2(static_name, arg1, arg2)  \
-            IF_EVENT_VALID(event_name)                                      \
-                EVENT_ITERATE_LISTENERS_BEGIN(event_name)                   \
-                    EVENT_FIRE_IMPL2(event_name, arg1, arg2)                \
+            IF_EVENT_VALID(event)                                           \
+                EVENT_ITERATE_LISTENERS_BEGIN(event)                        \
+                    EVENT_FIRE_IMPL2(event, arg1, arg2)                     \
                 EVENT_ITERATE_LISTENERS_END                                 \
-            ELSE_REPORT_EVENT_FIRE_FAILURE } while(0)
-#define EVENT_FIRE_FROM_TEMP3(static_name, event_name, arg1, arg2, arg3) do {       \
+            ELSE_REPORT_EVENT_FIRE_FAILURE(event) } while(0)
+#define EVENT_FIRE_FROM_TEMP3(static_name, event, arg1, arg2, arg3) do {            \
             EVENT_DUMMY_FUNCTION_SIGNATURE_CHECK3(static_name, arg1, arg2, arg3)    \
-            IF_EVENT_VALID(event_name)                                              \
-                EVENT_ITERATE_LISTENERS_BEGIN(event_name)                           \
-                    EVENT_FIRE_IMPL3(event_name, arg1, arg2, arg3)                  \
+            IF_EVENT_VALID(event)                                                   \
+                EVENT_ITERATE_LISTENERS_BEGIN(event)                                \
+                    EVENT_FIRE_IMPL3(event, arg1, arg2, arg3)                       \
                 EVENT_ITERATE_LISTENERS_END                                         \
-            ELSE_REPORT_EVENT_FIRE_FAILURE } while(0)
-#define EVENT_FIRE_FROM_TEMP4(static_name, event_name, arg1, arg2, arg3, arg4) do {     \
+            ELSE_REPORT_EVENT_FIRE_FAILURE(event) } while(0)
+#define EVENT_FIRE_FROM_TEMP4(static_name, event, arg1, arg2, arg3, arg4) do {          \
             EVENT_DUMMY_FUNCTION_SIGNATURE_CHECK4(static_name, arg1, arg2, arg3, arg4)  \
-            IF_EVENT_VALID(event_name)                                                  \
-                EVENT_ITERATE_LISTENERS_BEGIN(event_name)                               \
-                    EVENT_FIRE_IMPL4(event_name, arg1, arg2, arg3, arg4)                \
+            IF_EVENT_VALID(event)                                                       \
+                EVENT_ITERATE_LISTENERS_BEGIN(event)                                    \
+                    EVENT_FIRE_IMPL4(event, arg1, arg2, arg3, arg4)                     \
                 EVENT_ITERATE_LISTENERS_END                                             \
-            ELSE_REPORT_EVENT_FIRE_FAILURE } while(0)
+            ELSE_REPORT_EVENT_FIRE_FAILURE(event) } while(0)
 
 #define EVENT_H_NO_EXTERN0(event)                                   EVENT_GEN_DUMMY_FUNCTION_DECL0(event)
 #define EVENT_H_NO_EXTERN1(event, arg1_t)                           EVENT_GEN_DUMMY_FUNCTION_DECL1(event, arg1_t)
