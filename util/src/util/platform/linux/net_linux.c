@@ -1,5 +1,4 @@
 #include "util/net.h"
-#include "util/log.h"
 #include "util/memory.h"
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -96,36 +95,26 @@ get_sockaddr_ip_str(const struct sockaddr* addr)
 static void
 log_addrinfo_error(const char* message, const struct addrinfo* addr)
 {
-    /* create format string */
-    const char format_str[] = "socket info:\n"
-                              "  family:        %d\n"
-                              "  type:          %d\n"
-                              "  protocol:      %d\n"
-                              "  address:       %s\n\n"
-                              "constants:\n"
-                              "  families\n"
-                              "    AF_UNSPEC:   %d\n"
-                              "    AF_INET:     %d\n"
-                              "    AF_INET6:    %d\n"
-                              "  types\n"
-                              "    SOCK_STREAM: %d\n"
-                              "    SOCK_DGRAM:  %d\n";
-    
-    /* we're copying the format string, 8 integers, and an IP address into 
-     * the message string */
-    char info_str[sizeof(format_str) + sizeof(int)*8*8 + INET6_ADDRSTRLEN];
-    
     /* get ip address from address info struct */
     char* ip_str = get_sockaddr_ip_str(addr->ai_addr);
     
-    /* do format copy */
-    sprintf(info_str, format_str,
+    /* output to stderr */
+    fprintf(stderr, "socket info:\n"
+                    "  family:        %d\n"
+                    "  type:          %d\n"
+                    "  protocol:      %d\n"
+                    "  address:       %s\n\n"
+                    "constants:\n"
+                    "  families\n"
+                    "    AF_UNSPEC:   %d\n"
+                    "    AF_INET:     %d\n"
+                    "    AF_INET6:    %d\n"
+                    "  types\n"
+                    "    SOCK_STREAM: %d\n"
+                    "    SOCK_DGRAM:  %d\n",
             addr->ai_family, addr->ai_socktype, addr->ai_protocol, ip_str,
             AF_UNSPEC, AF_INET, AF_INET6,
             SOCK_STREAM, SOCK_DGRAM);
-    
-    /* log message along with info string */
-    llog(LOG_ERROR, NULL, 2, message, info_str);
     
     FREE(ip_str);
 }
@@ -140,7 +129,10 @@ net_udp(const char* node, const char* port, uint32_t max_connections, char is_ho
     /* create connection object */
     connection = (struct net_connection_t*)MALLOC(sizeof *connection);
     if(!connection)
-        OUT_OF_MEMORY("net_host_udp()", NULL);
+    {
+        fprintf(stderr, "malloc() failed in net_host_udp() -- not enough memory\n");
+        return NULL;
+    }
     
     /* init connection */
     memset(connection, 0, sizeof *connection);
@@ -156,7 +148,7 @@ net_udp(const char* node, const char* port, uint32_t max_connections, char is_ho
     /* get address info matching above hints */
     if(getaddrinfo(NULL, port, &hints, &res) != 0)
     {
-        llog(LOG_ERROR, NULL, 1, "getaddrinfo() failed in net_host_udp()");
+        fprintf(stderr, "getaddrinfo() failed in net_host_udp()\n");
         net_disconnect(connection);
         return NULL;
     }
@@ -196,7 +188,7 @@ net_udp(const char* node, const char* port, uint32_t max_connections, char is_ho
     /* make sure bind was successful */
     if(p == NULL)
     {
-        llog(LOG_ERROR, NULL, 1, "Failed to set up host");
+        fprintf(stderr, "Failed to set up host\n");
         net_disconnect(connection);
         return NULL;
     }

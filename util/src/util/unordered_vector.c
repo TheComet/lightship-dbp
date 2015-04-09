@@ -1,8 +1,8 @@
 #include <string.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
 #include "util/unordered_vector.h"
-#include "util/log.h"
 #include "util/memory.h"
 
 /* ----------------------------------------------------------------------------
@@ -92,7 +92,10 @@ unordered_vector_push_emplace(struct unordered_vector_t* vector)
     {
         data = unordered_vector_expand(vector, -1);
         if(!data)
-            OUT_OF_MEMORY("unordered_vector_push_emplace()", NULL);
+        {
+            fprintf(stderr, "malloc() failed in unordered_vector_push_emplace() -- out of memory\n");
+            return NULL;
+        }
     }
     else
         data = vector->data;

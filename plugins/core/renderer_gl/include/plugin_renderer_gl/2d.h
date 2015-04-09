@@ -2,6 +2,8 @@
 #include "util/unordered_vector.h"
 #include "framework/service_api.h"
 
+struct glob_t;
+
 struct shapes_t
 {
     uint32_t ID;
@@ -18,7 +20,7 @@ struct shapes_t
  * related calls.
  */
 char
-init_2d(void);
+init_2d(struct glob_t* g);
 
 /*!
  * @brief De-inits 2D subsystem. Cleans up all buffers.

@@ -2,7 +2,9 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include "util/log.h"
+#include "framework/log.h"
+#include "framework/glob.h"
+#include "framework/game.h"
 #include "util/memory.h"
 
 #ifdef ENABLE_LOG_TIMESTAMPS
@@ -27,20 +29,14 @@
 #   define COLOR_PURPLE COLOR_MAGENTA
 #endif
 
-static char g_log_indent = 0;
-
-EVENT_C0(evt_log_unindent)
-EVENT_C1(evt_log_indent, const char*)
-EVENT_C1(evt_log, struct log_t*)
+static void
+on_llog_indent(const struct game_t* game, const char* str);
 
 static void
-on_llog_indent(const char* str);
+on_llog_unindent(const struct game_t* game);
 
 static void
-on_llog_unindent(void);
-
-static void
-on_llog(struct log_t* arg);
+on_llog(const struct game_t* game, log_level_e level, const char* message);
 
 /* ----------------------------------------------------------------------------
  * Static functions
@@ -64,9 +60,10 @@ safe_strcat(char* target, const char* source)
 /* ----------------------------------------------------------------------------
  * Exported functions
  * ------------------------------------------------------------------------- */
-void
-llog_init(void)
+char
+llog_init(struct game_t* game)
 {
+    struct framework_glob_t* g;
     /* ncurses support -- TODO currently broken and disabled *
 #ifdef HAVE_CURSES
     initscr();
@@ -83,52 +80,66 @@ llog_init(void)
     init_pair(LOG_FATAL, -1, COLOR_RED);
     init_pair(LOG_USER, COLOR_PURPLE, -1);
 #endif  */
+    
+    /* initialise indent level */
+    g = framework_get_global(game);
+    g->log.indent_level = 0;
+    
+    return 1;
 }
 
 /* ------------------------------------------------------------------------- */
 void
-llog_deinit(void)
+llog_deinit(struct game_t* game)
 {
-    evt_log = NULL;
-    evt_log_indent = NULL;
-    evt_log_unindent = NULL;
 }
 
 /* ------------------------------------------------------------------------- */
 void
-llog_set_events(struct event_t* on_indent, struct event_t* on_unindent, struct event_t* on_log)
+llog_indent(struct game_t* game, const char* indent_name)
 {
-    evt_log_indent = on_indent;
-    evt_log_unindent = on_unindent;
-    evt_log = on_log;
+    struct framework_glob_t* g;
+    
+    /* can't indent if game is NULL, because the indent level is stored per
+     * game */
+    if(!game)
+    {
+        llog(LOG_WARNING, NULL, NULL, 1, "llog_indent() was called with a NULL game object");
+        return;
+    }
+    
+    g = framework_get_global(game);
+    EVENT_FIRE_FROM_TEMP1(evt_log_indent, g->event.log_indent, indent_name);
+    on_llog_indent(game, indent_name);
+
+    ++g->log.indent_level;
 }
 
 /* ------------------------------------------------------------------------- */
 void
-llog_indent(const char* indent_name)
+llog_unindent(struct game_t* game)
 {
-    if(evt_log_indent)
-        EVENT_FIRE1(evt_log_indent, indent_name);
-    on_llog_indent(indent_name);
+    struct framework_glob_t* g;
+    
+    /* can't unindent if game is NULL, because the indent level is stored per
+     * game object */
+    if(!game)
+    {
+        llog(LOG_WARNING, NULL, NULL, 1, "llog_unindent() was called with a NULL game object");
+        return;
+    }
+    
+    g = framework_get_global(game);
+    EVENT_FIRE_FROM_TEMP0(evt_log_unindent, g->event.log_unindent);
+    on_llog_unindent(game);
 
-    ++g_log_indent;
+    if(g->log.indent_level)
+        --g->log.indent_level;
 }
 
 /* ------------------------------------------------------------------------- */
 void
-llog_unindent(void)
-{
-    if(evt_log_unindent)
-        EVENT_FIRE0(evt_log_unindent);
-    on_llog_unindent();
-
-    if(g_log_indent)
-        --g_log_indent;
-}
-
-/* ------------------------------------------------------------------------- */
-void
-llog(log_level_t level, const char* plugin, uint32_t num_strs, ...)
+llog(log_level_e level, const struct game_t* game, const char* plugin, uint32_t num_strs, ...)
 {
     /* variables required to generate a timestamp string */
 #ifdef ENABLE_LOG_TIMESTAMPS
@@ -139,11 +150,15 @@ llog(log_level_t level, const char* plugin, uint32_t num_strs, ...)
 
     /* more local variables because C89 */
     va_list ap;
-    struct log_t log_;
     uint32_t i;
     uint32_t total_length = 0;
     char* buffer = NULL;
     char* prefix = NULL;
+    struct framework_glob_t* g = NULL;
+    
+    /* get global data if game is not NULL */
+    if(game)
+        g = framework_get_global(game);
 
     /* 
      * Get timestamp string.
@@ -154,6 +169,10 @@ llog(log_level_t level, const char* plugin, uint32_t num_strs, ...)
     timeinfo = localtime(&rawtime); /* convert to local time */
     total_length = strftime(timestamp, 12, "[%X] ", timeinfo);
 #endif
+    
+    /* add length of game string, plus three characters for [] and space */
+    if(game)
+        total_length += strlen(game->name) + 3;
 
     /* determine prefix string */
     switch(level)
@@ -198,16 +217,22 @@ llog(log_level_t level, const char* plugin, uint32_t num_strs, ...)
     
     /* allocate buffer and copy all strings into it */
     buffer = (char*)MALLOC(total_length);
+    *buffer = '\0'; /* so strcat() works */
     
-    /* copy prefix into buffer */
+    /* copy timestamp into buffer */
 #ifdef ENABLE_LOG_TIMESTAMPS
-    strcpy(buffer, timestamp);
-    strcat(buffer, prefix);
-#else
-    strcpy(buffer, prefix);
+    strcat(buffer, timestamp);
 #endif
     
-    /* copy plugin prefix into buffer, if any */
+    /* copy game name */
+    if(game)
+    {
+        strcat(buffer, "[");
+        strcat(buffer, game->name);
+        strcat(buffer, "] ");
+    }
+    
+    /* copy plugin name into buffer, if any */
     if(plugin)
     {
         strcat(buffer, "[");
@@ -215,7 +240,7 @@ llog(log_level_t level, const char* plugin, uint32_t num_strs, ...)
         strcat(buffer, "] ");
     }
     
-    /* copy all other strings into buffer and end with newline*/
+    /* copy all other strings into buffer and end with newline */
     va_start(ap, num_strs);
     for(i = 0; i != num_strs; ++i)
         safe_strcat(buffer, va_arg(ap, char*));
@@ -225,11 +250,9 @@ llog(log_level_t level, const char* plugin, uint32_t num_strs, ...)
     buffer[total_length-1] = '\0';
 
     /* fire event and output mesasge */
-    log_.level = level;
-    log_.message = buffer;
-    if(evt_log)
-        EVENT_FIRE1(evt_log, &log_);
-    on_llog(&log_);
+    if(game)
+        EVENT_FIRE_FROM_TEMP2(evt_log, g->event.log, level, (const char*)buffer);
+    on_llog(game, level, buffer);
 
     FREE(buffer);
 }
@@ -245,30 +268,37 @@ llog_critical_use_no_memory(const char* message)
  * Built in event listeners
  * ------------------------------------------------------------------------- */
 static void
-on_llog_indent(const char* str)
+on_llog_indent(const struct game_t* game, const char* str)
 {
-    llog(LOG_INFO, NULL, 1, str);
+    llog(LOG_INFO, game, NULL, 1, str);
 }
 
 /* ------------------------------------------------------------------------- */
 static void
-on_llog_unindent(void)
+on_llog_unindent(const struct game_t* game)
 {
 }
 
 /* ------------------------------------------------------------------------- */
 static void
-on_llog(struct log_t* arg)
+on_llog(const struct game_t* game, log_level_e level, const char* message)
 {
     FILE* fp;
     char i;
+    struct framework_glob_t* g;
+    
+    /* get global data for indentation if possible */
+    if(game)
+    {
+        g = framework_get_global(game);
+        for(i = 0; i != g->log.indent_level; ++i)
+            fprintf(fp, "    ");
+    }
     
     /* determine output stream */
-    switch(arg->level)
+    switch(level)
     {
         case LOG_INFO:
-            fp = stdout;
-            break;
         case LOG_USER:
             fp = stdout;
             break;
@@ -277,7 +307,6 @@ on_llog(struct log_t* arg)
             break;
     }
 
-    for(i = 0; i != g_log_indent; ++i)
-        fprintf(fp, "    ");
-    fprintf(fp, "%s", arg->message);
+    
+    fprintf(fp, "%s\n", message);
 }

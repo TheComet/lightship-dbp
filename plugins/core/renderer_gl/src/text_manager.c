@@ -1,13 +1,14 @@
 #include "plugin_renderer_gl/config.h"
+#include "plugin_renderer_gl/glob.h"
 #include "plugin_renderer_gl/text_manager.h"
 #include "plugin_renderer_gl/text.h"
 #include "plugin_renderer_gl/text_wrapper.h"
 #include "plugin_renderer_gl/shader.h"
 #include "plugin_renderer_gl/window.h"
 #include "util/unordered_vector.h"
+#include "framework/log.h"
 #include "util/map.h"
 #include "util/memory.h"
-#include "util/log.h"
 #include "GL/glew.h"
 #include FT_BITMAP_H
 
@@ -37,7 +38,10 @@ static const char* text_shader_file = "fx/text_2d";
 #endif
 
 static char
-text_group_load_font(struct text_group_t* group, const char* filename, uint32_t char_size);
+text_group_load_font(struct glob_t* g,
+                     struct text_group_t* group,
+                     const char* filename,
+                     uint32_t char_size);
 
 /*!
  * @brief Rounds a number up to the nearest power of 2.
@@ -56,26 +60,28 @@ to_nearest_pow2(GLuint value)
  * @brief Generates and uploads an atlass to the GPU.
  */
 static void
-text_group_load_atlass(struct text_group_t* group, const wchar_t* characters);
+text_group_load_atlass(struct glob_t* g,
+                       struct text_group_t* group,
+                       const wchar_t* characters);
 
 static void
 text_group_sync_with_gpu(struct text_group_t* group);
 
 /* ------------------------------------------------------------------------- */
 char
-text_manager_init(void)
+text_manager_init(struct glob_t* g)
 {
     FT_Error error;
     
     /* load the text shader */
-    g_text_shader_id = shader_load(text_shader_file);printOpenGLError();
+    g_text_shader_id = shader_load(g, text_shader_file);printOpenGLError();
 
     /* init freetype */
-    llog(LOG_INFO, PLUGIN_NAME, 1, "Initialising freetype");
+    llog(LOG_INFO, g->game, PLUGIN_NAME, 1, "Initialising freetype");
     error = FT_Init_FreeType(&g_lib);
     if(error)
     {
-        llog(LOG_ERROR, PLUGIN_NAME, 1, "Failed to initialise freetype");
+        llog(LOG_ERROR, g->game, PLUGIN_NAME, 1, "Failed to initialise freetype");
         return 0;
     }
     
@@ -111,7 +117,9 @@ text_manager_deinit(void)
 
 /* ------------------------------------------------------------------------- */
 uint32_t
-text_group_create(const char* font_filename, uint32_t char_size)
+text_group_create(struct glob_t* g,
+                  const char* font_filename,
+                  uint32_t char_size)
 {
     struct text_group_t* group;
     uint32_t id;
@@ -121,7 +129,7 @@ text_group_create(const char* font_filename, uint32_t char_size)
     memset(group, 0, sizeof(struct text_group_t));
     
     /* load font face */
-    if(!text_group_load_font(group, font_filename, char_size))
+    if(!text_group_load_font(g, group, font_filename, char_size))
     {
         FREE(group);
         return 0;
@@ -215,7 +223,9 @@ text_group_get(uint32_t id)
 
 /* ------------------------------------------------------------------------- */
 void
-text_group_load_character_set(uint32_t id, const wchar_t* characters)
+text_group_load_character_set(struct glob_t* g,
+                              uint32_t id,
+                              const wchar_t* characters)
 {
     const wchar_t* iterator;
     wchar_t* null_terminator = L'\0';
@@ -259,7 +269,7 @@ text_group_load_character_set(uint32_t id, const wchar_t* characters)
 
     /* sorted_chars now contains all characters as wchar_t's. Ready to load atlass */
     if(sorted_chars.count > 1)
-        text_group_load_atlass(group, (wchar_t*)sorted_chars.data);
+        text_group_load_atlass(g, group, (wchar_t*)sorted_chars.data);
     
     unordered_vector_clear_free(&sorted_chars);
 }
@@ -330,7 +340,10 @@ text_draw(void)
 
 /* ------------------------------------------------------------------------- */
 static char
-text_group_load_font(struct text_group_t* group, const char* filename, uint32_t char_size)
+text_group_load_font(struct glob_t* g,
+                     struct text_group_t* group,
+                     const char* filename,
+                     uint32_t char_size)
 {
     FT_Error error;
 
@@ -338,12 +351,12 @@ text_group_load_font(struct text_group_t* group, const char* filename, uint32_t 
     error = FT_New_Face(g_lib, filename, 0, &group->face);
     if(error == FT_Err_Unknown_File_Format)
     {
-        llog(LOG_ERROR, PLUGIN_NAME, 3, "The font file \"", filename, "\" could be opened and read, but it appears that its font format is unsupported");
+        llog(LOG_ERROR, g->game, PLUGIN_NAME, 3, "The font file \"", filename, "\" could be opened and read, but it appears that its font format is unsupported");
         return 0;
     }
     else if(error)
     {
-        llog(LOG_ERROR, PLUGIN_NAME, 3, "Failed to open font file \"", filename, "\"");
+        llog(LOG_ERROR, g->game, PLUGIN_NAME, 3, "Failed to open font file \"", filename, "\"");
         return 0;
     }
     
@@ -351,7 +364,7 @@ text_group_load_font(struct text_group_t* group, const char* filename, uint32_t 
     error = FT_Set_Char_Size(group->face, TO_26DOT6(char_size), 0, 300, 300);
     if(error)
     {
-        llog(LOG_ERROR, PLUGIN_NAME, 1, "Failed to set the character size");
+        llog(LOG_ERROR, g->game, PLUGIN_NAME, 1, "Failed to set the character size");
         return 0;
     }
     
@@ -360,7 +373,9 @@ text_group_load_font(struct text_group_t* group, const char* filename, uint32_t 
 
 /* ------------------------------------------------------------------------- */
 static void
-text_group_load_atlass(struct text_group_t* group, const wchar_t* characters)
+text_group_load_atlass(struct glob_t* g,
+                       struct text_group_t* group,
+                       const wchar_t* characters)
 {
     const wchar_t* iterator;
     FT_Error error;
@@ -397,7 +412,7 @@ text_group_load_atlass(struct text_group_t* group, const wchar_t* characters)
             char* buffer[sizeof(wchar_t)+1];
             memcpy(buffer, iterator, sizeof(wchar_t));
             buffer[sizeof(wchar_t)] = '\0';
-            llog(LOG_ERROR, PLUGIN_NAME, 3, "Failed to load glyph \"", buffer, "\"");
+            llog(LOG_ERROR, g->game, PLUGIN_NAME, 3, "Failed to load glyph \"", buffer, "\"");
             continue;
         }
         
@@ -469,7 +484,7 @@ text_group_load_atlass(struct text_group_t* group, const wchar_t* characters)
 
             /* other pixel modes */
             default:
-                llog(LOG_ERROR, PLUGIN_NAME, 1, "Glyph bitmap has unsupported format (conversion to RGBA needs implementing)");
+                llog(LOG_ERROR, g->game, PLUGIN_NAME, 1, "Glyph bitmap has unsupported format (conversion to RGBA needs implementing)");
                 break;
         }
 

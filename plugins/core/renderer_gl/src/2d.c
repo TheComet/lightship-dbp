@@ -31,9 +31,9 @@ shapes_get(uint32_t ID)
 
 /* ------------------------------------------------------------------------- */
 char
-init_2d(void)
+init_2d(struct glob_t* g)
 {
-    g_line_shader_id = shader_load(two_d_shader_file);
+    g_line_shader_id = shader_load(g, two_d_shader_file);
 
     unordered_vector_init_vector(&g_shapes_collection, sizeof(struct shapes_t));
     

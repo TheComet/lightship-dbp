@@ -40,7 +40,6 @@
  */
 
 #include "thread_pool/thread_pool.h"
-#include "util/log.h"
 #include "util/memory.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -345,10 +344,7 @@ thread_pool_wait_for_jobs(struct thread_pool_t* pool)
 static void
 thread_pool_init_pool(struct thread_pool_t* pool, uint32_t num_threads, uint32_t buffer_size_in_bytes)
 {
-    char thread_self_str[sizeof(int)*8+3];
-    
-    sprintf(thread_self_str, "0x%lx", (intptr_t)pthread_self());
-    llog(LOG_INFO, NULL, 2, "Thread pool initialising on thread ", thread_self_str);
+    printf("Thread pool initialising on thread 0x%lx\n", (intptr_t)pthread_self());
     
     /* set struct memory to a defined state */
     memset(pool, 0, sizeof(struct thread_pool_t));
@@ -471,7 +467,6 @@ ring_buffer_resize(struct ring_buffer_t* rb, intptr_t new_size)
     DATA_POINTER_TYPE* buffer;
     DATA_POINTER_TYPE* old_buffer;
     intptr_t buffer_size, old_buffer_size;
-    char new_size_str[sizeof(int)*8+3];
     
     /*
      * NOTE: Mutex should be locked at this point.
@@ -486,8 +481,7 @@ ring_buffer_resize(struct ring_buffer_t* rb, intptr_t new_size)
     }
     
     /* log */
-    sprintf(new_size_str, "0x%lx", new_size);
-    llog(LOG_INFO, NULL, 2, "Ring buffer resize: ", new_size_str);
+    printf("Ring buffer resize: 0x%lx\n", new_size);
     
     /* allocate new buffer */
     old_buffer = rb->flg_buffer;

@@ -2,10 +2,11 @@
 #include "framework/events.h"
 #include "framework/game.h"
 #include "framework/plugin.h"
+#include "framework/log.h"
+#include "framework/glob.h"
 #include "util/hash.h"
 #include "util/memory.h"
 #include "util/string.h"
-#include "util/log.h"
 #include <string.h>
 #include <stdlib.h>
 #include <assert.h>
@@ -69,25 +70,35 @@ char
 events_init(struct game_t* game)
 {
     char* name;
+    struct framework_glob_t* g;
     
     assert(game);
     
+    /* get global struct */
+    g = framework_get_global(game);
+    
+    /* this holds all of the game's events */
     map_init_map(&game->events);
     
     /* ----------------------------
      * Register built-in events 
      * --------------------------*/
     
-    /* The log will fire these events appropriately whenever something is logged */
-    name = malloc_string(BUILTIN_NAMESPACE_NAME ".log");
-    evt_log = event_malloc_and_register(game, name);
-    name = malloc_string(BUILTIN_NAMESPACE_NAME ".log_indent");
-    evt_log_indent = event_malloc_and_register(game, name);
-    name = malloc_string(BUILTIN_NAMESPACE_NAME ".log_unindent");
-    evt_log_unindent = event_malloc_and_register(game, name);
-    llog_set_events(evt_log_indent, evt_log_unindent, evt_log);
+    for(;;)
+    {
     
-    return 1;
+        /* The log will fire these events appropriately whenever something is logged */
+        name = malloc_string(BUILTIN_NAMESPACE_NAME ".log");            if(!name) break;
+        g->event.log = event_malloc_and_register(game, name);           if(!g->event.log) break;
+        name = malloc_string(BUILTIN_NAMESPACE_NAME ".log_indent");     if(!name) break;
+        g->event.log_indent = event_malloc_and_register(game, name);    if(!g->event.log_indent) break;
+        name = malloc_string(BUILTIN_NAMESPACE_NAME ".log_unindent");   if(!name) break;
+        g->event.log_unindent = event_malloc_and_register(game, name);  if(!g->event.log_unindent) break;
+        
+        return 1;
+    }
+    
+    return 0;
 }
 
 /* ------------------------------------------------------------------------- */
@@ -124,7 +135,7 @@ event_destroy(struct event_t* event)
     assert(event);
     
     if(!map_erase_element(&event->game->events, event))
-        llog(LOG_WARNING, NULL, 1, "Destroying an event that could not be found in the associated game object");
+        llog(LOG_WARNING, event->game, NULL, 1, "Destroying an event that could not be found in the associated game object");
 
     event_free(event);
     return 1;

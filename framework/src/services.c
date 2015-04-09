@@ -2,7 +2,7 @@
 #include "framework/plugin.h"
 #include "framework/services.h"
 #include "util/hash.h"
-#include "util/log.h"
+#include "framework/log.h"
 #include "util/map.h"
 #include "util/memory.h"
 #include "util/string.h"
@@ -262,10 +262,10 @@ service_create_argument_list_from_strings(struct service_t* service, struct orde
         char argc_required[sizeof(int)*8+1];
         sprintf(argc_provided, "%d", (int)argv->count);
         sprintf(argc_required, "%d", service->argc);
-        llog(LOG_ERROR, NULL, 3, "Cannot create argument list for service \"", service->name,
-                           "\": Wrong number of arguments");
-        llog(LOG_ERROR, NULL, 2, "    Required: ", argc_required);
-        llog(LOG_ERROR, NULL, 2, "    Provided: ", argc_provided);
+        llog(LOG_ERROR, service->game, NULL, 3, "Cannot create argument list for service \"",
+             service->name, "\": Wrong number of arguments");
+        llog(LOG_ERROR, service->game, NULL, 2, "    Required: ", argc_required);
+        llog(LOG_ERROR, service->game, NULL, 2, "    Provided: ", argc_provided);
         return NULL;
     }
 
@@ -352,8 +352,8 @@ service_create_argument_list_from_strings(struct service_t* service, struct orde
                     *((char*)ret[i]) = '\0';
                     break;
                 default:
-                    llog(LOG_ERROR, NULL, 4, "Cannot create argument list for service \"", service->name,
-                                       "\": Unknown type \"", str, "\"");
+                    llog(LOG_ERROR, service->game, NULL, 4, "Cannot create argument list for service \"",
+                         service->name, "\": Unknown type \"", str, "\"");
                     failed = 1;
                     break;
             }

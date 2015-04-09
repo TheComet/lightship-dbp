@@ -14,7 +14,7 @@
 #include "util/module_loader.h"
 #include "util/dir.h"
 #include "util/memory.h"
-#include "util/log.h"
+#include "framework/log.h"
 
 /*!
  * @brief Evaluates whether the specified file is an acceptable plugin to load
@@ -31,13 +31,15 @@ plugin_version_acceptable(const struct plugin_info_t* info,
 
 /*!
  * @brief Scans the plugin directory for a suitable plugin to load.
+ * @param[in] game Game object to find plugins fore.
  * @param[in] info The requested plugin to try and match.
  * @param[in] criteria The criteria to use.
  * @return Returns the full file name and relative path if a plugin was
  * matched. Returns NULL on failure.
  */
 static char*
-find_plugin(const struct plugin_info_t* info,
+find_plugin(struct game_t* game,
+            const struct plugin_info_t* info,
             const plugin_search_criteria_t criteria);
 
 /* ------------------------------------------------------------------------- */
@@ -90,15 +92,15 @@ plugin_load(struct game_t* game,
         /* make sure not already loaded */
         if(plugin_get_by_name(game, plugin_info->name))
         {
-            llog(LOG_ERROR, NULL, 3, "plugin \"", plugin_info->name, "\" already loaded");
+            llog(LOG_ERROR, game, NULL, 3, "plugin \"", plugin_info->name, "\" already loaded");
             break;
         }
 
         /* find a suitable file to match the criteria */
-        filename = find_plugin(plugin_info, criteria);
+        filename = find_plugin(game, plugin_info, criteria);
         if(!filename)
         {
-            llog(LOG_ERROR, NULL, 3, "Error searching for plugin \"", plugin_info->name, "\": Unable to find a file matching the critera");
+            llog(LOG_ERROR, game, NULL, 3, "Error searching for plugin \"", plugin_info->name, "\": Unable to find a file matching the critera");
             break;
         }
         
@@ -131,7 +133,7 @@ plugin_load(struct game_t* game,
         plugin = init_func(game);
         if(!plugin)
         {
-            llog(LOG_ERROR, NULL, 1, "Error initialising plugin: \"plugin_init\" returned NULL");
+            llog(LOG_ERROR, game, NULL, 1, "Error initialising plugin: \"plugin_init\" returned NULL");
             break;
         }
         
@@ -141,7 +143,7 @@ plugin_load(struct game_t* game,
         /* ensure the plugin claims to be the same version as its filename */
         if(!plugin_version_acceptable(&plugin->info, filename, PLUGIN_VERSION_EXACT))
         {
-            llog(LOG_ERROR, NULL, 5,
+            llog(LOG_ERROR, game, NULL, 5,
                             "Error: plugin claims to be version ",
                             version_str,
                             ", but the filename is \"",
@@ -166,7 +168,7 @@ plugin_load(struct game_t* game,
         list_push(&game->plugins, plugin);
         
         /* print info about loaded plugin */
-        llog(LOG_INFO, NULL, 4,
+        llog(LOG_INFO, game, NULL, 4,
             "loaded plugin \"",
             plugin->info.name,
             "\", version ",
@@ -216,19 +218,19 @@ load_plugins_from_yaml_dom(struct game_t* game, const struct ptree_t* plugins_no
             const struct ptree_t* policy = ptree_find_by_key(child, "version_policy");
             if(!name)
             {
-                llog(LOG_ERROR, NULL, 1, "Key \"name\" isn't defined for plugin");
+                llog(LOG_ERROR, game, NULL, 1, "Key \"name\" isn't defined for plugin");
                 continue;
             }
             if(!version)
             {
-                llog(LOG_ERROR, NULL, 1, "Key \"version\" isn't defined for plugin");
+                llog(LOG_ERROR, game, NULL, 1, "Key \"version\" isn't defined for plugin");
                 continue;
             }
             if(policy)
                 policy_str = (char*)policy->value;
             else
             {
-                llog(LOG_WARNING, NULL, 1, "Key \"version_policy\" isn't defined for plugin. Using default \"minimum\"");
+                llog(LOG_WARNING, game, NULL, 1, "Key \"version_policy\" isn't defined for plugin. Using default \"minimum\"");
                 policy_str = "minimum";
             }
             
@@ -245,7 +247,7 @@ load_plugins_from_yaml_dom(struct game_t* game, const struct ptree_t* plugins_no
                                                 &target.version.minor,
                                                 &target.version.patch))
             {
-                llog(LOG_ERROR, NULL, 1, "Version string of plugin \"", name, "\" is invalid. Should be major.minor.patch");
+                llog(LOG_ERROR, game, NULL, 1, "Version string of plugin \"", name, "\" is invalid. Should be major.minor.patch");
                 continue;
             }
             
@@ -256,7 +258,7 @@ load_plugins_from_yaml_dom(struct game_t* game, const struct ptree_t* plugins_no
                 criteria = PLUGIN_VERSION_EXACT;
             else
             {
-                llog(LOG_ERROR, NULL, 3, "Invalid policy \"", policy_str, "\". "
+                llog(LOG_ERROR, game, NULL, 3, "Invalid policy \"", policy_str, "\". "
                                          "Need either \"minimum\" or \"exact\"");
                 continue;
             }
@@ -275,7 +277,7 @@ load_plugins_from_yaml_dom(struct game_t* game, const struct ptree_t* plugins_no
         {
             if(!plugin_start(game, *pluginp))
             {
-                llog(LOG_ERROR, NULL, 3, "Failed to start plugin \"", (*pluginp)->info.name, "\", unloading...");
+                llog(LOG_ERROR, game, NULL, 3, "Failed to start plugin \"", (*pluginp)->info.name, "\", unloading...");
                 plugin_unload(game, *pluginp);
                 success = 0;
             }
@@ -292,7 +294,7 @@ void
 plugin_unload(struct game_t* game, struct plugin_t* plugin)
 {
     void* module_handle;
-    llog(LOG_INFO, NULL, 3, "unloading plugin \"", plugin->info.name, "\"");
+    llog(LOG_INFO, game, NULL, 3, "unloading plugin \"", plugin->info.name, "\"");
     
     /* stop the plugin */
     plugin_stop(plugin);
@@ -367,7 +369,8 @@ plugin_version_acceptable(const struct plugin_info_t* info,
 
 /* ------------------------------------------------------------------------- */
 static char*
-find_plugin(const struct plugin_info_t* info,
+find_plugin(struct game_t* game,
+            const struct plugin_info_t* info,
             const plugin_search_criteria_t criteria)
 {
     /* local variables */
@@ -381,7 +384,7 @@ find_plugin(const struct plugin_info_t* info,
             info->version.major,
             info->version.minor,
             info->version.patch);
-    llog(LOG_INFO, NULL, 4, "looking for plugin \"", info->name, crit_info[criteria],
+    llog(LOG_INFO, game, NULL, 4, "looking for plugin \"", info->name, crit_info[criteria],
             version_str);
     
     /* 

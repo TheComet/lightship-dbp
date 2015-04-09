@@ -1,7 +1,7 @@
 #include "plugin_main_loop/glob.h"
 #include "plugin_main_loop/config.h"
+#include "framework/log.h"
 #include "util/memory.h"
-#include "util/log.h"
 #include "util/hash.h"
 #include <string.h>
 #include <assert.h>

@@ -3,14 +3,13 @@
 #include "util/linked_list.h"
 
 struct net_connection_t;
+struct glob_t;
 
 typedef enum game_network_role_e
 {
     GAME_CLIENT = 1,
     GAME_HOST = 2
 } game_network_role_e;
-
-struct glob_t;
 
 struct game_t
 {

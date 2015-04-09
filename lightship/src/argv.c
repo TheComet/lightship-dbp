@@ -1,6 +1,6 @@
 #include "lightship/argv.h"
+#include "framework/log.h"
 #include "util/memory.h"
-#include "util/log.h"
 #include <stdio.h>
 #include <string.h>
 

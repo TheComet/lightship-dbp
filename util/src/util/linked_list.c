@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 #include "util/linked_list.h"
 #include "util/memory.h"
@@ -48,7 +49,10 @@ list_push(struct list_t* list, void* data)
     struct list_node_t* node;
     node = (struct list_node_t*)MALLOC(sizeof(struct list_node_t));
     if(!node)
-        OUT_OF_MEMORY("list_push()", RETURN_NOTHING);
+    {
+        fprintf(stderr, "malloc() failed in list_push() -- not enough memory\n");
+        return;
+    }
     
     /* first element being inserted, set tail */
     if(!list->head)

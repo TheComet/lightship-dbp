@@ -5,10 +5,10 @@
 #include "plugin_menu/button.h"
 #include "plugin_menu/glob.h"
 #include "framework/services.h"
+#include "framework/log.h"
 #include "util/ordered_vector.h"
 #include "util/ptree.h"
 #include "util/memory.h"
-#include "util/log.h"
 #include "util/string.h"
 #include <string.h>
 #include <stdlib.h>
@@ -20,7 +20,7 @@ static void
 menu_load_button(struct glob_t* g, struct screen_t* screen, const struct ptree_t* button_node);
 
 static void
-menu_load_button_action(struct button_t* button, const struct ptree_t* action_node);
+menu_load_button_action(struct glob_t* g, struct button_t* button, const struct ptree_t* action_node);
 
 /* ------------------------------------------------------------------------- */
 void
@@ -46,7 +46,7 @@ menu_load(struct glob_t* g, const char* file_name)
     char* menu_name;
     uint32_t doc;
     
-    llog(LOG_INFO, PLUGIN_NAME, 3, "Loading menu from file \"", file_name, "\"");
+    llog(LOG_INFO, g->game, PLUGIN_NAME, 3, "Loading menu from file \"", file_name, "\"");
     
     /* load and parse yaml file, get DOM */
     SERVICE_CALL1(g->services.yaml_load, &doc, PTR(file_name));
@@ -61,7 +61,7 @@ menu_load(struct glob_t* g, const char* file_name)
     screens = ptree_find_by_key(dom, "screens");
     if(!screens)
     {
-        llog(LOG_ERROR, PLUGIN_NAME, 1, "Failed to find \"screens\" node");
+        llog(LOG_ERROR, g->game, PLUGIN_NAME, 1, "Failed to find \"screens\" node");
         SERVICE_CALL1(g->services.yaml_destroy, SERVICE_NO_RETURN, doc);
         return NULL;
     }
@@ -73,7 +73,7 @@ menu_load(struct glob_t* g, const char* file_name)
             menu_name = name_node->value;
         else
         {
-            llog(LOG_ERROR, PLUGIN_NAME, 1, "Failed to find \"name\" node");
+            llog(LOG_ERROR, g->game, PLUGIN_NAME, 1, "Failed to find \"name\" node");
             SERVICE_CALL1(g->services.yaml_destroy, SERVICE_NO_RETURN, doc);
             return NULL;
         }
@@ -98,7 +98,7 @@ menu_load(struct glob_t* g, const char* file_name)
         if(start_node && start_node->value)
             menu_set_active_screen(menu, (char*)start_node->value);
         else
-            llog(LOG_WARNING, PLUGIN_NAME, 1, "You didn't specify start_screen: \"name\" in your YAML file. Don't know which screen to begin with.");
+            llog(LOG_WARNING, g->game, PLUGIN_NAME, 1, "You didn't specify start_screen: \"name\" in your YAML file. Don't know which screen to begin with.");
     }
 
     /* clean up */
@@ -136,7 +136,7 @@ menu_set_active_screen(struct menu_t* menu, const char* name)
     struct screen_t* screen = map_find(&menu->screens, screen_id);
     if(!screen)
     {
-        llog(LOG_ERROR, PLUGIN_NAME, 3, "Failed to set the active screen to \"", name, "\": Screen name not found");
+        llog(LOG_ERROR, menu->glob->game, PLUGIN_NAME, 3, "Failed to set the active screen to \"", name, "\": Screen name not found");
         return;
     }
 
@@ -174,7 +174,7 @@ menu_load_screens(struct menu_t* menu, const struct ptree_t* screens)
                 }
                 else
                 {
-                    llog(LOG_WARNING, PLUGIN_NAME, 1, "Screen missing the \"name\" property. Skipping.");
+                    llog(LOG_WARNING, menu->glob->game, PLUGIN_NAME, 1, "Screen missing the \"name\" property. Skipping.");
                     continue;
                 }
             }
@@ -185,8 +185,8 @@ menu_load_screens(struct menu_t* menu, const struct ptree_t* screens)
             */
             if(map_key_exists(&created_screen_names, hash_jenkins_oaat(screen_name, strlen(screen_name))))
             {
-                llog(LOG_WARNING, PLUGIN_NAME, 2, "Screen with duplicate name found: ", screen_name);
-                llog(LOG_WARNING, PLUGIN_NAME, 1, "Screen will not be created");
+                llog(LOG_WARNING, menu->glob->game, PLUGIN_NAME, 2, "Screen with duplicate name found: ", screen_name);
+                llog(LOG_WARNING, menu->glob->game, PLUGIN_NAME, 1, "Screen will not be created");
                 continue;
             }
             map_insert(&created_screen_names, hash_jenkins_oaat(screen_name, strlen(screen_name)), NULL);
@@ -226,7 +226,7 @@ menu_load_button(struct glob_t* g, struct screen_t* screen, const struct ptree_t
     const struct ptree_t* action_node = ptree_find_by_key(button_node, "action");
     if(!x_node || !y_node || !width_node || !height_node)
     {
-        llog(LOG_WARNING, PLUGIN_NAME, 1, "Not enough data to create button. Need at least position and size.");
+        llog(LOG_WARNING, g->game, PLUGIN_NAME, 1, "Not enough data to create button. Need at least position and size.");
         return;
     }
     if(text_node)
@@ -243,12 +243,12 @@ menu_load_button(struct glob_t* g, struct screen_t* screen, const struct ptree_t
 
     /* extract service name and arguments tied to action, if any */
     if(action_node)
-        menu_load_button_action(button, action_node);
+        menu_load_button_action(g, button, action_node);
 }
 
 /* ------------------------------------------------------------------------- */
 static void
-menu_load_button_action(struct button_t* button, const struct ptree_t* action_node)
+menu_load_button_action(struct glob_t* g, struct button_t* button, const struct ptree_t* action_node)
 {
     struct ptree_t* service_node = ptree_find_by_key(action_node, "service");
     if(service_node && service_node->value)
@@ -256,7 +256,7 @@ menu_load_button_action(struct button_t* button, const struct ptree_t* action_no
         struct service_t* action_service = service_get(button->base.element.glob->game, (char*)service_node->value);
         if(!action_service)
         {
-            llog(LOG_WARNING, PLUGIN_NAME, 3, "Tried to bind button to service \"",
+            llog(LOG_WARNING, g->game, PLUGIN_NAME, 3, "Tried to bind button to service \"",
                                 (char*)service_node->value,
                                 "\", but the service was not found.");
         }
@@ -317,7 +317,7 @@ SERVICE(menu_load_wrapper)
     id = hash_jenkins_oaat(menu->name, strlen(menu->name));
     if(map_find(&g->menu.menus, id))
     {
-        llog(LOG_ERROR, PLUGIN_NAME, 3, "Tried to load a menu with duplicate name: \"", menu->name, "\"");
+        llog(LOG_ERROR, g->game, PLUGIN_NAME, 3, "Tried to load a menu with duplicate name: \"", menu->name, "\"");
         menu_destroy(menu);
         SERVICE_RETURN(0, uint32_t);
     }

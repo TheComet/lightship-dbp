@@ -2,18 +2,24 @@
 #include "plugin_renderer_gl/text_manager.h"
 #include "plugin_renderer_gl/text.h"
 #include "plugin_renderer_gl/window.h"
-#include "util/log.h"
+#include "plugin_renderer_gl/glob.h"
+#include "framework/log.h"
 #include "util/memory.h"
 #include "util/string.h"
 #include "glfw3.h"
 #include <math.h>
 
 static void
-text_generate_mesh(struct text_t* text);
+text_generate_mesh(struct glob_t* g, struct text_t* text);
 
 /* ------------------------------------------------------------------------- */
 struct text_t*
-text_create(struct text_group_t* text_group, char centered, GLfloat x, GLfloat y, const wchar_t* str)
+text_create(struct glob_t* g,
+            struct text_group_t* text_group,
+            char centered,
+            GLfloat x,
+            GLfloat y,
+            const wchar_t* str)
 {
     struct text_t* text;
     text = (struct text_t*)MALLOC(sizeof(struct text_t));
@@ -27,7 +33,7 @@ text_create(struct text_group_t* text_group, char centered, GLfloat x, GLfloat y
     ordered_vector_init_vector(&text->index_buffer, sizeof(INDEX_DATA_TYPE));
     
     text_group_add_text_object(text_group, text);
-    text_generate_mesh(text);
+    text_generate_mesh(g, text);
     
     return text;
 }
@@ -84,7 +90,7 @@ text_hide(struct text_t* text)
 
 /* ------------------------------------------------------------------------- */
 static void
-text_generate_mesh(struct text_t* text)
+text_generate_mesh(struct glob_t* g, struct text_t* text)
 {
     const wchar_t* iterator;
     GLfloat dist_between_chars;
@@ -123,7 +129,7 @@ text_generate_mesh(struct text_t* text)
                 char* buffer[sizeof(wchar_t)+1];
                 memcpy(buffer, iterator, sizeof(wchar_t));
                 buffer[sizeof(wchar_t)] = '\0';
-                llog(LOG_ERROR, PLUGIN_NAME, 3, "Failed to look up character: \"", buffer, "\"");
+                llog(LOG_ERROR, g->game, PLUGIN_NAME, 3, "Failed to look up character: \"", buffer, "\"");
                 continue;
             }
             
@@ -161,7 +167,7 @@ text_generate_mesh(struct text_t* text)
             char* buffer[sizeof(wchar_t)+1];
             memcpy(buffer, iterator, sizeof(wchar_t));
             buffer[sizeof(wchar_t)] = '\0';
-            llog(LOG_ERROR, PLUGIN_NAME, 3, "Failed to look up character: \"", buffer, "\"");
+            llog(LOG_ERROR, g->game, PLUGIN_NAME, 3, "Failed to look up character: \"", buffer, "\"");
             continue;
         }
 

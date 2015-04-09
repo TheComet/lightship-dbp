@@ -1,6 +1,6 @@
 #include "plugin_main_loop/events.h"
 #include "plugin_main_loop/glob.h"
-#include "util/log.h"
+#include "framework/log.h"
 #include "util/time.h"
 #include <stdio.h>
 

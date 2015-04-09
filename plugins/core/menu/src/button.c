@@ -3,10 +3,10 @@
 #include "plugin_menu/events.h"
 #include "plugin_menu/glob.h"
 #include "framework/services.h"
+#include "framework/log.h"
 #include "util/map.h"
 #include "util/memory.h"
 #include "util/string.h"
-#include "util/log.h"
 #include <string.h>
 #include <wchar.h>
 
