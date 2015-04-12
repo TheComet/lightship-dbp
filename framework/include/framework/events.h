@@ -95,8 +95,8 @@ event_register_listener(plugin, "plugin_name.jump", on_player_jump);
  * See event_register_listener() for more information.
  */
 
-#ifndef LIGHTSHIP_UTIL_EVENTS_H
-#define LIGHTSHIP_UTIL_EVENTS_H
+#ifndef FRAMEWORK_EVENTS_H
+#define FRAMEWORK_EVENTS_H
 
 #include "util/pstdint.h"
 #include "util/linked_list.h"
@@ -211,6 +211,6 @@ event_unregister_all_listeners_of_plugin(const struct plugin_t* plugin);
 
 C_HEADER_END
 
-#endif /* LIGHTSHIP_UTIL_EVENTS_H */
+#endif /* FRAMEWORK_EVENTS_H */
 
 /** @} */

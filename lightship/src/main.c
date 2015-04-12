@@ -9,8 +9,18 @@ main(int argc, char** argv)
 {
     struct arg_obj_t* args;
 
+    /* init global things */
     init();
+    
+    llog(LOG_WARNING, NULL, NULL, 1, "Hmm, there may be something wrong");
+    llog(LOG_ERROR, NULL, NULL, 1, "Oh oh, I was right! Crap has hit the (cpu) fan!");
+    llog(LOG_FATAL, NULL, NULL, 1, "Abort, Abort! cpu is now on fire");
+    llog(LOG_USER, NULL, NULL, 1, "Nuuuuu!");
+    
+    /* parse command line arguments */
     args = argv_parse(argc, argv);
+    
+    /* if the game is set to run, init and run game */
     if(args->run_game)
     {
         const char* menu_file_name;
@@ -29,6 +39,7 @@ main(int argc, char** argv)
         SERVICE_CALL_NAME1(g_localhost, "menu.destroy", SERVICE_NO_RETURN, PTR(menu));
     }
     
+    /* clean up */
     argv_free(args);
     deinit();
 
