@@ -1,9 +1,20 @@
-#ifndef LIGHTSHIP_UTIL_LOG_H
-#define LIGHTSHIP_UTIL_LOG_H
+#ifndef FRAMEWORK_LOG_H
+#define FRAMEWORK_LOG_H
 
-#include "util/config.h"
 #include "util/pstdint.h"
+#include "framework/config.h"
 #include "framework/event_api.h"
+
+/* http://stackoverflow.com/questions/3585846/color-text-in-terminal-aplications-in-unix*/
+#define KNRM  "\x1B[0m"
+#define KRED  "\x1B[31m"
+#define KGRN  "\x1B[32m"
+#define KYEL  "\x1B[33m"
+#define KBLU  "\x1B[34m"
+#define KMAG  "\x1B[35m"
+#define KCYN  "\x1B[36m"
+#define KWHT  "\x1B[37m"
+#define RESET "\033[0m"
 
 struct log_t;
 struct game_t;
@@ -24,16 +35,13 @@ EVENT_H1(evt_log_indent, const char*)
 EVENT_H0(evt_log_unindent)
 
 /*!
- * @brief Initialises the log. Must be called before using any other log related
- * functions.
+ * @brief Initialises the log for the specified game object. Must be called
+ * before llog() can be called with a non-NULL game object.
  */
-LIGHTSHIP_UTIL_PUBLIC_API char
+FRAMEWORK_PUBLIC_API char
 llog_init(struct game_t* game);
 
-LIGHTSHIP_UTIL_PUBLIC_API void
-llog_deinit(struct game_t* game);
-
-LIGHTSHIP_UTIL_PUBLIC_API void
+FRAMEWORK_PUBLIC_API void
 llog_set_events(struct event_t* on_indent, struct event_t* on_unindent, struct event_t* on_log);
 
 /*!
@@ -43,7 +51,7 @@ llog_set_events(struct event_t* on_indent, struct event_t* on_unindent, struct e
  * amount, until llog_unindent() is called.
  * @param[in] indent_name The name of the new indentation level.
  */
-LIGHTSHIP_UTIL_PUBLIC_API void
+FRAMEWORK_PUBLIC_API void
 llog_indent(struct game_t* game, const char* indent_name);
 
 /*!
@@ -52,7 +60,7 @@ llog_indent(struct game_t* game, const char* indent_name);
  * This causes every succeeding call to llog() to be indented one level less
  * than before. If the indent level is at 0, then nothing happens.
  */
-LIGHTSHIP_UTIL_PUBLIC_API void
+FRAMEWORK_PUBLIC_API void
 llog_unindent(struct game_t* game);
 
 /*!
@@ -66,10 +74,10 @@ llog_unindent(struct game_t* game);
  * together.
  * @param[in] strs... The strings to concatenate and send to the log.
  */
-LIGHTSHIP_UTIL_PUBLIC_API void
+FRAMEWORK_PUBLIC_API void
 llog(log_level_e level, const struct game_t* game, const char* plugin, uint32_t num_strs, ...);
 
-LIGHTSHIP_UTIL_PUBLIC_API void
+FRAMEWORK_PUBLIC_API void
 llog_critical_use_no_memory(const char* message);
 
-#endif /* LIGHTSHIP_UTIL_LOG_H */
+#endif /* FRAMEWORK_LOG_H */

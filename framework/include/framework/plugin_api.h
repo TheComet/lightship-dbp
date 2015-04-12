@@ -1,5 +1,5 @@
-#ifndef LIGHTSHIP_UTIL_PLUGIN_API_H
-#define LIGHTSHIP_UTIL_PLUGIN_API_H
+#ifndef FRAMEWORK_PLUGIN_API_H
+#define FRAMEWORK_PLUGIN_API_H
 
 #include "util/pstdint.h"
 
@@ -78,5 +78,5 @@ struct plugin_t
     plugin_deinit_func deinit;
 };
 
-#endif /* LIGHTSHIP_UTIL_PLUGIN_API_H */
+#endif /* FRAMEWORK_PLUGIN_API_H */
 

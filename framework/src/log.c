@@ -10,24 +10,6 @@
 #   include <time.h>
 #endif
 
-#ifdef HAVE_CURSES
-    /* include correct header file */
-#   ifdef CURSES_HAVE_CURSES_H
-#       include "curses.h"
-#   elif defined (CURSES_HAVE_NCURSES_H)
-#       include "ncurses.h"
-#   elif defined (CURSES_HAVE_NCURSES_NCURSES_H)
-#       include "ncurses/ncurses.h"
-#   elif defined (CURSES_HAVE_NCURSES_CURSES_H)
-#       include "ncurses/curses.h"
-#   else
-#       error Failed to determine which ncurses header file to include. Check config.h.in and util/CMakeLists.txt.
-#   endif
-    /* remap colours */
-#   define COLOR_ORANGE COLOR_YELLOW
-#   define COLOR_PURPLE COLOR_MAGENTA
-#endif
-
 static void
 on_llog_indent(const struct game_t* game, const char* str);
 
@@ -62,33 +44,10 @@ safe_strcat(char* target, const char* source)
 char
 llog_init(struct game_t* game)
 {
-    /* ncurses support -- TODO currently broken and disabled *
-#ifdef HAVE_CURSES
-    initscr();
-    start_color();
-    
-    if(can_change_color())
-    {
-        *init_color(COLOR_ORANGE, 1000, 500, 0);
-        init_color(COLOR_PURPLE, 0, 500, 1000);*
-    }
-
-    init_pair(LOG_WARNING, COLOR_ORANGE, -1);
-    init_pair(LOG_ERROR, COLOR_RED, -1);
-    init_pair(LOG_FATAL, -1, COLOR_RED);
-    init_pair(LOG_USER, COLOR_PURPLE, -1);
-#endif  */
-    
     /* initialise indent level */
     game->log.indent_level = 0;
     
     return 1;
-}
-
-/* ------------------------------------------------------------------------- */
-void
-llog_deinit(struct game_t* game)
-{
 }
 
 /* ------------------------------------------------------------------------- */
@@ -144,7 +103,7 @@ llog(log_level_e level, const struct game_t* game, const char* plugin, uint32_t 
     uint32_t i;
     uint32_t total_length = 0;
     char* buffer = NULL;
-    char* prefix = NULL;
+    char* tag = NULL;
 
     /* 
      * Get timestamp string.
@@ -156,34 +115,35 @@ llog(log_level_e level, const struct game_t* game, const char* plugin, uint32_t 
     total_length = strftime(timestamp, 12, "[%X] ", timeinfo);
 #endif
     
-    /* add length of game string, plus three characters for [] and space */
-    if(game)
-        total_length += strlen(game->name) + 3;
-
-    /* determine prefix string */
+    /* determine tag string */
     switch(level)
     {
         case LOG_INFO:
-            prefix = "[INFO] ";
+            tag = "[INFO] ";
             break;
         case LOG_WARNING:
-            prefix = "[WARNING] ";
+            tag = "[WARNING] ";
             break;
         case LOG_ERROR:
-            prefix = "[ERROR] ";
+            tag = "[ERROR] ";
             break;
         case LOG_FATAL:
-            prefix = "[FATAL] ";
+            tag = "[FATAL] ";
             break;
         case LOG_USER:
-            prefix = "[USER] ";
+            tag = "[USER] ";
             break;
         default:
-            prefix = "";
+            tag = "";
             break;
     }
+    total_length += strlen(tag);
     
-    /* add length of plugin prefix, if any */
+    /* add length of game string, plus three characters for [] and space */
+    if(game)
+        total_length += strlen(game->name) + 3;
+    
+    /* add length of plugin tag, if any */
     if(plugin)
     {
         total_length += strlen(plugin) + 3;
@@ -197,9 +157,10 @@ llog(log_level_e level, const struct game_t* game, const char* plugin, uint32_t 
     va_start(ap, num_strs);
     for(i = 0; i != num_strs; ++i)
         total_length += safe_strlen(va_arg(ap, char*));
-    total_length += strlen(prefix);
-    total_length += 2; /* null terminator and newline */
     va_end(ap);
+    
+    /* null terminator and newline */
+    total_length += 2;
     
     /* allocate buffer and copy all strings into it */
     buffer = (char*)MALLOC(total_length);
@@ -209,6 +170,9 @@ llog(log_level_e level, const struct game_t* game, const char* plugin, uint32_t 
 #ifdef ENABLE_LOG_TIMESTAMPS
     strcat(buffer, timestamp);
 #endif
+    
+    /* copy tag */
+    strcat(buffer, tag);
     
     /* copy game name */
     if(game)
@@ -231,7 +195,8 @@ llog(log_level_e level, const struct game_t* game, const char* plugin, uint32_t 
     for(i = 0; i != num_strs; ++i)
         safe_strcat(buffer, va_arg(ap, char*));
     va_end(ap);
-    /*strcat(buffer, "\n");*/
+    
+    /* null terminator and newline */
     buffer[total_length-2] = '\n';
     buffer[total_length-1] = '\0';
 
@@ -267,29 +232,37 @@ on_llog_unindent(const struct game_t* game)
 
 /* ------------------------------------------------------------------------- */
 static void
-on_llog(const struct game_t* game, log_level_e level, const char* message)
+do_indent(FILE* fp, const struct game_t* game)
 {
-    FILE* fp;
-    char i;
-    
-    /* determine output stream for console output */
-    switch(level)
-    {
-        case LOG_INFO:
-        case LOG_USER:
-            fp = stdout;
-            break;
-        default:
-            fp = stderr;
-            break;
-    }
-
-    /* get global data for indentation if possible */
+    int i;
     if(game)
     {
         for(i = 0; i != game->log.indent_level; ++i)
             fprintf(fp, "    ");
     }
+}
+
+static void
+on_llog(const struct game_t* game, log_level_e level, const char* message)
+{
+    /* indent */
+    switch(level)
+    {
+        case LOG_INFO:
+        case LOG_USER: 
+            do_indent(stdout, game); break;
+        default:
+            do_indent(stderr, game); break;
+    }
     
-    fprintf(fp, "%s\n", message);
+    /* output message with the appropriate colours */
+    switch(level)
+    {
+        default:
+        case LOG_INFO:      fprintf(stdout, "%s", message);             break;
+        case LOG_WARNING:   fprintf(stderr, KYEL "%s" RESET, message);  break;
+        case LOG_ERROR:     fprintf(stderr, KMAG "%s" RESET, message);  break;
+        case LOG_FATAL:     fprintf(stderr, KRED "%s" RESET, message);  break;
+        case LOG_USER:      fprintf(stdout, KCYN "%s" RESET, message);  break;
+    }
 }
