@@ -12,11 +12,6 @@ main(int argc, char** argv)
     /* init global things */
     init();
     
-    llog(LOG_WARNING, NULL, NULL, 1, "Hmm, there may be something wrong");
-    llog(LOG_ERROR, NULL, NULL, 1, "Oh oh, I was right! Crap has hit the (cpu) fan!");
-    llog(LOG_FATAL, NULL, NULL, 1, "Abort, Abort! cpu is now on fire");
-    llog(LOG_USER, NULL, NULL, 1, "Nuuuuu!");
-    
     /* parse command line arguments */
     args = argv_parse(argc, argv);
     
