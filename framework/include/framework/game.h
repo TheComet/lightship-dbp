@@ -1,9 +1,14 @@
 #include "framework/config.h"
+#include "framework/service_api.h"
 #include "util/map.h"
 #include "util/linked_list.h"
 
 struct net_connection_t;
 struct glob_t;
+
+SERVICE(game_start_wrapper);
+SERVICE(game_pause_wrapper);
+SERVICE(game_exit_wrapper);
 
 typedef enum game_network_role_e
 {
@@ -18,7 +23,7 @@ typedef enum game_state_e
     GAME_STATE_RUNNING
 } game_state_e;
 
-struct framework_glob_events_t
+struct framework_events_t
 {
     struct event_t* tick;
     struct event_t* render;
@@ -29,7 +34,14 @@ struct framework_glob_events_t
     struct event_t* log_unindent;
 };
 
-struct framework_glob_log_t
+struct framework_services_t
+{
+    struct service_t* start;
+    struct service_t* pause;
+    struct service_t* exit;
+};
+
+struct framework_log_t
 {
     char indent_level;
 };
@@ -40,8 +52,9 @@ struct game_t
     char* name;
     game_network_role_e network_role;
     struct net_connection_t* connection;
-    struct framework_glob_events_t event;
-    struct framework_glob_log_t log;
+    struct framework_events_t event;
+    struct framework_services_t service;
+    struct framework_log_t log;
     struct list_t plugins;      /* list of active plugins used by this game */
     struct map_t services;      /* maps service names to active services used by this game */
     struct map_t events;        /* maps event names to active events used by this game */
@@ -51,7 +64,7 @@ struct game_t
 FRAMEWORK_PUBLIC_API struct game_t*
 game_create(const char* name, game_network_role_e net_role);
 
-FRAMEWORK_PUBLIC_API void
+void
 game_destroy(struct game_t* game);
 
 FRAMEWORK_PUBLIC_API char
@@ -61,13 +74,13 @@ FRAMEWORK_PUBLIC_API void
 game_disconnect(struct game_t* game);
 
 FRAMEWORK_PUBLIC_API void
-game_run(struct game_t* game);
+game_start(struct game_t* game);
 
 FRAMEWORK_PUBLIC_API void
 game_pause(struct game_t* game);
 
 FRAMEWORK_PUBLIC_API void
-game_stop(struct game_t* game);
+game_exit(struct game_t* game);
 
 FRAMEWORK_PUBLIC_API void
 games_run_all(void);

@@ -41,7 +41,9 @@ thread_pool_wait_for_jobs(struct thread_pool_t* pool);
     /* nop */
 #   define thread_pool_destroy(pool)
     /* directly call the job being queued */
-#   define thread_pool_queue(pool, func, data) ((func)(data))
+#   define thread_pool_queue(pool, func, data) do { \
+                        thread_pool_job_func f = func; \
+                        f(data); } while(0)
     /* nop */
 #   define thread_pool_suspend(pool)
     /* nop */

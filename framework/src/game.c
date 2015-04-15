@@ -37,7 +37,7 @@ game_create(const char* name, game_network_role_e net_role)
     
     /* initialise game object */
     memset(game, 0, sizeof(struct game_t));
-    game->state = GAME_STATE_PAUSED;
+    game->state = GAME_STATE_TERMINATED;
     game->name = malloc_string(name);
     game->network_role = net_role;
     map_init_map(&game->global_data);
@@ -135,7 +135,7 @@ game_disconnect(struct game_t* game)
 
 /* ------------------------------------------------------------------------- */
 void
-game_run(struct game_t* game)
+game_start(struct game_t* game)
 {
     game->state = GAME_STATE_RUNNING;
 }
@@ -149,7 +149,7 @@ game_pause(struct game_t* game)
 
 /* ------------------------------------------------------------------------- */
 void
-game_stop(struct game_t* game)
+game_exit(struct game_t* game)
 {
     game->state = GAME_STATE_TERMINATED;
 }
@@ -158,15 +158,22 @@ game_stop(struct game_t* game)
 void
 games_run_all(void)
 {
-    struct thread_pool_t* pool = thread_pool_create(0, 0);
-    
     while(g_games->count)
     {
-        thread_pool_queue(pool, (thread_pool_job_func)main_loop_do_loop, NULL);
-        thread_pool_wait_for_jobs(pool);
+        /* update indiviual game loops */
+        main_loop_do_loop();
+        
+        /* if the game wishes to terminate, destroy it */
+        { UNORDERED_VECTOR_FOR_EACH(g_games, struct game_t*, p_game)
+        {
+            if((*p_game)->state == GAME_STATE_TERMINATED)
+            {
+                /*game_destroy(*p_game);*/
+                return;
+                break;
+            }
+        }}
     }
-    
-    thread_pool_destroy(pool);
 }
 
 /* ------------------------------------------------------------------------- */
@@ -200,3 +207,18 @@ game_dispatch_tick(void)
     }
 }
 
+/* ------------------------------------------------------------------------- */
+SERVICE(game_start_wrapper)
+{
+    game_start(service->game);
+}
+
+SERVICE(game_pause_wrapper)
+{
+    game_pause(service->game);
+}
+
+SERVICE(game_exit_wrapper)
+{
+    game_exit(service->game);
+}

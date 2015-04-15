@@ -32,7 +32,7 @@ main(int argc, char** argv)
 #endif
         SERVICE_CALL_NAME1(g_localhost, "menu.load", &menu, PTR(menu_file_name));
         games_run_all();
-        SERVICE_CALL_NAME1(g_localhost, "menu.destroy", SERVICE_NO_RETURN, PTR(menu));
+        /*SERVICE_CALL_NAME1(g_localhost, "menu.destroy", SERVICE_NO_RETURN, PTR(menu));*/
     }
     
     /* clean up */
