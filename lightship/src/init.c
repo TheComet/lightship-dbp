@@ -79,6 +79,10 @@ init()
      */
     memory_init();
     
+    /*
+     * Initialise global stuff.
+     */
+    
     return 1;
 }
 
@@ -133,6 +137,10 @@ deinit(void)
         game_destroy(g_localhost);
         g_localhost = NULL;
     }
+    
+    /*
+     * De-init global stuff
+     */
     
     /*
      * De-init memory management last

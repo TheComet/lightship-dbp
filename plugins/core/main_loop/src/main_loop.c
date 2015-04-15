@@ -1,3 +1,4 @@
+#include "plugin_main_loop/config.h"
 #include "plugin_main_loop/events.h"
 #include "plugin_main_loop/glob.h"
 #include "framework/log.h"
@@ -122,6 +123,12 @@ EVENT_LISTENER0(on_main_loop_stop)
 #ifdef _DEBUG
 EVENT_LISTENER2(on_stats, uint32_t render_frame_rate, uint32_t update_frame_rate)
 {
-    printf("render fps: %u, update fps: %u\n", render_frame_rate, update_frame_rate);
+    char render_str[sizeof(int)*8+1];
+    char update_str[sizeof(int)*8+1];
+    sprintf(render_str, "%d", render_frame_rate);
+    sprintf(update_str, "%d", update_frame_rate);
+    
+    llog(LOG_INFO, event->game, PLUGIN_NAME, 4,
+         "render fps: ", render_str, ", update fps: ", update_str);
 }
 #endif

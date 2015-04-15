@@ -126,17 +126,6 @@ target_link_libraries (lightship_util
 )
 
 ###############################################################################
-# ncurses for colourful terminal output
-###############################################################################
-
-find_package (Curses)
-if (CURSES_FOUND)
-    include_directories (${CURSES_INCLUDE_DIR})
-    target_link_libraries (lightship_util ${CURSES_LIBRARIES})
-    set (HAVE_CURSES 1)
-endif ()
-
-###############################################################################
 # threads
 ###############################################################################
 

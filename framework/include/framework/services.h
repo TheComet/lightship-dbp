@@ -1,5 +1,5 @@
-#ifndef LIGHTSHIP_SERVICES_H
-#define LIGHTSHIP_SERVICES_H
+#ifndef FRAMEWORK_SERVICES_H
+#define FRAMEWORK_SERVICES_H
 
 #include "framework/service_api.h"
 
@@ -110,4 +110,4 @@ service_destroy_argument_list(struct service_t* service, void** argv);
 
 C_HEADER_END
 
-#endif /* LIGHTSHIP_SERVICES_H */
+#endif /* FRAMEWORK_SERVICES_H */

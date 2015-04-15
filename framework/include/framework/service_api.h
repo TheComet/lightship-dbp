@@ -1,5 +1,5 @@
-#ifndef LIGHTSHIP_UTIL_SERVICE_H
-#define LIGHTSHIP_UTIL_SERVICE_H
+#ifndef FRAMEWORK_SERVICE_H
+#define FRAMEWORK_SERVICE_H
 
 #include "util/pstdint.h"
 #include "framework/config.h"
@@ -253,4 +253,4 @@ struct service_t
     service_callback_func exec;
 };
 
-#endif /* LIGHTSHIP_UTIL_SERVICE_H */
+#endif /* FRAMEWORK_SERVICE_H */

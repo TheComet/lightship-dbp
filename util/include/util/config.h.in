@@ -24,10 +24,4 @@
 #   define RING_BUFFER_MAX_SIZE @RING_BUFFER_MAX_SIZE@
 #   endif
 
-    #cmakedefine HAVE_CURSES
-    #cmakedefine CURSES_HAVE_CURSES_H
-    #cmakedefine CURSES_HAVE_NCURSES_H
-    #cmakedefine CURSES_HAVE_NCURSES_NCURSES_H
-    #cmakedefine CURSES_HAVE_NCURSES_CURSES_H
-
 #endif /* @PROJECT_NAME@_CONFIG_HPP */

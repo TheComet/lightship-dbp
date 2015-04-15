@@ -1,5 +1,5 @@
-#ifndef LIGHTSHIP_UTIL_EVENT_API_H
-#define LIGHTSHIP_UTIL_EVENT_API_H
+#ifndef FRAMEWORK_EVENT_API_H
+#define FRAMEWORK_EVENT_API_H
 
 #include <stdio.h>
 #include "util/unordered_vector.h"
@@ -361,4 +361,4 @@ struct event_listener_t
 #endif
 };
 
-#endif /* LIGHTSHIP_UTIL_EVENT_API_H */
+#endif /* FRAMEWORK_EVENT_API_H */
