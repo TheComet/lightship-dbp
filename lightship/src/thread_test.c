@@ -3,6 +3,7 @@
 #include "thread_pool/thread_pool.h"
 #include "framework/log.h"
 #include "framework/services.h"
+#include "framework/game.h"
 #include "util/time.h"
 #include <stdlib.h>
 #include <unistd.h>
@@ -58,7 +59,7 @@ void work_recurse(struct thread_pool_t* pool)
     volatile int i;
     for(i = 0; i != 1000; ++i)
         if(pool)
-            thread_pool_queue(pool, (void(*)(void*))work_recurse, NULL);
+            thread_pool_queue(pool, (thread_pool_job_func)work_recurse, NULL);
 }
 #include <math.h>
 struct pos_t
@@ -208,7 +209,7 @@ do_thread_test(struct game_t* game)
     pool = thread_pool_create(0, 1000000);
     timer1 = timer2 = get_time_in_microseconds();
     for(i = 0; i != 1000; ++i)
-        thread_pool_queue(pool, (void(*)(void*))work_recurse, pool);
+        thread_pool_queue(pool, (thread_pool_job_func)work_recurse, pool);
     printf("insertion time (ms): %ld\n", (int64_t)((get_time_in_microseconds() - timer1) * 0.001));
     thread_pool_wait_for_jobs(pool);
     printf("job time (ms): %ld\n", (int64_t)((get_time_in_microseconds() - timer2) * 0.001));
@@ -237,7 +238,7 @@ do_thread_test(struct game_t* game)
                 memcpy(m, &m_b, sizeof(struct mandel_t));
                 m->pos.x = x;
                 m->pos.y = y;
-                thread_pool_queue(pool, (void(*)(void*))work_mandel, m);
+                thread_pool_queue(pool, (thread_pool_job_func)work_mandel, m);
             }
         }
         printf("insertion time (ms): %ld\n", (int64_t)((get_time_in_microseconds() - timer1) * 0.001));
@@ -276,7 +277,7 @@ do_thread_test(struct game_t* game)
                                text_pos_x, text_pos_y,
                                L"Close Window to Exit");
         }
-        run_game();
+        games_run_all();
         deinit();
         init();
         

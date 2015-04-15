@@ -3,6 +3,7 @@
 #include "lightship/init.h"
 #include "framework/services.h"
 #include "framework/log.h"
+#include "framework/game.h"
 
 int
 main(int argc, char** argv)
@@ -25,7 +26,7 @@ main(int argc, char** argv)
         menu_file_name = "cfg/menu.yml";
 #endif
         SERVICE_CALL_NAME1(g_localhost, "menu.load", &menu, PTR(menu_file_name));
-        run_game();
+        games_run_all();
         SERVICE_CALL_NAME1(g_localhost, "menu.destroy", SERVICE_NO_RETURN, PTR(menu));
     }
     

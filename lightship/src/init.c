@@ -117,39 +117,6 @@ init_game(char is_server)
 
 /* -------------------------------------------------------------------------- */
 void
-run_game()
-{
-    /* 
-     * Try to get the main loop service and start running the game
-     */
-    {
-        char* start_service_name;
-        struct service_t* start;
-        const char* entry_point_key = "main_loop.service";
-
-        /* search for the entry point key and retrieve its value, which is the name of the service to start with */
-        SERVICE_CALL_NAME2(g_localhost, "yaml.get_value", &start_service_name, g_settings_doc_id, PTR(entry_point_key));
-        if(!start_service_name)
-        {
-            llog(LOG_FATAL, g_localhost, NULL, 5, "Cannot get value of \"", entry_point_key, "\" in \"", yml_settings ,"\"");
-            return;
-        }
-
-        /* with the service name retrieved, try to call it */
-        start = service_get(g_localhost, start_service_name);
-        if(!start)
-        {
-            llog(LOG_FATAL, g_localhost, NULL, 3, "Cannot get main loop service with name \"", start_service_name, "\"");
-            return;
-        }
-        
-        SERVICE_CALL0(start, SERVICE_NO_RETURN);
-    
-    }
-}
-
-/* -------------------------------------------------------------------------- */
-void
 deinit(void)
 {
     /* clean up client */

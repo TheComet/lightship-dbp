@@ -18,6 +18,7 @@ endif ()
 
 set (PROJECT_NAME "LIGHTSHIP_UTIL")
 
+# memory debugging
 if (CMAKE_BUILD_TYPE MATCHES Debug)
     option (ENABLE_MEMORY_REPORT "Keeps track of the number of allocations and de-allocations and prints a report when the program shuts down" ON)
     option (ENABLE_MEMORY_BACKTRACE "Generates backtraces for every malloc(), making it easy to track down memory leaks" ON)
@@ -26,24 +27,32 @@ else ()
     option (ENABLE_MEMORY_BACKTRACE "Generates backtraces for every malloc(), making it easy to track down memory leaks" OFF)
 endif ()
 
+# log related stuff
 option (ENABLE_LOG_TIMESTAMPS "Whether or not to prefix log messages with timestamps" ON)
-option (ENABLE_MULTITHREADING "Whether or not to use multithreading" ON)
-if (ENABLE_MULTITHREADING)
-    option (ENABLE_THREAD_POOL "Enables threading pools." ON)
-    option (ENABLE_RING_BUFFER_REALLOC "Causes the thread pool's ring buffer to automatically reallocate when necessary" OFF)
-    set (RING_BUFFER_FIXED_SIZE "4096" CACHE STRING "If ENABLE_RING_BUFFER_REALLOC is disabled, this determins the fixed size in bytes of the ring buffer. Note that this is also the start size of the ring buffer")
-    set (RING_BUFFER_MAX_SIZE "262144" CACHE STRING "Maximum allowable size of the ring buffer.")
+
+# thread pool and multithreading related stuff
+option (ENABLE_MULTITHREADING "Global switch for whether or not to use multithreading" OFF)
+option (ENABLE_THREAD_POOL "Enables the thread pool (scalable multithreading). Requires multithreading to be enabled." ON)
+option (ENABLE_RING_BUFFER_REALLOC "Causes the thread pool's ring buffer to automatically reallocate when necessary" OFF)
+set (RING_BUFFER_FIXED_SIZE "4096" CACHE STRING "If ENABLE_RING_BUFFER_REALLOC is disabled, this determins the fixed size in bytes of the ring buffer. Note that this is also the start size of the ring buffer")
+set (RING_BUFFER_MAX_SIZE "262144" CACHE STRING "Maximum allowable size of the ring buffer.")
+
+# resolve depending options
+if (NOT ENABLE_MULTITHREADING)
+    set (ENABLE_THREAD_POOL OFF)
 endif ()
 
+# disable backtraces on Windows, as those aren't implemented yet
+if (WIN32)
+    set (ENABLE_MEMORY_BACKTRACE OFF)
+endif ()
+
+# print out a summary
 message (STATUS "Memory reports: ${ENABLE_MEMORY_REPORT}")
 message (STATUS "Backtraces in memory reports: ${ENABLE_MEMORY_BACKTRACE}")
 message (STATUS "Log timestamps: ${ENABLE_LOG_TIMESTAMPS}")
 message (STATUS "Thread pools: ${ENABLE_THREAD_POOL}")
-
-# disable backtraces on Windows, as those aren't implemented yet
-if (WIN32)
-    set (ENABLE_MEMORY_BACKTRACE 0)
-endif ()
+message (STATUS "Ring buffer reallocations: ${ENABLE_RING_BUFFER_REALLOC}")
 
 configure_file ("${EXPORT_H_TEMPLATE}"
                 "include/util/export.h")
@@ -84,6 +93,7 @@ file (GLOB lightship_util_HEADERS
     ${PLATFORM_HEADER_DIRS})
 file (GLOB lightship_util_SOURCES
     "src/util/*.c"
+    "src/thread_pool/*.c"
     ${PLATFORM_SOURCE_DIRS})
 
 set (lightship_util_HEADERS ${lightship_util_HEADERS}

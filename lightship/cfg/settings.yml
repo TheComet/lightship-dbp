@@ -3,10 +3,6 @@
 ###############################################################################
 
 plugins:
-    loop:
-        name: main_loop
-        version: "0.0.1"
-        version_policy: minimum
     renderer:
         name: renderer_gl
         version: "0.0.1"
@@ -19,13 +15,6 @@ plugins:
         name: menu
         version: "0.0.1"
         version_policy: minimum
-
-###############################################################################
-# Main loop service to call when game is ready to start
-###############################################################################
-
-main_loop:
-    service: "main_loop.start"
 
 ###############################################################################
 # Client settings
