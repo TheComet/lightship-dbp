@@ -25,5 +25,5 @@ register_events(struct game_t* game, struct plugin_t* plugin)
 void
 register_event_listeners(struct game_t* game, struct plugin_t* plugin)
 {
-    event_register_listener(game, plugin, "main_loop.render", on_render);
+    event_register_listener(game, plugin, "render", on_render);
 }

@@ -16,7 +16,7 @@ int64_t
 main_loop_get_elapsed_time(void);
 
 void
-main_loop_do_loop(void*);
+main_loop_do_loop(void);
 
 #ifdef _DEBUG
 #   include "framework/event_api.h"

@@ -83,19 +83,19 @@ events_init(struct game_t* game)
     {
         
         /* main loop events (game update and render updates) */
-        name = malloc_string(BUILTIN_NAMESPACE_NAME ".tick");               if(!name) break;
+        name = malloc_string("tick");                                       if(!name) break;
         game->event.tick = event_malloc_and_register(game, name);           if(!game->event.tick) break;
-        name = malloc_string(BUILTIN_NAMESPACE_NAME ".render");             if(!name) break;
+        name = malloc_string("render");                                     if(!name) break;
         game->event.render = event_malloc_and_register(game, name);         if(!game->event.render) break;
-        name = malloc_string(BUILTIN_NAMESPACE_NAME ".loop_stats");         if(!name) break;
+        name = malloc_string("stats");                                      if(!name) break;
         game->event.loop_stats = event_malloc_and_register(game, name);     if(!game->event.loop_stats) break;
     
         /* The log will fire these events appropriately whenever something is logged */
-        name = malloc_string(BUILTIN_NAMESPACE_NAME ".log");                if(!name) break;
+        name = malloc_string("log");                                        if(!name) break;
         game->event.log = event_malloc_and_register(game, name);            if(!game->event.log) break;
-        name = malloc_string(BUILTIN_NAMESPACE_NAME ".log_indent");         if(!name) break;
+        name = malloc_string("log_indent");                                 if(!name) break;
         game->event.log_indent = event_malloc_and_register(game, name);     if(!game->event.log_indent) break;
-        name = malloc_string(BUILTIN_NAMESPACE_NAME ".log_unindent");       if(!name) break;
+        name = malloc_string("log_unindent");                               if(!name) break;
         game->event.log_unindent = event_malloc_and_register(game, name);   if(!game->event.log_unindent) break;
         
         return 1;

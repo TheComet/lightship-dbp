@@ -96,7 +96,7 @@ main_loop_get_elapsed_time(void)
 
 /* ------------------------------------------------------------------------- */
 void
-main_loop_do_loop(void* discard)
+main_loop_do_loop(void)
 {
     int updates = 0;
     
