@@ -26,6 +26,7 @@ struct main_loop_t
 
 SERVICE(main_loop_start);
 SERVICE(main_loop_stop);
+SERVICE(main_loop_step);
 
 void
 main_loop_init(struct main_loop_t* loop);

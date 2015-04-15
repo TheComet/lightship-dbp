@@ -81,14 +81,22 @@ events_init(struct game_t* game)
     
     for(;;)
     {
+        
+        /* main loop events (game update and render updates) */
+        name = malloc_string(BUILTIN_NAMESPACE_NAME ".tick");               if(!name) break;
+        game->event.tick = event_malloc_and_register(game, name);           if(!game->event.tick) break;
+        name = malloc_string(BUILTIN_NAMESPACE_NAME ".render");             if(!name) break;
+        game->event.render = event_malloc_and_register(game, name);         if(!game->event.render) break;
+        name = malloc_string(BUILTIN_NAMESPACE_NAME ".loop_stats");         if(!name) break;
+        game->event.loop_stats = event_malloc_and_register(game, name);     if(!game->event.loop_stats) break;
     
         /* The log will fire these events appropriately whenever something is logged */
-        name = malloc_string(BUILTIN_NAMESPACE_NAME ".log");            if(!name) break;
-        game->event.log = event_malloc_and_register(game, name);           if(!game->event.log) break;
-        name = malloc_string(BUILTIN_NAMESPACE_NAME ".log_indent");     if(!name) break;
-        game->event.log_indent = event_malloc_and_register(game, name);    if(!game->event.log_indent) break;
-        name = malloc_string(BUILTIN_NAMESPACE_NAME ".log_unindent");   if(!name) break;
-        game->event.log_unindent = event_malloc_and_register(game, name);  if(!game->event.log_unindent) break;
+        name = malloc_string(BUILTIN_NAMESPACE_NAME ".log");                if(!name) break;
+        game->event.log = event_malloc_and_register(game, name);            if(!game->event.log) break;
+        name = malloc_string(BUILTIN_NAMESPACE_NAME ".log_indent");         if(!name) break;
+        game->event.log_indent = event_malloc_and_register(game, name);     if(!game->event.log_indent) break;
+        name = malloc_string(BUILTIN_NAMESPACE_NAME ".log_unindent");       if(!name) break;
+        game->event.log_unindent = event_malloc_and_register(game, name);   if(!game->event.log_unindent) break;
         
         return 1;
     }
@@ -216,7 +224,11 @@ event_register_listener(const struct game_t* game,
     
     /* make sure event exists */
     if(!(event = event_get(game, event_full_name)))
+    {
+        llog(LOG_WARNING, game, plugin->info.name, 3, "Tried to register as a listener to event \"",
+             event_full_name, "\", but the event does not exist.");
         return 0;
+    }
     
     /* make sure plugin hasn't already registered to this event */
     if(plugin)
@@ -224,7 +236,11 @@ event_register_listener(const struct game_t* game,
         UNORDERED_VECTOR_FOR_EACH(&event->listeners, struct event_listener_t, listener)
         {
             if(strcmp(listener->name_space, registering_name_space) == 0)
+            {
+                llog(LOG_WARNING, game, plugin->info.name, 3, "Already registered as a listener to event \"",
+                     event_full_name, "\"");
                 return 0;
+            }
         }
     }
     

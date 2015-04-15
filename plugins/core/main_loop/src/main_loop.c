@@ -77,10 +77,23 @@ main_loop_get_elapsed_time(struct main_loop_t* loop)
 SERVICE(main_loop_start)
 {
     struct glob_t* g = get_global(service->game);
-
     main_loop_reset_timer(&g->main_loop);
     g->main_loop.is_looping = 1;
-    while(g->main_loop.is_looping)
+}
+
+/* ------------------------------------------------------------------------- */
+SERVICE(main_loop_stop)
+{
+    struct glob_t* g = get_global(service->game);
+    EVENT_FIRE_FROM_TEMP0(evt_stop, g->events.stop);
+}
+
+/* ------------------------------------------------------------------------- */
+SERVICE(main_loop_step)
+{
+    struct glob_t* g = get_global(service->game);
+    
+    if(g->main_loop.is_looping)
     {
         int updates = 0;
         
@@ -97,13 +110,6 @@ SERVICE(main_loop_start)
                 break;
         }
     }
-}
-
-/* ------------------------------------------------------------------------- */
-SERVICE(main_loop_stop)
-{
-    struct glob_t* g = get_global(service->game);
-    EVENT_FIRE_FROM_TEMP0(evt_stop, g->events.stop);
 }
 
 /* ------------------------------------------------------------------------- */
