@@ -106,7 +106,6 @@ game_destroy(struct game_t* game)
     plugin_manager_deinit(game);
     events_deinit(game);
     services_deinit(game);
-    llog_deinit(game);
 
     /* clean up data held by game object */
     map_clear_free(&game->global_data);

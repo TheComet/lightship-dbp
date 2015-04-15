@@ -68,7 +68,7 @@ plugin_load(struct game_t* game,
             const struct plugin_info_t* plugin_info,
             const plugin_search_criteria_t criteria)
 {
-    /* will contain the file name of the plugin if it is found. Must be util_free()'d */
+    /* will contain the file name of the plugin if it is found. Must be free_string()'d */
     char* filename = NULL;
     /* will hold the handle of the loaded module, if successful */
     void* handle = NULL;
