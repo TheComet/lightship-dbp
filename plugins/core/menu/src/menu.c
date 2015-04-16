@@ -33,6 +33,11 @@ menu_init(struct glob_t* g)
 void
 menu_deinit(struct glob_t* g)
 {
+    MAP_FOR_EACH(&g->menu.menus, struct menu_t, key, menu)
+    {
+        menu_destroy(menu);
+    }
+    
     map_clear_free(&g->menu.menus);
 }
 

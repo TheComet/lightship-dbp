@@ -97,7 +97,10 @@ game_destroy(struct game_t* game)
     
     /* if the last element was removed from global list, clear free vector */
     if(g_games->count == 0)
+    {
         unordered_vector_destroy(g_games);
+        g_games = NULL;
+    }
     
     /* disconnect the game */
     game_disconnect(game);
@@ -137,6 +140,7 @@ game_disconnect(struct game_t* game)
 void
 game_start(struct game_t* game)
 {
+    EVENT_FIRE_FROM_TEMP0(evt_start, game->event.start);
     game->state = GAME_STATE_RUNNING;
 }
 
@@ -144,6 +148,7 @@ game_start(struct game_t* game)
 void
 game_pause(struct game_t* game)
 {
+    EVENT_FIRE_FROM_TEMP0(evt_pause, game->event.pause);
     game->state = GAME_STATE_PAUSED;
 }
 
@@ -151,6 +156,7 @@ game_pause(struct game_t* game)
 void
 game_exit(struct game_t* game)
 {
+    EVENT_FIRE_FROM_TEMP0(evt_exit, game->event.exit);
     game->state = GAME_STATE_TERMINATED;
 }
 
@@ -158,6 +164,9 @@ game_exit(struct game_t* game)
 void
 games_run_all(void)
 {
+    if(!g_games)
+        return;
+    
     while(g_games->count)
     {
         /* update indiviual game loops */
@@ -168,8 +177,7 @@ games_run_all(void)
         {
             if((*p_game)->state == GAME_STATE_TERMINATED)
             {
-                /*game_destroy(*p_game);*/
-                return;
+                game_destroy(*p_game);
                 break;
             }
         }}

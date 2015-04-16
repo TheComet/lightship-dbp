@@ -102,7 +102,12 @@ init_game(char is_server)
      * Load and start the core plugins specified in the settings YAML file.
      */
     if(!load_core_plugins(g_localhost))
+    {
+        SERVICE_CALL_NAME1(g_localhost, "yaml.destroy", SERVICE_NO_RETURN, g_settings_doc_id);
+        game_destroy(g_localhost);
+        g_localhost = NULL;
         return 0;
+    }
     
     /*
      * If we are a client, create client instance and connect to local server.
