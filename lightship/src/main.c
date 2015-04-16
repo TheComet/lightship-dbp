@@ -17,13 +17,14 @@ main(int argc, char** argv)
     args = argv_parse(argc, argv);
     
     /* if the game is set to run, init and run game */
-    if(args->run_game)
+    while(args->run_game)
     {
         const char* menu_file_name;
         struct menu_t;
         struct menu_t* menu;
         
-        init_game(args->is_server);
+        if(!init_game(args->is_server))
+            break;
         
 #ifdef _DEBUG
         menu_file_name = "../../plugins/core/menu/cfg/menu.yml";
@@ -33,6 +34,8 @@ main(int argc, char** argv)
         SERVICE_CALL_NAME1(g_localhost, "menu.load", &menu, PTR(menu_file_name));
         games_run_all();
         /*SERVICE_CALL_NAME1(g_localhost, "menu.destroy", SERVICE_NO_RETURN, PTR(menu));*/
+        
+        break;
     }
     
     /* clean up */

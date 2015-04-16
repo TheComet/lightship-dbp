@@ -1,10 +1,15 @@
 #include "framework/config.h"
+#include "framework/event_api.h"
 #include "framework/service_api.h"
 #include "util/map.h"
 #include "util/linked_list.h"
 
 struct net_connection_t;
 struct glob_t;
+
+EVENT_H0(evt_start)
+EVENT_H0(evt_pause)
+EVENT_H0(evt_exit)
 
 SERVICE(game_start_wrapper);
 SERVICE(game_pause_wrapper);
@@ -25,6 +30,10 @@ typedef enum game_state_e
 
 struct framework_events_t
 {
+    struct event_t* start;
+    struct event_t* pause;
+    struct event_t* exit;
+    
     struct event_t* tick;
     struct event_t* render;
     struct event_t* loop_stats;

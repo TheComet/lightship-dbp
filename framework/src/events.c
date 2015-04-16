@@ -81,6 +81,13 @@ events_init(struct game_t* game)
     
     for(;;)
     {
+        /* game start, pause, and exit events */
+        name = malloc_string("start");                                      if(!name) break;
+        game->event.start = event_malloc_and_register(game, name);          if(!game->event.start) break;
+        name = malloc_string("pause");                                      if(!name) break;
+        game->event.pause = event_malloc_and_register(game, name);          if(!game->event.pause) break;
+        name = malloc_string("exit");                                       if(!name) break;
+        game->event.exit = event_malloc_and_register(game, name);           if(!game->event.exit) break;
         
         /* main loop events (game update and render updates) */
         name = malloc_string("tick");                                       if(!name) break;
