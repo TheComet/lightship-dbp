@@ -122,7 +122,7 @@ LIGHTSHIP_UTIL_PUBLIC_API void
 ordered_vector_push_vector(struct ordered_vector_t* vector, struct ordered_vector_t* source_vector);
 
 /*!
- * @brief Removes an element from the head of the vector.
+ * @brief Removes an element from the back (end) of the vector.
  * @warning The returned pointer could be invalidated if any other
  * vector related function is called, as the underlying memory of the vector
  * could be re-allocated. Use the pointer immediately after calling this
@@ -133,6 +133,19 @@ ordered_vector_push_vector(struct ordered_vector_t* vector, struct ordered_vecto
  */
 LIGHTSHIP_UTIL_PUBLIC_API void* 
 ordered_vector_pop(struct ordered_vector_t* vector);
+
+/*!
+ * @brief Returns the very last element of the vector.
+ * @warning The returned pointer could be invalidated if any other vector
+ * related function is called, as the underlying memory of the vector could be
+ * re-allocated. Use the pointer immediately after calling this function.
+ * 
+ * @param[in] vector The vector to return the last element from.
+ * @return A pointer to the last element. See warning and use with caution.
+ * If there are no elements in the vector, NULL is returned.
+ */
+LIGHTSHIP_UTIL_PUBLIC_API void*
+ordered_vector_back(struct ordered_vector_t* vector);
 
 /*!
  * @brief Allocates space for a new element at the specified index, but does

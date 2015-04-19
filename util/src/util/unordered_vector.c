@@ -136,6 +136,16 @@ unordered_vector_pop(struct unordered_vector_t* vector)
 }
 
 /* ------------------------------------------------------------------------- */
+void*
+unordered_vector_back(struct unordered_vector_t* vector)
+{
+    if(!vector->count)
+        return NULL;
+    
+    return vector->data + (vector->element_size * (vector->count - 1));
+}
+
+/* ------------------------------------------------------------------------- */
 void
 unordered_vector_erase_index(struct unordered_vector_t* vector, uint32_t index)
 {

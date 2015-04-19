@@ -1,7 +1,7 @@
 #include "gmock/gmock.h"
-#include "util/events.h"
-#include "util/services.h"
-#include "util/plugin_api.h"
+#include "framework/events.h"
+#include "framework/services.h"
+#include "framework/plugin_api.h"
 
 #define NAME events
 
@@ -9,21 +9,21 @@ struct NAME : public testing::Test
 {
     NAME()
     {
-        m_plugin.handle = NULL;
-        m_plugin.info.author = const_cast<char*>("Test");
-        m_plugin.info.category = const_cast<char*>("Testing");
-        m_plugin.info.description = const_cast<char*>("A test");
-        m_plugin.info.website = const_cast<char*>("plugin.org");
-        m_plugin.info.language = PLUGIN_PROGRAMMING_LANGUAGE_CPP;
-        m_plugin.info.name = const_cast<char*>("test");
-        m_plugin.info.version.major = 0;
-        m_plugin.info.version.minor = 0;
-        m_plugin.info.version.patch = 1;
-        m_plugin.init = NULL;
-        m_plugin.start = NULL;
-        m_plugin.stop = NULL;
+        plugin_obj.handle = NULL;
+        plugin_obj.info.author = const_cast<char*>("Test");
+        plugin_obj.info.category = const_cast<char*>("Testing");
+        plugin_obj.info.description = const_cast<char*>("A test");
+        plugin_obj.info.website = const_cast<char*>("www.plugin.test");
+        plugin_obj.info.language = PLUGIN_PROGRAMMING_LANGUAGE_CPP;
+        plugin_obj.info.name = const_cast<char*>("test");
+        plugin_obj.info.version.major = 0;
+        plugin_obj.info.version.minor = 0;
+        plugin_obj.info.version.patch = 1;
+        plugin_obj.init = NULL;
+        plugin_obj.start = NULL;
+        plugin_obj.stop = NULL;
         
-        plugin = &m_plugin;
+        plugin = &plugin_obj;
     }
 
     virtual void SetUp()
@@ -38,7 +38,8 @@ struct NAME : public testing::Test
         services_deinit();
     }
     struct plugin_t* plugin;
-    struct plugin_t m_plugin;
+private:
+    struct plugin_t plugin_obj;
 };
 
 TEST_F(NAME, create_event_inits_correctly)
@@ -62,7 +63,7 @@ EVENT_C0(evt_2);
 EVENT_LISTENER0(listener1) { g_listener_triggered_1 = 1; }
 EVENT_LISTENER0(listener2) { g_listener_triggered_2 = 1; }
 
-TEST_F(NAME, listeners_can_be_registered_from_plugin)
+TEST_F(NAME, listeners_can_be_registered_froplugin_obj)
 {
     struct event_t* event = event_create(plugin, "event");
     

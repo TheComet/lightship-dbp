@@ -124,6 +124,16 @@ ordered_vector_pop(struct ordered_vector_t* vector)
 
 /* ------------------------------------------------------------------------- */
 void*
+ordered_vector_back(struct ordered_vector_t* vector)
+{
+    if(!vector->count)
+        return NULL;
+    
+    return vector->data + (vector->element_size * (vector->count - 1));
+}
+
+/* ------------------------------------------------------------------------- */
+void*
 ordered_vector_insert_emplace(struct ordered_vector_t* vector, uint32_t index)
 {
     uint32_t offset;

@@ -76,7 +76,7 @@ btn_settings_video:
 btn_quit:
     text: Quit
     action:
-        service: b.exit
+        service: exit
     position:
         x: 0.0
         y: -0.5

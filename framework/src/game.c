@@ -7,28 +7,31 @@
 #include "util/memory.h"
 #include "util/string.h"
 #include "util/net.h"
+#include "util/hash.h"
 #include "thread_pool/thread_pool.h"
 #include <string.h>
 #include <assert.h>
 #include <stdio.h>
 
-static struct unordered_vector_t* g_games = NULL;
+static struct map_t* g_games = NULL;
 
 /* ------------------------------------------------------------------------- */
 struct game_t*
 game_create(const char* name, game_network_role_e net_role)
 {
     struct game_t* game;
-    char* game_mode_str;
     
     assert(name);
     
     /* inform log about game name and game mode */
-    if(net_role == GAME_HOST)
-        game_mode_str = "server";
-    else
-        game_mode_str = "client";
-    llog(LOG_INFO, NULL, NULL, 5, "Creating game \"", name, "\" with mode \"", game_mode_str, "\"");
+    {
+        char* game_mode_str;
+        if(net_role == GAME_HOST)
+            game_mode_str = "server";
+        else
+            game_mode_str = "client";
+        llog(LOG_INFO, NULL, NULL, 5, "Creating game \"", name, "\" with mode \"", game_mode_str, "\"");
+    }
 
     /* allocate game object */
     game = (struct game_t*)MALLOC(sizeof(struct game_t));
@@ -37,10 +40,15 @@ game_create(const char* name, game_network_role_e net_role)
     
     /* initialise game object */
     memset(game, 0, sizeof(struct game_t));
-    game->state = GAME_STATE_TERMINATED;
     game->name = malloc_string(name);
     game->network_role = net_role;
+    
+    /* initialise the game's global data container */
     map_init_map(&game->global_data);
+    
+    /* The initial state of the game is paused. The user must call game_start() 
+     * to launch the game */
+    game->state = GAME_STATE_PAUSED;
     
     for(;;)
     {
@@ -63,11 +71,12 @@ game_create(const char* name, game_network_role_e net_role)
         if(!plugin_manager_init(game))
             break;
         
-        /* add to global list of games - container may not be initialised yet */
-        /* NOTE: Important: Only the pointers are stored in the vector */
-        if(!g_games)
-            g_games = unordered_vector_create(sizeof(struct game_t*));
-        unordered_vector_push(g_games, &game);
+        /* add to global list of games */
+        {
+            uint32_t hash = hash_jenkins_oaat(name, strlen(name));
+            if(!map_insert(g_games, game))
+                break;
+        }
         
         /* success! */
         return game;
@@ -164,10 +173,7 @@ game_exit(struct game_t* game)
 void
 games_run_all(void)
 {
-    if(!g_games)
-        return;
-    
-    while(g_games->count)
+    while(g_games && g_games->count)
     {
         /* update indiviual game loops */
         main_loop_do_loop();
