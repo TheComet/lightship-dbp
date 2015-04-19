@@ -33,8 +33,10 @@ menu_init(struct glob_t* g)
 void
 menu_deinit(struct glob_t* g)
 {
-    MAP_FOR_EACH(&g->menu.menus, struct menu_t, key, menu)
+    while(g->menu.menus.vector.count)
     {
+        struct menu_t* menu = ((struct map_key_value_t*)
+            ordered_vector_back(&g->menu.menus.vector))->value;
         menu_destroy(menu);
     }
     
@@ -86,7 +88,13 @@ menu_load(struct glob_t* g, const char* file_name)
     
     /* create new menu object in which to store menu elements */
     menu = (struct menu_t*)MALLOC(sizeof(struct menu_t));
-    menu_init_menu(menu);
+    memset(menu, 0, sizeof(struct menu_t));
+    map_init_map(&menu->screens);
+    
+    /* Add menu to global list */
+    map_find_unused_key();
+    menu->id = ++g->menu.gid;
+    
     
     /* cache glob */
     menu->glob = g;
@@ -114,22 +122,19 @@ menu_load(struct glob_t* g, const char* file_name)
 
 /* ------------------------------------------------------------------------- */
 void
-menu_init_menu(struct menu_t* menu)
-{
-    memset(menu, 0, sizeof(struct menu_t));
-    map_init_map(&menu->screens);
-}
-
-/* ------------------------------------------------------------------------- */
-void
 menu_destroy(struct menu_t* menu)
 {
+    /* destroy all screens */
     MAP_FOR_EACH(&menu->screens, struct screen_t, key, screen)
     {
         screen_destroy(screen);
     }
     map_clear_free(&menu->screens);
+    
+    /* menu name */
     free_string(menu->name);
+    
+    /* menu object */
     FREE(menu);
 }
 
@@ -310,25 +315,14 @@ menu_load_button_action(struct glob_t* g, struct button_t* button, const struct 
 /* ------------------------------------------------------------------------- */
 SERVICE(menu_load_wrapper)
 {
-    uint32_t id;
-    struct glob_t* g = get_global(service->game);
+    
     SERVICE_EXTRACT_ARGUMENT_PTR(0, file_name, const char*);
 
     struct menu_t* menu = menu_load(g, file_name);
     if(!menu)
         SERVICE_RETURN(0, uint32_t);
 
-    /* cannot have duplicate menu names */
-    id = hash_jenkins_oaat(menu->name, strlen(menu->name));
-    if(map_find(&g->menu.menus, id))
-    {
-        llog(LOG_ERROR, g->game, PLUGIN_NAME, 3, "Tried to load a menu with duplicate name: \"", menu->name, "\"");
-        menu_destroy(menu);
-        SERVICE_RETURN(0, uint32_t);
-    }
-    
-    map_insert(&g->menu.menus, id, menu);
-    SERVICE_RETURN(menu->name, const char*);
+    SERVICE_RETURN(id, uint32_t);
 }
 
 /* ------------------------------------------------------------------------- */

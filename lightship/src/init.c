@@ -15,8 +15,6 @@ static const char* yml_settings = "cfg/settings.yml";
 
 static struct plugin_t* g_plugin_yaml = NULL;
 static uint32_t g_settings_doc_id;
-struct game_t* g_localhost = NULL;
-struct game_t* g_client = NULL;
 
 typedef void (*start_loop_func)(void);
 
@@ -90,23 +88,38 @@ init()
 char
 init_game(char is_server)
 {
+    struct game_t *client, *localhost;
+    
     /*
      * Create the local game server. This is the context that holds all
      * plugins, services, and events together.
      */
-    g_localhost = game_create("localhost", GAME_HOST);
-    if(!g_localhost)
+    localhost = game_create("localhost", GAME_HOST);
+    if(!localhost)
         return 0;
 
     /*
      * Load and start the core plugins specified in the settings YAML file.
      */
-    if(!load_core_plugins(g_localhost))
+    if(!load_core_plugins(localhost))
     {
-        SERVICE_CALL_NAME1(g_localhost, "yaml.destroy", SERVICE_NO_RETURN, g_settings_doc_id);
-        game_destroy(g_localhost);
-        g_localhost = NULL;
+        SERVICE_CALL_NAME1(localhost, "yaml.destroy", SERVICE_NO_RETURN, g_settings_doc_id);
+        game_destroy(localhost);
+        localhost = NULL;
         return 0;
+    }
+    
+    /* TODO: remove - for now, to bootstrap the menu */
+    {
+        char* menu_file_name;
+        struct menu_t;
+        struct menu_t* menu;
+#ifdef _DEBUG
+        menu_file_name = "../../plugins/core/menu/cfg/menu.yml";
+#else
+        menu_file_name = "cfg/menu.yml";
+#endif
+        SERVICE_CALL_NAME1(localhost, "menu.load", &menu, PTR(menu_file_name));
     }
     
     /*
@@ -114,11 +127,11 @@ init_game(char is_server)
      */
     if(!is_server)
     {
-        g_client = game_create("localclient", GAME_CLIENT);
-        if(!g_client)
+        client = game_create("localclient", GAME_CLIENT);
+        if(!client)
             return 0;
         
-        game_connect(g_client, "localhost");
+        game_connect(client, "localhost");
     }
     
     return 1;
@@ -128,21 +141,6 @@ init_game(char is_server)
 void
 deinit(void)
 {
-    /* clean up client */
-    if(g_client)
-    {
-        game_destroy(g_client);
-        g_client = NULL;
-    }
-    
-    /* clean up local host */
-    if(g_localhost)
-    {
-        SERVICE_CALL_NAME1(g_localhost, "yaml.destroy", SERVICE_NO_RETURN, g_settings_doc_id);
-        game_destroy(g_localhost);
-        g_localhost = NULL;
-    }
-    
     /*
      * De-init global stuff
      */

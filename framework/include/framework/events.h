@@ -137,9 +137,7 @@ events_deinit(struct game_t* game);
  * @return Returns a new event object which should be stored by the plugin.
  */
 FRAMEWORK_PUBLIC_API struct event_t*
-event_create(struct game_t* game,
-             const struct plugin_t* plugin,
-             const char* name);
+event_create(struct game_t* game, const char* name);
 
 /*!
  * @brief Destroys an event object.
@@ -149,18 +147,7 @@ event_create(struct game_t* game,
  * @return Returns 1 if successful, 0 if otherwise.
  */
 FRAMEWORK_PUBLIC_API char
-event_destroy(struct event_t* event_delete);
-
-/*!
- * @brief Destroys an event object by plugin object and name.
- * @note This also destroys all registered event listeners.
- * @param[in] plugin The plugin that created the event.
- * @param[in] name The name of the event.
- */
-FRAMEWORK_PUBLIC_API void
-event_destroy_plugin_event(struct game_t* game,
-                           const struct plugin_t* plugin,
-                           const char* name);
+event_destroy(struct game_t* game, struct event_t* event);
 
 /*!
  * @brief Destroys all events that were registered by the specified plugin.
@@ -168,7 +155,7 @@ event_destroy_plugin_event(struct game_t* game,
  * @param[in] plugin The plugin to destroy the events from.
  */
 FRAMEWORK_PUBLIC_API void
-event_destroy_all_plugin_events(const struct plugin_t* plugin);
+event_destroy_all(struct game_t* game, const char* pattern);
 
 /*!
  * @brief Returns an event object with the specified name.
@@ -176,7 +163,7 @@ event_destroy_all_plugin_events(const struct plugin_t* plugin);
  * event object is returned.
  */
 FRAMEWORK_PUBLIC_API struct event_t*
-event_get(const struct game_t* game, const char* full_name);
+event_get(const struct game_t* game, const char* name);
 
 /*!
  * @brief Registers a listener to the specified event.

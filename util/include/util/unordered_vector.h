@@ -131,6 +131,19 @@ LIGHTSHIP_UTIL_PUBLIC_API void*
 unordered_vector_pop(struct unordered_vector_t* vector);
 
 /*!
+ * @brief Returns the very last element of the vector.
+ * @warning The returned pointer could be invalidated if any other vector
+ * related function is called, as the underlying memory of the vector could be
+ * re-allocated. Use the pointer immediately after calling this function.
+ * 
+ * @param[in] vector The vector to return the last element from.
+ * @return A pointer to the last element. See warning and use with caution.
+ * If there are no elements in the vector, NULL is returned.
+ */
+LIGHTSHIP_UTIL_PUBLIC_API void*
+ordered_vector_back(struct unordered_vector_t* vector);
+
+/*!
  * @brief Erases the specified element from the vector.
  * @note If the element being erased is not the last element in the vector, the
  * last element of the vector will be moved down to fill the place of the

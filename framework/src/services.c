@@ -50,17 +50,16 @@ services_init(struct game_t* game)
     
     for(;;)
     {
-        /*
-        name = malloc_string("b.start");                                  if(!name) break;
-        if(!service_malloc_and_register(game, name, game_start_wrapper, "void", 0, NULL)) break;
-        name = malloc_string("b.pause");                                  if(!name) break;
-        if(!service_malloc_and_register(game, name, game_pause_wrapper, "void", 0, NULL)) break;
-        name = malloc_string("b.exit");                                   if(!name) break;
-        if(!service_malloc_and_register(game, name, game_exit_wrapper, "void", 0, NULL)) break;
+        name = malloc_string("start");                                                      if(!name) break;
+        if(!service_malloc_and_register(game, name, game_start_wrapper, "void", 0, NULL))   break;
+        name = malloc_string("pause");                                                      if(!name) break;
+        if(!service_malloc_and_register(game, name, game_pause_wrapper, "void", 0, NULL))   break;
+        name = malloc_string("exit");                                                       if(!name) break;
+        if(!service_malloc_and_register(game, name, game_exit_wrapper, "void", 0, NULL))    break;
         
         game->service.start = service_get(game, "start");
         game->service.pause = service_get(game, "pause");
-        game->service.exit = service_get(game, "exit");*/
+        game->service.exit = service_get(game, "exit");
     
         return 1;
     }
