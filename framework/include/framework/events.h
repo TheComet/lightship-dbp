@@ -146,7 +146,7 @@ event_create(struct game_t* game, const char* name);
  * @param[in] event The event object to destroy.
  * @return Returns 1 if successful, 0 if otherwise.
  */
-FRAMEWORK_PUBLIC_API char
+FRAMEWORK_PUBLIC_API void
 event_destroy(struct event_t* event);
 
 /*!
@@ -168,18 +168,11 @@ event_get(const struct game_t* game, const char* name);
 /*!
  * @brief Registers a listener to the specified event.
  * @param[in] game The game hosting the event you want to listen to.
- * @param[in] plugin The plugin registering as a listener. The purpose of this
- * is so all listeners originating from a plugin are automatically unregistered
- * when the plugin is unloaded.
- * 
- * You may also pass NULL if the listener isn't in a plugin, or if you don't
- * want the plugin manager to unregister your listeners automatically.
  * @param[in] event_name The name of the event to register to.
  * @param[in] callback The callback function to call when the event is fired.
  */
 FRAMEWORK_PUBLIC_API char
 event_register_listener(const struct game_t* game,
-                        const struct plugin_t* plugin,
                         const char* event_name,
                         event_callback_func callback);
 

@@ -41,7 +41,7 @@ TEST(NAME, is_number)
 
 TEST(NAME, is_not_number)
 {
-    /* is_number uses a whitelist in the background so this test really is too long */
+    // is_number uses a whitelist in the background so this test really is too long
     ASSERT_EQ(0, is_number('a'));
     ASSERT_EQ(0, is_number('b'));
     ASSERT_EQ(0, is_number('c'));

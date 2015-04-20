@@ -23,7 +23,7 @@ map_init_map(struct map_t* map)
 void
 map_destroy(struct map_t* map)
 {
-    map_clear(map);
+    map_clear_free(map);
     FREE(map);
 }
 

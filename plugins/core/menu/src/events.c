@@ -20,12 +20,12 @@ register_events(struct plugin_t* plugin)
     struct glob_events_t* g = &get_global(game)->events;
     memset(g, 0, sizeof(struct glob_events_t));
 
-    g->button_clicked = event_create(game, plugin, "button_clicked");
+    g->button_clicked = event_create(game, "button_clicked");
 }
 
 void
 register_event_listeners(struct plugin_t* plugin)
 {
     struct game_t* game = plugin->game;
-    event_register_listener(game, plugin, "input.mouse_clicked", (event_callback_func)on_mouse_clicked);
+    event_register_listener(game, "input.mouse_clicked", (event_callback_func)on_mouse_clicked);
 }

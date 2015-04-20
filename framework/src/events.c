@@ -6,7 +6,6 @@
 #include "util/hash.h"
 #include "util/memory.h"
 #include "util/string.h"
-#include "util/ptree.h"
 #include <string.h>
 #include <stdlib.h>
 #include <assert.h>
@@ -72,7 +71,7 @@ events_init(struct game_t* game)
     assert(game);
     
     /* this holds all of the game's events */
-    ptree_init_ptree(&game->events);
+    ptree_init_ptree(&game->events, NULL);
     
     /* ----------------------------
      * Register built-in events 
@@ -123,11 +122,7 @@ events_init(struct game_t* game)
 void
 events_deinit(struct game_t* game)
 {
-    MAP_FOR_EACH(&game->events, struct event_t, key, event)
-    {
-        event_free(event);
-    }
-    map_clear_free(&game->events);
+    /* TODO free all events */
 }
 
 /* ------------------------------------------------------------------------- */
@@ -136,14 +131,10 @@ event_create(struct game_t* game, const char* name)
 {
 
     /* check for duplicate event names */
-    char* full_name = event_get_full_name(plugin, name);
-    if(event_get(game, full_name))
-    {
-        free_string(full_name);
+    if(event_get(game, name))
         return NULL;
-    }
     
-    return event_malloc_and_register(game, full_name);
+    return event_malloc_and_register(game, name);
 }
 
 /* ------------------------------------------------------------------------- */
@@ -157,50 +148,6 @@ event_destroy(struct event_t* event)
             "could not be found in the associated game object");
 
     event_free(event);
-}
-
-/* ------------------------------------------------------------------------- */
-void
-event_destroy_plugin_event(struct game_t* game, const struct plugin_t* plugin, const char* name)
-{
-    char* full_name;
-    uint32_t hash;
-    struct event_t* event;
-    
-    assert(game);
-    assert(plugin);
-    assert(name);
-    
-    full_name = event_get_full_name(plugin, name);
-    hash = hash_jenkins_oaat(full_name, strlen(full_name));
-    free_string(full_name);
-    if(!(event = map_erase(&game->events, hash)))
-        return;
-
-    event_free(event);
-}
-
-/* ------------------------------------------------------------------------- */
-void
-event_destroy_all_plugin_events(const struct plugin_t* plugin)
-{
-    char* name_space;
-    int len;
-
-    assert(plugin);
-    assert(plugin->game);
-
-    name_space = event_get_name_space_name(plugin);
-    len = strlen(name_space);
-    { MAP_FOR_EACH(&plugin->game->events, struct event_t, key, event)
-    {
-        if(strncmp(event->name, name_space, len) == 0)
-        {
-            event_free(event);
-            MAP_ERASE_CURRENT_ITEM_IN_FOR_LOOP(&plugin->game->events);
-        }
-    }}
-    free_string(name_space);
 }
 
 /* ------------------------------------------------------------------------- */
@@ -230,21 +177,16 @@ event_register_listener(const struct game_t* game,
     assert(event_full_name);
     assert(callback);
     
-    /* get name space name - if NULL was specified as a plugin, make it builtin */
-    if(plugin)
-        registering_name_space = plugin->info.name;
-    else
-        registering_name_space = BUILTIN_NAMESPACE_NAME;
-    
     /* make sure event exists */
     if(!(event = event_get(game, event_full_name)))
     {
-        llog(LOG_WARNING, game, plugin->info.name, 3, "Tried to register as a listener to event \"",
+        llog(LOG_WARNING, game, NULL, 3, "Tried to register as a listener to event \"",
              event_full_name, "\", but the event does not exist.");
         return 0;
     }
     
-    /* make sure plugin hasn't already registered to this event */
+    /* make sure plugin hasn't already registered to this event *
+     * TODO
     if(plugin)
     {
         UNORDERED_VECTOR_FOR_EACH(&event->listeners, struct event_listener_t, listener)
@@ -256,7 +198,7 @@ event_register_listener(const struct game_t* game,
                 return 0;
             }
         }
-    }
+    }*/
     
     /* create event listener object */
     new_listener = (struct event_listener_t*)unordered_vector_push_emplace(&event->listeners);
@@ -278,7 +220,7 @@ event_unregister_listener(const struct game_t* game,
     if(!(event = event_get(game, event_name)))
         return 0;
     
-    {
+    {/* TODO
         UNORDERED_VECTOR_FOR_EACH(&event->listeners, struct event_listener_t, listener)
         {
             if(strcmp(listener->name_space, plugin_name) == 0)
@@ -287,7 +229,7 @@ event_unregister_listener(const struct game_t* game,
                 unordered_vector_erase_element(&event->listeners, listener);
                 return 1;
             }
-        }
+        }*/
     }
     
     return 0;

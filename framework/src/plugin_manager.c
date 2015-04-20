@@ -9,7 +9,6 @@
 #include "util/config.h"
 #include "util/linked_list.h"
 #include "util/unordered_vector.h"
-#include "util/ptree.h"
 #include "util/string.h"
 #include "util/module_loader.h"
 #include "util/dir.h"
@@ -206,16 +205,16 @@ load_plugins_from_yaml_dom(struct game_t* game, const struct ptree_t* plugins_no
     
     /* load all plugins listed in the plugins node */
     {
-        UNORDERED_VECTOR_FOR_EACH(&plugins_node->children, struct ptree_t, child)
+        MAP_FOR_EACH(&plugins_node->children, struct ptree_t, key, child)
         {
             struct plugin_t* plugin;
             plugin_search_criteria_t criteria;
             char* policy_str;
             
             /* extract information from tree */
-            const struct ptree_t* name = ptree_find_by_key(child, "name");
-            const struct ptree_t* version = ptree_find_by_key(child, "version");
-            const struct ptree_t* policy = ptree_find_by_key(child, "version_policy");
+            const struct ptree_t* name = ptree_find_in_node(child, "name");
+            const struct ptree_t* version = ptree_find_in_node(child, "version");
+            const struct ptree_t* policy = ptree_find_in_node(child, "version_policy");
             if(!name)
             {
                 llog(LOG_ERROR, game, NULL, 1, "Key \"name\" isn't defined for plugin");
@@ -303,8 +302,9 @@ plugin_unload(struct game_t* game, struct plugin_t* plugin)
 
     /* unregister all services and events registered by this plugin */
     service_unregister_all(plugin);
+    /* TODO once the new functions can be called, insert them here
     event_destroy_all_plugin_events(plugin);
-    event_unregister_all_listeners_of_plugin(plugin);
+    event_unregister_all_listeners_of_plugin(plugin); */
 
     /* 
      * NOTE The plugin object becomes invalid as soon as plugin_deinit() is

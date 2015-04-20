@@ -7,7 +7,6 @@
 #include "framework/services.h"
 #include "framework/log.h"
 #include "util/ordered_vector.h"
-#include "util/ptree.h"
 #include "util/memory.h"
 #include "util/string.h"
 #include <string.h>
@@ -65,7 +64,7 @@ menu_load(struct glob_t* g, const char* file_name)
     }
     
     /* get ptree for screens */
-    screens = ptree_find_by_key(dom, "screens");
+    screens = ptree_find_in_node(dom, "screens");
     if(!screens)
     {
         llog(LOG_ERROR, g->game, PLUGIN_NAME, 1, "Failed to find \"screens\" node");
@@ -75,7 +74,7 @@ menu_load(struct glob_t* g, const char* file_name)
     
     /* menu must have a name */
     {
-        struct ptree_t* name_node = ptree_find_by_key(dom, "name");
+        struct ptree_t* name_node = ptree_find_in_node(dom, "name");
         if(name_node && name_node->value)
             menu_name = name_node->value;
         else
@@ -92,9 +91,7 @@ menu_load(struct glob_t* g, const char* file_name)
     map_init_map(&menu->screens);
     
     /* Add menu to global list */
-    map_find_unused_key();
     menu->id = ++g->menu.gid;
-    
     
     /* cache glob */
     menu->glob = g;
@@ -107,7 +104,7 @@ menu_load(struct glob_t* g, const char* file_name)
     
     /* screens are hidden by default. Show the screen specified in start_screen */
     {
-        struct ptree_t* start_node = ptree_find_by_key(dom, "start_screen");
+        struct ptree_t* start_node = ptree_find_in_node(dom, "start_screen");
         if(start_node && start_node->value)
             menu_set_active_screen(menu, (char*)start_node->value);
         else
@@ -167,17 +164,17 @@ menu_load_screens(struct menu_t* menu, const struct ptree_t* screens)
     map_init_map(&created_screen_names);
 
     /* iterate screens */
-    { PTREE_FOR_EACH(screens, screen_node)
+    { PTREE_FOR_EACH(screens, key, screen_node)
     {
         /* handle screens */
-        if(PTREE_HASH_STRING("screen") == screen_node->hash)
+        if(PTREE_HASH_STRING("screen") == key)
         {
             struct screen_t* screen;
             char* screen_name;
             
             /* get screen name */
             {
-                struct ptree_t* screen_name_node = ptree_find_by_key(screen_node, "name");
+                struct ptree_t* screen_name_node = ptree_find_in_node(screen_node, "name");
                 if(screen_name_node && screen_name_node->value)
                 {
                     screen_name = (char*)screen_name_node->value;
@@ -206,9 +203,9 @@ menu_load_screens(struct menu_t* menu, const struct ptree_t* screens)
             map_insert(&menu->screens, hash_jenkins_oaat(screen_name, strlen(screen_name)), screen);
 
             /* iterate objects to add to this screen */
-            { PTREE_FOR_EACH(screen_node, object_node)
+            { PTREE_FOR_EACH(screen_node, key, object_node)
             {
-                if(PTREE_HASH_STRING("button") == object_node->hash)
+                if(PTREE_HASH_STRING("button") == key)
                     menu_load_button(menu->glob, screen, object_node);
             }}
             
@@ -228,12 +225,12 @@ menu_load_button(struct glob_t* g, struct screen_t* screen, const struct ptree_t
 
     /* retrieve button parameters required to create a button */
     char* text = NULL;
-    const struct ptree_t* text_node   = ptree_find_by_key(button_node, "text");
-    const struct ptree_t* x_node      = ptree_find_by_key(button_node, "position.x");
-    const struct ptree_t* y_node      = ptree_find_by_key(button_node, "position.y");
-    const struct ptree_t* width_node  = ptree_find_by_key(button_node, "size.x");
-    const struct ptree_t* height_node = ptree_find_by_key(button_node, "size.y");
-    const struct ptree_t* action_node = ptree_find_by_key(button_node, "action");
+    const struct ptree_t* text_node   = ptree_find_in_node(button_node, "text");
+    const struct ptree_t* x_node      = ptree_find_in_tree(button_node, "position.x");
+    const struct ptree_t* y_node      = ptree_find_in_tree(button_node, "position.y");
+    const struct ptree_t* width_node  = ptree_find_in_node(button_node, "size.x");
+    const struct ptree_t* height_node = ptree_find_in_node(button_node, "size.y");
+    const struct ptree_t* action_node = ptree_find_in_node(button_node, "action");
     if(!x_node || !y_node || !width_node || !height_node)
     {
         llog(LOG_WARNING, g->game, PLUGIN_NAME, 1, "Not enough data to create button. Need at least position and size.");
@@ -260,7 +257,7 @@ menu_load_button(struct glob_t* g, struct screen_t* screen, const struct ptree_t
 static void
 menu_load_button_action(struct glob_t* g, struct button_t* button, const struct ptree_t* action_node)
 {
-    struct ptree_t* service_node = ptree_find_by_key(action_node, "service");
+    struct ptree_t* service_node = ptree_find_in_node(action_node, "service");
     if(service_node && service_node->value)
     {
         struct service_t* action_service = service_get(button->base.element.glob->game, (char*)service_node->value);
@@ -283,13 +280,13 @@ menu_load_button_action(struct glob_t* g, struct button_t* button, const struct 
             ordered_vector_init_vector(&argv, sizeof(char*));
 
             /* extract each argument and insert into vector as string */
-            argv_node = ptree_find_by_key(action_node, "argv");
+            argv_node = ptree_find_in_node(action_node, "argv");
             while(argv_node)
             {
                 /* retrieve next argument */
                 struct ptree_t* arg_node;
                 sprintf(arg_key, "%d", action_argc);
-                arg_node = ptree_find_by_key(argv_node, arg_key);
+                arg_node = ptree_find_in_tree(argv_node, arg_key);
                 if(!arg_node)
                     break;
                 /* argument found, add to argument list */
@@ -315,14 +312,14 @@ menu_load_button_action(struct glob_t* g, struct button_t* button, const struct 
 /* ------------------------------------------------------------------------- */
 SERVICE(menu_load_wrapper)
 {
-    
+    struct glob_t* g = get_global(service->game);
     SERVICE_EXTRACT_ARGUMENT_PTR(0, file_name, const char*);
 
     struct menu_t* menu = menu_load(g, file_name);
     if(!menu)
         SERVICE_RETURN(0, uint32_t);
-
-    SERVICE_RETURN(id, uint32_t);
+    
+    SERVICE_RETURN(menu->id, uint32_t);
 }
 
 /* ------------------------------------------------------------------------- */

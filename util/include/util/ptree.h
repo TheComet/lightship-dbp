@@ -10,9 +10,8 @@
  * ```
  * struct ptree_t
  * {
- *     char* key;       // a string identifying this node
  *     void* value;     // data associated with this node (can be anything)
- *     list_t children; // a nested list of more ptree_t objects
+ *     map_t children;  // a key-value container of nested ptree_t objects
  * }
  * ```
  */
@@ -27,11 +26,11 @@ typedef void (*ptree_free_func)(void*);
 
 struct ptree_t
 {
-    struct map_t children;
 #ifdef _DEBUG
     char* key;
 #endif
     void* value;
+    struct map_t children;
     ptree_dup_func dup_value;
     ptree_free_func free_value;
 };
@@ -43,7 +42,7 @@ struct ptree_t
  * @return Returns the root node of a new, empty ptree object.
  */
 LIGHTSHIP_UTIL_PUBLIC_API struct ptree_t*
-ptree_create(const char* key, void* value);
+ptree_create(void* value);
 
 /*!
  * @brief Initialises an allocated ptree object.
@@ -53,31 +52,23 @@ ptree_create(const char* key, void* value);
  * @param[in] value The data for the root node to reference. Can be NULL.
  */
 LIGHTSHIP_UTIL_PUBLIC_API void
-ptree_init_ptree(struct ptree_t* tree, const char* key, void* value);
+ptree_init_ptree(struct ptree_t* tree, void* value);
 
 /*!
  * @brief Destroys an existing ptree.
  * 
  * Traverses the tree and frees every node.
- * @note This does **not** free any data being referenced by the nodes. If you
- * wish for the data being referenced to be freed along with the tree, use
- * ptree_destroy_free().
  * @param[in] tree The tree to destroy.
+ * @param[in] do_free_values If set to 1, the data associated with every node
+ * will additionally be de-allocated using the specified free function (@see
+ * ptree_set_free_func). If the free function was not specified, the data will
+ * not be freed, and warning messages will be generated.
+ * @param[in] do_destroy_root If set to 1, the root node will be de-allocated.
+ * This is helpful when you manager the allocation of your root node manually,
+ * which would be the case with stack allocated ptree_t objects.
  */
 LIGHTSHIP_UTIL_PUBLIC_API void
-ptree_destroy(struct ptree_t* tree);
-
-/*!
- * @brief Destroys an existing ptree.
- * 
- * Traverses the tree and frees every node.
- * @note This **includes** data being referenced at every node. If you do not
- * wish the data being referenced to be freed along with the tree, use
- * ptree_destroy().
- * @param[in] tree The tree to destroy.
- */
-LIGHTSHIP_UTIL_PUBLIC_API void
-ptree_destroy_free(struct ptree_t* tree);
+ptree_destroy(struct ptree_t* tree, char do_free_values, char do_destroy_root);
 
 /*!
  * @brief Adds a child node to the specified node and sets its key and data.
@@ -110,22 +101,29 @@ LIGHTSHIP_UTIL_PUBLIC_API void
 ptree_set_free_func(struct ptree_t* node, ptree_free_func func);
 
 /*!
- * @brief Copies the tree from source_node and inserts it as a child of
- * target_node.
+ * @brief Copies the tree from source_node and returns an identical tree.
  * @warning This **only** works if every node has a duplication function
- * assigned to it. If a node is found referencing data but is unable to
- * duplicate the data, copying is aborted entirely.
- * @param target_node The node in which to insert the copied tree into as a child.
+ * and free function assigned to it. If a node is found referencing data but is
+ * unable to duplicate or free the data, copying is aborted entirely.
  * @param source_node The tree to copy.
- * @param key The key to give the root node of the copied tree (now the child
- * of the target node). Set to NULL if you wish to copy the key of the source
- * node instead.
- * @return Returns 1 if successful, 0 if copying failed.
+ * @return Returns the new copied tree if successful, NULL if otherwise.
+ */
+LIGHTSHIP_UTIL_PUBLIC_API struct ptree_t*
+ptree_duplicate_tree(const struct ptree_t* source_node);
+
+/*!
+ * @brief Copies all children from source and inserts it as children into
+ * target.
+ * @warning This **only** works if every node has a duplication function
+ * and free function assigned to it. If a node is found referencing data but is
+ * unable to duplicate or free the data, copying is aborted entirely.
+ * @param target The node in which to insert the children into.
+ * @param source The node from which to copy the children from.
+ * @return Returns 1 if successful, 0 if otherwise.
  */
 LIGHTSHIP_UTIL_PUBLIC_API char
-ptree_duplicate_tree(struct ptree_t* target_node,
-                     const struct ptree_t* source_node,
-                     const char* key);
+ptree_duplicate_children_into_existing_node(struct ptree_t* target,
+                                       const struct ptree_t* source);
 
 /*!
  * @brief Searches only the current node for the specified key.
@@ -149,7 +147,7 @@ ptree_find_in_tree(const struct ptree_t* node, const char* key);
 LIGHTSHIP_UTIL_PUBLIC_API void
 ptree_print(const struct ptree_t* tree);
 
-#define PTREE_FOR_EACH(tree, var) \
-    UNORDERED_VECTOR_FOR_EACH(&(tree)->children, struct ptree_t, var)
+#define PTREE_FOR_EACH(tree, key, value) \
+    MAP_FOR_EACH(&(tree)->children, struct ptree_t, key, value)
 
 #define PTREE_HASH_STRING(str) hash_jenkins_oaat(str, strlen(str))

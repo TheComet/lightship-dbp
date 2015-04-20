@@ -4,7 +4,6 @@
 #include "framework/log.h"
 #include "util/unordered_vector.h"
 #include "util/memory.h"
-#include "util/ptree.h"
 #include "util/string.h"
 #include "util/hash.h"
 #include <stdlib.h>
@@ -26,12 +25,18 @@ parser_deinit(struct game_t* game)
 
 /* ------------------------------------------------------------------------- */
 char
-yaml_load_into_ptree(struct game_t* game, struct ptree_t* tree, struct ptree_t* root_tree, yaml_parser_t* parser, char is_sequence)
+yaml_load_into_ptree(struct game_t* game,
+                     struct ptree_t* tree,
+                     struct ptree_t* root_node,
+                     yaml_parser_t* parser,
+                     char is_sequence)
 {
     yaml_event_t event;
     char* key;
     char finished = 0;
-    char sequence_index = 0;
+    char sequence_index = 0; /* this is used to generate keys for when lists/
+                              * sequences are read, as the ptree requires each
+                              * node to have a key. */
     const char FINISH_ERROR = 1;
     const char FINISH_SUCCESS = 2;
 
@@ -70,41 +75,47 @@ yaml_load_into_ptree(struct game_t* game, struct ptree_t* tree, struct ptree_t* 
                     finished = FINISH_ERROR;
                     break;
                 }
+                
                 {
-                    /* create child and recurse, setting is_sequence to 1 */
+                    /* create child and recurse, setting is_sequence to 1 so
+                     * the parser knows to generate sequence keys */
                     struct ptree_t* child = ptree_add_node(tree, key, NULL);
                     ptree_set_dup_func(child, (ptree_dup_func)malloc_string);
-                    result = yaml_load_into_ptree(game, child, root_tree, parser, 1);
+                    ptree_set_free_func(child, (ptree_free_func)free_string);
+                    result = yaml_load_into_ptree(game, child, root_node, parser, 1);
                     free_string(key);
                     key = NULL;
                     if(!result)
                         finished = FINISH_ERROR;
                 }
+                
             case YAML_MAPPING_START_EVENT:
                 
-                /* 
+                /*
                  * If this is a sequence, create index key as usual, but
-                 * recurse with is_sequence set to 0
+                 * recurse with is_sequence set to 0, since the child data
+                 * isn't a sequence any more.
                  */
                 if(is_sequence)
                 {
                     struct ptree_t* child;
-                    char index[sizeof(int)*8+1];
+                    char index_str[sizeof(int)*8+1];
                     if(key)
                     {
                         llog(LOG_ERROR, game, PLUGIN_NAME, 1, "Received a key during a sequence");
                         finished = FINISH_ERROR;
                         break;
                     }
-                    sprintf(index, "%d", sequence_index);
+                    sprintf(index_str, "%d", sequence_index);
                     ++sequence_index;
                     
-                    child = ptree_add_node(tree, index, NULL);
+                    child = ptree_add_node(tree, index_str, NULL);
                     ptree_set_dup_func(child, (ptree_dup_func)malloc_string);
-                    result = yaml_load_into_ptree(game, child, root_tree, parser, 0);
+                    result = yaml_load_into_ptree(game, child, root_node, parser, 0);
                     if(!result)
                         finished = FINISH_ERROR;
                 }
+                
                 /*
                  * If this is not a sequence, then only recurse if a key
                  * exists.
@@ -113,7 +124,7 @@ yaml_load_into_ptree(struct game_t* game, struct ptree_t* tree, struct ptree_t* 
                 {
                     struct ptree_t* child = ptree_add_node(tree, key, NULL);
                     ptree_set_dup_func(child, (ptree_dup_func)malloc_string);
-                    result = yaml_load_into_ptree(game, child, root_tree, parser, 0);
+                    result = yaml_load_into_ptree(game, child, root_node, parser, 0);
                     free_string(key);
                     key = NULL;
                     if(!result)
@@ -127,13 +138,22 @@ yaml_load_into_ptree(struct game_t* game, struct ptree_t* tree, struct ptree_t* 
                 finished = FINISH_SUCCESS;
                 break;
                 
-            /* alias */
+            /* 
+             * Aliases - Find the anchor name in the root node, and recursively
+             * copy said node into the current tree.
+             */
             case YAML_ALIAS_EVENT:
                 if(key)
                 {
-                    const struct ptree_t* source = ptree_find_by_key(root_tree, (char*)event.data.alias.anchor);
+                    const struct ptree_t* source = ptree_find_in_tree(root_node, (char*)event.data.alias.anchor);
                     if(source)
-                        ptree_duplicate_tree(tree, source, key);
+                    {
+                        if(!ptree_duplicate_children_into_existing_node(tree, source))
+                        {
+                            fprintf(stderr, "[yaml] Failed to duplicate tree (anchor copy failed)\n");
+                            finished = FINISH_ERROR;
+                        }
+                    }
                     else
                     {
                         llog(LOG_ERROR, game, PLUGIN_NAME, 1, "Failed to copy ptree \"", event.data.alias.anchor, "\" (yaml anchor failed)");
@@ -244,12 +264,12 @@ yaml_load(struct game_t* game, const char* filename)
     /* parse file and load into dom tree */
     yaml_parser_initialize(&parser);
     yaml_parser_set_input_file(&parser, fp);
-    tree = ptree_create("root", NULL);
+    tree = ptree_create(NULL);
     if(!yaml_load_into_ptree(game, tree, tree, &parser, 0))
     {
         yaml_parser_delete(&parser);
         fclose(fp);
-        ptree_destroy(tree);
+        ptree_destroy(tree, 0, 1);
         llog(LOG_ERROR, game, PLUGIN_NAME, 3, "Syntax error: Failed to parse YAML file \"", filename, "\"");
         return 0;
     }
