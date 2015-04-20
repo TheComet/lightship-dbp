@@ -4,6 +4,7 @@
 #include "framework/game.h"
 #include "framework/log.h"
 #include "util/memory.h"
+#include "util/yaml.h"
 
 struct ptree_t;
 
@@ -80,6 +81,7 @@ init()
     /*
      * Initialise global stuff.
      */
+    yaml_init();
     
     return 1;
 }
@@ -144,6 +146,7 @@ deinit(void)
     /*
      * De-init global stuff
      */
+    yaml_deinit();
     
     /*
      * De-init memory management last

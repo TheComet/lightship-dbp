@@ -136,6 +136,18 @@ if (ENABLE_THREAD_POOL)
 endif ()
 
 ###############################################################################
+# libyaml
+###############################################################################
+
+add_subdirectory ("ext")
+
+include_directories ("ext/yaml-0.1.5-cmake/include")
+target_link_libraries (lightship_util yaml)
+
+# yaml is built statically
+add_definitions (-DYAML_DECLARE_STATIC)
+
+###############################################################################
 # install targets
 ###############################################################################
 
