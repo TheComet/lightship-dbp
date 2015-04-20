@@ -141,7 +141,7 @@ unordered_vector_pop(struct unordered_vector_t* vector);
  * If there are no elements in the vector, NULL is returned.
  */
 LIGHTSHIP_UTIL_PUBLIC_API void*
-ordered_vector_back(struct unordered_vector_t* vector);
+unordered_vector_back(struct unordered_vector_t* vector);
 
 /*!
  * @brief Erases the specified element from the vector.
