@@ -50,7 +50,7 @@ set (PACKAGE_VERSION "${YAML_VERSION_STRING}")
 
 configure_file ("include/yaml/config.h.in"
                 "include/yaml/config.h")
-include_directories ("${CMAKE_BINARY_DIR}/plugins/core/yaml/ext/yaml-0.1.5-cmake/include")
+include_directories ("${CMAKE_BINARY_DIR}/util/ext/yaml-0.1.5-cmake/include")
 add_definitions (${DEFINE_CMD}HAVE_CONFIG_H)
 
 ###############################################################################
