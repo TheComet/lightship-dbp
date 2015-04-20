@@ -12,14 +12,14 @@ static void
 ptree_init_ptree_bare(struct ptree_t* tree);
 
 static void
-ptree_destroy_recurse(struct ptree_t* tree, char free_value);
+ptree_destroy_recurse(ptree_t* tree, char do_free_value);
 
 static char
 ptree_duplicate_tree_recurse(struct ptree_t* target, const struct ptree_t* source);
 
 static struct ptree_t*
-ptree_find_by_key_recurse(const struct ptree_t* tree,
-                          const char* delim);
+ptree_find_in_tree_recurse(const struct ptree_t* tree,
+                           const char* delim);
 
 static void
 ptree_print_impl(const struct ptree_t* tree, uint32_t depth);
@@ -43,7 +43,6 @@ ptree_init_ptree(struct ptree_t* tree, const char* key, void* value)
 #ifdef _DEBUG
     tree->key = malloc_string(key);
 #endif
-    tree->hash = PTREE_HASH_STRING(key);
     tree->value = value;
 }
 
@@ -67,9 +66,8 @@ ptree_destroy_free(struct ptree_t* tree)
 struct ptree_t*
 ptree_add_node(struct ptree_t* tree, const char* key, void* value)
 {
-    struct ptree_t* child;
-    child = (struct ptree_t*)unordered_vector_push_emplace(&tree->children);
-    ptree_init_ptree(child, key, value);
+    struct ptree_t* child = ptree_create(key, value);
+    map_insert(&tree->children, PTREE_HASH_STRING(key), child);
     return child;
 }
 
@@ -81,31 +79,45 @@ ptree_set_dup_func(struct ptree_t* node, ptree_dup_func func)
 }
 
 /* ------------------------------------------------------------------------- */
-struct ptree_t*
-ptree_duplicate_tree(struct ptree_t* target_node, const struct ptree_t* source_node, const char* key)
+void
+ptree_set_free_func(struct ptree_t* node, ptree_free_func func)
 {
-    struct ptree_t* child = (struct ptree_t*)unordered_vector_push_emplace(&target_node->children);
-    ptree_init_ptree_bare(child);
-    if(!ptree_duplicate_tree_recurse(child, source_node))
+    node->free_value = func;
+}
+
+/* ------------------------------------------------------------------------- */
+char
+ptree_duplicate_tree(struct ptree_t* target_node,
+                     const struct ptree_t* source_node,
+                     const char* key)
+{
+    /* create a new root, into which source_node is copied */
+    struct ptree_t* new_root = ptree_add_node(target_node, key, NULL);
+    
+    /* try duplicating */
+    if(!ptree_duplicate_tree_recurse(new_root, source_node))
     {
-        ptree_destroy_recurse(child, 1); /* recursively free all nodes and values except for root node */
-        unordered_vector_erase_element(&target_node->children, child);
+        /* recursively free all nodes and values and return error */
+        ptree_destroy_free(new_root, 1); 
         return NULL;
     }
-    if(key)
-    {
+    
+    /* copy was successful, insert the new root into the target node as a
+     * child */
+    ptree_add_node(target_node, key);
+
 #ifdef _DEBUG
-        FREE(child->key);
-        child->key = malloc_string(key);
+    free_string(child->key);
+    child->key = malloc_string(key);
 #endif
-        child->hash = PTREE_HASH_STRING(key);
+        new_root->hash = PTREE_HASH_STRING(key);
     }
-    return child;
+    return new_root;
 }
 
 /* ------------------------------------------------------------------------- */
 struct ptree_t*
-ptree_find_local_by_key(const struct ptree_t* tree, const char* key)
+ptree_find_in_node(const struct ptree_t* tree, const char* key)
 {
     uint32_t hash = PTREE_HASH_STRING(key);
     UNORDERED_VECTOR_FOR_EACH(&tree->children, struct ptree_t, child)
@@ -118,15 +130,15 @@ ptree_find_local_by_key(const struct ptree_t* tree, const char* key)
 
 /* ------------------------------------------------------------------------- */
 struct ptree_t*
-ptree_find_by_key(const struct ptree_t* tree, const char* key)
+ptree_find_in_tree(const struct ptree_t* tree, const char* key)
 {
     /* prepare key for tokenisation */
     struct ptree_t* result;
     const char* delim = ".";
     char* key_iter = cat_strings(2, "n.", key); /* root key name is ignored, but must exist */
     strtok(key_iter, delim);
-    result = ptree_find_by_key_recurse(tree, delim);
-    FREE(key_iter);
+    result = ptree_find_in_tree_recurse(tree, delim);
+    free_string(key_iter);
     return result;
 }
 
@@ -149,18 +161,28 @@ ptree_init_ptree_bare(struct ptree_t* tree)
 
 /* ------------------------------------------------------------------------- */
 static void
-ptree_destroy_recurse(struct ptree_t* tree, char free_value)
+ptree_destroy_recurse(ptree_t* tree, char do_free_value)
 {
+    /* destroy all children recursively */
     UNORDERED_VECTOR_FOR_EACH(&tree->children, struct ptree_t, child)
     {
-        ptree_destroy_recurse(child, free_value);
+        ptree_destroy_recurse(child, free_func);
     }
     unordered_vector_clear_free(&tree->children);
-    if(free_value && tree->value)
-        FREE(tree->value);
+    
+    /* free the data of this node, if specified */
+    if(do_free_value && tree->value)
+    {
+        if(tree->free_value)
+            tree->free_value(tree->value);
+        else
+            fprintf(stderr, "ptree_destroy_recurse(): Unable to de-allocate!"
+                "no free() function was specified!");
+    }
+    
 #ifdef _DEBUG
     if(tree->key)
-        FREE(tree->key);
+        free_string(tree->key);
 #endif
 }
 
@@ -169,7 +191,7 @@ static char
 ptree_duplicate_tree_recurse(struct ptree_t* target, const struct ptree_t* source)
 {
     /* iterate all children of source and duplicate them */
-    UNORDERED_VECTOR_FOR_EACH(&source->children, struct ptree_t, node)
+    MAP_FOR_EACH(&source->children, struct ptree_t, key, node)
     {
         struct ptree_t* child;
         child = (struct ptree_t*)unordered_vector_push_emplace(&target->children);
@@ -182,15 +204,18 @@ ptree_duplicate_tree_recurse(struct ptree_t* target, const struct ptree_t* sourc
 #ifdef _DEBUG
     target->key = malloc_string(source->key);
 #endif
-    target->hash = source->hash;
     target->dup_value = source->dup_value;
+    target->free_value = source->free_value;
     if(source->value)
     {
         /* unable to duplicate, missing dup function */
         if(!source->dup_value)
             return 0;
+        
+        /* duplicate value */
         target->value = source->dup_value(source->value);
     }
+    
     return 1;
 }
 
@@ -202,12 +227,12 @@ ptree_find_by_key_recurse(const struct ptree_t* tree,
     char* token;
     if((token = strtok(NULL, delim)))
     {
-        uint32_t hash = hash_jenkins_oaat(token, strlen(token));
+        uint32_t hash = PTREE_HASH_STRING(token);
         {
             UNORDERED_VECTOR_FOR_EACH(&tree->children, struct ptree_t, child)
             {
                 if(child->hash == hash)
-                    return ptree_find_by_key_recurse(child, delim);
+                    return ptree_find_in_tree_recurse(child, delim);
             }
             return NULL;
         }
