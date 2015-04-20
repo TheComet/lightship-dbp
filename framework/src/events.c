@@ -6,6 +6,7 @@
 #include "util/hash.h"
 #include "util/memory.h"
 #include "util/string.h"
+#include "util/ptree.h"
 #include <string.h>
 #include <stdlib.h>
 #include <assert.h>
@@ -68,12 +69,10 @@ event_malloc_and_register(struct game_t* game, char* full_name);
 char
 events_init(struct game_t* game)
 {
-    char* name;
-    
     assert(game);
     
     /* this holds all of the game's events */
-    map_init_map(&game->events);
+    ptree_init_ptree(&game->events);
     
     /* ----------------------------
      * Register built-in events 
@@ -81,32 +80,41 @@ events_init(struct game_t* game)
     
     for(;;)
     {
-        /* game start, pause, and exit events */
-        name = malloc_string("start");                                      if(!name) break;
-        game->event.start = event_malloc_and_register(game, name);          if(!game->event.start) break;
-        name = malloc_string("pause");                                      if(!name) break;
-        game->event.pause = event_malloc_and_register(game, name);          if(!game->event.pause) break;
-        name = malloc_string("exit");                                       if(!name) break;
-        game->event.exit = event_malloc_and_register(game, name);           if(!game->event.exit) break;
+        /*
+         * Define a macro, so I don't have to type that much.
+         * This will register an event to the "game" object with the specified
+         * name, and save the returned event object into game->event.(name).
+         */
+#define STR_(x) #x
+#define STR(x) STR_(x)
+#define REGISTER_BUILT_IN_EVENT(name) {                             \
+            char* name_str;                                         \
+            if(!(name_str = malloc_string(STR(name)))) break;       \
+            if(!(game->event.name =                                 \
+                event_malloc_and_register(game, name_str))) break; }
+
+        REGISTER_BUILT_IN_EVENT(start)
+        REGISTER_BUILT_IN_EVENT(pause)
+        REGISTER_BUILT_IN_EVENT(exit)
         
         /* main loop events (game update and render updates) */
-        name = malloc_string("tick");                                       if(!name) break;
-        game->event.tick = event_malloc_and_register(game, name);           if(!game->event.tick) break;
-        name = malloc_string("render");                                     if(!name) break;
-        game->event.render = event_malloc_and_register(game, name);         if(!game->event.render) break;
-        name = malloc_string("stats");                                      if(!name) break;
-        game->event.loop_stats = event_malloc_and_register(game, name);     if(!game->event.loop_stats) break;
-    
+        REGISTER_BUILT_IN_EVENT(tick)
+        REGISTER_BUILT_IN_EVENT(render)
+        REGISTER_BUILT_IN_EVENT(stats)
+        
         /* The log will fire these events appropriately whenever something is logged */
-        name = malloc_string("log");                                        if(!name) break;
-        game->event.log = event_malloc_and_register(game, name);            if(!game->event.log) break;
-        name = malloc_string("log_indent");                                 if(!name) break;
-        game->event.log_indent = event_malloc_and_register(game, name);     if(!game->event.log_indent) break;
-        name = malloc_string("log_unindent");                               if(!name) break;
-        game->event.log_unindent = event_malloc_and_register(game, name);   if(!game->event.log_unindent) break;
+        REGISTER_BUILT_IN_EVENT(log)
+        REGISTER_BUILT_IN_EVENT(log_indent)
+        REGISTER_BUILT_IN_EVENT(log_unindent)
         
         return 1;
     }
+    
+    /* ------------------------------------------------------------
+     * Reaching this point means something went wrong - Clean up
+     * --------------------------------------------------------- */
+    
+    events_deinit(game);
     
     return 0;
 }
@@ -124,7 +132,7 @@ events_deinit(struct game_t* game)
 
 /* ------------------------------------------------------------------------- */
 struct event_t*
-event_create(struct game_t* game, const struct plugin_t* plugin, const char* name)
+event_create(struct game_t* game, const char* name)
 {
 
     /* check for duplicate event names */
@@ -139,16 +147,16 @@ event_create(struct game_t* game, const struct plugin_t* plugin, const char* nam
 }
 
 /* ------------------------------------------------------------------------- */
-char
+void
 event_destroy(struct event_t* event)
 {
     assert(event);
     
     if(!map_erase_element(&event->game->events, event))
-        llog(LOG_WARNING, event->game, NULL, 1, "Destroying an event that could not be found in the associated game object");
+        llog(LOG_WARNING, event->game, NULL, 1, "Destroying an event that"
+            "could not be found in the associated game object");
 
     event_free(event);
-    return 1;
 }
 
 /* ------------------------------------------------------------------------- */
@@ -211,7 +219,6 @@ event_get(const struct game_t* game, const char* full_name)
 /* ------------------------------------------------------------------------- */
 char
 event_register_listener(const struct game_t* game,
-                        const struct plugin_t* plugin,
                         const char* event_full_name,
                         event_callback_func callback)
 {
@@ -263,8 +270,8 @@ event_register_listener(const struct game_t* game,
 /* ------------------------------------------------------------------------- */
 char
 event_unregister_listener(const struct game_t* game,
-                          const char* plugin_name,
-                          const char* event_name)
+                          const char* event_name,
+                          event_callback_func callback)
 {
     struct event_t* event;
     
@@ -295,27 +302,6 @@ event_unregister_all_listeners(struct event_t* event)
         event_listener_free_contents(listener);
     }
     unordered_vector_clear_free(&event->listeners);
-}
-
-/* ------------------------------------------------------------------------- */
-void
-event_unregister_all_listeners_of_plugin(const struct plugin_t* plugin)
-{
-    char* name_space;
-
-    assert(plugin);
-    assert(plugin->game);
-
-    /* 
-     * For every listener in every event, search for any listener that belongs
-     * to the specified plugin
-     */
-    name_space = event_get_name_space_name(plugin);
-    { MAP_FOR_EACH(&plugin->game->events, struct event_t, key, event)
-    {
-        event_unregister_all_listeners_of_name_space(event, name_space);
-    }}
-    free_string(name_space);
 }
 
 /* ----------------------------------------------------------------------------

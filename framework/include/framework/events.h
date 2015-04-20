@@ -147,7 +147,7 @@ event_create(struct game_t* game, const char* name);
  * @return Returns 1 if successful, 0 if otherwise.
  */
 FRAMEWORK_PUBLIC_API char
-event_destroy(struct game_t* game, struct event_t* event);
+event_destroy(struct event_t* event);
 
 /*!
  * @brief Destroys all events that were registered by the specified plugin.
@@ -155,7 +155,7 @@ event_destroy(struct game_t* game, struct event_t* event);
  * @param[in] plugin The plugin to destroy the events from.
  */
 FRAMEWORK_PUBLIC_API void
-event_destroy_all(struct game_t* game, const char* pattern);
+event_destroy_all_matching(const char* pattern);
 
 /*!
  * @brief Returns an event object with the specified name.
@@ -167,6 +167,15 @@ event_get(const struct game_t* game, const char* name);
 
 /*!
  * @brief Registers a listener to the specified event.
+ * @param[in] game The game hosting the event you want to listen to.
+ * @param[in] plugin The plugin registering as a listener. The purpose of this
+ * is so all listeners originating from a plugin are automatically unregistered
+ * when the plugin is unloaded.
+ * 
+ * You may also pass NULL if the listener isn't in a plugin, or if you don't
+ * want the plugin manager to unregister your listeners automatically.
+ * @param[in] event_name The name of the event to register to.
+ * @param[in] callback The callback function to call when the event is fired.
  */
 FRAMEWORK_PUBLIC_API char
 event_register_listener(const struct game_t* game,
@@ -179,22 +188,14 @@ event_register_listener(const struct game_t* game,
  */
 FRAMEWORK_PUBLIC_API char
 event_unregister_listener(const struct game_t* game,
-                          const char* plugin_name, 
-                          const char* event_name);
+                          const char* event_name,
+                          event_callback_func callback);
 
 /*!
  * @brief Unregisters all listeners from the specified event.
  */
 FRAMEWORK_PUBLIC_API void
 event_unregister_all_listeners(struct event_t* event);
-
-/*!
- * @brief Unregisters all listeners that belong to the specified plugin
- * globally.
- * @param[in] plugin The plugin the listeners belong to.
- */
-FRAMEWORK_PUBLIC_API void
-event_unregister_all_listeners_of_plugin(const struct plugin_t* plugin);
 
 C_HEADER_END
 

@@ -74,7 +74,7 @@ game_create(const char* name, game_network_role_e net_role)
         /* add to global list of games */
         {
             uint32_t hash = hash_jenkins_oaat(name, strlen(name));
-            if(!map_insert(g_games, game))
+            if(!map_insert(g_games, hash, game))
                 break;
         }
         
@@ -91,25 +91,14 @@ game_create(const char* name, game_network_role_e net_role)
 void
 game_destroy(struct game_t* game)
 {
+    uint32_t hash;
+    
     assert(game);
     assert(game->name);
     
     /* remove game from global list */
-    { UNORDERED_VECTOR_FOR_EACH(g_games, struct game_t*, p_game)
-    {
-        if(*p_game == game)
-        {
-            unordered_vector_erase_element(g_games, p_game);
-            break;
-        }
-    }}
-    
-    /* if the last element was removed from global list, clear free vector */
-    if(g_games->count == 0)
-    {
-        unordered_vector_destroy(g_games);
-        g_games = NULL;
-    }
+    hash = hash_jenkins_oaat(game->name, strlen(game->name));
+    map_erase(g_games, hash);
     
     /* disconnect the game */
     game_disconnect(game);
@@ -173,12 +162,13 @@ game_exit(struct game_t* game)
 void
 games_run_all(void)
 {
-    while(g_games && g_games->count)
+    while(g_games && g_games->vector.count)
     {
         /* update indiviual game loops */
         main_loop_do_loop();
         
         /* if the game wishes to terminate, destroy it */
+        /* TODO
         { UNORDERED_VECTOR_FOR_EACH(g_games, struct game_t*, p_game)
         {
             if((*p_game)->state == GAME_STATE_TERMINATED)
@@ -186,7 +176,7 @@ games_run_all(void)
                 game_destroy(*p_game);
                 break;
             }
-        }}
+        }}*/
     }
 }
 
@@ -194,9 +184,9 @@ games_run_all(void)
 void
 game_dispatch_stats(uint32_t render_fps, uint32_t tick_fps)
 {
-    UNORDERED_VECTOR_FOR_EACH(g_games, struct game_t*, p_game)
+    MAP_FOR_EACH(g_games, struct game_t, key, game)
     {
-        EVENT_FIRE_FROM_TEMP2(evt_loop_stats, (*p_game)->event.loop_stats,
+        EVENT_FIRE_FROM_TEMP2(evt_loop_stats, game->event.stats,
                               render_fps, tick_fps);
     }
 }
@@ -205,9 +195,9 @@ game_dispatch_stats(uint32_t render_fps, uint32_t tick_fps)
 void
 game_dispatch_render(void)
 {
-    UNORDERED_VECTOR_FOR_EACH(g_games, struct game_t*, p_game)
+    MAP_FOR_EACH(g_games, struct game_t, key, game)
     {
-        EVENT_FIRE_FROM_TEMP0(evt_render, (*p_game)->event.render);
+        EVENT_FIRE_FROM_TEMP0(evt_render, game->event.render);
     }
 }
 
@@ -215,9 +205,9 @@ game_dispatch_render(void)
 void
 game_dispatch_tick(void)
 {
-    UNORDERED_VECTOR_FOR_EACH(g_games, struct game_t*, p_game)
+    MAP_FOR_EACH(g_games, struct game_t, key, game)
     {
-        EVENT_FIRE_FROM_TEMP0(evt_tick, (*p_game)->event.tick);
+        EVENT_FIRE_FROM_TEMP0(evt_tick, game->event.tick);
     }
 }
 

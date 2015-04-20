@@ -36,7 +36,7 @@ struct framework_events_t
     
     struct event_t* tick;
     struct event_t* render;
-    struct event_t* loop_stats;
+    struct event_t* stats;
     
     struct event_t* log;
     struct event_t* log_indent;
@@ -65,8 +65,8 @@ struct game_t
     struct framework_services_t service;
     struct framework_log_t log;
     struct list_t plugins;      /* list of active plugins used by this game */
-    struct map_t services;      /* maps service names to active services used by this game */
-    struct map_t events;        /* maps event names to active events used by this game */
+    struct ptree_t services;    /* TODO doc */
+    struct ptree_t events;      /* TODO doc */
     struct map_t global_data;   /* maps hashed plugin names to glob structs used by this game */
 };
 
