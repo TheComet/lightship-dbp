@@ -223,7 +223,7 @@ service_unregister(struct game_t* game,
 /* ------------------------------------------------------------------------- */
 char
 service_unregister_all(const struct plugin_t* plugin)
-{
+{/* TODO
     char* name;
     int len;
     
@@ -237,8 +237,9 @@ service_unregister_all(const struct plugin_t* plugin)
 
     len = strlen(plugin->info.name);
     {
-        MAP_FOR_EACH(&plugin->game->services, struct service_t, key, service)
+        PTREE_FOR_EACH(&plugin->game->services, node)
         {
+            struct service_t* service = (struct service_t*)node->value;
             if(strncmp(service->name, name, len) == 0)
             {
                 service_free(service);
@@ -246,7 +247,7 @@ service_unregister_all(const struct plugin_t* plugin)
             }
         }
     }
-    free_string(name);
+    free_string(name);*/
     
     return 1;
 }

@@ -3,7 +3,9 @@
 
 #define NAME map
 
-TEST(NAME, init)
+using testing::NotNull;
+
+TEST(NAME, init_sets_correct_values)
 {
     struct map_t map;
     map.vector.count = 4;
@@ -90,7 +92,25 @@ TEST(NAME, insertion_random)
     map_destroy(map);
 }
 
-TEST(NAME, erase_deletes_underlying_vector)
+TEST(NAME, clear_keeps_underlying_vector)
+{
+    struct map_t* map = map_create();
+    
+    int a = 53;
+    map_insert(map, 0, &a);
+    map_insert(map, 1, &a);
+    map_insert(map, 2, &a);
+    
+    // this should delete all entries but keep the underlying vector
+    map_clear(map);
+    
+    ASSERT_EQ(0, map->vector.count);
+    EXPECT_THAT(map->vector.data, NotNull());
+    
+    map_destroy(map);
+}
+
+TEST(NAME, clear_free_deletes_underlying_vector)
 {
     struct map_t* map = map_create();
     
@@ -99,7 +119,8 @@ TEST(NAME, erase_deletes_underlying_vector)
     map_insert(map, 1, &a);
     map_insert(map, 2, &a);
     
-    map_clear(map);
+    // this should delete all entries + free the underlying vector
+    map_clear_free(map);
     
     ASSERT_EQ(0, map->vector.count);
     ASSERT_EQ(NULL, map->vector.data);
@@ -134,7 +155,7 @@ TEST(NAME, erase_elements)
 
     ASSERT_EQ(c, *(int*)map_erase(map, 2));
 
-    /* 4 */
+    // 4
     ASSERT_EQ(a, *(int*)map_find(map, 0));
     ASSERT_EQ(b, *(int*)map_find(map, 1));
     ASSERT_EQ(d, *(int*)map_find(map, 3));
@@ -142,20 +163,20 @@ TEST(NAME, erase_elements)
 
     ASSERT_EQ(e, *(int*)map_erase(map, 4));
 
-    /* 3 */
+    // 3
     ASSERT_EQ(a, *(int*)map_find(map, 0));
     ASSERT_EQ(b, *(int*)map_find(map, 1));
     ASSERT_EQ(d, *(int*)map_find(map, 3));
 
     ASSERT_EQ(a, *(int*)map_erase(map, 0));
 
-    /* 2 */
+    // 2
     ASSERT_EQ(b, *(int*)map_find(map, 1));
     ASSERT_EQ(d, *(int*)map_find(map, 3));
 
     ASSERT_EQ(b, *(int*)map_erase(map, 1));
 
-    /* 1 */
+    // 1
     ASSERT_EQ(d, *(int*)map_find(map, 3));
 
     ASSERT_EQ(d, *(int*)map_erase(map, 3));

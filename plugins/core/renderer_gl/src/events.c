@@ -13,17 +13,17 @@ EVENT_C2(evt_mouse_scroll, uint32_t, uint32_t)
 void
 register_events(struct game_t* game, struct plugin_t* plugin)
 {
-    evt_close_window            = event_create(game, plugin, "close_window");
-    evt_key_press               = event_create(game, plugin, "key_press");
-    evt_key_release             = event_create(game, plugin, "key_release");
-    evt_mouse_move              = event_create(game, plugin, "mouse_move");
-    evt_mouse_button_press      = event_create(game, plugin, "mouse_button_press");
-    evt_mouse_button_release    = event_create(game, plugin, "mouse_button_release");
-    evt_mouse_scroll            = event_create(game, plugin, "mouse_scroll");
+    evt_close_window            = event_create(game, "close_window");
+    evt_key_press               = event_create(game, "key_press");
+    evt_key_release             = event_create(game, "key_release");
+    evt_mouse_move              = event_create(game, "mouse_move");
+    evt_mouse_button_press      = event_create(game, "mouse_button_press");
+    evt_mouse_button_release    = event_create(game, "mouse_button_release");
+    evt_mouse_scroll            = event_create(game, "mouse_scroll");
 }
 
 void
 register_event_listeners(struct game_t* game, struct plugin_t* plugin)
 {
-    event_register_listener(game, plugin, "render", on_render);
+    event_register_listener(game, "render", on_render);
 }

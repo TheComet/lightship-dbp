@@ -18,19 +18,19 @@ void register_events(struct plugin_t* plugin)
     struct glob_events_t* g = &get_global(game)->events;
     memset(g, 0, sizeof(struct glob_events_t));
 
-    g->render = event_create(game, plugin, "render");
-    g->update = event_create(game, plugin, "update");
-    g->stats  = event_create(game, plugin, "stats");
-    g->start  = event_create(game, plugin, "start");
-    g->stop   = event_create(game, plugin, "stop");
+    g->render = event_create(game, "render");
+    g->update = event_create(game, "update");
+    g->stats  = event_create(game, "stats");
+    g->start  = event_create(game, "start");
+    g->stop   = event_create(game, "stop");
 }
 
 void register_event_listeners(struct plugin_t* plugin)
 {
     struct game_t* game = plugin->game;
-    event_register_listener(game, plugin, "main_loop.stop", on_main_loop_stop);
-    event_register_listener(game, plugin, "renderer_gl.close_window", on_main_loop_stop);
+    event_register_listener(game, "main_loop.stop", on_main_loop_stop);
+    event_register_listener(game, "renderer_gl.close_window", on_main_loop_stop);
 #ifdef _DEBUG
-    event_register_listener(game, plugin, "main_loop.stats", on_stats);
+    event_register_listener(game, "main_loop.stats", on_stats);
 #endif
 }
