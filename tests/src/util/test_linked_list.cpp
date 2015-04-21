@@ -3,51 +3,72 @@
 
 #define NAME linked_list
 
+using testing::IsNull;
+using testing::NotNull;
+
 TEST(NAME, init)
 {
     struct list_t list;
     
     list.count = 384;
-    list.head = 345;
-    list.tail = 232;
-    list_init_list(&list, sizeof(int));
+    list.head = (struct list_node_t*)345;
+    list.tail = (struct list_node_t*)232;
+    list_init_list(&list);
     
     ASSERT_EQ(0, list.count);
     ASSERT_EQ(NULL, list.head);
     ASSERT_EQ(NULL, list.tail);
-    ASSERT_EQ(sizeof(int), list.element_size);
 }
 
-TEST(NAME, create_initialises_listtor)
+TEST(NAME, create_initialises_list)
 {
-    struct list_t* list = ordered_listtor_create(sizeof(int));
-    ASSERT_EQ(0, list->capacity);
+    struct list_t* list = list_create();
     ASSERT_EQ(0, list->count);
-    ASSERT_EQ(NULL, list->data);
-    ASSERT_EQ(sizeof(int), list->element_size);
-    ordered_listtor_destroy(list);
+    ASSERT_EQ(NULL, list->head);
+    ASSERT_EQ(NULL, list->tail);
+    list_destroy(list);
 }
 
-TEST(NAME, push_increments_count_and_causes_realloc_by_factor_2)
+TEST(NAME, push_correctly_links_nodes)
 {
-    struct list_t* list = ordered_listtor_create(sizeof(int));
-    int x = 9;
+    struct list_t* list = list_create();
+    int a = 7;
+    int b = 4;
+    int c = 2;
+    int d = 9;
 
-    ordered_listtor_push(list, &x);
-    ASSERT_EQ(2, list->capacity);
+    list_push(list, &a);
+    // make sure links are in tact
+    ASSERT_EQ(list->head, list->tail);
+    EXPECT_THAT(list->head, NotNull());
+    EXPECT_THAT(list->tail->prev, IsNull());
+    EXPECT_THAT(list->head->next, IsNull());
+    // make sure counter is keeping track
     ASSERT_EQ(1, list->count);
 
-    ordered_listtor_push(list, &x);
-    ASSERT_EQ(2, list->capacity);
+    list_push(list, &b);
+    // make sure links are in tact
+    ASSERT_EQ(list->head, list->tail->next);
+    ASSERT_EQ(list->tail, list->head->prev);
+    EXPECT_THAT(list->tail->prev, IsNull());
+    EXPECT_THAT(list->head->next, IsNull());
+    // make sure counter is keeping track
     ASSERT_EQ(2, list->count);
-
-    ordered_listtor_push(list, &x);
-    ASSERT_EQ(4, list->capacity);
+    
+    list_push(list, &c);
+    // make sure links are in tact
+    ASSERT_EQ(list->head, list->tail->next->next);
+    ASSERT_EQ(list->head->prev, list->tail->next);
+    ASSERT_EQ(list->tail, list->head->prev->prev);
+    ASSERT_EQ(list->tail->next, list->head->prev);
+    EXPECT_THAT(list->tail->prev, IsNull());
+    EXPECT_THAT(list->head->next, IsNull());
+    // make sure counter is keeping track
     ASSERT_EQ(3, list->count);
 
-    ordered_listtor_destroy(list);
+    list_destroy(list);
 }
-
+/*
 TEST(NAME, clear_keeps_buffer_and_resets_count)
 {
     struct list_t* list = ordered_listtor_create(sizeof(int));
@@ -237,14 +258,14 @@ TEST(NAME, erase_invalid_index)
     ordered_listtor_erase_index(list, 0);
     ordered_listtor_erase_index(list, 0);
     ordered_listtor_destroy(list);
-}
+}*/
 
 /* ========================================================================= */
 /* EVERYTHING ABOVE THIS POINT IS IDENTICAL TO unordered_listtor              */
 /* ========================================================================= */
 /* EVERYTHING BELOW THIS POINT IS UNIQUE TO ordered_listtor                   */
 /* ========================================================================= */
-
+/*
 TEST(NAME, inserting_preserves_existing_elements)
 {
     struct list_t* list = ordered_listtor_create(sizeof(int));
@@ -356,3 +377,4 @@ TEST(NAME, insert_emplacing_preserves_existing_elements)
     
     ordered_listtor_destroy(list);
 }
+*/

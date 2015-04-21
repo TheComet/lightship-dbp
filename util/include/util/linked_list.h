@@ -34,13 +34,17 @@ list_create(void);
 
 /*!
  * @brief Initialises an existing list with default values.
- * @param[in] list The list to initialise.
+ * @param[in] list The list to initialise. Must be a valid list (cannot be
+ * NULL).
  */
 LIGHTSHIP_UTIL_PUBLIC_API void
 list_init_list(struct list_t* list);
 
 /*!
  * @brief Destroys a list.
+ * @note The data each link holds is **not** de-allocated, it is up to you to
+ * traverse the list and destroy any data contained within the list before
+ * clearing it.
  * @param[in] list The list to destroy.
  */
 LIGHTSHIP_UTIL_PUBLIC_API void
@@ -49,8 +53,9 @@ list_destroy(struct list_t* list);
 /*!
  * @brief Unlinks and removes all nodes in a list. The list will be empty after
  * this operation.
- * @note The data each link held is not FREEd, it is up to you to traverse the
- * list and destroy any data contained within the list before clearing it.
+ * @note The data each link holds is **not** de-allocated, it is up to you to
+ * traverse the list and destroy any data contained within the list before
+ * clearing it.
  */
 LIGHTSHIP_UTIL_PUBLIC_API void
 list_clear(struct list_t* list);
