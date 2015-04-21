@@ -1,14 +1,14 @@
 #define _SVID_SOURCE
+#include "util/dir.h"
+#include "util/linked_list.h"
+#include "util/string.h"
 #include <dirent.h>
 #include <errno.h>
 #include <sys/types.h>
 #include <stdlib.h>
-#include "util/dir.h"
-#include "util/linked_list.h"
-#include "util/string.h"
 
 /* ------------------------------------------------------------------------- */
-void
+char
 get_directory_listing(struct list_t* list, const char* dir)
 {
     DIR* dirp = NULL;
@@ -20,7 +20,7 @@ get_directory_listing(struct list_t* list, const char* dir)
     {
         stderr_strings(3, "Error searching directory \"", dir, "\": ");
         perror("");
-        return;
+        return 0;
     }
 
     /* copy contents of directory into linked list */
@@ -35,4 +35,6 @@ get_directory_listing(struct list_t* list, const char* dir)
         perror("Error reading directory");
 
     closedir(dirp);
+    
+    return (errno == 0);
 }
