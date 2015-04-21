@@ -71,6 +71,8 @@ list_push(struct list_t* list, void* data)
 void*
 list_pop(struct list_t* list)
 {
+    void* data;
+    
     struct list_node_t* node = list->head;
     if(!node)
         return NULL;
@@ -81,10 +83,11 @@ list_pop(struct list_t* list)
     else                        /* the previous node doesn't exist */
         list->tail = NULL;      /* tail no longer exists */
 
+    data = node->data;
     FREE(node);
     --list->count;
 
-    return NULL;
+    return data;
 }
 
 /* ------------------------------------------------------------------------- */
@@ -111,7 +114,7 @@ list_erase_node(struct list_t* list, struct list_node_t* node)
 }
 
 /* ------------------------------------------------------------------------- */
-void*
+char
 list_erase_element(struct list_t* list, void* data)
 {
     struct list_node_t* current = list->tail;
@@ -119,9 +122,10 @@ list_erase_element(struct list_t* list, void* data)
     {
         if(current->data == data)
         {
-            return list_erase_node(list, current);
+            list_erase_node(list, current);
+            return 1;
         }
         current = current->next;
     }
-    return NULL;
+    return 0;
 }
