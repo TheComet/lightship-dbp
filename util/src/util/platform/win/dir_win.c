@@ -6,7 +6,8 @@
 #include "util/memory.h"
 #include "util/platform/win/error.h"
 
-void
+/* ------------------------------------------------------------------------- */
+char
 get_directory_listing(struct list_t* list, const char* dir)
 {
     HANDLE fh;
@@ -24,7 +25,7 @@ get_directory_listing(struct list_t* list, const char* dir)
         char* error = get_last_error_string();
         stderr_strings(4, "Error searching directory \"", dir, "\": ", error);
         FREE(error);
-        return;
+        return 0;
     }
 
     /* copy directory listing into list */
@@ -38,4 +39,6 @@ get_directory_listing(struct list_t* list, const char* dir)
 
     FindClose(fh);
     FREE(search_str);
+    
+    return 1;
 }

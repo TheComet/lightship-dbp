@@ -1,7 +1,9 @@
 #ifndef LIGHTSHIP_UTIL_LINKED_LIST_H
 #define LIGHTSHIP_UTIL_LINKED_LIST_H
 
-#include "util/export.h"
+#include "util/config.h"
+
+C_HEADER_BEGIN
 
 /*!
  * @brief Holds user defined data and information on linked nodes.
@@ -141,7 +143,7 @@ list_erase_element(struct list_t* list, void* data);
 #define LIST_FOR_EACH(list, var_type, var) \
     var_type* var; \
     struct list_node_t* node_##var; \
-    for(node_##var = (list)->tail; node_##var != NULL && (var = node_##var->data); node_##var = node_##var->next)
+    for(node_##var = (list)->tail; node_##var != NULL && (var = (var_type*)node_##var->data); node_##var = node_##var->next)
 
 /*!
  * @brief Convenient macro for iterating a list's elements in reverse order.
@@ -224,5 +226,7 @@ list_erase_element(struct list_t* list, void* data);
      * In order to not exit the for-loop in this situation, I've added a ||1 to
      * prevent short circuiting of the expression.
      */
+
+C_HEADER_END
 
 #endif /* LIGHTSHIP_UTIL_LINKED_LIST_H */
