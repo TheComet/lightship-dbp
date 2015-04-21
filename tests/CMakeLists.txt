@@ -29,3 +29,9 @@ add_custom_command (TARGET lightship_tests POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
     "${CMAKE_SOURCE_DIR}/tests/test_dir"
     "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/tests/test_dir")
+
+# remove the dummy file required for git to track the empty directory
+# this is for one of the directory unit tests
+add_custom_command(TARGET lightship_tests POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E remove
+    "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/tests/test_dir/empty/empty")
