@@ -102,7 +102,7 @@ list_push(struct list_t* list, void* data);
  * Removes the head node from the list, if any. The head of the list will point
  * to the item preceeding the removed item, or if there is no preceeding item,
  * the head of the list will point to NULL.
- * @note The data being referenced by the node is **not** FREEd.
+ * @note The data being referenced by the node is **not** de-allocated.
  * @param[in] list The list from which to remove the node.
  * @return Returns the data that was referenced by the now destroyed node.
  */
@@ -111,7 +111,7 @@ list_pop(struct list_t* list);
 
 /*!
  * @brief Removes a specified node from the list.
- * @note The data being referenced by the node is **not** FREEd.
+ * @note The data being referenced by the node is **not** de-allocated.
  * @param[in] list The list from which to remove the node.
  * @return Returns the data that was referenced by the now destroyed node.
  */
@@ -120,12 +120,12 @@ list_erase_node(struct list_t* list, struct list_node_t* node);
 
 /*!
  * @brief Searches the list for the specified data, then erases the node.
- * @note The data being referenced by the node is **not** FREEd.
+ * @note The data being referenced by the node is **not** de-allocated.
  * @param[in] list The list from which to remove the node.
- * @return Returns the data that was referenced by the now destroyed node.
- * If the specified data is not found in the list, NULL is returned.
+ * @return Returns 1 if the node was found and destroyed. Returns 0 if the data
+ * was not found.
  */
-LIGHTSHIP_UTIL_PUBLIC_API void*
+LIGHTSHIP_UTIL_PUBLIC_API char
 list_erase_element(struct list_t* list, void* data);
 
 /*!
@@ -170,7 +170,7 @@ list_erase_element(struct list_t* list, void* data);
 #define LIST_FOR_EACH_R(list, var_type, var) \
     var_type* var; \
     struct list_node_t* node_##var; \
-    for(node_##var = (list)->head; node_##var != NULL && (var = node_##var->data); node_##var = node_##var->prev)
+    for(node_##var = (list)->head; node_##var != NULL && (var = (var_type*)node_##var->data); node_##var = node_##var->prev)
 
 /*!
  * @brief Convenient macro for iterating a list's elements in forward order.
@@ -194,7 +194,7 @@ list_erase_element(struct list_t* list, void* data);
     var_type* var; \
     struct list_node_t* node_##var; \
     struct list_node_t* next_node_##var; \
-    for(node_##var = (list)->tail; node_##var && ((var = node_##var->data, next_node_##var = node_##var->next) || 1); node_##var = next_node_##var)
+    for(node_##var = (list)->tail; node_##var && ((var = (var_type*)node_##var->data, next_node_##var = node_##var->next) || 1); node_##var = next_node_##var)
     /*
      * Why ||1 ? -> It is possible that the expression after && evaluates to be
      * false (such is the case when node->data = NULL, or node->prev = NULL).
@@ -224,7 +224,7 @@ list_erase_element(struct list_t* list, void* data);
     var_type* var; \
     struct list_node_t* node_##var; \
     struct list_node_t* prev_node_##var; \
-    for(node_##var = (list)->head; node_##var && ((var = node_##var->data, prev_node_##var = node_##var->prev) || 1); node_##var = prev_node_##var)
+    for(node_##var = (list)->head; node_##var && ((var = (var_type*)node_##var->data, prev_node_##var = node_##var->prev) || 1); node_##var = prev_node_##var)
     /*
      * Why ||1 ? -> It is possible that the expression after && evaluates to be
      * false (such is the case when node->data = NULL, or node->prev = NULL).
