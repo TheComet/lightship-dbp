@@ -65,12 +65,25 @@ ptree_init_ptree(struct ptree_t* tree, void* value);
  * will additionally be de-allocated using the specified free function (@see
  * ptree_set_free_func). If the free function was not specified, the data will
  * not be freed, and warning messages will be generated.
- * @param[in] do_destroy_root If set to 1, the root node will be de-allocated.
- * This is helpful when you manager the allocation of your root node manually,
- * which would be the case with stack allocated ptree_t objects.
  */
 LIGHTSHIP_UTIL_PUBLIC_API void
-ptree_destroy(struct ptree_t* tree, char do_free_values, char do_destroy_root);
+ptree_destroy(struct ptree_t* tree, char do_free_values);
+
+/*!
+ * @brief Destroys an existing ptree, but keeps the root node.
+ * 
+ * Traverses the tree and frees every node except for the root node (the one
+ * being passed to this function).
+ * @note If do_free_falues is set to 1, then the data being referenced by the
+ * root node is de-allocated anyway.
+ * @param[in] tree The three to destroy.
+ * @param[in] do_free_values If set to 1, the data associated with every node
+ * will additionally be de-allocated using the specified free function (@see
+ * ptree_set_free_func). If the free function was not specified, the data will
+ * not be freed, and warning messages will be generated.
+ */
+LIGHTSHIP_UTIL_PUBLIC_API void
+ptree_destroy_keep_root(struct ptree_t* tree, char do_free_values);
 
 /*!
  * @brief Adds a child node to the specified node and sets its key and data.

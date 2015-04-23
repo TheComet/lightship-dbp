@@ -12,9 +12,6 @@ static struct ptree_t*
 ptree_add_node_hashed_key(struct ptree_t* tree, uint32_t hash, void* value);
 
 static void
-ptree_init_ptree_bare(struct ptree_t* tree);
-
-static void
 ptree_destroy_recurse(struct ptree_t* tree, char do_free_value);
 
 static const struct ptree_t*
@@ -49,11 +46,18 @@ ptree_init_ptree(struct ptree_t* tree, void* value)
 
 /* ------------------------------------------------------------------------- */
 void
-ptree_destroy(struct ptree_t* tree, char do_free_values, char do_destroy_root)
+ptree_destroy(struct ptree_t* tree, char do_free_values)
 {
     ptree_destroy_recurse(tree, do_free_values);
-    if(do_destroy_root)
-        FREE(tree);
+    FREE(tree);
+}
+
+/* ------------------------------------------------------------------------- */
+void
+ptree_destroy_keep_root(ptree_t* tree, char do_free_values)
+{
+    ptree_destroy_recurse(tree, do_free_values);
+    ptree_init_ptree(tree); /* re-init root node */
 }
 
 /* ------------------------------------------------------------------------- */
@@ -196,8 +200,13 @@ ptree_destroy_recurse(struct ptree_t* tree, char do_free_value)
         if(tree->free_value)
             tree->free_value(tree->value);
         else
+        {
             fprintf(stderr, "ptree_destroy_recurse(): Unable to de-allocate!"
                 "no free() function was specified!");
+#ifdef _DEBUG
+            fprintf(stderr, "  at ptree node with name \"%s\"\n", tree->key);
+#endif
+        }
     }
     
 #ifdef _DEBUG

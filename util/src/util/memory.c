@@ -151,55 +151,40 @@ void
 memory_deinit(void)
 {
     --allocations; /* this is the single allocation still held by the report vector */
+    
     printf("=========================================\n");
     printf("Memory Report\n");
     printf("=========================================\n");
+    
+    /* report details on any allocations that were not de-allocated */
     if(report.vector.count != 0)
     {
+        { MAP_FOR_EACH(&report, struct report_info_t, key, info)
         {
-            MAP_FOR_EACH(&report, struct report_info_t, key, info)
-            {
-                printf("  un-freed memory at %p, size %p\n", (void*)info->location, (void*)info->size);
-                
-                /* print a string and hex dump of the unfreed data */
-                {
-                    char *dump;
-                    intptr_t i;
-                    /* allocate and copy data into new buffer */
-                    dump = malloc(info->size + 1);
-                    memcpy(dump, (void*)info->location, info->size);
-                    dump[info->size] = '\0';
-                    /* mutate null terminators */
-                    for(i = 0; i != info->size; ++i)
-                        if(dump[i] == '\0')
-                            dump[i] = '.';
-                    printf("  mutated string dump: %s\n", dump);
-                    printf("  hex dump:");
-                    for(i = 0; i != info->size; ++i)
-                        printf(" %02x", (unsigned char)dump[i]);
-                    printf("\n");
-                    free(dump);
-                }
+            printf("  un-freed memory at %p, size %p\n", (void*)info->location, (void*)info->size);
+            mutated_string_and_hex_dump((void*)info->location, info->size);
 
 #ifdef ENABLE_MEMORY_BACKTRACE
-                printf("  Backtrace to where malloc() was called:\n");
-                {
-                    intptr_t i;
-                    for(i = BACKTRACE_OMIT_COUNT; i < info->backtrace_size; ++i)
-                        printf("      %s\n", info->backtrace[i]);
-                }
-                free(info->backtrace);
-                printf("  -----------------------------------------\n");
-#endif
-                free(info);
+            printf("  Backtrace to where malloc() was called:\n");
+            {
+                intptr_t i;
+                for(i = BACKTRACE_OMIT_COUNT; i < info->backtrace_size; ++i)
+                    printf("      %s\n", info->backtrace[i]);
             }
-        }
+            free(info->backtrace); /* this was allocated when malloc() was called */
+            printf("  -----------------------------------------\n");
+#endif
+            free(info);
+        }}
         printf("=========================================\n");
     }
+    
+    /* overall report */
     printf("allocations: %lu\n", allocations);
     printf("deallocations: %lu\n", deallocations);
     printf("memory leaks: %lu\n", (allocations > deallocations ? allocations - deallocations : deallocations - allocations));
     printf("=========================================\n");
+    
     ++allocations; /* this is the single allocation still held by the report vector */
     ignore_map_malloc = 1;
     map_clear_free(&report);
@@ -210,3 +195,30 @@ void memory_init(void) {}
 void memory_deinit(void) {}
 
 #endif /* ENABLE_MEMORY_REPORT */
+
+/* ------------------------------------------------------------------------- */
+void
+mutated_string_and_hex_dump(void* data, intptr_t length_in_bytes)
+{
+    char* dump;
+    intptr_t i;
+    
+    /* allocate and copy data into new buffer */
+    dump = malloc(length_in_bytes + 1);
+    memcpy(dump, data, length_in_bytes);
+    dump[length_in_bytes] = '\0';
+    
+    /* mutate null terminators into dots */
+    for(i = 0; i != length_in_bytes; ++i)
+        if(dump[i] == '\0')
+            dump[i] = '.';
+    
+    /* dump */
+    printf("  mutaded string dump: %s\n", dump);
+    printf("  hex dump: ");
+    for(i = 0; i != length_in_bytes; ++i)
+        printf(" %02x", (unsigned char)dump[i]);
+    printf("\n");
+    
+    free(dump);
+}

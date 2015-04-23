@@ -17,4 +17,5 @@ public:
     }
 };
 
-testing::Environment* const memoryManagementEnvironment = testing::AddGlobalTestEnvironment(new MemoryManagementEnvironment);
+const testing::Environment* const memoryManagementEnvironment =
+        testing::AddGlobalTestEnvironment(new MemoryManagementEnvironment);
