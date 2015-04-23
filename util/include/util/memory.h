@@ -55,6 +55,9 @@ LIGHTSHIP_UTIL_PUBLIC_API void
 free_debug(void* ptr);
 #endif
 
+void
+mutated_string_and_hex_dump(void* data, intptr_t size_in_bytes);
+
 C_HEADER_END
 
 #endif /* LIGHTSHIP_UTIL_MEMORY_H */
