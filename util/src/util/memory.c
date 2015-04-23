@@ -29,7 +29,7 @@ static struct map_t report;
             pthread_mutex_init(&(x), &attr);                                \
             pthread_mutexattr_destroy(&attr);                               \
         } while(0);
-            
+
 #   else
 #       error Dont know how to create a mutex for the target platform. Either disable ENABLE_MULTITHREADING or implement the missing feature.
 #   endif
@@ -67,13 +67,13 @@ void*
 malloc_debug(intptr_t size)
 {
     void* p = malloc(size);
-    
+
     MUTEX_LOCK(mutex)
-    
+
     if(p)
         ++allocations;
-    
-    /* 
+
+    /*
      * Record allocation info in vector. Call to vector may allocate memory,
      * so set flag to ignore the call to malloc() when inserting.
      */
@@ -89,9 +89,9 @@ malloc_debug(intptr_t size)
         map_insert(&report, (intptr_t)p, info);
         ignore_map_malloc = 0;
     }
-    
+
     MUTEX_UNLOCK(mutex)
-    
+
     return p;
 }
 
@@ -135,14 +135,14 @@ free_debug(void* ptr)
 #endif
         }
     }
-    
+
     if(ptr)
         ++deallocations;
     else
         fprintf(stderr, "Warning: free(NULL)\n");
-    
+
     MUTEX_UNLOCK(mutex)
-    
+
     free(ptr);
 }
 
@@ -151,11 +151,11 @@ void
 memory_deinit(void)
 {
     --allocations; /* this is the single allocation still held by the report vector */
-    
+
     printf("=========================================\n");
     printf("Memory Report\n");
     printf("=========================================\n");
-    
+
     /* report details on any allocations that were not de-allocated */
     if(report.vector.count != 0)
     {
@@ -178,13 +178,13 @@ memory_deinit(void)
         }}
         printf("=========================================\n");
     }
-    
+
     /* overall report */
     printf("allocations: %lu\n", allocations);
     printf("deallocations: %lu\n", deallocations);
     printf("memory leaks: %lu\n", (allocations > deallocations ? allocations - deallocations : deallocations - allocations));
     printf("=========================================\n");
-    
+
     ++allocations; /* this is the single allocation still held by the report vector */
     ignore_map_malloc = 1;
     map_clear_free(&report);
@@ -202,23 +202,23 @@ mutated_string_and_hex_dump(void* data, intptr_t length_in_bytes)
 {
     char* dump;
     intptr_t i;
-    
+
     /* allocate and copy data into new buffer */
     dump = malloc(length_in_bytes + 1);
     memcpy(dump, data, length_in_bytes);
     dump[length_in_bytes] = '\0';
-    
+
     /* mutate null terminators into dots */
     for(i = 0; i != length_in_bytes; ++i)
         if(dump[i] == '\0')
             dump[i] = '.';
-    
+
     /* dump */
-    printf("  mutaded string dump: %s\n", dump);
+    printf("  mutated string dump: %s\n", dump);
     printf("  hex dump: ");
     for(i = 0; i != length_in_bytes; ++i)
         printf(" %02x", (unsigned char)dump[i]);
     printf("\n");
-    
+
     free(dump);
 }
