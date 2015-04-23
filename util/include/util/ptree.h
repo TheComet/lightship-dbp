@@ -21,6 +21,8 @@
 #include "util/hash.h"
 #include "util/map.h"
 
+C_HEADER_BEGIN
+
 typedef void* (*ptree_dup_func)(void*);
 typedef void (*ptree_free_func)(void*);
 
@@ -74,7 +76,7 @@ ptree_destroy(struct ptree_t* tree, char do_free_values, char do_destroy_root);
  * @brief Adds a child node to the specified node and sets its key and data.
  * @param[in] node The node in which to insert the new child node into.
  * @param[in] key The key to give the new child node.
- * @param data The data the child node should reference. Can be NULL.
+ * @param[in] data The data the child node should reference. Can be NULL.
  * @return Returns the newly created child.
  */
 LIGHTSHIP_UTIL_PUBLIC_API struct ptree_t*
@@ -151,3 +153,5 @@ ptree_print(const struct ptree_t* tree);
     MAP_FOR_EACH(&(tree)->children, struct ptree_t, key, value)
 
 #define PTREE_HASH_STRING(str) hash_jenkins_oaat(str, strlen(str))
+
+C_HEADER_END
