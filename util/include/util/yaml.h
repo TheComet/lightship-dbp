@@ -22,7 +22,7 @@ yaml_load(const char* filename);
 const char*
 yaml_get_value(struct yaml_doc_t* doc, const char* key);
 
-struct ptree_t*
+const struct ptree_t*
 yaml_get_node(struct yaml_doc_t* doc, const char* key);
 
 void

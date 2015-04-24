@@ -8,6 +8,9 @@
  * Static functions
  * ------------------------------------------------------------------------- */
 
+static void
+ptree_init_node(struct ptree_t* node, void* value);
+
 static struct ptree_t*
 ptree_add_node_hashed_key(struct ptree_t* tree, uint32_t hash, void* value);
 
@@ -36,12 +39,20 @@ ptree_create(void* value)
 void
 ptree_init_ptree(struct ptree_t* tree, void* value)
 {
-    memset(tree, 0, sizeof *tree);
-    map_init_map(&tree->children);
+    ptree_init_node(tree, value);
 #ifdef _DEBUG
     tree->key = malloc_string("root");
 #endif
-    tree->value = value;
+
+}
+
+/* ------------------------------------------------------------------------- */
+static void
+ptree_init_node(struct ptree_t* node, void* value)
+{
+    memset(node, 0, sizeof *node);
+    map_init_map(&node->children);
+    node->value = value;
 }
 
 /* ------------------------------------------------------------------------- */
@@ -54,10 +65,9 @@ ptree_destroy(struct ptree_t* tree, char do_free_values)
 
 /* ------------------------------------------------------------------------- */
 void
-ptree_destroy_keep_root(ptree_t* tree, char do_free_values)
+ptree_destroy_keep_root(struct ptree_t* tree, char do_free_values)
 {
     ptree_destroy_recurse(tree, do_free_values);
-    ptree_init_ptree(tree); /* re-init root node */
 }
 
 /* ------------------------------------------------------------------------- */
@@ -65,12 +75,22 @@ struct ptree_t*
 ptree_add_node(struct ptree_t* tree, const char* key, void* value)
 {
     struct ptree_t* child =
-        ptree_add_node_hashed_key(tree, PTREE_HASH_STRING(key), value);
+            ptree_add_node_hashed_key(tree, PTREE_HASH_STRING(key), value);
 
 #ifdef _DEBUG
     child->key = malloc_string(key);
 #endif
-    
+
+    return child;
+}
+
+/* ------------------------------------------------------------------------- */
+static struct ptree_t*
+ptree_add_node_hashed_key(struct ptree_t* tree, uint32_t hash, void* value)
+{
+    struct ptree_t* child = (struct ptree_t*)MALLOC(sizeof(struct ptree_t));
+    ptree_init_node(child, value);
+    map_insert(&tree->children, hash, child);
     return child;
 }
 
@@ -92,21 +112,21 @@ ptree_set_free_func(struct ptree_t* node, ptree_free_func func)
 struct ptree_t*
 ptree_duplicate_tree(const struct ptree_t* source_node)
 {
-    /* 
+    /*
      * Create a new root, into which source_node is copied.
      * Note that the value is being set to NULL, but will be overwritten
      * in ptree_duplicate_children_into_existing_node().
      */
     struct ptree_t* new_root = ptree_create(NULL);
-    
+
     /* try duplicating */
     if(!ptree_duplicate_children_into_existing_node(new_root, source_node))
     {
         /* recursively free all nodes and values and return error */
-        ptree_destroy(new_root, 1, 1);
+        ptree_destroy(new_root, 1);
         return NULL;
     }
-    
+
     return new_root;
 }
 
@@ -135,31 +155,31 @@ ptree_duplicate_children_into_existing_node(struct ptree_t* target,
         /* duplication function and free functions must exist */
         if(!source->dup_value || !source->free_value)
             return 0;
-        
+
         /* duplicate value */
         target->value = source->dup_value(source->value);
     }
-    
+
     return 1;
 }
 
 /* ------------------------------------------------------------------------- */
-struct ptree_t*
+const struct ptree_t*
 ptree_find_in_node(const struct ptree_t* tree, const char* key)
 {
     return map_find(&tree->children, PTREE_HASH_STRING(key));
 }
 
 /* ------------------------------------------------------------------------- */
-struct ptree_t*
+const struct ptree_t*
 ptree_find_in_tree(const struct ptree_t* tree, const char* key)
 {
     /* prepare key for tokenisation */
-    struct ptree_t* result;
+    const struct ptree_t* result;
     const char* delim = ".";
     char* key_iter = cat_strings(2, "n.", key); /* root key name is ignored, but must exist */
     strtok(key_iter, delim);
-    
+
     result = ptree_find_in_tree_recurse(tree, delim);
     free_string(key_iter);
     return result;
@@ -175,15 +195,6 @@ ptree_print(const struct ptree_t* tree)
 /* ----------------------------------------------------------------------------
  * Static functions
  * ------------------------------------------------------------------------- */
-struct ptree_t*
-ptree_add_node_hashed_key(struct ptree_t* tree, uint32_t hash, void* value)
-{
-    struct ptree_t* child = ptree_create(value);
-    map_insert(&tree->children, hash, child);
-    return child;
-}
-
-/* ------------------------------------------------------------------------- */
 static void
 ptree_destroy_recurse(struct ptree_t* tree, char do_free_value)
 {
@@ -191,9 +202,10 @@ ptree_destroy_recurse(struct ptree_t* tree, char do_free_value)
     MAP_FOR_EACH(&tree->children, struct ptree_t, key, child)
     {
         ptree_destroy_recurse(child, do_free_value);
+        FREE(child);
     }
     map_clear_free(&tree->children);
-    
+
     /* free the data of this node, if specified */
     if(do_free_value && tree->value)
     {
@@ -202,13 +214,14 @@ ptree_destroy_recurse(struct ptree_t* tree, char do_free_value)
         else
         {
             fprintf(stderr, "ptree_destroy_recurse(): Unable to de-allocate!"
-                "no free() function was specified!");
+                " No free() function was specified!");
 #ifdef _DEBUG
-            fprintf(stderr, "  at ptree node with name \"%s\"\n", tree->key);
+            fprintf(stderr, " (at ptree node with name \"%s\")", tree->key);
 #endif
+            fprintf(stderr, "\n");
         }
     }
-    
+
 #ifdef _DEBUG
     if(tree->key)
         free_string(tree->key);
@@ -220,7 +233,7 @@ static const struct ptree_t*
 ptree_find_in_tree_recurse(const struct ptree_t* tree,
                           const char* delim)
 {
-    /* 
+    /*
      * Get next token, hash, and search in current node. If the tree is NULL
      * or if there are no more tokens, then we've found the node we're looking
      * for.
@@ -245,14 +258,14 @@ ptree_print_impl(const struct ptree_t* tree, uint32_t depth)
     uint32_t i;
     for(i = 0; i != depth; ++i)
         printf("    ");
-    
+
     /* print node info */
     if(tree->value)
         value = tree->value;
 #ifdef _DEBUG
     printf("key: \"%s\", val: %s\n", tree->key, value);
 #endif
-    
+
     /* print children */
     {
         MAP_FOR_EACH(&tree->children, struct ptree_t, key, child)

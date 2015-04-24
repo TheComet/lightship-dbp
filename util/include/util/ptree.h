@@ -1,11 +1,11 @@
 /*!
  * @file ptree.h
  * @brief Property Tree
- * 
+ *
  * A property tree is a non-balanced tree structure with arbitrary depth. It is
  * most suitable for holding information such as directory structures, XML/YAML
  * data, or similar.
- * 
+ *
  * The ptree structure can be thought of as follows:
  * ```
  * struct ptree_t
@@ -58,7 +58,7 @@ ptree_init_ptree(struct ptree_t* tree, void* value);
 
 /*!
  * @brief Destroys an existing ptree.
- * 
+ *
  * Traverses the tree and frees every node.
  * @param[in] tree The tree to destroy.
  * @param[in] do_free_values If set to 1, the data associated with every node
@@ -71,7 +71,7 @@ ptree_destroy(struct ptree_t* tree, char do_free_values);
 
 /*!
  * @brief Destroys an existing ptree, but keeps the root node.
- * 
+ *
  * Traverses the tree and frees every node except for the root node (the one
  * being passed to this function).
  * @note If do_free_falues is set to 1, then the data being referenced by the
@@ -97,7 +97,7 @@ ptree_add_node(struct ptree_t* node, const char* key, void* data);
 
 /*!
  * @brief Specifies a duplication function for a node's data.
- * 
+ *
  * In order to be able to copy ptrees, you must specify a duplication callback
  * function for every node that holds data. The function must accept a void*
  * to data and return a void* to a duplicated, separate buffer of the same
@@ -146,7 +146,7 @@ ptree_duplicate_children_into_existing_node(struct ptree_t* target,
  * @return Returns the node associated with the specified key if the key was
  * found, NULL if otherwise.
  */
-LIGHTSHIP_UTIL_PUBLIC_API struct ptree_t*
+LIGHTSHIP_UTIL_PUBLIC_API const struct ptree_t*
 ptree_find_in_node(const struct ptree_t* node, const char* key);
 
 /*!
@@ -156,7 +156,7 @@ ptree_find_in_node(const struct ptree_t* node, const char* key);
  * @return Returns the node associated with the specified key if the key was
  * found, NULL if otherwise.
  */
-LIGHTSHIP_UTIL_PUBLIC_API struct ptree_t*
+LIGHTSHIP_UTIL_PUBLIC_API const struct ptree_t*
 ptree_find_in_tree(const struct ptree_t* node, const char* key);
 
 LIGHTSHIP_UTIL_PUBLIC_API void
