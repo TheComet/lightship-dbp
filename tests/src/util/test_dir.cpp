@@ -5,6 +5,9 @@
 
 #define NAME dir
 
+using testing::Eq;
+using testing::Ne;
+
 char
 list_find(struct list_t* list, const char* name)
 {
@@ -13,23 +16,23 @@ list_find(struct list_t* list, const char* name)
         if(strcmp(name, search_name) == 0)
             return 1;
     }
-    
+
     return 0;
 }
 
 TEST(NAME, empty_directory)
 {
     struct list_t* list = list_create();
-    
+
 #define SEARCH_DIR_EMPTY "tests/test_dir/empty/"
-    ASSERT_NE(0, get_directory_listing(list, SEARCH_DIR_EMPTY));
-    ASSERT_EQ(2, list->count); /* current and parent directory */
-    ASSERT_NE(0, list_find(list, SEARCH_DIR_EMPTY "."));
-    ASSERT_NE(0, list_find(list, SEARCH_DIR_EMPTY ".."));
-    
+    EXPECT_THAT(get_directory_listing(list, SEARCH_DIR_EMPTY), Ne(0));
+    EXPECT_THAT(list->count, Eq(2)); /* current and parent directory */
+    EXPECT_THAT(list_find(list, SEARCH_DIR_EMPTY "."), Ne(0));
+    EXPECT_THAT(list_find(list, SEARCH_DIR_EMPTY ".."), Ne(0));
+
     LIST_FOR_EACH(list, char, file)
         free_string(file);
-    
+
     list_destroy(list);
 }
 
@@ -37,30 +40,30 @@ TEST(NAME, files_and_directories)
 {
     int i = 0;
     struct list_t* list = list_create();
-    
+
 #define SEARCH_DIR_FILES "tests/test_dir/files/"
-    ASSERT_NE(0, get_directory_listing(list, "tests/test_dir/files/"));
-    ASSERT_EQ(7, list->count);
-    ASSERT_NE(0, list_find(list, SEARCH_DIR_FILES "."));
-    ASSERT_NE(0, list_find(list, SEARCH_DIR_FILES ".."));
-    ASSERT_NE(0, list_find(list, SEARCH_DIR_FILES "file_a.txt"));
-    ASSERT_NE(0, list_find(list, SEARCH_DIR_FILES "file_b.txt"));
-    ASSERT_NE(0, list_find(list, SEARCH_DIR_FILES "file_c.txt"));
-    ASSERT_NE(0, list_find(list, SEARCH_DIR_FILES "dir_a"));
-    ASSERT_NE(0, list_find(list, SEARCH_DIR_FILES "dir_b"));
-    
+    EXPECT_THAT(get_directory_listing(list, "tests/test_dir/files/"), Ne(0));
+    EXPECT_THAT(list->count, Eq(7));
+    EXPECT_THAT(list_find(list, SEARCH_DIR_FILES "."), Ne(0));
+    EXPECT_THAT(list_find(list, SEARCH_DIR_FILES ".."), Ne(0));
+    EXPECT_THAT(list_find(list, SEARCH_DIR_FILES "file_a.txt"), Ne(0));
+    EXPECT_THAT(list_find(list, SEARCH_DIR_FILES "file_b.txt"), Ne(0));
+    EXPECT_THAT(list_find(list, SEARCH_DIR_FILES "file_c.txt"), Ne(0));
+    EXPECT_THAT(list_find(list, SEARCH_DIR_FILES "dir_a"), Ne(0));
+    EXPECT_THAT(list_find(list, SEARCH_DIR_FILES "dir_b"), Ne(0));
+
     LIST_FOR_EACH(list, char, file)
         free_string(file);
-    
+
     list_destroy(list);
 }
 
 TEST(NAME, invalid_directory)
 {
     struct list_t* list = list_create();
-    
-    ASSERT_EQ(0, get_directory_listing(list, "tests/test_dir/invalid/"));
-    ASSERT_EQ(0, list->count);
-    
+
+    EXPECT_THAT(get_directory_listing(list, "tests/test_dir/invalid/"), Eq(0));
+    EXPECT_THAT(list->count, Eq(0));
+
     list_destroy(list);
 }
