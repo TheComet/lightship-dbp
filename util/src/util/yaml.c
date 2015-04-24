@@ -8,7 +8,6 @@
 #include <stdio.h>
 
 static struct list_t g_open_docs;
-static uint32_t guid_counter = 1;
 
 static char
 yaml_load_into_ptree(struct ptree_t* tree,
@@ -55,7 +54,7 @@ yaml_load(const char* filename)
     {
         yaml_parser_delete(&parser);
         fclose(fp);
-        ptree_destroy(tree, 0, 1);
+        ptree_destroy(tree, 0);
         fprintf(stderr, "Syntax error: Failed to parse YAML file \"%s\"\n", filename);
         return 0;
     }
@@ -64,11 +63,11 @@ yaml_load(const char* filename)
     doc = (struct yaml_doc_t*)MALLOC(sizeof *doc);
     doc->dom = tree;
     list_push(&g_open_docs, doc);
-    
+
     /* clean up */
     yaml_parser_delete(&parser);
     fclose(fp);
-    
+
     return doc;
 }
 
@@ -76,7 +75,7 @@ yaml_load(const char* filename)
 void
 yaml_destroy(struct yaml_doc_t* doc)
 {
-    ptree_destroy(doc->dom, 1, 1);
+    ptree_destroy(doc->dom, 1);
     list_erase_element(&g_open_docs, doc);
 }
 
@@ -91,7 +90,7 @@ yaml_get_value(struct yaml_doc_t* doc, const char* key)
 }
 
 /* ------------------------------------------------------------------------- */
-struct ptree_t*
+const struct ptree_t*
 yaml_get_node(struct yaml_doc_t* doc, const char* key)
 {
     return ptree_find_in_tree(doc->dom, key);
@@ -146,7 +145,7 @@ yaml_load_into_ptree(struct ptree_t* tree,
                     finished = FINISH_ERROR;
                     break;
                 }
-                
+
                 {
                     /* create child and recurse, setting is_sequence to 1 so
                      * the parser knows to generate sequence keys */
@@ -159,9 +158,9 @@ yaml_load_into_ptree(struct ptree_t* tree,
                     if(!result)
                         finished = FINISH_ERROR;
                 }
-                
+
             case YAML_MAPPING_START_EVENT:
-                
+
                 /*
                  * If this is a sequence, create index key as usual, but
                  * recurse with is_sequence set to 0, since the child data
@@ -179,14 +178,14 @@ yaml_load_into_ptree(struct ptree_t* tree,
                     }
                     sprintf(index_str, "%d", sequence_index);
                     ++sequence_index;
-                    
+
                     child = ptree_add_node(tree, index_str, NULL);
                     ptree_set_dup_func(child, (ptree_dup_func)malloc_string);
                     result = yaml_load_into_ptree(child, root_node, parser, 0);
                     if(!result)
                         finished = FINISH_ERROR;
                 }
-                
+
                 /*
                  * If this is not a sequence, then only recurse if a key
                  * exists.
@@ -208,8 +207,8 @@ yaml_load_into_ptree(struct ptree_t* tree,
             case YAML_MAPPING_END_EVENT:
                 finished = FINISH_SUCCESS;
                 break;
-                
-            /* 
+
+            /*
              * Aliases - Find the anchor name in the root node, and recursively
              * copy said node into the current tree.
              */
@@ -239,10 +238,10 @@ yaml_load_into_ptree(struct ptree_t* tree,
 
             /* scalar */
             case YAML_SCALAR_EVENT:
-                
+
                 /*
                  * If the scalar doesn't belong to a sequence, simply toggle
-                 * back and forth between key and value, creating a new node 
+                 * back and forth between key and value, creating a new node
                  * each time a value is received.
                  * If the scalar does belong to a sequence, use the current
                  * sequence index as the key instead.
@@ -277,26 +276,26 @@ yaml_load_into_ptree(struct ptree_t* tree,
                     }
                 }
                 break;
-            
+
             default:
                 fprintf(stderr, "[yaml] Unknown error\n");
                 finished = FINISH_ERROR;
                 break;
 
         }
-        
+
         if(finished)
             break;
 
         yaml_event_delete(&event);
         yaml_parser_parse(parser, &event);
     }
-    
+
     /* clean up */
     yaml_event_delete(&event);
     if(key)
         free_string(key);
-    
+
     if(finished == FINISH_ERROR)
         return 0;
 

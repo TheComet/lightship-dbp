@@ -39,15 +39,15 @@ char
 services_init(struct game_t* game)
 {
     char* name;
-    
+
     assert(game);
-    
-    map_init_map(&game->services);
+
+    ptree_init_ptree(&game->services, NULL);
 
     /* ------------------------------------------------------------------------
-     * Register built-in services 
+     * Register built-in services
      * --------------------------------------------------------------------- */
-    
+
     for(;;)
     {
         name = malloc_string("start");                                                      if(!name) break;
@@ -56,14 +56,14 @@ services_init(struct game_t* game)
         if(!service_malloc_and_register(game, name, game_pause_wrapper, "void", 0, NULL))   break;
         name = malloc_string("exit");                                                       if(!name) break;
         if(!service_malloc_and_register(game, name, game_exit_wrapper, "void", 0, NULL))    break;
-        
+
         game->service.start = service_get(game, "start");
         game->service.pause = service_get(game, "pause");
         game->service.exit = service_get(game, "exit");
-    
+
         return 1;
     }
-    
+
     return 0;
 }
 
@@ -72,7 +72,7 @@ void
 services_deinit(struct game_t* game)
 {
     /* TODO Automatically unregister any left over services? */
-    map_clear_free(&game->services);
+    ptree_destroy_keep_root(&game->services, 0);
 }
 
 /* ------------------------------------------------------------------------- */
@@ -86,7 +86,7 @@ service_register(struct game_t* game,
                  const char** argv)
 {
     char* full_name;
-    
+
     assert(game);
     assert(plugin);
     assert(name);
@@ -119,12 +119,12 @@ service_malloc_and_register(struct game_t* game,
                             const char** argv)
 {
     struct service_t* service;
-    
+
     assert(game);
     assert(full_name);
     assert(exec);
     assert(ret_type);
-    
+
     /* create service and add to list */
     service = (struct service_t*)MALLOC(sizeof(struct service_t));
     if(!service)
@@ -133,11 +133,11 @@ service_malloc_and_register(struct game_t* game,
     service->game = game;
     service->name = full_name;
     service->exec = exec;
-    
+
     /* copy type info */
     {
         int i;
-        
+
         /* copy return type */
         service->ret_type = malloc_string(ret_type);
         if(!service->ret_type)
@@ -145,7 +145,7 @@ service_malloc_and_register(struct game_t* game,
             service_free(service);
             return 0;
         }
-        
+
         /* create argument type vector */
         service->argv_type = (char**)MALLOC(argc * sizeof(char*));
         if(!service->argv_type)
@@ -153,7 +153,7 @@ service_malloc_and_register(struct game_t* game,
             service_free(service);
             OUT_OF_MEMORY("service_malloc_and_register()", 0);
         }
-    
+
         /* copy argument type vector */
         for(i = 0; i != argc; ++i)
         {
@@ -168,7 +168,7 @@ service_malloc_and_register(struct game_t* game,
     }
     if(!map_insert(&game->services, hash_jenkins_oaat(full_name, strlen(full_name)), service))
         return 0;
-    
+
     return 1;
 }
 
@@ -200,7 +200,7 @@ service_unregister(struct game_t* game,
     char* full_name;
     uint32_t hash;
     struct service_t* service;
-    
+
     assert(game);
     assert(plugin);
     assert(plugin->info.name);
@@ -226,7 +226,7 @@ service_unregister_all(const struct plugin_t* plugin)
 {/* TODO
     char* name;
     int len;
-    
+
     assert(plugin);
     assert(plugin->info.name);
     assert(plugin->game);
@@ -248,7 +248,7 @@ service_unregister_all(const struct plugin_t* plugin)
         }
     }
     free_string(name);*/
-    
+
     return 1;
 }
 
@@ -257,7 +257,7 @@ struct service_t*
 service_get(struct game_t* game, const char* name)
 {
     struct service_t* service;
-    
+
     assert(name);
 
     if(!(service = map_find(&game->services, hash_jenkins_oaat(name, strlen(name)))))
@@ -271,7 +271,7 @@ void**
 service_create_argument_list_from_strings(struct service_t* service, struct ordered_vector_t* argv)
 {
     void** ret;
-    
+
     assert(service);
     assert(service->name);
     assert(argv);
@@ -378,10 +378,10 @@ service_create_argument_list_from_strings(struct service_t* service, struct orde
                     failed = 1;
                     break;
             }
-            
+
             ++i;
         }
-        
+
         /* if any of the conversions failed, free the list and return NULL */
         if(failed)
         {
@@ -420,7 +420,7 @@ service_do_typecheck(const struct service_t* service, const char* ret_type, uint
     for(i = 0; i != argc; ++i)
         if(!argv[i] || strcmp(argv[i], service->argv_type[i]))
             return 0;
-    
+
     /* valid! */
     return 1;
 }
@@ -468,7 +468,7 @@ service_get_c_type_equivalent_from_service_type(const char* type)
                 return SERVICE_SCRIPT_TYPE_UNKNOWN;
             return SERVICE_SCRIPT_TYPE_STRING;
         }
-        
+
         /* any form of wchar_t* is acceptable */
         if(strstr(type, "wchar_t*"))
         {
@@ -483,7 +483,7 @@ service_get_c_type_equivalent_from_service_type(const char* type)
             return SERVICE_SCRIPT_TYPE_WSTRING;
         }
     }
-    
+
     /* integers */
     if(strstr(type, "int"))
     {
@@ -510,9 +510,9 @@ service_get_c_type_equivalent_from_service_type(const char* type)
         if(strchr(type, 'u'))
             ++ret;
         return ret;
-        
+
     }
-    
+
     /* floats */
     if(strstr(type, "float"))
     {
@@ -521,7 +521,7 @@ service_get_c_type_equivalent_from_service_type(const char* type)
             return SERVICE_SCRIPT_TYPE_UNKNOWN;
         return SERVICE_SCRIPT_TYPE_FLOAT;
     }
-    
+
     /* doubles */
     if(strstr(type, "double"))
     {
@@ -530,7 +530,7 @@ service_get_c_type_equivalent_from_service_type(const char* type)
             return SERVICE_SCRIPT_TYPE_UNKNOWN;
         return SERVICE_SCRIPT_TYPE_DOUBLE;
     }
-    
+
     /* none/void */
     if(strstr(type, "void"))
     {
@@ -539,7 +539,7 @@ service_get_c_type_equivalent_from_service_type(const char* type)
             return SERVICE_SCRIPT_TYPE_UNKNOWN;
         return SERVICE_SCRIPT_TYPE_NONE;
     }
-    
+
     /* unknown */
     return SERVICE_SCRIPT_TYPE_UNKNOWN;
 }

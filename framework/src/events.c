@@ -69,14 +69,14 @@ char
 events_init(struct game_t* game)
 {
     assert(game);
-    
+
     /* this holds all of the game's events */
     ptree_init_ptree(&game->events, NULL);
-    
+
     /* ----------------------------
-     * Register built-in events 
+     * Register built-in events
      * --------------------------*/
-    
+
     for(;;)
     {
         /*
@@ -95,26 +95,26 @@ events_init(struct game_t* game)
         REGISTER_BUILT_IN_EVENT(start)
         REGISTER_BUILT_IN_EVENT(pause)
         REGISTER_BUILT_IN_EVENT(exit)
-        
+
         /* main loop events (game update and render updates) */
         REGISTER_BUILT_IN_EVENT(tick)
         REGISTER_BUILT_IN_EVENT(render)
         REGISTER_BUILT_IN_EVENT(stats)
-        
+
         /* The log will fire these events appropriately whenever something is logged */
         REGISTER_BUILT_IN_EVENT(log)
         REGISTER_BUILT_IN_EVENT(log_indent)
         REGISTER_BUILT_IN_EVENT(log_unindent)
-        
+
         return 1;
     }
-    
+
     /* ------------------------------------------------------------
      * Reaching this point means something went wrong - Clean up
      * --------------------------------------------------------- */
-    
+
     events_deinit(game);
-    
+
     return 0;
 }
 
@@ -133,8 +133,8 @@ event_create(struct game_t* game, const char* name)
     /* check for duplicate event names */
     if(event_get(game, name))
         return NULL;
-    
-    return event_malloc_and_register(game, name);
+
+    return event_malloc_and_register(game, malloc_string(name));
 }
 
 /* ------------------------------------------------------------------------- */
@@ -142,7 +142,7 @@ void
 event_destroy(struct event_t* event)
 {
     assert(event);
-    
+
     if(!map_erase_element(&event->game->events, event))
         llog(LOG_WARNING, event->game, NULL, 1, "Destroying an event that"
             "could not be found in the associated game object");
@@ -155,10 +155,10 @@ struct event_t*
 event_get(const struct game_t* game, const char* full_name)
 {
     uint32_t hash;
-    
+
     assert(game);
     assert(full_name);
-    
+
     hash = hash_jenkins_oaat(full_name, strlen(full_name));
     return map_find(&game->events, hash);
 }
@@ -172,11 +172,11 @@ event_register_listener(const struct game_t* game,
     struct event_t* event;
     struct event_listener_t* new_listener;
     char* registering_name_space;
-    
+
     assert(game);
     assert(event_full_name);
     assert(callback);
-    
+
     /* make sure event exists */
     if(!(event = event_get(game, event_full_name)))
     {
@@ -184,7 +184,7 @@ event_register_listener(const struct game_t* game,
              event_full_name, "\", but the event does not exist.");
         return 0;
     }
-    
+
     /* make sure plugin hasn't already registered to this event *
      * TODO
     if(plugin)
@@ -199,13 +199,13 @@ event_register_listener(const struct game_t* game,
             }
         }
     }*/
-    
+
     /* create event listener object */
     new_listener = (struct event_listener_t*)unordered_vector_push_emplace(&event->listeners);
     new_listener->exec = callback;
     /* create and copy string from plugin name */
     new_listener->name_space = cat_strings(2, registering_name_space, ".");
-    
+
     return 1;
 }
 
@@ -216,10 +216,10 @@ event_unregister_listener(const struct game_t* game,
                           event_callback_func callback)
 {
     struct event_t* event;
-    
+
     if(!(event = event_get(game, event_name)))
         return 0;
-    
+
     {/* TODO
         UNORDERED_VECTOR_FOR_EACH(&event->listeners, struct event_listener_t, listener)
         {
@@ -231,7 +231,7 @@ event_unregister_listener(const struct game_t* game,
             }
         }*/
     }
-    
+
     return 0;
 }
 
@@ -254,7 +254,7 @@ event_malloc_and_register(struct game_t* game, char* full_name)
 {
     struct event_t* event;
     uint32_t hash;
-    
+
     /* create new event and register to global list of events */
     event = (struct event_t*)MALLOC(sizeof(struct event_t));
     if(!event)
@@ -262,7 +262,7 @@ event_malloc_and_register(struct game_t* game, char* full_name)
     event->name = full_name;
     event->game = game;
     unordered_vector_init_vector(&event->listeners, sizeof(struct event_listener_t));
-    
+
     /* add event to game object */
     hash = hash_jenkins_oaat(full_name, strlen(full_name));
     map_insert(&game->events, hash, event);
