@@ -3,29 +3,29 @@
 
 #define NAME linked_list
 
-using testing::IsNull;
-using testing::NotNull;
+using namespace testing;
 
 TEST(NAME, init)
 {
     struct list_t list;
 
+    /* init to garbage values */
     list.count = 384;
     list.head = (struct list_node_t*)345;
     list.tail = (struct list_node_t*)232;
     list_init_list(&list);
 
-    ASSERT_EQ(0, list.count);
-    ASSERT_EQ(NULL, list.head);
-    ASSERT_EQ(NULL, list.tail);
+    EXPECT_THAT(list.count, Eq(0));
+    EXPECT_THAT(list.head, IsNull());
+    EXPECT_THAT(list.tail, IsNull());
 }
 
 TEST(NAME, create_initialises_list)
 {
     struct list_t* list = list_create();
-    ASSERT_EQ(0, list->count);
-    ASSERT_EQ(NULL, list->head);
-    ASSERT_EQ(NULL, list->tail);
+    EXPECT_THAT(list->count, Eq(0));
+    EXPECT_THAT(list->head, IsNull());
+    EXPECT_THAT(list->tail, IsNull());
     list_destroy(list);
 }
 
