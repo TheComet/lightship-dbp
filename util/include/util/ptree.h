@@ -87,14 +87,21 @@ LIGHTSHIP_UTIL_PUBLIC_API void
 ptree_destroy_keep_root(struct ptree_t* tree, char do_free_values);
 
 /*!
- * @brief Adds a child node to the specified node and sets its key and data.
+ * @brief Creates a child node and adds it to the specified root node, and sets
+ * its key and data.
  * @param[in] node The node in which to insert the new child node into.
  * @param[in] key The key to give the new child node.
  * @param[in] data The data the child node should reference. Can be NULL.
  * @return Returns the newly created child.
  */
 LIGHTSHIP_UTIL_PUBLIC_API struct ptree_t*
-ptree_add_node(struct ptree_t* node, const char* key, void* data);
+ptree_create_node(struct ptree_t* node, const char* key, void* data);
+
+LIGHTSHIP_UTIL_PUBLIC_API char
+ptree_set_parent(struct ptree_t* node, struct ptree_t* parent);
+
+LIGHTSHIP_UTIL_PUBLIC_API struct ptree_t*
+ptree_get_root(struct ptree_t* node);
 
 /*!
  * @brief Specifies a duplication function for a node's data.
