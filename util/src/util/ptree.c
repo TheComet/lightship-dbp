@@ -12,7 +12,7 @@ static void
 ptree_init_node(struct ptree_t* node, struct ptree_t* parent, void* value);
 
 static struct ptree_t*
-ptree_add_node_hashed_key(struct ptree_t* tree, uint32_t hash, void* value);
+ptree_create_node_hashed_key(struct ptree_t* tree, uint32_t hash, void* value);
 
 static void
 ptree_destroy_recurse(struct ptree_t* tree, char do_free_value);
@@ -78,10 +78,10 @@ ptree_destroy_keep_root(struct ptree_t* tree, char do_free_values)
 
 /* ------------------------------------------------------------------------- */
 struct ptree_t*
-ptree_add_node(struct ptree_t* tree, const char* key, void* value)
+ptree_create_node(struct ptree_t* tree, const char* key, void* value)
 {
     struct ptree_t* child =
-            ptree_add_node_hashed_key(tree, PTREE_HASH_STRING(key), value);
+            ptree_create_node_hashed_key(tree, PTREE_HASH_STRING(key), value);
 
 #ifdef _DEBUG
     child->key = malloc_string(key);
@@ -92,7 +92,7 @@ ptree_add_node(struct ptree_t* tree, const char* key, void* value)
 
 /* ------------------------------------------------------------------------- */
 static struct ptree_t*
-ptree_add_node_hashed_key(struct ptree_t* tree, uint32_t hash, void* value)
+ptree_create_node_hashed_key(struct ptree_t* tree, uint32_t hash, void* value)
 {
     struct ptree_t* child = (struct ptree_t*)MALLOC(sizeof(struct ptree_t));
     ptree_init_node(child, tree, value);
@@ -160,13 +160,13 @@ ptree_duplicate_children_into_existing_node(struct ptree_t* target,
     }
 
     /* iterate over all children of source and duplicate them */
-    MAP_FOR_EACH(&source->children, struct ptree_t, key, node)
+    { MAP_FOR_EACH(&source->children, struct ptree_t, key, node)
     {
         struct ptree_t* child;
-        child = ptree_add_node_hashed_key(target, key, NULL);
+        child = ptree_create_node_hashed_key(target, key, NULL);
         if(!ptree_duplicate_children_into_existing_node(child, node))
             return 0;
-    }
+    }}
 
     return 1;
 }
@@ -207,11 +207,11 @@ static void
 ptree_destroy_recurse(struct ptree_t* tree, char do_free_value)
 {
     /* destroy all children recursively */
-    MAP_FOR_EACH(&tree->children, struct ptree_t, key, child)
+    { MAP_FOR_EACH(&tree->children, struct ptree_t, key, child)
     {
         ptree_destroy_recurse(child, do_free_value);
         FREE(child);
-    }
+    }}
     map_clear_free(&tree->children);
 
     /* free the data of this node, if specified */
