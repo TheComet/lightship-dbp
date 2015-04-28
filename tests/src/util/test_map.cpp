@@ -307,7 +307,7 @@ TEST(NAME, generating_keys_do_not_conflict_with_existing_ascending_keys)
     map_destroy(map);
 }
 
-TEST(NAME, map_generating_keys_do_not_conflict_with_existing_descending_keys)
+TEST(NAME, generating_keys_do_not_conflict_with_existing_descending_keys)
 {
         intptr_t key;
     struct map_t* map = map_create();
@@ -326,7 +326,7 @@ TEST(NAME, map_generating_keys_do_not_conflict_with_existing_descending_keys)
 }
 
 
-TEST(NAME, map_generating_keys_do_not_conflict_with_existing_random_keys)
+TEST(NAME, generating_keys_do_not_conflict_with_existing_random_keys)
 {
     intptr_t key;
     struct map_t* map = map_create();
@@ -344,7 +344,7 @@ TEST(NAME, map_generating_keys_do_not_conflict_with_existing_random_keys)
     map_destroy(map);
 }
 
-TEST(NAME, map_iterate_with_no_items)
+TEST(NAME, iterate_with_no_items)
 {
     struct map_t* map = map_create();
     {
@@ -358,7 +358,7 @@ TEST(NAME, map_iterate_with_no_items)
     map_destroy(map);
 }
 
-TEST(NAME, map_iterate_5_random_items)
+TEST(NAME, iterate_5_random_items)
 {
     struct map_t* map = map_create();
 
@@ -390,7 +390,7 @@ TEST(NAME, map_iterate_5_random_items)
     map_destroy(map);
 }
 
-TEST(NAME, map_iterate_5_null_items)
+TEST(NAME, iterate_5_null_items)
 {
     struct map_t* map = map_create();
 

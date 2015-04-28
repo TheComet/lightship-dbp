@@ -2773,6 +2773,7 @@ void PrettyUnitTestResultPrinter::OnTestCaseStart(const TestCase& test_case) {
 
 void PrettyUnitTestResultPrinter::OnTestStart(const TestInfo& test_info) {
   ColoredPrintf(COLOR_GREEN,  "[ RUN      ] ");
+  printf("%-10s", "");
   PrintTestName(test_info.test_case_name(), test_info.name());
   printf("\n");
   fflush(stdout);
@@ -2796,16 +2797,19 @@ void PrettyUnitTestResultPrinter::OnTestEnd(const TestInfo& test_info) {
   } else {
     ColoredPrintf(COLOR_RED, "[  FAILED  ] ");
   }
+
+  if (GTEST_FLAG(print_time)) {
+    std::string str = "(" + internal::StreamableToString(
+           test_info.result()->elapsed_time()) + " ms)";
+    printf("%-10s", str.c_str());
+  }
+  
   PrintTestName(test_info.test_case_name(), test_info.name());
   if (test_info.result()->Failed())
     PrintFullTestCommentIfPresent(test_info);
-
-  if (GTEST_FLAG(print_time)) {
-    printf(" (%s ms)\n", internal::StreamableToString(
-           test_info.result()->elapsed_time()).c_str());
-  } else {
-    printf("\n");
-  }
+  
+  printf("\n");
+  
   fflush(stdout);
 }
 
