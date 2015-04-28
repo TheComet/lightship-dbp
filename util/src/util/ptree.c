@@ -9,7 +9,7 @@
  * ------------------------------------------------------------------------- */
 
 static void
-ptree_init_node(struct ptree_t* node, void* value);
+ptree_init_node(struct ptree_t* node, struct ptree_t* parent, void* value);
 
 static struct ptree_t*
 ptree_add_node_hashed_key(struct ptree_t* tree, uint32_t hash, void* value);
@@ -39,7 +39,7 @@ ptree_create(void* value)
 void
 ptree_init_ptree(struct ptree_t* tree, void* value)
 {
-    ptree_init_node(tree, value);
+    ptree_init_node(tree, NULL, value);
 #ifdef _DEBUG
     tree->key = malloc_string("root");
 #endif
@@ -48,10 +48,11 @@ ptree_init_ptree(struct ptree_t* tree, void* value)
 
 /* ------------------------------------------------------------------------- */
 static void
-ptree_init_node(struct ptree_t* node, void* value)
+ptree_init_node(struct ptree_t* node, struct ptree_t* parent, void* value)
 {
     memset(node, 0, sizeof *node);
     map_init_map(&node->children);
+    node->parent = parent;
     node->value = value;
 }
 
@@ -59,6 +60,11 @@ ptree_init_node(struct ptree_t* node, void* value)
 void
 ptree_destroy(struct ptree_t* tree, char do_free_values)
 {
+    /* if tree has parent, detach */
+    if(tree->parent)
+        map_erase_element(&tree->parent->children, tree);
+
+    /* destroy detached node */
     ptree_destroy_recurse(tree, do_free_values);
     FREE(tree);
 }
@@ -89,7 +95,7 @@ static struct ptree_t*
 ptree_add_node_hashed_key(struct ptree_t* tree, uint32_t hash, void* value)
 {
     struct ptree_t* child = (struct ptree_t*)MALLOC(sizeof(struct ptree_t));
-    ptree_init_node(child, value);
+    ptree_init_node(child, tree, value);
     map_insert(&tree->children, hash, child);
     return child;
 }
@@ -135,17 +141,10 @@ char
 ptree_duplicate_children_into_existing_node(struct ptree_t* target,
                                             const struct ptree_t* source)
 {
-        /* iterate all children of source and duplicate them */
-    MAP_FOR_EACH(&source->children, struct ptree_t, key, node)
-    {
-        struct ptree_t* child;
-        child = ptree_add_node_hashed_key(target, key, node->value);
-        if(!ptree_duplicate_children_into_existing_node(child, node))
-            return 0;
-    }
-
     /* duplicate source into target */
 #ifdef _DEBUG
+    if(target->key)
+        free_string(target->key);
     target->key = malloc_string(source->key);
 #endif
     target->dup_value = source->dup_value;
@@ -160,18 +159,27 @@ ptree_duplicate_children_into_existing_node(struct ptree_t* target,
         target->value = source->dup_value(source->value);
     }
 
+    /* iterate over all children of source and duplicate them */
+    MAP_FOR_EACH(&source->children, struct ptree_t, key, node)
+    {
+        struct ptree_t* child;
+        child = ptree_add_node_hashed_key(target, key, NULL);
+        if(!ptree_duplicate_children_into_existing_node(child, node))
+            return 0;
+    }
+
     return 1;
 }
 
 /* ------------------------------------------------------------------------- */
-const struct ptree_t*
+struct ptree_t*
 ptree_find_in_node(const struct ptree_t* tree, const char* key)
 {
     return map_find(&tree->children, PTREE_HASH_STRING(key));
 }
 
 /* ------------------------------------------------------------------------- */
-const struct ptree_t*
+struct ptree_t*
 ptree_find_in_tree(const struct ptree_t* tree, const char* key)
 {
     /* prepare key for tokenisation */

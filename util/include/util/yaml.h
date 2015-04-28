@@ -1,4 +1,7 @@
 #include "util/pstdint.h"
+#include "util/config.h"
+
+C_HEADER_BEGIN
 
 struct yaml_parser_t;
 struct yaml_event_t;
@@ -27,3 +30,5 @@ yaml_get_node(struct yaml_doc_t* doc, const char* key);
 
 void
 yaml_destroy(struct yaml_doc_t* doc);
+
+C_HEADER_END
