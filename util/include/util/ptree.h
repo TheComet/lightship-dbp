@@ -33,6 +33,7 @@ struct ptree_t
 #endif
     void* value;
     struct map_t children;
+    struct ptree_t* parent;
     ptree_dup_func dup_value;
     ptree_free_func free_value;
 };
@@ -146,7 +147,7 @@ ptree_duplicate_children_into_existing_node(struct ptree_t* target,
  * @return Returns the node associated with the specified key if the key was
  * found, NULL if otherwise.
  */
-LIGHTSHIP_UTIL_PUBLIC_API const struct ptree_t*
+LIGHTSHIP_UTIL_PUBLIC_API struct ptree_t*
 ptree_find_in_node(const struct ptree_t* node, const char* key);
 
 /*!
@@ -156,7 +157,7 @@ ptree_find_in_node(const struct ptree_t* node, const char* key);
  * @return Returns the node associated with the specified key if the key was
  * found, NULL if otherwise.
  */
-LIGHTSHIP_UTIL_PUBLIC_API const struct ptree_t*
+LIGHTSHIP_UTIL_PUBLIC_API struct ptree_t*
 ptree_find_in_tree(const struct ptree_t* node, const char* key);
 
 LIGHTSHIP_UTIL_PUBLIC_API void
