@@ -211,17 +211,6 @@ malloc_wstring(const wchar_t* wcs)
 }
 
 /* ------------------------------------------------------------------------- */
-char
-is_number(const char chr)
-{
-    char* numbers = "0123456789";
-    while(*numbers)
-        if(chr == *numbers++)
-            return 1;
-    return 0;
-}
-
-/* ------------------------------------------------------------------------- */
 wchar_t*
 strtowcs(const char* str)
 {
@@ -248,7 +237,7 @@ strtowcs(const char* str)
 
 /* ------------------------------------------------------------------------- */
 char*
-wcstostr(wchar_t* wcs)
+wcstostr(const wchar_t* wcs)
 {
     char* str;
     char* str_it;
@@ -274,8 +263,12 @@ wcstostr(wchar_t* wcs)
 /* ------------------------------------------------------------------------- */
 void
 crlf2lf(char* src)
-{
-    char* target = src;
+{   
+    char* target;
+    
+    assert(src);
+    
+    target = src;
     while(*src)
     {
         if(*src == '\r') /* skip any CRs */
