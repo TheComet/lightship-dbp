@@ -97,9 +97,25 @@ ptree_destroy_keep_root(struct ptree_t* tree, char do_free_values);
 LIGHTSHIP_UTIL_PUBLIC_API struct ptree_t*
 ptree_create_node(struct ptree_t* node, const char* key, void* data);
 
-LIGHTSHIP_UTIL_PUBLIC_API char
-ptree_set_parent(struct ptree_t* node, struct ptree_t* parent);
+/*!
+ * @brief Sets the parent node, effectively merging a tree into part of another
+ * tree.
+ * @note This replaces whatever the parent is currently set to - a node cannot
+ * have more than one parent. If the parent was non-NULL, then after this
+ * function returns, it means this node will no longer be part of the previous
+ * tree.
+ * @param[in] node The node to merge.
+ * @param[in] parent The parent node to set.
+ * @param[in] key The key to give the node being merged.
+ */
+LIGHTSHIP_UTIL_PUBLIC_API void
+ptree_set_parent(struct ptree_t* node, struct ptree_t* parent, const char* key);
 
+/*!
+ * @brief Finds the root node of the tree, given any node within the tree.
+ * @param[in] node Any node part of a tree you wish to find the root of.
+ * @return Returns the root node of the tree.
+ */
 LIGHTSHIP_UTIL_PUBLIC_API struct ptree_t*
 ptree_get_root(struct ptree_t* node);
 
