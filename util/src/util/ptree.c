@@ -102,6 +102,24 @@ ptree_create_node_hashed_key(struct ptree_t* tree, uint32_t hash, void* value)
 
 /* ------------------------------------------------------------------------- */
 void
+ptree_set_parent(struct ptree_t* node, struct ptree_t* parent, const char* key)
+{
+    map_insert(&parent->children, PTREE_HASH_STRING(key), node);
+    node->parent = parent;
+}
+
+/* ------------------------------------------------------------------------- */
+struct ptree_t*
+ptree_get_root(struct ptree_t* node)
+{
+    while(node->parent)
+        node = node->parent;
+
+    return node;
+}
+
+/* ------------------------------------------------------------------------- */
+void
 ptree_set_dup_func(struct ptree_t* node, ptree_dup_func func)
 {
     node->dup_value = func;
