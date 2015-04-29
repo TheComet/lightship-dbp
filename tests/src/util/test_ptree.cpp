@@ -581,6 +581,16 @@ TEST(NAME, duplicate_tree_with_missing_dup_func_fails_and_cleans_up)
     ptree_destroy(tree, 1);
 }
 
+TEST(NAME, duplicate_tree_into_existing_empty_node)
+{
+    EXPECT_THAT(0, Eq(1));
+}
+
+TEST(NAME, duplicate_tree_into_existing_node_with_children)
+{
+    EXPECT_THAT(0, Eq(1));
+}
+
 TEST(NAME, duplicate_tree_node)
 {
     NiceMock<MockTreeItem> *a, *b, *c, *d, *e, *f;
@@ -684,4 +694,44 @@ TEST(NAME, duplicate_tree_node)
 
     ptree_destroy(dnode1, 1);
     ptree_destroy(tree, 1);
+}
+
+TEST(NAME, relocate_nodes_in_tree)
+{
+    EXPECT_THAT(0, Eq(1));
+}
+
+TEST(NAME, merge_two_trees)
+{
+    EXPECT_THAT(0, Eq(1));
+}
+
+TEST(NAME, find_existing_key_in_node)
+{
+    EXPECT_THAT(0, Eq(1));
+}
+
+TEST(NAME, find_non_existing_key_in_node)
+{
+    EXPECT_THAT(0, Eq(1));
+}
+
+TEST(NAME, find_existing_key_in_tree)
+{
+    EXPECT_THAT(0, Eq(1));
+}
+
+TEST(NAME, find_non_existing_key_in_tree)
+{
+    EXPECT_THAT(0, Eq(1));
+}
+
+TEST(NAME, traverse_node_children)
+{
+    EXPECT_THAT(0, Eq(1));
+}
+
+TEST(NAME, traverse_tree)
+{
+    EXPECT_THAT(0, Eq(1));
 }
