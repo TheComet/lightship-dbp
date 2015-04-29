@@ -77,18 +77,11 @@ cat_wstrings(uint32_t num_strs, ...);
 LIGHTSHIP_UTIL_PUBLIC_API wchar_t*
 malloc_wstring(const wchar_t* wcs);
 
-/*!
- * @brief Checks if a character is a number or not.
- * @return Returns 1 if it is a number, 0 if otherwise.
- */
-LIGHTSHIP_UTIL_PUBLIC_API char
-is_number(const char chr);
-
 LIGHTSHIP_UTIL_PUBLIC_API wchar_t*
 strtowcs(const char* str);
 
 LIGHTSHIP_UTIL_PUBLIC_API char*
-wcstostr(wchar_t* wcs);
+wcstostr(const wchar_t* wcs);
 
 LIGHTSHIP_UTIL_PUBLIC_API void
 crlf2lf(char* src);

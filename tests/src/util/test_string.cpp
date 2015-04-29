@@ -4,68 +4,119 @@
 
 #define NAME string
 
-TEST(NAME, cat_strings_works)
+using namespace testing;
+
+TEST(NAME, cat_strings)
 {
     char* result = cat_strings(4, "this", " is", " a", " test");
-    ASSERT_EQ(0, strcmp(result, "this is a test"));
-    FREE(result);
+    EXPECT_THAT(strcmp(result, "this is a test"), Eq(0));
+    free_string(result);
 }
 
 TEST(NAME, cat_strings_with_empty_strings)
 {
     char* result = cat_strings(4, "", "", "", "");
-    ASSERT_EQ(0, strcmp(result, ""));
-    FREE(result);
+    EXPECT_THAT(strcmp(result, ""), Eq(0));
+    free_string(result);
+    
+    result = cat_strings(6, "", "", "hel", "", "lo", "");
+    EXPECT_THAT(strcmp(result, "hello"), Eq(0));
+    free_string(result);
 }
 
-TEST(NAME, malloc_string_works)
+TEST(NAME, malloc_string)
 {
     char* result = malloc_string("this is a test");
-    ASSERT_EQ(0, strcmp(result, "this is a test"));
-    FREE(result);
+    EXPECT_THAT(strcmp(result, "this is a test"), Eq(0));
+    free_string(result);
 }
 
-TEST(NAME, is_number)
+TEST(NAME, malloc_string_empty_string)
 {
-    ASSERT_NE(0, is_number('0'));
-    ASSERT_NE(0, is_number('1'));
-    ASSERT_NE(0, is_number('2'));
-    ASSERT_NE(0, is_number('3'));
-    ASSERT_NE(0, is_number('4'));
-    ASSERT_NE(0, is_number('5'));
-    ASSERT_NE(0, is_number('6'));
-    ASSERT_NE(0, is_number('7'));
-    ASSERT_NE(0, is_number('8'));
-    ASSERT_NE(0, is_number('9'));
+    char* result = malloc_string("");
+    EXPECT_THAT(strcmp(result, ""), Eq(0));
+    free_string(result);
 }
 
-TEST(NAME, is_not_number)
+TEST(NAME, cat_wstrings)
 {
-    // is_number uses a whitelist in the background so this test really is too long
-    ASSERT_EQ(0, is_number('a'));
-    ASSERT_EQ(0, is_number('b'));
-    ASSERT_EQ(0, is_number('c'));
-    ASSERT_EQ(0, is_number('d'));
-    ASSERT_EQ(0, is_number('e'));
-    ASSERT_EQ(0, is_number('f'));
-    ASSERT_EQ(0, is_number('g'));
-    ASSERT_EQ(0, is_number('h'));
-    ASSERT_EQ(0, is_number('i'));
-    ASSERT_EQ(0, is_number('j'));
-    ASSERT_EQ(0, is_number('k'));
-    ASSERT_EQ(0, is_number('l'));
-    ASSERT_EQ(0, is_number('m'));
-    ASSERT_EQ(0, is_number('n'));
-    ASSERT_EQ(0, is_number('o'));
-    ASSERT_EQ(0, is_number('p'));
-    ASSERT_EQ(0, is_number('q'));
-    ASSERT_EQ(0, is_number('r'));
-    ASSERT_EQ(0, is_number('s'));
-    ASSERT_EQ(0, is_number('t'));
-    ASSERT_EQ(0, is_number('u'));
-    ASSERT_EQ(0, is_number('v'));
-    ASSERT_EQ(0, is_number('w'));
-    ASSERT_EQ(0, is_number('x'));
-    ASSERT_EQ(0, is_number('y'));
-    ASSERT_EQ(0, is_number('z'));
+    wchar_t* result = cat_wstrings(4, L"this", L" is", L" a", L" test");
+    EXPECT_THAT(wcscmp(result, L"this is a test"), Eq(0));
+    free_string(result);
+}
+
+TEST(NAME, cat_wstrings_with_empty_strings)
+{
+    wchar_t* result = cat_wstrings(4, L"", L"", L"", L"");
+    EXPECT_THAT(wcscmp(result, L""), Eq(0));
+    free_string(result);
+    
+    result = cat_wstrings(6, L"", L"", L"hel", L"", L"lo", L"");
+    EXPECT_THAT(wcscmp(result, L"hello"), Eq(0));
+    free_string(result);
+}
+
+TEST(NAME, malloc_wstring)
+{
+    wchar_t* result = malloc_wstring(L"this is a test");
+    EXPECT_THAT(wcscmp(result, L"this is a test"), Eq(0));
+    free_string(result);
+}
+
+TEST(NAME, malloc_wstring_empty_string)
+{
+    wchar_t* result = malloc_wstring(L"");
+    EXPECT_THAT(wcscmp(result, L""), Eq(0));
+    free_string(result);
+}
+
+TEST(NAME, string_to_wide_string)
+{
+    wchar_t* result = strtowcs("this is a test");
+    EXPECT_THAT(wcscmp(result, L"this is a test"), Eq(0));
+    free_string(result);
+}
+
+TEST(NAME, string_to_wide_string_empty_string)
+{
+    wchar_t* result = strtowcs("");
+    EXPECT_THAT(wcscmp(result, L""), Eq(0));
+    free_string(result);
+}
+
+TEST(NAME, wide_string_to_string)
+{
+    char* result = wcstostr(L"this is a test");
+    EXPECT_THAT(strcmp(result, "this is a test"), Eq(0));
+    free_string(result);
+}
+
+TEST(NAME, wide_string_to_string_empty_string)
+{
+    char* result = wcstostr(L"");
+    EXPECT_THAT(strcmp(result, ""), Eq(0));
+    free_string(result);
+}
+
+TEST(NAME, crlf2lf)
+{
+    char* s = malloc_string("this\r\nis\r\na\r\ntest\r\n");
+    
+    crlf2lf(s);
+    EXPECT_THAT(strcmp(s, "this\nis\na\ntest\n"), Eq(0));
+    
+    crlf2lf(s);
+    EXPECT_THAT(strcmp(s, "this\nis\na\ntest\n"), Eq(0));
+    
+    free_string(s);
+}
+
+TEST(NAME, crlf2lf_empty_string)
+{
+    char* s = malloc_string("");
+    
+    crlf2lf(s);
+    EXPECT_THAT(strcmp(s, ""), Eq(0));
+    
+    free_string(s);
 }
