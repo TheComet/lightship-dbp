@@ -197,6 +197,10 @@ LIGHTSHIP_UTIL_PUBLIC_API char
 ptree_node_is_child_of(const struct ptree_t* node,
                        const struct ptree_t* tree);
 
+/*!
+ * @brief Prints the tree to stdout for debugging purposes.
+ * @param tree The tree to print.
+ */
 LIGHTSHIP_UTIL_PUBLIC_API void
 ptree_print(const struct ptree_t* tree);
 
