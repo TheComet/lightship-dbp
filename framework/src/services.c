@@ -237,7 +237,7 @@ service_unregister_all(const struct plugin_t* plugin)
 
     len = strlen(plugin->info.name);
     {
-        PTREE_FOR_EACH(&plugin->game->services, node)
+        PTREE_FOR_EACH_IN_NODE(&plugin->game->services, node)
         {
             struct service_t* service = (struct service_t*)node->value;
             if(strncmp(service->name, name, len) == 0)
