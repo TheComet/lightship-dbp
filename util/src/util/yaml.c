@@ -93,7 +93,7 @@ yaml_get_value(struct yaml_doc_t* doc, const char* key)
 const struct ptree_t*
 yaml_get_node(struct yaml_doc_t* doc, const char* key)
 {
-    return ptree_find_in_tree(doc->dom, key);
+    return ptree_get_node(doc->dom, key);
 }
 
 /* ------------------------------------------------------------------------- */
@@ -215,7 +215,7 @@ yaml_load_into_ptree(struct ptree_t* tree,
             case YAML_ALIAS_EVENT:
                 if(key)
                 {
-                    const struct ptree_t* source = ptree_find_in_tree(root_node, (char*)event.data.alias.anchor);
+                    const struct ptree_t* source = ptree_get_node(root_node, (char*)event.data.alias.anchor);
                     if(source)
                     {
                         if(!ptree_duplicate_children_into_existing_node(tree, source))

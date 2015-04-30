@@ -108,8 +108,8 @@ ptree_create_node(struct ptree_t* node, const char* key, void* data);
  * @param[in] parent The parent node to set.
  * @param[in] key The key to give the node being merged.
  */
-LIGHTSHIP_UTIL_PUBLIC_API void
-ptree_set_parent(struct ptree_t* node, struct ptree_t* parent, const char* key);
+LIGHTSHIP_UTIL_PUBLIC_API char
+ptree_insert_node(struct ptree_t* node, struct ptree_t* parent, const char* key);
 
 /*!
  * @brief Finds the root node of the tree, given any node within the tree.
@@ -171,22 +171,36 @@ ptree_duplicate_children_into_existing_node(struct ptree_t* target,
  * found, NULL if otherwise.
  */
 LIGHTSHIP_UTIL_PUBLIC_API struct ptree_t*
-ptree_find_in_node(const struct ptree_t* node, const char* key);
+ptree_get_node_in_node(const struct ptree_t* node, const char* key);
 
 /*!
  * @brief Searches recursively for the specified key.
  * @param[in] node The node from which to begin the search.
- * @param key The key to search for.
+ * @param[in] key The key to search for.
  * @return Returns the node associated with the specified key if the key was
  * found, NULL if otherwise.
  */
 LIGHTSHIP_UTIL_PUBLIC_API struct ptree_t*
-ptree_find_in_tree(const struct ptree_t* node, const char* key);
+ptree_get_node(struct ptree_t* node, const char* key);
+
+/*!
+ * @brief Searches the tree for the specified node.
+ * 
+ * This is used to eliminate loops when inserting by first checking if the node
+ * being inserted is already a child of the target node.
+ * @param[in] node The node to search for.
+ * @param[in] tree The tree to recursively search in.
+ * @return Returns non-zero if the specified node exists in the specified tree.
+ * Otherwise, 0 is returned.
+ */
+LIGHTSHIP_UTIL_PUBLIC_API char
+ptree_node_is_child_of(const struct ptree_t* node,
+                       const struct ptree_t* tree);
 
 LIGHTSHIP_UTIL_PUBLIC_API void
 ptree_print(const struct ptree_t* tree);
 
-#define PTREE_FOR_EACH(tree, key, value) \
+#define PTREE_FOR_EACH_IN_NODE(tree, key, value) \
     MAP_FOR_EACH(&(tree)->children, struct ptree_t, key, value)
 
 #define PTREE_HASH_STRING(str) hash_jenkins_oaat(str, strlen(str))
