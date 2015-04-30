@@ -35,9 +35,12 @@ stderr_strings(uint32_t num_strs, ...);
  * @brief Concatenates n number of strings and returns the buffer.
  * @note The buffer needs to be freed manually with string_free() when it is no
  * longer required.
- * @param[in] num_strs The number of strings that should be concatenated.
- * @param[in] ...str A list of comma-seperated strings to concatenate.
- * @return The new buffer containing all concatenated strings.
+ * @param[in] num_strs The number of strings that should be concatenated. Can
+ * be 0.
+ * @param[in] ...str A list of comma-separated strings to concatenate. Strings
+ * may be NULL, in which case they are treated as empty strings.
+ * @return The new buffer containing all concatenated strings. Even if all
+ * strings are NULL, a buffer will still be allocated and returned.
  * @warning Use string_free() to free the returned buffer.
  */
 LIGHTSHIP_UTIL_PUBLIC_API char*
@@ -58,9 +61,12 @@ malloc_string(const char* str);
  * @brief Concatenates n number of strings and returns the buffer.
  * @note The buffer needs to be freed manually with string_free() when it is no
  * longer required.
- * @param[in] num_strs The number of strings that should be concatenated.
- * @param[in] ...str A list of comma-seperated strings to concatenate.
- * @return The new buffer containing all concatenated strings.
+ * @param[in] num_strs The number of strings that should be concatenated. Can
+ * be 0.
+ * @param[in] ...str A list of comma-separated strings to concatenate. Strings
+ * may be NULL, in which case they are treated as empty strings.
+ * @return The new buffer containing all concatenated strings. Even if all
+ * strings are NULL, a buffer will still be allocated and returned.
  * @warning Use string_free() to free the returned buffer.
  */
 LIGHTSHIP_UTIL_PUBLIC_API wchar_t*

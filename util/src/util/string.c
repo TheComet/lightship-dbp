@@ -27,15 +27,6 @@ safe_strcat(char* target, const char* source)
 }
 
 /* ------------------------------------------------------------------------- */
-static void
-safe_strcpy(char* target, const char* source)
-{
-    assert(target);
-    if(source)
-        strcpy(target, source);
-}
-
-/* ------------------------------------------------------------------------- */
 static int
 safe_wcslen(const wchar_t* wcs)
 {
@@ -51,15 +42,6 @@ safe_wcscat(wchar_t* target, const wchar_t* source)
     assert(target);
     if(source)
         wcscat(target, source);
-}
-
-/* ------------------------------------------------------------------------- */
-static void
-safe_wcscpy(wchar_t* target, const wchar_t* source)
-{
-    assert(target);
-    if(source)
-        wcscpy(target, source);
 }
 
 /* ----------------------------------------------------------------------------
@@ -78,9 +60,9 @@ stdout_strings(uint32_t num_strs, ...)
 {
     uint32_t i;
     va_list ap;
-    
+
     assert(num_strs);
-    
+
     va_start(ap, num_strs);
     for(i = 0; i != num_strs; ++i)
         fprintf(stdout, "%s", va_arg(ap, char*));
@@ -94,9 +76,9 @@ stderr_strings(uint32_t num_strs, ...)
 {
     uint32_t i;
     va_list ap;
-    
+
     assert(num_strs);
-    
+
     va_start(ap, num_strs);
     for(i = 0; i != num_strs; ++i)
         fprintf(stdout, "%s", va_arg(ap, char*));
@@ -112,8 +94,6 @@ cat_strings(uint32_t num_strs, ...)
     uint32_t i;
     char* buffer;
     va_list ap;
-    
-    assert(num_strs);
 
     /* compute total length of all strings combined and allocate a buffer able
      * to contain all strings plus a null terminator */
@@ -121,21 +101,21 @@ cat_strings(uint32_t num_strs, ...)
     for(i = 0; i != num_strs; ++i)
         total_length += safe_strlen(va_arg(ap, char*));
     va_end(ap);
-    
+
     buffer = (char*)MALLOC((total_length+1) * sizeof(char));
     if(!buffer)
     {
         fprintf(stderr, "malloc() failed in cat_strings() -- not enough memory\n");
         return NULL;
     }
-    
+    *buffer = '\0'; /* so strcat works */
+
     /* concatenate all strings into the allocated buffer */
     va_start(ap, num_strs);
-    safe_strcpy(buffer, va_arg(ap, char*));
-    for(i = 1; i < num_strs; ++i)
+    for(i = 0; i != num_strs; ++i)
         safe_strcat(buffer, va_arg(ap, char*));
     va_end(ap);
-    
+
     return buffer;
 }
 
@@ -152,7 +132,7 @@ malloc_string(const char* str)
         fprintf(stderr, "malloc() failed in malloc_string() -- not enough memory\n");
         return NULL;
     }
-    
+
     strcpy(buffer, str);
     return buffer;
 }
@@ -165,30 +145,28 @@ cat_wstrings(uint32_t num_strs, ...)
     uint32_t i;
     wchar_t* buffer;
     va_list ap;
-    
-    assert(num_strs);
-    
-    /* compute total lenght of all strings combined and allocate a buffer able
+
+    /* compute total length of all strings combined and allocate a buffer able
      * to contain all strings plus a null terminator */
     va_start(ap, num_strs);
     for(i = 0; i != num_strs; ++i)
         total_length += safe_wcslen(va_arg(ap, wchar_t*));
     va_end(ap);
-    
+
     buffer = (wchar_t*)MALLOC((total_length+1) * sizeof(wchar_t));
     if(!buffer)
     {
         fprintf(stderr, "malloc() failed in cat_wstrings() -- not enough memory\n");
         return NULL;
     }
-    
+    *buffer = L'\0'; /* so wcscat works */
+
     /* concatenate all strings into the allocated buffer */
     va_start(ap, num_strs);
-    safe_wcscpy(buffer, va_arg(ap, wchar_t*));
-    for(i = 1; i < num_strs; ++i)
+    for(i = 0; i != num_strs; ++i)
         safe_wcscat(buffer, va_arg(ap, wchar_t*));
     va_end(ap);
-    
+
     return buffer;
 }
 
@@ -217,9 +195,9 @@ strtowcs(const char* str)
     wchar_t* wcs;
     wchar_t* wcs_it;
     uint32_t len;
-    
+
     assert(str);
-    
+
     len = strlen(str);
 
     wcs = (wchar_t*)MALLOC((len + 1) * sizeof(wchar_t));
@@ -242,9 +220,9 @@ wcstostr(const wchar_t* wcs)
     char* str;
     char* str_it;
     uint32_t len;
-    
+
     assert(wcs);
-    
+
     len = wcslen(wcs);
 
     str = (char*)MALLOC((len + 1) * sizeof(char));
@@ -263,11 +241,11 @@ wcstostr(const wchar_t* wcs)
 /* ------------------------------------------------------------------------- */
 void
 crlf2lf(char* src)
-{   
+{
     char* target;
-    
+
     assert(src);
-    
+
     target = src;
     while(*src)
     {
@@ -275,7 +253,7 @@ crlf2lf(char* src)
             ++src;
         *target++ = *src++;
     }
-    
+
     /* if at least one CR was skipped, a new null-terminator must be set. */
     if(target != src)
         *target = '\0';
