@@ -164,7 +164,7 @@ menu_load_screens(struct menu_t* menu, const struct ptree_t* screens)
     map_init_map(&created_screen_names);
 
     /* iterate screens */
-    { PTREE_FOR_EACH(screens, key, screen_node)
+    { PTREE_FOR_EACH_IN_NODE(screens, key, screen_node)
     {
         /* handle screens */
         if(PTREE_HASH_STRING("screen") == key)
@@ -203,7 +203,7 @@ menu_load_screens(struct menu_t* menu, const struct ptree_t* screens)
             map_insert(&menu->screens, hash_jenkins_oaat(screen_name, strlen(screen_name)), screen);
 
             /* iterate objects to add to this screen */
-            { PTREE_FOR_EACH(screen_node, key, object_node)
+            { PTREE_FOR_EACH_IN_NODE(screen_node, key, object_node)
             {
                 if(PTREE_HASH_STRING("button") == key)
                     menu_load_button(menu->glob, screen, object_node);
