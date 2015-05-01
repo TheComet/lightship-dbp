@@ -6,6 +6,7 @@
 #include "util/hash.h"
 #include "util/ptree.h"
 #include <stdio.h>
+#include <assert.h>
 
 static struct list_t g_open_docs;
 
@@ -35,27 +36,62 @@ yaml_load(const char* filename)
 {
     FILE* fp;
     struct yaml_doc_t* doc;
-    struct ptree_t* tree;
-    yaml_parser_t parser;
+    
+    assert(filename);
 
     /* try to open the file */
     fp = fopen(filename, "rb");
     if(!fp)
     {
         fprintf(stderr, "Failed to open file \"%s\"\n", filename);
-        return 0;
+        return NULL;
     }
+    
+    doc = yaml_load_from_stream(fp);
+    fclose(fp);
+    
+    return doc;
+}
 
+/* ------------------------------------------------------------------------- */
+struct yaml_doc_t*
+yaml_load_from_memory(const char* buffer)
+{
+    FILE* stream;
+    struct yaml_doc_t* doc;
+    
+    assert(buffer);
+    
+    stream = fmemopen((char*)buffer, strlen(buffer), "rb");
+    if(!stream)
+    {
+        fprintf(stderr, "Failed to open buffer as stream");
+        return NULL;
+    }
+    
+    doc = yaml_load_from_stream(stream);
+    fclose(stream);
+    
+    return doc;
+}
+
+/* ------------------------------------------------------------------------- */
+struct yaml_doc_t*
+yaml_load_from_stream(FILE* stream)
+{
+    yaml_parser_t parser;
+    struct ptree_t* tree;
+    struct yaml_doc_t* doc;
+    
     /* parse file and load into dom tree */
     yaml_parser_initialize(&parser);
-    yaml_parser_set_input_file(&parser, fp);
+    yaml_parser_set_input_file(&parser, stream);
     tree = ptree_create(NULL);
     if(!yaml_load_into_ptree(tree, tree, &parser, 0))
     {
         yaml_parser_delete(&parser);
-        fclose(fp);
         ptree_destroy(tree, 0);
-        fprintf(stderr, "Syntax error: Failed to parse YAML file \"%s\"\n", filename);
+        fprintf(stderr, "Syntax error: Failed to parse YAML.");
         return 0;
     }
 
@@ -66,7 +102,6 @@ yaml_load(const char* filename)
 
     /* clean up */
     yaml_parser_delete(&parser);
-    fclose(fp);
 
     return doc;
 }
@@ -85,12 +120,12 @@ yaml_get_value(struct yaml_doc_t* doc, const char* key)
 {
     struct ptree_t* node = yaml_get_node(doc, key);
     if(node)
-        return (char*)node->value;
+        return (const char*)node->value;
     return NULL;
 }
 
 /* ------------------------------------------------------------------------- */
-const struct ptree_t*
+struct ptree_t*
 yaml_get_node(struct yaml_doc_t* doc, const char* key)
 {
     return ptree_get_node(doc->dom, key);
