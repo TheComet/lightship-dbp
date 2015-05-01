@@ -81,7 +81,7 @@ ptree_destroy_keep_root(struct ptree_t* tree, char do_free_values)
     /* if tree has parent, detach */
     if(tree->parent)
         map_erase_element(&tree->parent->children, tree);
-    
+
     /* destroy detached node */
     ptree_destroy_recurse(tree, do_free_values);
 }
@@ -121,13 +121,13 @@ ptree_insert_node(struct ptree_t* node, struct ptree_t* parent, const char* key)
 {
     if(!ptree_insert_node_hashed_key(node, parent, PTREE_HASH_STRING(key)))
         return 0;
-    
+
 #ifdef _DEBUG
     if(node->key)
         free_string(node->key);
     node->key = malloc_string(key);
 #endif
-    
+
     return 1;
 }
 
@@ -137,20 +137,20 @@ ptree_insert_node_hashed_key(struct ptree_t* node,
                             struct ptree_t* target,
                             uint32_t hash)
 {
-    /* 
-     * Make sure that target is independent of node, thus avoiding loops.
+    /*
+     * Make sure that target is independent of node, thus avoiding cycles.
      * Node that it is perfectly valid for node to be a child of target.
      * Shifting nodes around in a tree is valid.
      */
     if(node == target || ptree_node_is_child_of(target, node))
         return 0;
-    
+
     /* switch parents */
     if(node->parent)
         map_erase_element(&node->parent->children, node);
     map_insert(&target->children, hash, node);
     node->parent = target;
-    
+
     return 1;
 }
 
@@ -221,15 +221,15 @@ ptree_duplicate_children_into_existing_node(struct ptree_t* target,
         }
         map_insert(&temp_tree.children, hash, child);
     }}
-    
+
     /*
      * Free to insert children of temp tree into target node. No need to check
-     * for loops, they aren't possible.
+     * for cycles, they aren't possible.
      */
     { MAP_FOR_EACH(&temp_tree.children, struct ptree_t, hash, node)
     {
         node->parent = target;
-        
+
         /*
          * If we encounter a duplicate key, revert all insertions.
          */
@@ -242,19 +242,19 @@ ptree_duplicate_children_into_existing_node(struct ptree_t* target,
                 /* if this assert fails, something seriously went wrong */
                 assert(dirty_node == map_erase(&target->children, h));
             }
-            
+
             ptree_destroy_keep_root(&temp_tree, 1);
             return 0;
         }
     }}
-    
-    /* 
+
+    /*
      * Destroy root node only, children have been successfully inserted into
      * target.
      */
     map_clear(&temp_tree.children);
     ptree_destroy_recurse(&temp_tree, 0);
-    
+
     return 1;
 }
 
@@ -326,7 +326,7 @@ ptree_node_is_child_of(const struct ptree_t* node,
         if(n == node || ptree_node_is_child_of(node, n))
             return 1;
     }
-    
+
     return 0;
 }
 
