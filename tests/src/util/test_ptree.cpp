@@ -164,11 +164,14 @@ TEST(NAME, building_a_tree_with_create_node_has_correct_structure)
     ptree_destroy(tree, 0);
 }
 
-TEST(NAME, create_node_with_existing_key_fails)
+TEST(NAME, dont_allow_duplicate_keys_in_same_node)
 {
     struct ptree_t* tree = ptree_create(NULL);
+
     EXPECT_THAT(ptree_create_node(tree, "node", NULL), NotNull());
     EXPECT_THAT(ptree_create_node(tree, "node", NULL), IsNull());
+    EXPECT_THAT(map_count(&tree->children), Eq(1));
+
     ptree_destroy(tree, 0);
 }
 
@@ -1092,7 +1095,7 @@ TEST(NAME, duplicate_tree_into_itself_fails)
 
     // duplicate the tree into itself
     EXPECT_THAT(ptree_duplicate_children_into_existing_node(tree, tree), Eq(0));
-    
+
     uint32_t root_hash  = PTREE_HASH_STRING("root");
     uint32_t node1_hash = PTREE_HASH_STRING("node1");
     uint32_t node2_hash = PTREE_HASH_STRING("node2");
@@ -1130,7 +1133,7 @@ TEST(NAME, duplicate_tree_into_itself_fails)
     EXPECT_THAT(node5->parent, Eq(node1));
     EXPECT_THAT(node6->parent, Eq(tree));
     EXPECT_THAT(node7->parent, Eq(tree));
-    
+
     ptree_destroy(tree, 1);
 }
 
@@ -1154,10 +1157,10 @@ TEST(NAME, relocate_node_in_tree)
     struct ptree_t* node5 = ptree_create_node(node1, "node5", &e);
     struct ptree_t* node6 = ptree_create_node(tree,  "node6", NULL);
     struct ptree_t* node7 = ptree_create_node(tree,  "node7", &f);
-    
+
     // relocate node3 to be a child of root
     EXPECT_THAT(ptree_insert_node(node3, tree, "node3"), Ne(0));
-    
+
     // tree now looks like this
     // root         (a)
     // |_node1      (b)
@@ -1239,13 +1242,13 @@ TEST(NAME, relocate_parent_node_into_child_node_fails)
     struct ptree_t* node5 = ptree_create_node(node1, "node5", &e);
     struct ptree_t* node6 = ptree_create_node(tree,  "node6", NULL);
     struct ptree_t* node7 = ptree_create_node(tree,  "node7", &f);
-    
+
     // none of these should work
     EXPECT_THAT(ptree_insert_node(tree, node1, "node1"), Eq(0));
     EXPECT_THAT(ptree_insert_node(tree, node4, "node4"), Eq(0));
     EXPECT_THAT(ptree_insert_node(node3, node4, "node3"), Eq(0));
     EXPECT_THAT(ptree_insert_node(node1, node5, "node1"), Eq(0));
-    
+
     uint32_t root_hash  = PTREE_HASH_STRING("root");
     uint32_t node1_hash = PTREE_HASH_STRING("node1");
     uint32_t node2_hash = PTREE_HASH_STRING("node2");
@@ -1317,12 +1320,12 @@ TEST(NAME, get_node_in_node)
     struct ptree_t* node5 = ptree_create_node(node1, "node5", &e);
     struct ptree_t* node6 = ptree_create_node(tree,  "node6", NULL);
     struct ptree_t* node7 = ptree_create_node(tree,  "node7", &f);
-    
+
     EXPECT_THAT(ptree_get_node_in_node(tree, "node1"), Eq(node1));
     EXPECT_THAT(ptree_get_node_in_node(tree, "node2"), IsNull());
     EXPECT_THAT(ptree_get_node_in_node(node1, "node2"), Eq(node2));
     EXPECT_THAT(ptree_get_node_in_node(node6, "root"), IsNull());
-    
+
     ptree_destroy(tree, 0);
 }
 
@@ -1346,11 +1349,11 @@ TEST(NAME, get_node_existing_key)
     struct ptree_t* node5 = ptree_create_node(node1, "node5", &e);
     struct ptree_t* node6 = ptree_create_node(tree,  "node6", NULL);
     struct ptree_t* node7 = ptree_create_node(tree,  "node7", &f);
-    
+
     EXPECT_THAT(ptree_get_node(tree, "node1.node3.node4"), Eq(node4));
     EXPECT_THAT(ptree_get_node(node1, "node2"), Eq(node2));
     EXPECT_THAT(ptree_get_node(node1, "node3.node4"), Eq(node4));
-    
+
     ptree_destroy(tree, 0);
 }
 
@@ -1374,14 +1377,12 @@ TEST(NAME, find_non_existing_key_in_tree)
     struct ptree_t* node5 = ptree_create_node(node1, "node5", &e);
     struct ptree_t* node6 = ptree_create_node(tree,  "node6", NULL);
     struct ptree_t* node7 = ptree_create_node(tree,  "node7", &f);
-    
+
     EXPECT_THAT(ptree_get_node(tree, "this.doesn't.exist"), IsNull());
     EXPECT_THAT(ptree_get_node(tree, "node1.node3.nope"), IsNull());
-    
+
     ptree_destroy(tree, 0);
 }
-
-
 
 TEST(NAME, traverse_node_children)
 {
@@ -1392,7 +1393,7 @@ TEST(NAME, traverse_node_children)
     ptree_create_node(tree, keys[1], &values[1]);
     ptree_create_node(tree, keys[2], &values[2]);
     ptree_create_node(tree, keys[3], &values[3]);
-    
+
     PTREE_FOR_EACH_IN_NODE(tree, hash, node)
     {
         int i;
@@ -1402,7 +1403,7 @@ TEST(NAME, traverse_node_children)
         ASSERT_LT(i, 4);
         EXPECT_THAT((int*)node->value, Pointee(values[i]));
     }
-    
+
     ptree_destroy(tree, 0);
 }
 
