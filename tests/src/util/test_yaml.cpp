@@ -30,15 +30,16 @@ static const char* basic_yml =
 TEST(NAME, get_value_on_basic_yaml)
 {
     struct yaml_doc_t* doc;
-    
+    ASSERT_THAT(1, Eq(0)); /* yaml currently broken, mark this test as not implemented */
+
     ASSERT_THAT((doc = yaml_load_from_memory(basic_yml)), NotNull());
-    
+
     EXPECT_THAT(yaml_get_value(doc, "root.players.player.name"), AnyOf(
         StrEq("Will Smith"),
         StrEq("TheComet")));
     EXPECT_THAT(yaml_get_value(doc, "root.enemies.enemy.name"), AnyOf(
         StrEq("George Bush"),
         StrEq("Big Daddy")));
-    
+
     yaml_destroy(doc);
 }

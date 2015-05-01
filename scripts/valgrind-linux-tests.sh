@@ -8,5 +8,5 @@ valgrind --num-callers=50 \
 	--show-possibly-lost=yes  \
 	--time-stamp=yes \
 	--suppressions=../../scripts/valgrind-suppressions.supp \
-	./lightship_tests
+	./lightship_tests --gtest_filter="-*Death*" # death tests seem to screw with valgrind - disable those
 cd .. && cd ..
