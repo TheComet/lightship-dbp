@@ -18,7 +18,8 @@ struct yaml_doc_t
  * @brief Initialises the yaml parser. This must be called before using any
  * other yaml-related functions.
  */
-void
+
+LIGHTSHIP_UTIL_PUBLIC_API void
 yaml_init(void);
 
 /*!
@@ -34,8 +35,26 @@ yaml_deinit(void);
  * @return Returns a new yaml doc object if successful. If a parser error
  * occurs, or if the file doesn't exist, NULL is returned.
  */
-struct yaml_doc_t*
+LIGHTSHIP_UTIL_PUBLIC_API struct yaml_doc_t*
 yaml_load(const char* filename);
+
+/*!
+ * @brief Parses a string containing YAML code located in memory.
+ * @param buffer The string to load YAML from.
+ * @return Returns a new yaml doc object if successful. If a parser error
+ * occurs, NULL is returned.
+ */
+LIGHTSHIP_UTIL_PUBLIC_API struct yaml_doc_t*
+yaml_load_from_memory(const char* buffer);
+
+/*!
+ * @brief Parses YAML code from a stream.
+ * @param stream The stream to load YAML from.
+ * @return Returns a new yaml doc object if successful. If a parser error
+ * occurs, or if the stream isn't open, NULL is returned.
+ */
+LIGHTSHIP_UTIL_PUBLIC_API struct yaml_doc_t*
+yaml_load_from_stream(FILE* stream);
 
 /*!
  * @brief Looks up the specified node from a loaded yaml document and retrieves
@@ -75,7 +94,7 @@ yaml_get_value(struct yaml_doc_t* doc, const char* key);
  * @return Returns a property-tree node if the node was successfully found,
  * otherwise NULL is returned.
  */
-const struct ptree_t*
+struct ptree_t*
 yaml_get_node(struct yaml_doc_t* doc, const char* key);
 
 /*!
