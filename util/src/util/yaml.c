@@ -36,7 +36,7 @@ yaml_load(const char* filename)
 {
     FILE* fp;
     struct yaml_doc_t* doc;
-    
+
     assert(filename);
 
     /* try to open the file */
@@ -46,10 +46,10 @@ yaml_load(const char* filename)
         fprintf(stderr, "Failed to open file \"%s\"\n", filename);
         return NULL;
     }
-    
+
     doc = yaml_load_from_stream(fp);
     fclose(fp);
-    
+
     return doc;
 }
 
@@ -59,19 +59,19 @@ yaml_load_from_memory(const char* buffer)
 {
     FILE* stream;
     struct yaml_doc_t* doc;
-    
+
     assert(buffer);
-    
+
     stream = fmemopen((char*)buffer, strlen(buffer), "rb");
     if(!stream)
     {
         fprintf(stderr, "Failed to open buffer as stream");
         return NULL;
     }
-    
+
     doc = yaml_load_from_stream(stream);
     fclose(stream);
-    
+
     return doc;
 }
 
@@ -82,7 +82,7 @@ yaml_load_from_stream(FILE* stream)
     yaml_parser_t parser;
     struct ptree_t* tree;
     struct yaml_doc_t* doc;
-    
+
     /* parse file and load into dom tree */
     yaml_parser_initialize(&parser);
     yaml_parser_set_input_file(&parser, stream);
@@ -116,11 +116,35 @@ yaml_destroy(struct yaml_doc_t* doc)
 
 /* ------------------------------------------------------------------------- */
 const char*
-yaml_get_value(struct yaml_doc_t* doc, const char* key)
+yaml_doc_get_value(struct yaml_doc_t* doc, const char* key)
 {
     struct ptree_t* node = yaml_get_node(doc, key);
     if(node)
         return (const char*)node->value;
+    return NULL;
+}
+
+/* ------------------------------------------------------------------------- */
+uint32_t
+yaml_node_get_hash(const struct ptree_t* node)
+{
+    /*
+     * The hash isn't stored in the node itself, but in the map of the parent
+     * node.
+     */
+    if(!node->parent)
+        return 0;
+
+    return map_find_element(&node->parent->children, node);
+}
+
+/* ------------------------------------------------------------------------- */
+const char*
+yaml_node_get_value(const struct ptree_t* node, const char* key)
+{
+    struct ptree_t* target_node = ptree_get_node(target_node, key);
+    if(target_node)
+        return (const char*)target_node->value;
     return NULL;
 }
 

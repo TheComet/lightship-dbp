@@ -139,7 +139,7 @@ ptree_insert_node_hashed_key(struct ptree_t* node,
 {
     /*
      * Make sure that target is independent of node, thus avoiding cycles.
-     * Node that it is perfectly valid for node to be a child of target.
+     * Note that it is perfectly valid for node to be a child of target.
      * Shifting nodes around in a tree is valid.
      */
     if(node == target || ptree_node_is_child_of(target, node))

@@ -185,7 +185,7 @@ ptree_get_node(struct ptree_t* node, const char* key);
 
 /*!
  * @brief Searches the tree for the specified node.
- * 
+ *
  * This is used to eliminate loops when inserting by first checking if the node
  * being inserted is already a child of the target node.
  * @param[in] node The node to search for.
@@ -204,8 +204,8 @@ ptree_node_is_child_of(const struct ptree_t* node,
 LIGHTSHIP_UTIL_PUBLIC_API void
 ptree_print(const struct ptree_t* tree);
 
-#define PTREE_FOR_EACH_IN_NODE(tree, key, value) \
-    MAP_FOR_EACH(&(tree)->children, struct ptree_t, key, value)
+#define PTREE_FOR_EACH_IN_NODE(tree, hash, node) \
+    MAP_FOR_EACH(&(tree)->children, struct ptree_t, hash, node)
 
 #define PTREE_HASH_STRING(str) hash_jenkins_oaat(str, strlen(str))
 
