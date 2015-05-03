@@ -55,7 +55,7 @@ map_find_lower_bound(const struct map_t* map, uint32_t hash)
         else
             len = half;
     }
-    
+
     /* if "data" is pointing outside of the valid elements in the vector, also return NULL */
     if((intptr_t)data >= (intptr_t)map->vector.data + (intptr_t)map->vector.count * (intptr_t)map->vector.element_size)
         return NULL;
@@ -75,7 +75,7 @@ map_find(const struct map_t* map, uint32_t hash)
 
 /* ------------------------------------------------------------------------- */
 uint32_t
-map_find_element(struct map_t* map, void* value)
+map_find_element(const struct map_t* map, const void* value)
 {
     ORDERED_VECTOR_FOR_EACH(&map->vector, struct map_key_value_t, kv)
     {
@@ -100,7 +100,7 @@ uint32_t
 map_find_unused_key(struct map_t* map)
 {
     uint32_t i = 0;
-    
+
     MAP_FOR_EACH(map, void, key, value)
     {
         if(i != key)
@@ -116,11 +116,11 @@ map_insert(struct map_t* map, uint32_t hash, void* value)
 {
     struct map_key_value_t* emplaced_data;
     struct map_key_value_t* data;
-    
+
     /* don't insert reserved hashes */
     if(hash == MAP_INVALID_KEY)
         return 0;
-    
+
     /* lookup location in map to insert */
     data = map_find_lower_bound(map, hash);
     if(data && data->hash == hash)
@@ -133,10 +133,10 @@ map_insert(struct map_t* map, uint32_t hash, void* value)
     else
         emplaced_data = ordered_vector_insert_emplace(&map->vector,
                           data - (struct map_key_value_t*)map->vector.data);
-    
+
     emplaced_data->hash = hash;
     emplaced_data->value = value;
-    
+
     return 1;
 }
 
@@ -157,7 +157,7 @@ map_erase(struct map_t* map, uint32_t hash)
     struct map_key_value_t* data = map_find_lower_bound(map, hash);
     if(!data || data->hash != hash)
         return NULL;
-    
+
     value = data->value;
     ordered_vector_erase_element(&map->vector, (DATA_POINTER_TYPE*)data);
     return value;
@@ -174,7 +174,7 @@ map_erase_element(struct map_t* map, void* value)
 
     data = map_find_lower_bound(map, hash);
     ordered_vector_erase_element(&map->vector, (DATA_POINTER_TYPE*)data);
-    
+
     return value;
 }
 

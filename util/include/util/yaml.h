@@ -59,7 +59,7 @@ yaml_load_from_stream(FILE* stream);
 /*!
  * @brief Looks up the specified node from a loaded yaml document and retrieves
  * its value.
- * 
+ *
  * For example, if your YAML file looked like this:
  * ```
  * root:
@@ -74,12 +74,30 @@ yaml_load_from_stream(FILE* stream);
  * @return Returns the value if it was successfully found, otherwise NULL is
  * returned.
  */
-const char*
-yaml_get_value(struct yaml_doc_t* doc, const char* key);
+LIGHTSHIP_UTIL_PUBLIC_API const char*
+yaml_doc_get_value(struct yaml_doc_t* doc, const char* key);
+
+/*!
+ * @brief Returns the specified node's hash.
+ * @param[in] node The node to get the hash of.
+ * @return Returns the hash if it exists. Note that the root node will not
+ * have a hash, in which case the value of 0 is returned.
+ */
+LIGHTSHIP_UTIL_PUBLIC_API uint32_t
+yaml_node_get_hash(const struct ptree_t* node);
+
+/*!
+ * @brief Returns the specified node's value.
+ * @param[in] node The node to get the value of.
+ * @return Returns the value as a string. If the value does not exist, NULL is
+ * returned (such as is the case with yaml nodes that have children).
+ */
+LIGHTSHIP_UTIL_PUBLIC_API const char*
+yaml_node_get_value(const struct ptree_t* node, const char* key);
 
 /*!
  * @brief Looks up the specified node from a loaded yaml file and returns it.
- * 
+ *
  * For example, if your YAML file looked like this:
  * ```
  * root:
@@ -103,5 +121,14 @@ yaml_get_node(struct yaml_doc_t* doc, const char* key);
  */
 void
 yaml_destroy(struct yaml_doc_t* doc);
+
+#define YAML_FOR_EACH(doc, node_name, hash, node) {                     \
+    struct ptree_t* yaml_internal_##value_node;                         \
+    if((yaml_internal_##value_node = yaml_get_node(doc, node_name))) {  \
+        MAP_FOR_EACH(&(yaml_internal_##value_node)->children, struct ptree_t, hash, node) \
+
+#define YAML_END_FOR_EACH }}
+
+#define YAML_END_FOR_EACH_IF_FAILED } else
 
 C_HEADER_END

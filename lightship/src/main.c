@@ -12,21 +12,21 @@ main(int argc, char** argv)
 
     /* init global things */
     init();
-    
+
     /* parse command line arguments */
     args = argv_parse(argc, argv);
-    
+
     /* if the game is set to run, init and run game */
     while(args->run_game)
     {
         if(!init_game(args->is_server))
             break;
-        
+
         games_run_all();
-        
+
         break;
     }
-    
+
     /* clean up */
     argv_free(args);
     deinit();
