@@ -118,7 +118,7 @@ yaml_destroy(struct yaml_doc_t* doc)
 const char*
 yaml_doc_get_value(struct yaml_doc_t* doc, const char* key)
 {
-    struct ptree_t* node = yaml_get_node(doc, key);
+    struct ptree_t* node = yaml_doc_get_node(doc, key);
     if(node)
         return (const char*)node->value;
     return NULL;
@@ -150,7 +150,7 @@ yaml_node_get_value(const struct ptree_t* node, const char* key)
 
 /* ------------------------------------------------------------------------- */
 struct ptree_t*
-yaml_get_node(struct yaml_doc_t* doc, const char* key)
+yaml_doc_get_node(struct yaml_doc_t* doc, const char* key)
 {
     return ptree_get_node(doc->dom, key);
 }

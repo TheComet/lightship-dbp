@@ -113,7 +113,7 @@ yaml_node_get_value(const struct ptree_t* node, const char* key);
  * otherwise NULL is returned.
  */
 struct ptree_t*
-yaml_get_node(struct yaml_doc_t* doc, const char* key);
+yaml_doc_get_node(struct yaml_doc_t* doc, const char* key);
 
 /*!
  * @brief Destroys a loaded yaml document.
