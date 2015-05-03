@@ -35,7 +35,7 @@ load_core_plugins(struct game_t* game)
         return 1;
     }
     
-    plugins_node = yaml_get_node(g_settings_doc, "plugins");
+    plugins_node = yaml_doc_get_node(g_settings_doc, "plugins");
     if(!plugins_node)
     {
         llog(LOG_WARNING, game, NULL, 1, "Config file \"", yml_settings, "\" doesn't contain any plugins to load");
