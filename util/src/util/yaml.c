@@ -3,9 +3,7 @@
 #include "util/linked_list.h"
 #include "util/memory.h"
 #include "util/string.h"
-#include "util/hash.h"
 #include "util/ptree.h"
-#include <stdio.h>
 #include <assert.h>
 
 static struct list_t g_open_docs;
@@ -142,7 +140,7 @@ yaml_node_get_hash(const struct ptree_t* node)
 const char*
 yaml_node_get_value(const struct ptree_t* node, const char* key)
 {
-    struct ptree_t* target_node = ptree_get_node(target_node, key);
+    struct ptree_t* target_node = ptree_get_node(node, key);
     if(target_node)
         return (const char*)target_node->value;
     return NULL;

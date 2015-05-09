@@ -2,7 +2,7 @@
 #include <execinfo.h>
 
 char**
-get_backtrace(uint32_t* size )
+get_backtrace(int* size )
 {
     void* array[BACKTRACE_SIZE];
     char** strings;

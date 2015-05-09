@@ -1,7 +1,7 @@
 #include "util/map.h"
 #include "util/memory.h"
 
-const uint32_t MAP_INVALID_KEY = -1;
+const uint32_t MAP_INVALID_KEY = (uint32_t)-1;
 
 /* ------------------------------------------------------------------------- */
 struct map_t*

@@ -9,7 +9,7 @@
 /* ----------------------------------------------------------------------------
  * Static functions
  * ------------------------------------------------------------------------- */
-static int
+static uintptr_t
 safe_strlen(const char* str)
 {
     if(str)
@@ -27,7 +27,7 @@ safe_strcat(char* target, const char* source)
 }
 
 /* ------------------------------------------------------------------------- */
-static int
+static uintptr_t
 safe_wcslen(const wchar_t* wcs)
 {
     if(wcs)
@@ -194,7 +194,7 @@ strtowcs(const char* str)
 {
     wchar_t* wcs;
     wchar_t* wcs_it;
-    uint32_t len;
+    uintptr_t len;
 
     assert(str);
 
@@ -219,7 +219,7 @@ wcstostr(const wchar_t* wcs)
 {
     char* str;
     char* str_it;
-    uint32_t len;
+    uintptr_t len;
 
     assert(wcs);
 
