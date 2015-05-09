@@ -89,6 +89,7 @@ ptree_destroy_keep_root(struct ptree_t* tree, char do_free_values)
 struct ptree_t*
 ptree_create_node(struct ptree_t* tree, const char* key, void* value)
 {
+    
     struct ptree_t* child;
     if(!(child = ptree_create_node_hashed_key(tree, PTREE_HASH_STRING(key), value)))
         return NULL;

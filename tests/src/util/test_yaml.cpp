@@ -29,14 +29,15 @@ static const char* basic_yml =
 
 TEST(NAME, get_value_in_basic_yaml_doc)
 {
-    struct yaml_doc_t* doc;
+    struct ptree_t* doc;
+    ASSERT_THAT(1, Eq(0)); /* TODO */
 
     ASSERT_THAT((doc = yaml_load_from_memory(basic_yml)), NotNull());
 
-    EXPECT_THAT(yaml_doc_get_value(doc, "root.players.player.name"), AnyOf(
+    EXPECT_THAT(yaml_get_value(doc, "root.players.player.name"), AnyOf(
         StrEq("Will Smith"),
         StrEq("TheComet")));
-    EXPECT_THAT(yaml_doc_get_value(doc, "root.enemies.enemy.name"), AnyOf(
+    EXPECT_THAT(yaml_get_value(doc, "root.enemies.enemy.name"), AnyOf(
         StrEq("George Bush"),
         StrEq("Big Daddy")));
 
@@ -45,25 +46,27 @@ TEST(NAME, get_value_in_basic_yaml_doc)
 
 TEST(NAME, get_invalid_value_in_basic_yaml_doc)
 {
-    struct yaml_doc_t* doc;
+    struct ptree_t* doc;
+    ASSERT_THAT(1, Eq(0)); /* TODO */
 
     ASSERT_THAT((doc = yaml_load_from_memory(basic_yml)), NotNull());
 
-    EXPECT_THAT(yaml_doc_get_value(doc, "some.invalid.key"), IsNull());
-    EXPECT_THAT(yaml_doc_get_value(doc, "root.players.invalid"), IsNull());
+    EXPECT_THAT(yaml_get_value(doc, "some.invalid.key"), IsNull());
+    EXPECT_THAT(yaml_get_value(doc, "root.players.invalid"), IsNull());
 
     yaml_destroy(doc);
 }
 
 TEST(NAME, iterate_nodes_in_basic_yaml_doc)
 {
-    struct yaml_doc_t* doc;
-
+    struct ptree_t* doc;
+    ASSERT_THAT(1, Eq(0)); /* TODO */
+    
     ASSERT_THAT((doc = yaml_load_from_memory(basic_yml)), NotNull());
 
     YAML_FOR_EACH(doc, "root.players", hash, node)
     {
-        ASSERT_THAT(yaml_node_get_value(node, "player.name"), AnyOf(
+        ASSERT_THAT(yaml_get_value(node, "player.name"), AnyOf(
             StrEq("Will Smith"),
             StrEq("TheComet")));
     }
@@ -71,7 +74,7 @@ TEST(NAME, iterate_nodes_in_basic_yaml_doc)
 
     YAML_FOR_EACH(doc, "root.enemies", hash, node)
     {
-        ASSERT_THAT(yaml_node_get_value(node, "enemy.name"), AnyOf(
+        ASSERT_THAT(yaml_get_value(node, "enemy.name"), AnyOf(
             StrEq("George Bush"),
             StrEq("Big Daddy")));
     }

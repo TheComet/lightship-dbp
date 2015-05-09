@@ -87,8 +87,10 @@ LIGHTSHIP_UTIL_PUBLIC_API void
 ptree_destroy_keep_root(struct ptree_t* tree, char do_free_values);
 
 /*!
- * @brief Creates a child node and adds it to the specified root node, and sets
- * its key and data.
+ * @brief Creates a child node and adds it as a child of the specified root
+ * node, and sets its key and data. The key can be in the form of
+ * ```path.to.my.node```. If any of the nodes in between the root node and the
+ * target node don't exist, they will be created.
  * @param[in] node The node in which to insert the new child node into.
  * @param[in] key The key to give the new child node.
  * @param[in] data The data the child node should reference. Can be NULL.
@@ -174,7 +176,8 @@ LIGHTSHIP_UTIL_PUBLIC_API struct ptree_t*
 ptree_get_node_in_node(const struct ptree_t* node, const char* key);
 
 /*!
- * @brief Searches recursively for the specified key.
+ * @brief Searches recursively for the specified key. The key can be in the
+ * form of ```"path.to.my.node```.
  * @param[in] node The node from which to begin the search.
  * @param[in] key The key to search for.
  * @return Returns the node associated with the specified key if the key was
