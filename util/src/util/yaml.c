@@ -29,11 +29,11 @@ yaml_deinit(void)
 }
 
 /* ------------------------------------------------------------------------- */
-struct yaml_doc_t*
+struct ptree_t*
 yaml_load(const char* filename)
 {
     FILE* fp;
-    struct yaml_doc_t* doc;
+    struct ptree_t* doc;
 
     assert(filename);
 
@@ -52,11 +52,11 @@ yaml_load(const char* filename)
 }
 
 /* ------------------------------------------------------------------------- */
-struct yaml_doc_t*
+struct ptree_t*
 yaml_load_from_memory(const char* buffer)
 {
     FILE* stream;
-    struct yaml_doc_t* doc;
+    struct ptree_t* doc;
 
     assert(buffer);
 
@@ -74,17 +74,17 @@ yaml_load_from_memory(const char* buffer)
 }
 
 /* ------------------------------------------------------------------------- */
-struct yaml_doc_t*
+struct ptree_t*
 yaml_load_from_stream(FILE* stream)
 {
     yaml_parser_t parser;
     struct ptree_t* tree;
-    struct yaml_doc_t* doc;
+    struct ptree_t* doc;
 
     /* parse file and load into dom tree */
     yaml_parser_initialize(&parser);
     yaml_parser_set_input_file(&parser, stream);
-    tree = ptree_create(NULL);
+    doc = ptree_create(NULL);
     if(!yaml_load_into_ptree(tree, tree, &parser, 0))
     {
         yaml_parser_delete(&parser);
@@ -94,8 +94,7 @@ yaml_load_from_stream(FILE* stream)
     }
 
     /* create doc object and initialise parser */
-    doc = (struct yaml_doc_t*)MALLOC(sizeof *doc);
-    doc->dom = tree;
+    doc = (struct ptree_t*)MALLOC(sizeof *doc);
     list_push(&g_open_docs, doc);
 
     /* clean up */
@@ -106,25 +105,32 @@ yaml_load_from_stream(FILE* stream)
 
 /* ------------------------------------------------------------------------- */
 void
-yaml_destroy(struct yaml_doc_t* doc)
+yaml_destroy(struct ptree_t* doc)
 {
-    ptree_destroy(doc->dom, 1);
+    ptree_destroy(doc, 1);
     list_erase_element(&g_open_docs, doc);
 }
 
 /* ------------------------------------------------------------------------- */
 const char*
-yaml_doc_get_value(struct yaml_doc_t* doc, const char* key)
+yaml_get_value(const struct ptree_t* doc, const char* key)
 {
-    struct ptree_t* node = yaml_doc_get_node(doc, key);
+    struct ptree_t* node = yaml_get_node(doc, key);
     if(node)
         return (const char*)node->value;
     return NULL;
 }
 
 /* ------------------------------------------------------------------------- */
+struct ptree_t*
+yaml_get_node(const struct ptree_t* node, const char* key)
+{
+    return ptree_get_node(node, key);
+}
+
+/* ------------------------------------------------------------------------- */
 uint32_t
-yaml_node_get_hash(const struct ptree_t* node)
+yaml_get_hash(const struct ptree_t* node)
 {
     /*
      * The hash isn't stored in the node itself, but in the map of the parent
@@ -137,20 +143,16 @@ yaml_node_get_hash(const struct ptree_t* node)
 }
 
 /* ------------------------------------------------------------------------- */
-const char*
-yaml_node_get_value(const struct ptree_t* node, const char* key)
+struct ptree_t*
+yaml_set_value(struct ptree_t* doc, const char* key, const char* value)
 {
-    struct ptree_t* target_node = ptree_get_node(node, key);
-    if(target_node)
-        return (const char*)target_node->value;
-    return NULL;
+    
 }
 
 /* ------------------------------------------------------------------------- */
 struct ptree_t*
-yaml_doc_get_node(struct yaml_doc_t* doc, const char* key)
+yaml_destroy_value(struct ptree_t* doc, const char* key)
 {
-    return ptree_get_node(doc->dom, key);
 }
 
 /* ------------------------------------------------------------------------- */

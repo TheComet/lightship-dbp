@@ -14,7 +14,7 @@ static const char* yml_settings = "../../lightship/cfg/settings.yml";
 static const char* yml_settings = "cfg/settings.yml";
 #endif
 
-static struct yaml_doc_t* g_settings_doc;
+static struct ptree_t* g_settings_doc;
 
 typedef void (*start_loop_func)(void);
 
@@ -35,7 +35,7 @@ load_core_plugins(struct game_t* game)
         return 1;
     }
     
-    plugins_node = yaml_doc_get_node(g_settings_doc, "plugins");
+    plugins_node = yaml_get_node(g_settings_doc, "plugins");
     if(!plugins_node)
     {
         llog(LOG_WARNING, game, NULL, 1, "Config file \"", yml_settings, "\" doesn't contain any plugins to load");
