@@ -1,4 +1,3 @@
-#include <stdio.h>
 #include <dlfcn.h>
 #include "util/module_loader.h"
 #include "util/string.h"

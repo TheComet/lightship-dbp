@@ -2,7 +2,6 @@
 #include "util/memory.h"
 #include "util/string.h"
 #include <string.h>
-#include <stdio.h>
 #include <assert.h>
 
 /* ----------------------------------------------------------------------------
@@ -28,7 +27,7 @@ ptree_duplicate_children_into_existing_node_recurse(struct ptree_t* target,
                                                     const struct ptree_t* source);
 
 static struct ptree_t*
-ptree_find_in_tree_recurse(struct ptree_t* tree,
+ptree_find_in_tree_recurse(const struct ptree_t* tree,
                            const char* delim);
 
 static void
@@ -156,12 +155,12 @@ ptree_insert_node_hashed_key(struct ptree_t* node,
 
 /* ------------------------------------------------------------------------- */
 struct ptree_t*
-ptree_get_root(struct ptree_t* node)
+ptree_get_root(const struct ptree_t* node)
 {
     while(node->parent)
         node = node->parent;
 
-    return node;
+    return (struct ptree_t*)node;
 }
 
 /* ------------------------------------------------------------------------- */
@@ -303,7 +302,7 @@ ptree_get_node_in_node(const struct ptree_t* tree, const char* key)
 
 /* ------------------------------------------------------------------------- */
 struct ptree_t*
-ptree_get_node(struct ptree_t* tree, const char* key)
+ptree_get_node(const struct ptree_t* tree, const char* key)
 {
     /* prepare key for tokenisation */
     struct ptree_t* result;
@@ -375,7 +374,7 @@ ptree_destroy_recurse(struct ptree_t* tree, char do_free_value)
 
 /* ------------------------------------------------------------------------- */
 static struct ptree_t*
-ptree_find_in_tree_recurse(struct ptree_t* tree,
+ptree_find_in_tree_recurse(const struct ptree_t* tree,
                            const char* delim)
 {
     /*
@@ -390,7 +389,7 @@ ptree_find_in_tree_recurse(struct ptree_t* tree,
         child = map_find(&tree->children, PTREE_HASH_STRING(token));
         return ptree_find_in_tree_recurse(child, delim);
     } else
-        return tree;
+        return (struct ptree_t*)tree;
 }
 
 /* ------------------------------------------------------------------------- */

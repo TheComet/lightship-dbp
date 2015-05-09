@@ -124,7 +124,7 @@ yaml_destroy(struct yaml_doc_t* doc);
 
 #define YAML_FOR_EACH(doc, node_name, hash, node) {                     \
     struct ptree_t* yaml_internal_##value_node;                         \
-    if((yaml_internal_##value_node = yaml_get_node(doc, node_name))) {  \
+    if((yaml_internal_##value_node = yaml_doc_get_node(doc, node_name))) {  \
         MAP_FOR_EACH(&(yaml_internal_##value_node)->children, struct ptree_t, hash, node) \
 
 #define YAML_END_FOR_EACH }}

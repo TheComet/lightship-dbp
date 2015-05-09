@@ -117,7 +117,7 @@ ptree_insert_node(struct ptree_t* node, struct ptree_t* parent, const char* key)
  * @return Returns the root node of the tree.
  */
 LIGHTSHIP_UTIL_PUBLIC_API struct ptree_t*
-ptree_get_root(struct ptree_t* node);
+ptree_get_root(const struct ptree_t* node);
 
 /*!
  * @brief Specifies a duplication function for a node's data.
@@ -181,7 +181,7 @@ ptree_get_node_in_node(const struct ptree_t* node, const char* key);
  * found, NULL if otherwise.
  */
 LIGHTSHIP_UTIL_PUBLIC_API struct ptree_t*
-ptree_get_node(struct ptree_t* node, const char* key);
+ptree_get_node(const struct ptree_t* node, const char* key);
 
 /*!
  * @brief Searches the tree for the specified node.

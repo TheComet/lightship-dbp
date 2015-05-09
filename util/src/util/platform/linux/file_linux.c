@@ -1,7 +1,6 @@
 #include "util/file.h"
 #include "util/memory.h"
 #include "framework/log.h"
-#include <stdio.h>
 #include <fcntl.h>
 #include <sys/stat.h>
 
@@ -12,7 +11,7 @@ file_load_into_memory(const char* file_name, void** buffer, file_opts_e opts)
     FILE* fp;
     int fd;
     struct stat stbuf;
-    off_t buffer_size;
+    uintptr_t buffer_size;
     
     /* get file pointer */
     if(opts & FILE_BINARY)
@@ -46,7 +45,7 @@ file_load_into_memory(const char* file_name, void** buffer, file_opts_e opts)
     }
     
     /* compute file size */
-    buffer_size = stbuf.st_size;
+    buffer_size = (uintptr_t)stbuf.st_size;
     
     /* allocate buffer to copy into */
     if(opts & FILE_BINARY)

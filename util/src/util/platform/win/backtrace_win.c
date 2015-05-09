@@ -2,7 +2,7 @@
 #include <stdio.h>
 
 char**
-get_backtrace(uint32_t* size )
+get_backtrace(int* size )
 {
     /* TODO */
     fprintf(stderr, "backtraces not implemented on windows\n");

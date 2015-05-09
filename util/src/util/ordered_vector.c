@@ -20,8 +20,8 @@
  * @note No checks are performed to make sure the target size is large enough.
  */
 static void
-ordered_vector_expand(struct ordered_vector_t* vector,
-                      uint32_t insertion_index,
+ordered_vector_expand(struct ordered_vector_t *vector,
+                      int32_t insertion_index,
                       uint32_t target_size);
 
 /* ----------------------------------------------------------------------------
@@ -197,12 +197,12 @@ ordered_vector_erase_index(struct ordered_vector_t* vector, uint32_t index)
 void
 ordered_vector_erase_element(struct ordered_vector_t* vector, void* element)
 {
-    intptr_t last_element = (intptr_t)vector->data + (vector->count-1) * vector->element_size;
+    uintptr_t last_element = (uintptr_t)vector->data + (vector->count-1) * vector->element_size;
     if(element != (void*)last_element)
     {
         memmove(element,    /* target is to overwrite the element */
-                (void*)((intptr_t)element + vector->element_size), /* read everything from next element */
-                last_element - (intptr_t)element);
+                (void*)((uintptr_t)element + vector->element_size), /* read everything from next element */
+                last_element - (uintptr_t)element);
     }
     --vector->count;
 }
@@ -220,8 +220,8 @@ ordered_vector_get_element(struct ordered_vector_t* vector, uint32_t index)
  * Static functions
  * ------------------------------------------------------------------------- */
 static void
-ordered_vector_expand(struct ordered_vector_t* vector,
-                      uint32_t insertion_index,
+ordered_vector_expand(struct ordered_vector_t *vector,
+                      int32_t insertion_index,
                       uint32_t target_count)
 {
     uint32_t new_count;
