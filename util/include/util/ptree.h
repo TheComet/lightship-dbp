@@ -113,6 +113,9 @@ ptree_add_node(struct ptree_t* root, const char* key, void* data);
 LIGHTSHIP_UTIL_PUBLIC_API char
 ptree_set_parent(struct ptree_t* node, struct ptree_t* parent, const char* key);
 
+LIGHTSHIP_UTIL_PUBLIC_API void
+ptree_remove_node(struct ptree_t* root, const char* key);
+
 /*!
  * @brief Recursively traverses the tree and removes any leaves that don't have
  * children and don't have data.

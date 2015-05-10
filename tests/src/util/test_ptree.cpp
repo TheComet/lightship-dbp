@@ -170,15 +170,15 @@ TEST(NAME, add_node_fill_in_missing_middle_nodes)
 
     // root         (a)
     // |_node1      (b)
-    // | |_node2    (null)
-    // | |_node3    (c)
+    // | |_node2    (c)
+    // | |_node3    (null)
     // | | |_node4  (d)
     // | |_node5    (e)
     // |_node6      (null)
     // |_node7      (f)
     struct ptree_t* tree  = ptree_create(&a);
     struct ptree_t* node4 = ptree_add_node(tree, "node1.node3.node4", &d);
-    struct ptree_t* node2 = ptree_add_node(tree, "node1.node2", NULL);
+    struct ptree_t* node2 = ptree_add_node(tree, "node1.node2", &c);
     struct ptree_t* node5 = ptree_add_node(tree, "node1.node5", &e);
     struct ptree_t* node6 = ptree_add_node(tree, "node6", NULL);
     struct ptree_t* node7 = ptree_add_node(tree, "node7", &f);
@@ -187,7 +187,6 @@ TEST(NAME, add_node_fill_in_missing_middle_nodes)
     struct ptree_t* node1 = ptree_get_node(tree, "node1");
     struct ptree_t* node3 = ptree_get_node(tree, "node1.node3");
     node1->value = &b;
-    node3->value = &c;
 
     uint32_t root_hash  = PTREE_HASH_STRING("root");
     uint32_t node1_hash = PTREE_HASH_STRING("node1");
@@ -230,8 +229,8 @@ TEST(NAME, add_node_fill_in_missing_middle_nodes)
     // check values
     EXPECT_THAT((int*)tree->value, Pointee(a));
     EXPECT_THAT((int*)node1->value, Pointee(b));
-    EXPECT_THAT((int*)node2->value, IsNull());
-    EXPECT_THAT((int*)node3->value, Pointee(c));
+    EXPECT_THAT((int*)node2->value, Pointee(c));
+    EXPECT_THAT((int*)node3->value, IsNull());
     EXPECT_THAT((int*)node4->value, Pointee(d));
     EXPECT_THAT((int*)node5->value, Pointee(e));
     EXPECT_THAT((int*)node6->value, IsNull());
@@ -242,7 +241,29 @@ TEST(NAME, add_node_fill_in_missing_middle_nodes)
 
 TEST(NAME, clean_tree)
 {
-    ASSERT_THAT("not implemented", StrEq(""));
+    int a = 3, b = 2, c = 7, d = 4, e = 12, f = 4;
+
+    // root         (a)
+    // |_node1      (b)
+    // | |_node2    (null)
+    // | |_node3    (c)
+    // | | |_node4  (d)
+    // | |_node5    (e)
+    // |_node6      (null)
+    // |_node7      (f)
+    struct ptree_t* tree  = ptree_create(&a);
+    struct ptree_t* node1 = ptree_add_node(tree,  "node1", &b);
+    struct ptree_t* node2 = ptree_add_node(node1, "node2", NULL);
+    struct ptree_t* node3 = ptree_add_node(node1, "node3", &c);
+    struct ptree_t* node4 = ptree_add_node(node3, "node4", &d);
+    struct ptree_t* node5 = ptree_add_node(node1, "node5", &e);
+    struct ptree_t* node6 = ptree_add_node(tree,  "node6", NULL);
+    struct ptree_t* node7 = ptree_add_node(tree,  "node7", &f);
+    
+    /* should return that 2 nodes were cleaned */
+    ASSERT_THAT(ptree_clean(tree), Eq(2));
+    
+    
 }
 
 TEST(NAME, dont_allow_duplicate_keys_in_same_node)

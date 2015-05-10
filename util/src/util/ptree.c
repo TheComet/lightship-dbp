@@ -127,7 +127,7 @@ ptree_add_node_recurse(struct ptree_t* node, char* key, char** saveptr, void* va
         /* key doesn't exist, create */
         if(!(child = ptree_get_node_no_depth(node, key)))
         {
-            if(!(child = ptree_create_node_hashed_key(node, PTREE_HASH_STRING(key), value)))
+            if(!(child = ptree_create_node_hashed_key(node, PTREE_HASH_STRING(key), NULL)))
                 return NULL;
 #ifdef _DEBUG
             child->key = malloc_string(key);
