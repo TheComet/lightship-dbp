@@ -22,7 +22,7 @@ yaml_init(void);
  * @brief De-initialises the yaml parser and cleans up any nodes that weren't
  * closed.
  */
-void
+LIGHTSHIP_UTIL_PUBLIC_API void
 yaml_deinit(void);
 
 /*!
