@@ -68,7 +68,7 @@ ptree_init_ptree(struct ptree_t* tree, void* value);
  * not be freed, and warning messages will be generated.
  */
 LIGHTSHIP_UTIL_PUBLIC_API void
-ptree_destroy(struct ptree_t* tree, char do_free_values);
+ptree_destroy(struct ptree_t* root, char do_free_values);
 
 /*!
  * @brief Destroys an existing ptree, but keeps the root node.
@@ -84,7 +84,7 @@ ptree_destroy(struct ptree_t* tree, char do_free_values);
  * not be freed, and warning messages will be generated.
  */
 LIGHTSHIP_UTIL_PUBLIC_API void
-ptree_destroy_keep_root(struct ptree_t* tree, char do_free_values);
+ptree_destroy_keep_root(struct ptree_t* root, char do_free_values);
 
 /*!
  * @brief Creates a child node and adds it as a child of the specified root
@@ -97,7 +97,7 @@ ptree_destroy_keep_root(struct ptree_t* tree, char do_free_values);
  * @return Returns the newly created child.
  */
 LIGHTSHIP_UTIL_PUBLIC_API struct ptree_t*
-ptree_create_node(struct ptree_t* node, const char* key, void* data);
+ptree_add_node(struct ptree_t* root, const char* key, void* data);
 
 /*!
  * @brief Sets the parent node, effectively merging a tree into part of another
@@ -111,7 +111,15 @@ ptree_create_node(struct ptree_t* node, const char* key, void* data);
  * @param[in] key The key to give the node being merged.
  */
 LIGHTSHIP_UTIL_PUBLIC_API char
-ptree_insert_node(struct ptree_t* node, struct ptree_t* parent, const char* key);
+ptree_set_parent(struct ptree_t* node, struct ptree_t* parent, const char* key);
+
+/*!
+ * @brief Recursively traverses the tree and removes any leaves that don't have
+ * children and don't have data.
+ * @param[in] root The node to recurse from.
+ */
+LIGHTSHIP_UTIL_PUBLIC_API uint32_t
+ptree_clean(struct ptree_t* root);
 
 /*!
  * @brief Finds the root node of the tree, given any node within the tree.
@@ -173,11 +181,11 @@ ptree_duplicate_children_into_existing_node(struct ptree_t* target,
  * found, NULL if otherwise.
  */
 LIGHTSHIP_UTIL_PUBLIC_API struct ptree_t*
-ptree_get_node_in_node(const struct ptree_t* node, const char* key);
+ptree_get_node_no_depth(const struct ptree_t* node, const char* key);
 
 /*!
  * @brief Searches recursively for the specified key. The key can be in the
- * form of ```"path.to.my.node```.
+ * form of ```"path.to.my.node"```.
  * @param[in] node The node from which to begin the search.
  * @param[in] key The key to search for.
  * @return Returns the node associated with the specified key if the key was
@@ -187,10 +195,11 @@ LIGHTSHIP_UTIL_PUBLIC_API struct ptree_t*
 ptree_get_node(const struct ptree_t* node, const char* key);
 
 /*!
- * @brief Searches the tree for the specified node.
+ * @brief Recursively searches the tree to see if the specified node is a child
+ * node.
  *
- * This is used to eliminate loops when inserting by first checking if the node
- * being inserted is already a child of the target node.
+ * This is used to eliminate loops when relocating nodes in the tree by first
+ * checking if the node being inserted is already a child of the target node.
  * @param[in] node The node to search for.
  * @param[in] tree The tree to recursively search in.
  * @return Returns non-zero if the specified node exists in the specified tree.

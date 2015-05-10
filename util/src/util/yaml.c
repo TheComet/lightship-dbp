@@ -208,7 +208,7 @@ yaml_load_into_ptree(struct ptree_t* tree,
                 {
                     /* create child and recurse, setting is_sequence to 1 so
                      * the parser knows to generate sequence keys */
-                    struct ptree_t* child = ptree_create_node(tree, key, NULL);
+                    struct ptree_t* child = ptree_add_node(tree, key, NULL);
                     ptree_set_dup_func(child, (ptree_dup_func)malloc_string);
                     ptree_set_free_func(child, (ptree_free_func)free_string);
                     result = yaml_load_into_ptree(child, root_node, parser, 1);
@@ -238,7 +238,7 @@ yaml_load_into_ptree(struct ptree_t* tree,
                     sprintf(index_str, "%d", sequence_index);
                     ++sequence_index;
 
-                    child = ptree_create_node(tree, index_str, NULL);
+                    child = ptree_add_node(tree, index_str, NULL);
                     ptree_set_dup_func(child, (ptree_dup_func)malloc_string);
                     result = yaml_load_into_ptree(child, root_node, parser, 0);
                     if(!result)
@@ -251,7 +251,7 @@ yaml_load_into_ptree(struct ptree_t* tree,
                  */
                 else if(key)
                 {
-                    struct ptree_t* child = ptree_create_node(tree, key, NULL);
+                    struct ptree_t* child = ptree_add_node(tree, key, NULL);
                     ptree_set_dup_func(child, (ptree_dup_func)malloc_string);
                     result = yaml_load_into_ptree(child, root_node, parser, 0);
                     free_string(key);
@@ -316,7 +316,7 @@ yaml_load_into_ptree(struct ptree_t* tree,
                         break;
                     }
                     sprintf(index, "%d", sequence_index);
-                    child = ptree_create_node(tree, index, malloc_string((char*)event.data.scalar.value));
+                    child = ptree_add_node(tree, index, malloc_string((char*)event.data.scalar.value));
                     ptree_set_dup_func(child, (ptree_dup_func)malloc_string);
                     ++sequence_index;
                 }
@@ -324,7 +324,7 @@ yaml_load_into_ptree(struct ptree_t* tree,
                 {
                     if(key)
                     {
-                        struct ptree_t* child = ptree_create_node(tree, key, malloc_string((char*)event.data.scalar.value));
+                        struct ptree_t* child = ptree_add_node(tree, key, malloc_string((char*)event.data.scalar.value));
                         ptree_set_dup_func(child, (ptree_dup_func)malloc_string);
                         free_string(key);
                         key = NULL;

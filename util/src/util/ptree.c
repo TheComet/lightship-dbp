@@ -4,6 +4,8 @@
 #include <string.h>
 #include <assert.h>
 
+static const char* node_delim = ".";
+
 /* ----------------------------------------------------------------------------
  * Static functions
  * ------------------------------------------------------------------------- */
@@ -19,6 +21,10 @@ ptree_insert_node_hashed_key(struct ptree_t* node,
                             struct ptree_t* parent,
                             uint32_t hash);
 
+
+static struct ptree_t*
+ptree_add_node_recurse(struct ptree_t* node, char* key, char** saveptr, void* value);
+
 static void
 ptree_destroy_recurse(struct ptree_t* tree, char do_free_value);
 
@@ -27,8 +33,7 @@ ptree_duplicate_children_into_existing_node_recurse(struct ptree_t* target,
                                                     const struct ptree_t* source);
 
 static struct ptree_t*
-ptree_find_in_tree_recurse(const struct ptree_t* tree,
-                           const char* delim);
+ptree_find_in_tree_recurse(const struct ptree_t* tree);
 
 static void
 ptree_print_impl(const struct ptree_t* tree, uint32_t depth);
@@ -87,18 +92,61 @@ ptree_destroy_keep_root(struct ptree_t* tree, char do_free_values)
 
 /* ------------------------------------------------------------------------- */
 struct ptree_t*
-ptree_create_node(struct ptree_t* tree, const char* key, void* value)
+ptree_add_node(struct ptree_t* root, const char* key, void* value)
 {
-    
-    struct ptree_t* child;
-    if(!(child = ptree_create_node_hashed_key(tree, PTREE_HASH_STRING(key), value)))
+    /* prepare for tokenisation */
+    struct ptree_t* node;
+    char* saveptr;
+    char* key_tok = malloc_string(key);
+
+    if(!(node = ptree_add_node_recurse(root,
+                                       strtok_r(key_tok, node_delim, &saveptr),
+                                       &saveptr,
+                                       value)))
         return NULL;
 
-#ifdef _DEBUG
-    child->key = malloc_string(key);
-#endif
+    free_string(key_tok);
 
-    return child;
+    return node;
+}
+
+static struct ptree_t*
+ptree_add_node_recurse(struct ptree_t* node, char* key, char** saveptr, void* value)
+{
+    /*
+     * Get next token, hash, and add it as a child of the current node.
+     */
+    char* child_key;
+    struct ptree_t* child;
+    if((child_key = strtok_r(NULL, node_delim, saveptr))) /* we haven't reached the last
+                                                * node yet, create any middle
+                                                * nodes if they don't exist
+                                                * yet, or get the current
+                                                * middle node and recurse */
+    {
+        /* key doesn't exist, create */
+        if(!(child = ptree_get_node_no_depth(node, key)))
+        {
+            if(!(child = ptree_create_node_hashed_key(node, PTREE_HASH_STRING(key), value)))
+                return NULL;
+#ifdef _DEBUG
+            child->key = malloc_string(key);
+#endif
+        }
+        
+        /* continue with child node */
+        return ptree_add_node_recurse(child, child_key, saveptr, value);
+    }
+    else /* this is the last node to create, if it already exists we return
+          * NULL */
+    {
+        if(!(child = ptree_create_node_hashed_key(node, PTREE_HASH_STRING(key), value)))
+            return NULL;
+#ifdef _DEBUG
+        child->key = malloc_string(key);
+#endif
+        return child;
+    }
 }
 
 /* ------------------------------------------------------------------------- */
@@ -106,18 +154,18 @@ static struct ptree_t*
 ptree_create_node_hashed_key(struct ptree_t* tree, uint32_t hash, void* value)
 {
     struct ptree_t* child = (struct ptree_t*)MALLOC(sizeof(struct ptree_t));
-    ptree_init_node(child, tree, value);
     if(!map_insert(&tree->children, hash, child))
     {
         FREE(child);
         return NULL;
     }
+    ptree_init_node(child, tree, value);
     return child;
 }
 
 /* ------------------------------------------------------------------------- */
 char
-ptree_insert_node(struct ptree_t* node, struct ptree_t* parent, const char* key)
+ptree_set_parent(struct ptree_t* node, struct ptree_t* parent, const char* key)
 {
     if(!ptree_insert_node_hashed_key(node, parent, PTREE_HASH_STRING(key)))
         return 0;
@@ -129,6 +177,13 @@ ptree_insert_node(struct ptree_t* node, struct ptree_t* parent, const char* key)
 #endif
 
     return 1;
+}
+
+/* ------------------------------------------------------------------------- */
+uint32_t
+ptree_clean(struct ptree_t* root)
+{
+    
 }
 
 /* ------------------------------------------------------------------------- */
@@ -296,7 +351,7 @@ ptree_duplicate_children_into_existing_node_recurse(struct ptree_t* target,
 
 /* ------------------------------------------------------------------------- */
 struct ptree_t*
-ptree_get_node_in_node(const struct ptree_t* tree, const char* key)
+ptree_get_node_no_depth(const struct ptree_t* tree, const char* key)
 {
     return map_find(&tree->children, PTREE_HASH_STRING(key));
 }
@@ -307,11 +362,10 @@ ptree_get_node(const struct ptree_t* tree, const char* key)
 {
     /* prepare key for tokenisation */
     struct ptree_t* result;
-    const char* delim = ".";
     char* key_iter = cat_strings(2, "n.", key); /* root key name is ignored, but must exist */
-    strtok(key_iter, delim);
+    strtok(key_iter, node_delim);
 
-    result = ptree_find_in_tree_recurse(tree, delim);
+    result = ptree_find_in_tree_recurse(tree);
     free_string(key_iter);
     return result;
 }
@@ -375,8 +429,7 @@ ptree_destroy_recurse(struct ptree_t* tree, char do_free_value)
 
 /* ------------------------------------------------------------------------- */
 static struct ptree_t*
-ptree_find_in_tree_recurse(const struct ptree_t* tree,
-                           const char* delim)
+ptree_find_in_tree_recurse(const struct ptree_t* tree)
 {
     /*
      * Get next token, hash, and search in current node. If the tree is NULL
@@ -384,11 +437,11 @@ ptree_find_in_tree_recurse(const struct ptree_t* tree,
      * for.
      */
     char* token;
-    if((token = strtok(NULL, delim)) && tree)
+    if((token = strtok(NULL, node_delim)) && tree)
     {
         struct ptree_t* child;
         child = map_find(&tree->children, PTREE_HASH_STRING(token));
-        return ptree_find_in_tree_recurse(child, delim);
+        return ptree_find_in_tree_recurse(child);
     } else
         return (struct ptree_t*)tree;
 }
