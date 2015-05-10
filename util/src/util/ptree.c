@@ -99,11 +99,10 @@ ptree_add_node(struct ptree_t* root, const char* key, void* value)
     char* saveptr;
     char* key_tok = malloc_string(key);
 
-    if(!(node = ptree_add_node_recurse(root,
-                                       strtok_r(key_tok, node_delim, &saveptr),
-                                       &saveptr,
-                                       value)))
-        return NULL;
+    node = ptree_add_node_recurse(root,
+                                  strtok_r(key_tok, node_delim, &saveptr),
+                                  &saveptr,
+                                  value);
 
     free_string(key_tok);
 
@@ -124,7 +123,7 @@ ptree_add_node_recurse(struct ptree_t* node, char* key, char** saveptr, void* va
                                                 * yet, or get the current
                                                 * middle node and recurse */
     {
-        /* key doesn't exist, create */
+        /* node doesn't exist, create */
         if(!(child = ptree_get_node_no_depth(node, key)))
         {
             if(!(child = ptree_create_node_hashed_key(node, PTREE_HASH_STRING(key), NULL)))
@@ -133,7 +132,7 @@ ptree_add_node_recurse(struct ptree_t* node, char* key, char** saveptr, void* va
             child->key = malloc_string(key);
 #endif
         }
-        
+
         /* continue with child node */
         return ptree_add_node_recurse(child, child_key, saveptr, value);
     }
@@ -180,10 +179,37 @@ ptree_set_parent(struct ptree_t* node, struct ptree_t* parent, const char* key)
 }
 
 /* ------------------------------------------------------------------------- */
+void
+ptree_remove_node(struct ptree_t* root, const char* key)
+{
+    struct ptree_t* node = ptree_get_node(root, key);
+    ptree_destroy(node, 1);
+    ptree_clean(root);
+}
+
+/* ------------------------------------------------------------------------- */
 uint32_t
 ptree_clean(struct ptree_t* root)
 {
-    
+    uint32_t count = 0;
+
+    MAP_FOR_EACH(&root->children, struct ptree_t, key, child)
+    {
+        count += ptree_clean(child);
+        if(map_count(&child->children) == 0 && child->value == NULL)
+        {
+#ifdef _DEBUG
+            free_string(child->key);
+#endif
+            map_clear_free(&child->children);
+            FREE(child);
+            MAP_ERASE_CURRENT_ITEM_IN_FOR_LOOP(&root->children);
+
+            ++count;
+        }
+    }
+
+    return count;
 }
 
 /* ------------------------------------------------------------------------- */
