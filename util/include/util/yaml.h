@@ -4,6 +4,8 @@
 
 #include "util/pstdint.h"
 #include "util/config.h"
+#include "util/map.h"
+#include "util/unordered_vector.h"
 
 C_HEADER_BEGIN
 
@@ -113,13 +115,17 @@ yaml_set_value(struct ptree_t* node, const char* key, const char* value);
 LIGHTSHIP_UTIL_PUBLIC_API struct ptree_t*
 yaml_destroy_value(struct ptree_t* node, const char* key);
 
-#define YAML_FOR_EACH(node, node_key, hash, node_iter) {                \
-    struct ptree_t* yaml_internal_##value_node;                         \
-    if((yaml_internal_##value_node = yaml_get_node(node, node_key))) {  \
-        MAP_FOR_EACH(&(yaml_internal_##value_node)->children, struct ptree_t, hash, node_iter) \
+#define YAML_FOR_EACH(m_root, m_key, m_hash_var, m_node_var) {                  \
+    struct ptree_t* yaml_internal_##m_root_node;                                \
+    if((yaml_internal_##m_root_node = yaml_get_node(m_root, m_key))) {          \
+        MAP_FOR_EACH(&(yaml_internal_##m_root_node)->children,                  \
+                     struct ptree_t,                                            \
+                     m_hash_var,                                                \
+                     m_node_var)
+
 
 #define YAML_END_FOR_EACH }}
 
-#define YAML_END_FOR_EACH_IF_FAILED } else
+#define YAML_END_FOR_EACH_IF_FAILED }}} else {
 
 C_HEADER_END
