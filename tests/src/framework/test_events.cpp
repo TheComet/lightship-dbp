@@ -2,9 +2,10 @@
 #include "framework/events.h"
 #include "framework/services.h"
 #include "framework/plugin_api.h"
+#include "framework/game.h"
 
 #define NAME events
-/*
+
 struct NAME : public testing::Test
 {
     NAME()
@@ -22,21 +23,21 @@ struct NAME : public testing::Test
         plugin_obj.init = NULL;
         plugin_obj.start = NULL;
         plugin_obj.stop = NULL;
-        
+
         plugin = &plugin_obj;
     }
 
     virtual void SetUp()
     {
-        services_init();
-        events_init();
+        game = game_create("test_game", GAME_HOST);
     }
-    
+
     virtual void TearDown()
     {
-        events_deinit();
-        services_deinit();
+        game_destroy(game);
     }
+
+    struct game_t* game;
     struct plugin_t* plugin;
 private:
     struct plugin_t plugin_obj;
@@ -44,9 +45,9 @@ private:
 
 TEST_F(NAME, create_event_inits_correctly)
 {
-    struct event_t* event = event_create(plugin, "event");
+    struct event_t* event = event_create(game, "test.event");
 
-    ASSERT_EQ(0, strcmp("test.event", event->name));
+    ASSERT_EQ(0, strcmp("test.event", event->directory));
     ASSERT_EQ(0, event->listeners.capacity);
     ASSERT_EQ(0, event->listeners.count);
     ASSERT_EQ(sizeof(struct event_listener_t), event->listeners.element_size);
@@ -66,12 +67,12 @@ EVENT_LISTENER0(listener2) { g_listener_triggered_2 = 1; }
 TEST_F(NAME, listeners_can_be_registered_froplugin_obj)
 {
     struct event_t* event = event_create(plugin, "event");
-    
+
     event_register_listener(plugin, "test.event", (event_callback_func)listener1);
     ASSERT_EQ(1, event->listeners.count);
     event_register_listener(plugin, "test.event", (event_callback_func)listener2);
     ASSERT_EQ(2, event->listeners.count);
-    
+
     struct event_listener_t* listeners = (struct event_listener_t*)event->listeners.data;
     ASSERT_EQ(0, strcmp("test.", listeners[0].name_space));
     ASSERT_EQ((void*)listener1, (void*)listeners[0].exec);
@@ -89,10 +90,9 @@ TEST_F(NAME, listeners_receive_events_when_fired)
 
     g_listener_triggered_1 = 0; g_listener_triggered_2 = 0;
     EVENT_FIRE0(evt_1);
-    
+
     ASSERT_EQ(1, g_listener_triggered_1);
     ASSERT_EQ(1, g_listener_triggered_2);
-    
+
     event_destroy(evt_1);
 }
-*/

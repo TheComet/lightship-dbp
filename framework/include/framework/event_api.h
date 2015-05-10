@@ -21,7 +21,7 @@ typedef void (*event_callback_func)();
 /*!
  * @brief Helper macro for creating listener functions with up to 4 receiving
  * function parameters.
- * 
+ *
  * You can use this for function prototypes as well as function definitions.
  * Example:
 @code
@@ -63,7 +63,7 @@ EVENT_LISTENER1(on_event, int arg)
 #define EVENT_LISTENER_TYPEDEF4(name, arg1, arg2, arg3, arg4) \
     typedef void (*name)(const struct event_t*, arg1, arg2, arg3, arg4);
 
-/* 
+/*
  * see issue #14
  * When compiling with C++, let a call to cppexec delegate the call to exec.
  * When compiling with C89, call exec directly.
@@ -99,7 +99,7 @@ EVENT_LISTENER1(on_event, int arg)
 #   define IF_EVENT_VALID(event) \
                 if((event)) {
 
-/* 
+/*
  * This is the closure of the IF_EVENT_VALID condition, which will print
  * the stacktrace.
  */
@@ -298,13 +298,13 @@ EVENT_C(evt_foo, args...);
 #define EVENT_C4(event, arg1_t, arg2_t, arg3_t, arg4_t)                     \
     struct event_t* event = (struct event_t*)0;                             \
     EVENT_GEN_DUMMY_FUNCTION_DEF4(event, arg1_t, arg2_t, arg3_t, arg4_t)
-    
+
 C_HEADER_END
 
 struct event_t
 {
     struct game_t* game;
-    char* name;
+    char* directory;
     struct unordered_vector_t listeners; /* holds event_listener_t objects */
 };
 

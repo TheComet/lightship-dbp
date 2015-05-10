@@ -1,10 +1,10 @@
 /*!
- * @file events.h 
+ * @file events.h
  * @addtogroup events_and_services Events and Services
  * @page events Events Explained
  * @brief Communication within and between plugins.
  * @{
- * 
+ *
  * Basic Idea
  * ----------
  * Events are the main mechanism for a plugin to communicate with other
@@ -14,48 +14,48 @@
  * I'm doing X just in case anyone is interested!* Whether or not something
  * else actually hears the cry is another matter, but the important thing is
  * you got the word out.
- * 
+ *
  * Events are registered in a global directory inside the host program using
  * the plugin name as a namespace for events it registers. So if a plugin with
  * the name **foo** were to register an event with the name **bar**, then the
  * event would be globally known as **foo.bar**.
- * 
+ *
  * Defining Events
  * ------------------
  * Every action that should be acted upon can and should be declared as an
  * event.
- * 
+ *
  * Events are statically defined in the **events.c** and **events.h** files.
  * Because your events are going to be used in other source files, you have to
  * define each event once in a source file and again in a header file, but
  * extern.
- * 
+ *
  * For instance, if your plugin has an event that should make the player jump
  * and another event that should make the player run, they are defined as:
- * 
+ *
  * **events.h:**
 @code
 EVENT_H(evt_jump)
 EVENT_H(evt_run)
 @endcode
- * 
+ *
  * **events.c:**
 @code
 EVENT_C(evt_jump)
 EVENT_C(evt_run)
 @endcode
- * 
+ *
  * **EVENT_H** is a helper macro to declare an extern variable for the
  * specified event. **EVENT_C** is a helper macro for defining and initialising
  * the same variable.
- * 
+ *
  * Registering Events
  * ------------------
  * Now that the events are defined they must be registered with the host
  * program. It is very important to **register all events during PLUGIN_INIT()**.
  * The reason for this is that other plugins will be looking for your events
  * immediately after your plugin is initialised.
- * 
+ *
  * Events are registered by calling event_create(). The return struct should be
  * stored in the event variables defined earlier. Again, the sample with run
  * and jump:
@@ -91,7 +91,7 @@ EVENT_LISTENER0(on_player_jump)
 <during or after PLUGIN_START()>
 event_register_listener(plugin, "plugin_name.jump", on_player_jump);
 @endcode
- * 
+ *
  * See event_register_listener() for more information.
  */
 
@@ -129,15 +129,15 @@ events_deinit(struct game_t* game);
 
 /*!
  * @brief Creates and registers a new event in the host program.
- * 
+ *
  * @param[in] plugin The plugin object this event belongs to.
- * @param[in] name The name of the event. Should be unique plugin-wide.
+ * @param[in] directory The name of the event. Should be unique plugin-wide.
  * @note The name string is copied to an internal buffer, so you are free to
  * delete it when it is no longer used.
  * @return Returns a new event object which should be stored by the plugin.
  */
 FRAMEWORK_PUBLIC_API struct event_t*
-event_create(struct game_t* game, const char* name);
+event_create(struct game_t* game, const char* directory);
 
 /*!
  * @brief Destroys an event object.
@@ -163,7 +163,7 @@ event_destroy_all_matching(const char* pattern);
  * event object is returned.
  */
 FRAMEWORK_PUBLIC_API struct event_t*
-event_get(const struct game_t* game, const char* name);
+event_get(const struct game_t* game, const char* directory);
 
 /*!
  * @brief Registers a listener to the specified event.
@@ -173,7 +173,7 @@ event_get(const struct game_t* game, const char* name);
  */
 FRAMEWORK_PUBLIC_API char
 event_register_listener(const struct game_t* game,
-                        const char* event_name,
+                        const char* event_directory,
                         event_callback_func callback);
 
 /*!
@@ -181,7 +181,7 @@ event_register_listener(const struct game_t* game,
  */
 FRAMEWORK_PUBLIC_API char
 event_unregister_listener(const struct game_t* game,
-                          const char* event_name,
+                          const char* event_directory,
                           event_callback_func callback);
 
 /*!

@@ -51,17 +51,6 @@ event_free(struct event_t* event);
 static void
 event_listener_free_contents(struct event_listener_t* listener);
 
-/*!
- * @brief Allocates and registers an event globally with the specified name.
- * @note No checks for duplicates are performed. This is an internal function.
- * @param[in] full_name The full name of the event.
- * @note The event object owns **full_name** after this call and will free it
- * when the event is destroyed.
- * @return The new event object.
- */
-static struct event_t*
-event_malloc_and_register(struct game_t* game, char* full_name);
-
 /* ----------------------------------------------------------------------------
  * Exported functions
  * ------------------------------------------------------------------------- */
@@ -82,15 +71,14 @@ events_init(struct game_t* game)
         /*
          * Define a macro, so I don't have to type that much.
          * This will register an event to the "game" object with the specified
-         * name, and save the returned event object into game->event.(name).
+         * name, and save the returned event object into game->event.(name). If
+         * anything fails, break is called.
          */
 #define STR_(x) #x
 #define STR(x) STR_(x)
 #define REGISTER_BUILT_IN_EVENT(name) {                             \
-            char* name_str;                                         \
-            if(!(name_str = malloc_string(STR(name)))) break;       \
-            if(!(game->event.name =                                 \
-                event_malloc_and_register(game, name_str))) break; }
+            if(!(game->event.name = event_create(game, STR(name)))) \
+                break; }
 
         REGISTER_BUILT_IN_EVENT(start)
         REGISTER_BUILT_IN_EVENT(pause)
@@ -127,14 +115,24 @@ events_deinit(struct game_t* game)
 
 /* ------------------------------------------------------------------------- */
 struct event_t*
-event_create(struct game_t* game, const char* name)
+event_create(struct game_t* game, const char* directory)
 {
+    struct ptree_t* node;
 
-    /* check for duplicate event names */
-    if(event_get(game, name))
+    /* create node in global event directory */
+    if(!(node = ptree_add_node(&game->events, directory, NULL)))
         return NULL;
 
-    return event_malloc_and_register(game, malloc_string(name));
+    /* allocate and initialise event object, and add it to the directory */
+    struct event_t* event = (struct event_t*)MALLOC(sizeof(struct event_t));
+    if(!event)
+        OUT_OF_MEMORY("event_malloc_and_register()", NULL);
+    event->directory = malloc_string(directory);
+    event->game = game;
+    unordered_vector_init_vector(&event->listeners, sizeof(struct event_listener_t));
+    node->value = event;
+
+    return event;
 }
 
 /* ------------------------------------------------------------------------- */
@@ -142,6 +140,8 @@ void
 event_destroy(struct event_t* event)
 {
     assert(event);
+
+    ptree_remove_node(&event->game->events, event->directory);
 
     if(!map_erase_element(&event->game->events, event))
         llog(LOG_WARNING, event->game, NULL, 1, "Destroying an event that"
@@ -249,27 +249,6 @@ event_unregister_all_listeners(struct event_t* event)
 /* ----------------------------------------------------------------------------
  * Static functions
  * ------------------------------------------------------------------------- */
-static struct event_t*
-event_malloc_and_register(struct game_t* game, char* full_name)
-{
-    struct event_t* event;
-    uint32_t hash;
-
-    /* create new event and register to global list of events */
-    event = (struct event_t*)MALLOC(sizeof(struct event_t));
-    if(!event)
-        OUT_OF_MEMORY("event_malloc_and_register()", NULL);
-    event->name = full_name;
-    event->game = game;
-    unordered_vector_init_vector(&event->listeners, sizeof(struct event_listener_t));
-
-    /* add event to game object */
-    hash = hash_jenkins_oaat(full_name, strlen(full_name));
-    map_insert(&game->events, hash, event);
-    return event;
-}
-
-/* ------------------------------------------------------------------------- */
 static void
 event_unregister_all_listeners_of_name_space(struct event_t* event,
                                              const char* name_space)
@@ -306,7 +285,7 @@ static void
 event_free(struct event_t* event)
 {
     event_unregister_all_listeners(event);
-    free_string(event->name);
+    free_string(event->directory);
     unordered_vector_clear_free(&event->listeners);
     FREE(event);
 }
