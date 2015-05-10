@@ -212,9 +212,9 @@ load_plugins_from_yaml_dom(struct game_t* game, const struct ptree_t* plugins_no
             char* policy_str;
             
             /* extract information from tree */
-            const struct ptree_t* name = ptree_get_node_in_node(child, "name");
-            const struct ptree_t* version = ptree_get_node_in_node(child, "version");
-            const struct ptree_t* policy = ptree_get_node_in_node(child, "version_policy");
+            const struct ptree_t* name = ptree_get_node_no_depth(child, "name");
+            const struct ptree_t* version = ptree_get_node_no_depth(child, "version");
+            const struct ptree_t* policy = ptree_get_node_no_depth(child, "version_policy");
             if(!name)
             {
                 llog(LOG_ERROR, game, NULL, 1, "Key \"name\" isn't defined for plugin");
