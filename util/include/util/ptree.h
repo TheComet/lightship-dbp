@@ -32,10 +32,10 @@ struct ptree_t
     char* key;
 #endif
     void* value;
-    struct map_t children;
     struct ptree_t* parent;
     ptree_dup_func dup_value;
     ptree_free_func free_value;
+    struct map_t children;
 };
 
 /*!
