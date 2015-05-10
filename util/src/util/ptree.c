@@ -14,10 +14,10 @@ static void
 ptree_init_node(struct ptree_t* node, struct ptree_t* parent, void* value);
 
 static struct ptree_t*
-ptree_create_node_hashed_key(struct ptree_t* tree, uint32_t hash, void* value);
+ptree_add_node_hashed_key(struct ptree_t* tree, uint32_t hash, void* value);
 
 static char
-ptree_insert_node_hashed_key(struct ptree_t* node,
+ptree_set_parent_hashed_key(struct ptree_t* node,
                             struct ptree_t* parent,
                             uint32_t hash);
 
@@ -41,6 +41,10 @@ ptree_print_impl(const struct ptree_t* tree, uint32_t depth);
 /* ----------------------------------------------------------------------------
  * Exported functions
  * ------------------------------------------------------------------------- */
+/*
+ * Allocates a new root node with the key name "root". This function will
+ * call ptree_init_ptree() to initialise the node.
+ */
 struct ptree_t*
 ptree_create(void* value)
 {
@@ -50,6 +54,10 @@ ptree_create(void* value)
 }
 
 /* ------------------------------------------------------------------------- */
+/*
+ * Initialises an already allocated root node and gives it the name "root".
+ * This function will call ptree_init_node() to initialise the node.
+ */
 void
 ptree_init_ptree(struct ptree_t* tree, void* value)
 {
@@ -61,6 +69,10 @@ ptree_init_ptree(struct ptree_t* tree, void* value)
 }
 
 /* ------------------------------------------------------------------------- */
+/*
+ * Initialises an existing node by setting its value, its parent, and
+ * initialising its container for future children.
+ */
 static void
 ptree_init_node(struct ptree_t* node, struct ptree_t* parent, void* value)
 {
@@ -71,6 +83,10 @@ ptree_init_node(struct ptree_t* node, struct ptree_t* parent, void* value)
 }
 
 /* ------------------------------------------------------------------------- */
+/*
+ * Recursively destroys all nodes of a given root node, then de-allocates that
+ * root node.
+ */
 void
 ptree_destroy(struct ptree_t* tree, char do_free_values)
 {
@@ -79,6 +95,11 @@ ptree_destroy(struct ptree_t* tree, char do_free_values)
 }
 
 /* ------------------------------------------------------------------------- */
+/*
+ * Recursively destroys all nodes of a given root node, and also de-allocates
+ * the root node's key and child container. You must use ptree_init_ptree() on
+ * the node again before being able to re-use it as a new ptree.
+ */
 void
 ptree_destroy_keep_root(struct ptree_t* tree, char do_free_values)
 {
@@ -91,6 +112,10 @@ ptree_destroy_keep_root(struct ptree_t* tree, char do_free_values)
 }
 
 /* ------------------------------------------------------------------------- */
+/*
+ * Adds a node to the given node, potentially filling in any missing middle
+ * nodes. This function calls ptree_add_node_recurse()->
+ */
 struct ptree_t*
 ptree_add_node(struct ptree_t* root, const char* key, void* value)
 {
@@ -126,7 +151,7 @@ ptree_add_node_recurse(struct ptree_t* node, char* key, char** saveptr, void* va
         /* node doesn't exist, create */
         if(!(child = ptree_get_node_no_depth(node, key)))
         {
-            if(!(child = ptree_create_node_hashed_key(node, PTREE_HASH_STRING(key), NULL)))
+            if(!(child = ptree_add_node_hashed_key(node, PTREE_HASH_STRING(key), NULL)))
                 return NULL;
 #ifdef _DEBUG
             child->key = malloc_string(key);
@@ -139,7 +164,7 @@ ptree_add_node_recurse(struct ptree_t* node, char* key, char** saveptr, void* va
     else /* this is the last node to create, if it already exists we return
           * NULL */
     {
-        if(!(child = ptree_create_node_hashed_key(node, PTREE_HASH_STRING(key), value)))
+        if(!(child = ptree_add_node_hashed_key(node, PTREE_HASH_STRING(key), value)))
             return NULL;
 #ifdef _DEBUG
         child->key = malloc_string(key);
@@ -149,8 +174,12 @@ ptree_add_node_recurse(struct ptree_t* node, char* key, char** saveptr, void* va
 }
 
 /* ------------------------------------------------------------------------- */
+/*
+ * This is used to add a node to a given tree. All functions that in any way
+ * add a node will eventually call this.
+ */
 static struct ptree_t*
-ptree_create_node_hashed_key(struct ptree_t* tree, uint32_t hash, void* value)
+ptree_add_node_hashed_key(struct ptree_t* tree, uint32_t hash, void* value)
 {
     struct ptree_t* child = (struct ptree_t*)MALLOC(sizeof(struct ptree_t));
     if(!map_insert(&tree->children, hash, child))
@@ -166,7 +195,7 @@ ptree_create_node_hashed_key(struct ptree_t* tree, uint32_t hash, void* value)
 char
 ptree_set_parent(struct ptree_t* node, struct ptree_t* parent, const char* key)
 {
-    if(!ptree_insert_node_hashed_key(node, parent, PTREE_HASH_STRING(key)))
+    if(!ptree_set_parent_hashed_key(node, parent, PTREE_HASH_STRING(key)))
         return 0;
 
 #ifdef _DEBUG
@@ -214,7 +243,7 @@ ptree_clean(struct ptree_t* root)
 
 /* ------------------------------------------------------------------------- */
 static char
-ptree_insert_node_hashed_key(struct ptree_t* node,
+ptree_set_parent_hashed_key(struct ptree_t* node,
                             struct ptree_t* target,
                             uint32_t hash)
 {
@@ -366,7 +395,7 @@ ptree_duplicate_children_into_existing_node_recurse(struct ptree_t* target,
     { MAP_FOR_EACH(&source->children, struct ptree_t, key, node)
     {
         struct ptree_t* child;
-        if(!(child = ptree_create_node_hashed_key(target, key, NULL)))
+        if(!(child = ptree_add_node_hashed_key(target, key, NULL)))
             return 0;  /* duplicate key error */
         if(!ptree_duplicate_children_into_existing_node_recurse(child, node))
             return 0;  /* some other error, propagate */
