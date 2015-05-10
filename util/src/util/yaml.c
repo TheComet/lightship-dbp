@@ -97,7 +97,7 @@ yaml_load_from_stream(FILE* stream)
     if(!yaml_init_node(doc) || !yaml_load_into_ptree(doc, doc, &parser, 0))
     {
         yaml_parser_delete(&parser);
-        ptree_destroy(doc, 0);
+        ptree_destroy(doc);
         fprintf(stderr, "Syntax error: Failed to parse YAML.");
         return 0;
     }
@@ -115,7 +115,7 @@ yaml_load_from_stream(FILE* stream)
 void
 yaml_destroy(struct ptree_t* doc)
 {
-    ptree_destroy(doc, 1);
+    ptree_destroy(doc);
     list_erase_element(&g_open_docs, doc);
 }
 

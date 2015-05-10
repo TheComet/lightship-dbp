@@ -26,7 +26,7 @@ static struct ptree_t*
 ptree_add_node_recurse(struct ptree_t* node, char* key, char** saveptr, void* value);
 
 static void
-ptree_destroy_recurse(struct ptree_t* tree, char do_free_value);
+ptree_destroy_recurse(struct ptree_t* tree);
 
 static char
 ptree_duplicate_children_into_existing_node_recurse(struct ptree_t* target,
@@ -88,9 +88,9 @@ ptree_init_node(struct ptree_t* node, struct ptree_t* parent, void* value)
  * root node.
  */
 void
-ptree_destroy(struct ptree_t* tree, char do_free_values)
+ptree_destroy(struct ptree_t* tree)
 {
-    ptree_destroy_keep_root(tree, do_free_values);
+    ptree_destroy_keep_root(tree);
     FREE(tree);
 }
 
@@ -101,14 +101,14 @@ ptree_destroy(struct ptree_t* tree, char do_free_values)
  * the node again before being able to re-use it as a new ptree.
  */
 void
-ptree_destroy_keep_root(struct ptree_t* tree, char do_free_values)
+ptree_destroy_keep_root(struct ptree_t* tree)
 {
     /* if tree has parent, detach */
     if(tree->parent)
         map_erase_element(&tree->parent->children, tree);
 
     /* destroy detached node */
-    ptree_destroy_recurse(tree, do_free_values);
+    ptree_destroy_recurse(tree);
 }
 
 /* ------------------------------------------------------------------------- */
@@ -208,12 +208,15 @@ ptree_set_parent(struct ptree_t* node, struct ptree_t* parent, const char* key)
 }
 
 /* ------------------------------------------------------------------------- */
-void
+char
 ptree_remove_node(struct ptree_t* root, const char* key)
 {
-    struct ptree_t* node = ptree_get_node(root, key);
-    ptree_destroy(node, 1);
+    struct ptree_t* node;
+    if(!(node = ptree_get_node(root, key)))
+        return 0;
+    ptree_destroy(node);
     ptree_clean(root);
+    return 1;
 }
 
 /* ------------------------------------------------------------------------- */
@@ -303,7 +306,7 @@ ptree_duplicate_tree(const struct ptree_t* source_node)
     if(!ptree_duplicate_children_into_existing_node_recurse(new_root, source_node))
     {
         /* recursively free all nodes and values and return error */
-        ptree_destroy(new_root, 1);
+        ptree_destroy(new_root);
         return NULL;
     }
 
@@ -319,24 +322,29 @@ ptree_duplicate_children_into_existing_node(struct ptree_t* target,
      * In order to avoid circular copying, store all copied children in a
      * temporary map before inserting them into the actual target tree.
      */
-    struct ptree_t temp_tree;
-    ptree_init_ptree(&temp_tree, NULL);
+    struct map_t temp;
+    map_init_map(&temp);
     { MAP_FOR_EACH(&source->children, struct ptree_t, hash, node)
     {
         struct ptree_t* child = ptree_duplicate_tree(node);
         if(!child)
         {
-            ptree_destroy_keep_root(&temp_tree, 1);
+            /* destroy temp nodes and clean up */
+            MAP_FOR_EACH(&temp, struct ptree_t, h, dirty_node)
+            {
+                ptree_destroy(dirty_node);
+            }
+            map_clear_free(&temp);
             return 0;
         }
-        map_insert(&temp_tree.children, hash, child);
+        map_insert(&temp, hash, child);
     }}
 
     /*
      * Free to insert children of temp tree into target node. No need to check
      * for cycles, they aren't possible.
      */
-    { MAP_FOR_EACH(&temp_tree.children, struct ptree_t, hash, node)
+    { MAP_FOR_EACH(&temp, struct ptree_t, hash, node)
     {
         node->parent = target;
 
@@ -345,7 +353,7 @@ ptree_duplicate_children_into_existing_node(struct ptree_t* target,
          */
         if(!map_insert(&target->children, hash, node))
         {
-            MAP_FOR_EACH(&temp_tree.children, struct ptree_t, h, dirty_node)
+            MAP_FOR_EACH(&temp, struct ptree_t, h, dirty_node)
             {
                 if(node == dirty_node)
                     break;
@@ -353,17 +361,17 @@ ptree_duplicate_children_into_existing_node(struct ptree_t* target,
                 assert(dirty_node == map_erase(&target->children, h));
             }
 
-            ptree_destroy_keep_root(&temp_tree, 1);
+            /* destroy temp nodes and clean up */
+            { MAP_FOR_EACH(&temp, struct ptree_t, h, dirty_node)
+            {
+                ptree_destroy(dirty_node);
+            }}
+            map_clear_free(&temp);
             return 0;
         }
     }}
 
-    /*
-     * Destroy root node only, children have been successfully inserted into
-     * target.
-     */
-    map_clear(&temp_tree.children);
-    ptree_destroy_recurse(&temp_tree, 0);
+    map_clear_free(&temp);
 
     return 1;
 }
@@ -450,29 +458,29 @@ ptree_print(const struct ptree_t* tree)
  * Static functions
  * ------------------------------------------------------------------------- */
 static void
-ptree_destroy_recurse(struct ptree_t* tree, char do_free_value)
+ptree_destroy_recurse(struct ptree_t* tree)
 {
     /* destroy all children recursively */
     { MAP_FOR_EACH(&tree->children, struct ptree_t, key, child)
     {
-        ptree_destroy_recurse(child, do_free_value);
+        ptree_destroy_recurse(child);
         FREE(child);
     }}
     map_clear_free(&tree->children);
 
     /* free the data of this node, if specified */
-    if(do_free_value && tree->value)
+    if(tree->value)
     {
         if(tree->free_value)
             tree->free_value(tree->value);
         else
         {
-            fprintf(stderr, "ptree_destroy_recurse(): Unable to de-allocate!"
+            fprintf(stderr, "ptree_destroy_recurse(): Unable to de-allocate value!"
                 " No free() function was specified!");
 #ifdef _DEBUG
             fprintf(stderr, " (at ptree node with name \"%s\")", tree->key);
 #endif
-            fprintf(stderr, "\n");
+            fprintf(stderr, "\nThe node will be de-allocated, the value will not.\n");
         }
     }
 

@@ -72,7 +72,7 @@ void
 services_deinit(struct game_t* game)
 {
     /* TODO Automatically unregister any left over services? */
-    ptree_destroy_keep_root(&game->services, 0);
+    ptree_destroy_keep_root(&game->services);
 }
 
 /* ------------------------------------------------------------------------- */

@@ -71,7 +71,7 @@ TEST(NAME, init)
     EXPECT_THAT(tree.free_value, IsNull());
     EXPECT_THAT((int*)tree.value, Pointee(a));
 
-    ptree_destroy_keep_root(&tree, 0);
+    ptree_destroy_keep_root(&tree);
 }
 
 TEST(NAME, destroy_and_keep_root)
@@ -82,14 +82,14 @@ TEST(NAME, destroy_and_keep_root)
 
     struct ptree_t* tree = (struct ptree_t*)MALLOC(sizeof *tree);
     ptree_init_ptree(tree, NULL);
-    ptree_destroy_keep_root(tree, 0);
+    ptree_destroy_keep_root(tree);
     FREE(tree);
 }
 
 TEST(NAME, destroy_and_free_root)
 {
     struct ptree_t* tree = ptree_create(NULL);
-    ptree_destroy(tree, 0);
+    ptree_destroy(tree);
 }
 
 TEST(NAME, add_node_no_fill_in)
@@ -161,7 +161,7 @@ TEST(NAME, add_node_no_fill_in)
     EXPECT_THAT((int*)node6->value, IsNull());
     EXPECT_THAT((int*)node7->value, Pointee(f));
 
-    ptree_destroy(tree, 0);
+    ptree_destroy(tree);
 }
 
 TEST(NAME, add_node_fill_in_missing_middle_nodes)
@@ -236,7 +236,7 @@ TEST(NAME, add_node_fill_in_missing_middle_nodes)
     EXPECT_THAT((int*)node6->value, IsNull());
     EXPECT_THAT((int*)node7->value, Pointee(f));
 
-    ptree_destroy(tree, 0);
+    ptree_destroy(tree);
 }
 
 TEST(NAME, clean_tree)
@@ -301,7 +301,7 @@ TEST(NAME, clean_tree)
     EXPECT_THAT((int*)node5->value, Pointee(e));
     EXPECT_THAT((int*)node7->value, Pointee(f));
 
-    ptree_destroy(tree, 0);
+    ptree_destroy(tree);
 }
 
 TEST(NAME, clean_tree_middle_nodes)
@@ -312,7 +312,7 @@ TEST(NAME, clean_tree_middle_nodes)
 
     EXPECT_THAT(map_count(&tree->children), Eq(0));
 
-    ptree_destroy(tree, 0);
+    ptree_destroy(tree);
 }
 
 TEST(NAME, dont_allow_duplicate_keys_in_same_node)
@@ -323,7 +323,7 @@ TEST(NAME, dont_allow_duplicate_keys_in_same_node)
     EXPECT_THAT(ptree_add_node(tree, "node", NULL), IsNull());
     EXPECT_THAT(map_count(&tree->children), Eq(1));
 
-    ptree_destroy(tree, 0);
+    ptree_destroy(tree);
 }
 
 TEST(NAME, dont_allow_duplicate_keys_with_fill_in)
@@ -334,7 +334,7 @@ TEST(NAME, dont_allow_duplicate_keys_with_fill_in)
     EXPECT_THAT(ptree_add_node(tree, "node1.node2.node3", NULL), IsNull());
     EXPECT_THAT(map_count(&tree->children), Eq(1));
 
-    ptree_destroy(tree, 0);
+    ptree_destroy(tree);
 }
 
 TEST(NAME, remove_node_and_clean_up_tree)
@@ -348,7 +348,7 @@ TEST(NAME, remove_node_and_clean_up_tree)
 
     EXPECT_THAT(map_count(&tree->children), Eq(0));
 
-    ptree_destroy(tree, 0);
+    ptree_destroy(tree);
 }
 
 TEST(NAME, recursively_destroy_tree_and_free_values)
@@ -400,7 +400,7 @@ TEST(NAME, recursively_destroy_tree_and_free_values)
     ptree_set_free_func(node6, (ptree_free_func)mock_fake_delete_tree_item);
     ptree_set_free_func(node7, (ptree_free_func)mock_fake_delete_tree_item);
 
-    ptree_destroy(tree, 1);
+    ptree_destroy(tree);
 }
 
 TEST(NAME, recursively_destroy_tree_and_free_values_with_missing_free_functions)
@@ -453,7 +453,7 @@ TEST(NAME, recursively_destroy_tree_and_free_values_with_missing_free_functions)
     ptree_set_free_func(node6, (ptree_free_func)mock_fake_delete_tree_item);
     ptree_set_free_func(node7, (ptree_free_func)mock_fake_delete_tree_item);
 
-    ptree_destroy(tree, 1);
+    ptree_destroy(tree);
 }
 
 TEST(NAME, recursively_destroy_node)
@@ -506,17 +506,15 @@ TEST(NAME, recursively_destroy_node)
     uint32_t node6_hash = PTREE_HASH_STRING("node6");
     uint32_t node7_hash = PTREE_HASH_STRING("node7");
 
-    ptree_set_free_func(tree,  (ptree_free_func)mock_fake_delete_tree_item);
     ptree_set_free_func(node1, (ptree_free_func)mock_fake_delete_tree_item);
     ptree_set_free_func(node2, (ptree_free_func)mock_fake_delete_tree_item);
     ptree_set_free_func(node3, (ptree_free_func)mock_fake_delete_tree_item);
     ptree_set_free_func(node4, (ptree_free_func)mock_fake_delete_tree_item);
     ptree_set_free_func(node5, (ptree_free_func)mock_fake_delete_tree_item);
     ptree_set_free_func(node6, (ptree_free_func)mock_fake_delete_tree_item);
-    ptree_set_free_func(node7, (ptree_free_func)mock_fake_delete_tree_item);
 
     // destroy node 1 and expect node 2, 3, 4, and 5 to go with it
-    ptree_destroy(node1, 1);
+    ptree_destroy(node1);
 
     // check container sizes of remaining nodes
     EXPECT_THAT(map_count(&tree->children),  Eq(2));
@@ -533,7 +531,13 @@ TEST(NAME, recursively_destroy_node)
     EXPECT_THAT(node6->parent, Eq(tree));
     EXPECT_THAT(node7->parent, Eq(tree));
 
-    ptree_destroy(tree, 0);
+    Mock::VerifyAndClearExpectations(&a);
+    Mock::VerifyAndClearExpectations(&b);
+    Mock::VerifyAndClearExpectations(&c);
+    Mock::VerifyAndClearExpectations(&d);
+    Mock::VerifyAndClearExpectations(&e);
+    Mock::VerifyAndClearExpectations(&f);
+    ptree_destroy(tree);
 }
 
 TEST(NAME, duplicate_tree_succeeds_if_value_is_null_and_dup_and_free_func_are_not_set)
@@ -541,8 +545,8 @@ TEST(NAME, duplicate_tree_succeeds_if_value_is_null_and_dup_and_free_func_are_no
     struct ptree_t* tree = ptree_create(NULL);
     struct ptree_t* dup = ptree_duplicate_tree(tree);
     EXPECT_THAT(dup, NotNull());
-    ptree_destroy(dup, 0);
-    ptree_destroy(tree, 0);
+    ptree_destroy(dup);
+    ptree_destroy(tree);
 }
 
 TEST(NAME, duplicate_tree_fails_if_dup_and_free_func_are_not_set_and_value_is_not_null)
@@ -550,16 +554,16 @@ TEST(NAME, duplicate_tree_fails_if_dup_and_free_func_are_not_set_and_value_is_no
     int a = 7;
     struct ptree_t* tree = ptree_create(&a);
     EXPECT_THAT(ptree_duplicate_tree(tree), IsNull());
-    ptree_destroy(tree, 0);
+    ptree_destroy(tree);
 }
 
 TEST(NAME, duplicate_tree_fails_if_dup_func_is_not_set_and_value_is_not_null)
 {
-    int a = 7;
+    NiceMock<MockTreeItem> a;
     struct ptree_t* tree = ptree_create(&a);
     ptree_set_free_func(tree, (ptree_free_func)mock_fake_delete_tree_item);
     EXPECT_THAT(ptree_duplicate_tree(tree), IsNull());
-    ptree_destroy(tree, 0);
+    ptree_destroy(tree);
 }
 
 TEST(NAME, duplicate_tree_fails_if_free_func_is_not_set_and_value_is_not_null)
@@ -568,7 +572,7 @@ TEST(NAME, duplicate_tree_fails_if_free_func_is_not_set_and_value_is_not_null)
     struct ptree_t* tree = ptree_create(&a);
     ptree_set_dup_func(tree, (ptree_dup_func)mock_dup_tree_item);
     EXPECT_THAT(ptree_duplicate_tree(tree), IsNull());
-    ptree_destroy(tree, 0);
+    ptree_destroy(tree);
 }
 
 TEST(NAME, duplicate_tree)
@@ -704,8 +708,8 @@ TEST(NAME, duplicate_tree)
     EXPECT_THAT(dnode6->value, IsNull());
     EXPECT_THAT(dnode7->value, AllOf(NotNull(), Ne(node7->value)));
 
-    ptree_destroy(dup, 1);
-    ptree_destroy(tree, 1);
+    ptree_destroy(dup);
+    ptree_destroy(tree);
 }
 
 TEST(NAME, duplicate_tree_node)
@@ -809,8 +813,8 @@ TEST(NAME, duplicate_tree_node)
     EXPECT_THAT(dnode4->value, AllOf(NotNull(), Ne(node4->value)));
     EXPECT_THAT(dnode5->value, AllOf(NotNull(), Ne(node5->value)));
 
-    ptree_destroy(dnode1, 1);
-    ptree_destroy(tree, 1);
+    ptree_destroy(dnode1);
+    ptree_destroy(tree);
 }
 
 TEST(NAME, duplicate_tree_with_missing_dup_func_fails_and_cleans_up)
@@ -870,7 +874,7 @@ TEST(NAME, duplicate_tree_with_missing_dup_func_fails_and_cleans_up)
     // copying should fail
     EXPECT_THAT(ptree_duplicate_tree(tree), IsNull());
 
-    ptree_destroy(tree, 1);
+    ptree_destroy(tree);
 }
 
 TEST(NAME, duplicate_children_into_existing_empty_node)
@@ -1041,7 +1045,7 @@ TEST(NAME, duplicate_children_into_existing_empty_node)
     EXPECT_THAT(dnode6->value, IsNull());
     EXPECT_THAT(dnode7->value, AllOf(NotNull(), Ne(node7->value)));
 
-    ptree_destroy(tree, 1);
+    ptree_destroy(tree);
 }
 
 TEST(NAME, duplicate_tree_into_existing_node_with_children)
@@ -1213,7 +1217,7 @@ TEST(NAME, duplicate_tree_into_existing_node_with_children)
     EXPECT_THAT(dnode6->value, IsNull());
     EXPECT_THAT(dnode7->value, AllOf(NotNull(), Ne(node7->value)));
 
-    ptree_destroy(tree, 1);
+    ptree_destroy(tree);
 }
 
 TEST(NAME, duplicate_tree_into_itself_fails)
@@ -1310,13 +1314,12 @@ TEST(NAME, duplicate_tree_into_itself_fails)
     EXPECT_THAT(node6->parent, Eq(tree));
     EXPECT_THAT(node7->parent, Eq(tree));
 
-    ptree_destroy(tree, 1);
+    ptree_destroy(tree);
 }
 
 TEST(NAME, relocate_node_in_tree)
 {
     int a = 3, b = 2, c = 7, d = 4, e = 12, f = 4;
-
     // root         (a)
     // |_node1      (b)
     // | |_node2    (null)
@@ -1393,7 +1396,7 @@ TEST(NAME, relocate_node_in_tree)
     EXPECT_THAT((int*)node6->value, IsNull());
     EXPECT_THAT((int*)node7->value, Pointee(f));
 
-    ptree_destroy(tree, 0);
+    ptree_destroy(tree);
 }
 
 TEST(NAME, relocate_parent_node_into_child_node_fails)
@@ -1471,7 +1474,7 @@ TEST(NAME, relocate_parent_node_into_child_node_fails)
     EXPECT_THAT((int*)node6->value, IsNull());
     EXPECT_THAT((int*)node7->value, Pointee(f));
 
-    ptree_destroy(tree, 0);
+    ptree_destroy(tree);
 }
 
 TEST(NAME, get_node_no_depth)
@@ -1500,7 +1503,7 @@ TEST(NAME, get_node_no_depth)
     EXPECT_THAT(ptree_get_node_no_depth(node1, "node2"), Eq(node2));
     EXPECT_THAT(ptree_get_node_no_depth(node6, "root"), IsNull());
 
-    ptree_destroy(tree, 0);
+    ptree_destroy(tree);
 }
 
 TEST(NAME, get_node_existing_key)
@@ -1528,7 +1531,7 @@ TEST(NAME, get_node_existing_key)
     EXPECT_THAT(ptree_get_node(node1, "node2"), Eq(node2));
     EXPECT_THAT(ptree_get_node(node1, "node3.node4"), Eq(node4));
 
-    ptree_destroy(tree, 0);
+    ptree_destroy(tree);
 }
 
 TEST(NAME, find_non_existing_key_in_tree)
@@ -1555,7 +1558,7 @@ TEST(NAME, find_non_existing_key_in_tree)
     EXPECT_THAT(ptree_get_node(tree, "this.doesn't.exist"), IsNull());
     EXPECT_THAT(ptree_get_node(tree, "node1.node3.nope"), IsNull());
 
-    ptree_destroy(tree, 0);
+    ptree_destroy(tree);
 }
 
 TEST(NAME, traverse_node_children)
@@ -1578,5 +1581,5 @@ TEST(NAME, traverse_node_children)
         EXPECT_THAT((int*)node->value, Pointee(values[i]));
     }
 
-    ptree_destroy(tree, 0);
+    ptree_destroy(tree);
 }

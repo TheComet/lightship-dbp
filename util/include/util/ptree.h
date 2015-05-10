@@ -68,7 +68,7 @@ ptree_init_ptree(struct ptree_t* tree, void* value);
  * not be freed, and warning messages will be generated.
  */
 LIGHTSHIP_UTIL_PUBLIC_API void
-ptree_destroy(struct ptree_t* root, char do_free_values);
+ptree_destroy(struct ptree_t* root);
 
 /*!
  * @brief Destroys an existing ptree, but keeps the root node.
@@ -87,7 +87,7 @@ ptree_destroy(struct ptree_t* root, char do_free_values);
  * not be freed, and warning messages will be generated.
  */
 LIGHTSHIP_UTIL_PUBLIC_API void
-ptree_destroy_keep_root(struct ptree_t* root, char do_free_values);
+ptree_destroy_keep_root(struct ptree_t* root);
 
 /*!
  * @brief Creates a child node and adds it as a child of the specified root
@@ -116,7 +116,12 @@ ptree_add_node(struct ptree_t* root, const char* key, void* data);
 LIGHTSHIP_UTIL_PUBLIC_API char
 ptree_set_parent(struct ptree_t* node, struct ptree_t* parent, const char* key);
 
-LIGHTSHIP_UTIL_PUBLIC_API void
+/*!
+ * TODO document
+ * @return Returns the value of the node that was removed.
+ * @note The value can be NULL.
+ */
+LIGHTSHIP_UTIL_PUBLIC_API char
 ptree_remove_node(struct ptree_t* root, const char* key);
 
 /*!
