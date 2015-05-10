@@ -75,6 +75,9 @@ ptree_destroy(struct ptree_t* root, char do_free_values);
  *
  * Traverses the tree and frees every node except for the root node (the one
  * being passed to this function).
+ * @warning You cannot use the root node after this operation any more. You
+ * must initialise it with ptree_init_ptree() before being able to use it
+ * again.
  * @note If do_free_falues is set to 1, then the data being referenced by the
  * root node is de-allocated anyway.
  * @param[in] tree The three to destroy.
