@@ -30,7 +30,6 @@ static const char* basic_yml =
 TEST(NAME, get_value_in_basic_yaml_doc)
 {
     struct ptree_t* doc;
-    ASSERT_THAT(1, Eq(0)); /* TODO */
 
     ASSERT_THAT((doc = yaml_load_from_memory(basic_yml)), NotNull());
 
@@ -47,7 +46,6 @@ TEST(NAME, get_value_in_basic_yaml_doc)
 TEST(NAME, get_invalid_value_in_basic_yaml_doc)
 {
     struct ptree_t* doc;
-    ASSERT_THAT(1, Eq(0)); /* TODO */
 
     ASSERT_THAT((doc = yaml_load_from_memory(basic_yml)), NotNull());
 
@@ -60,13 +58,12 @@ TEST(NAME, get_invalid_value_in_basic_yaml_doc)
 TEST(NAME, iterate_nodes_in_basic_yaml_doc)
 {
     struct ptree_t* doc;
-    ASSERT_THAT(1, Eq(0)); /* TODO */
-    
+
     ASSERT_THAT((doc = yaml_load_from_memory(basic_yml)), NotNull());
 
     YAML_FOR_EACH(doc, "root.players", hash, node)
     {
-        ASSERT_THAT(yaml_get_value(node, "player.name"), AnyOf(
+        ASSERT_THAT(yaml_get_value(node, "name"), AnyOf(
             StrEq("Will Smith"),
             StrEq("TheComet")));
     }
@@ -74,7 +71,7 @@ TEST(NAME, iterate_nodes_in_basic_yaml_doc)
 
     YAML_FOR_EACH(doc, "root.enemies", hash, node)
     {
-        ASSERT_THAT(yaml_get_value(node, "enemy.name"), AnyOf(
+        ASSERT_THAT(yaml_get_value(node, "name"), AnyOf(
             StrEq("George Bush"),
             StrEq("Big Daddy")));
     }
