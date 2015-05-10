@@ -1,8 +1,11 @@
 #include "framework/config.h"
+#include "framework/config.h"
 #include "framework/event_api.h"
 #include "framework/service_api.h"
 #include "util/ptree.h"
 #include "util/linked_list.h"
+
+C_HEADER_BEGIN
 
 struct net_connection_t;
 struct glob_t;
@@ -33,11 +36,11 @@ struct framework_events_t
     struct event_t* start;
     struct event_t* pause;
     struct event_t* exit;
-    
+
     struct event_t* tick;
     struct event_t* render;
     struct event_t* stats;
-    
+
     struct event_t* log;
     struct event_t* log_indent;
     struct event_t* log_unindent;
@@ -106,3 +109,5 @@ game_dispatch_tick(void);
 #define game_add_global(game, hash, glob) map_insert(&(game)->global_data, hash, glob)
 #define game_get_global(game, hash) map_find(&(game)->global_data, hash)
 #define game_remove_global(game, hash) map_erase(&(game)->global_data, hash)
+
+C_HEADER_END

@@ -21,6 +21,7 @@ add_executable (lightship_tests
 )
 
 target_link_libraries (lightship_tests
+    framework
     lightship_util
     gmock_main
 )
