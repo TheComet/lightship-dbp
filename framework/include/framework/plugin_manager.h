@@ -75,7 +75,7 @@ plugin_load(struct game_t* game,
             plugin_search_criteria_t criteria);
 
 FRAMEWORK_PUBLIC_API char
-load_plugins_from_yaml_dom(struct game_t* game, const struct ptree_t* plugins_node);
+load_plugins_from_yaml(struct game_t* game, const struct ptree_t* plugins_node);
 
 /*!
  * @brief Unloads the specified plugin.
