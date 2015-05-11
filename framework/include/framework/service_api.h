@@ -203,45 +203,39 @@ typedef void (*service_callback_func)(struct service_t* service, void* ret, cons
 #define STRINGIFY_(x) #x
 #define STRINGIFY(x) STRINGIFY_(x)
 
-#define SERVICE_REGISTER0(game, plugin, service_name, callback, ret_type) do {                          \
-            service_register(game, plugin, service_name, callback, STRINGIFY(ret_type), 0, NULL);       \
+#define SERVICE_CREATE0(game, assign, service_name, callback, ret_type) do {                          \
+            assign = service_create(game, service_name, callback, STRINGIFY(ret_type), 0, NULL);       \
         } while(0)
-#define SERVICE_REGISTER1(game, plugin, service_name, callback, ret_type, arg1) do {                    \
+#define SERVICE_CREATE1(game, assign, service_name, callback, ret_type, arg1) do {                    \
             const char* ret = STRINGIFY(ret_type);                                                      \
             const char* argv[] = {STRINGIFY(arg1)};                                                     \
-            service_register(game, plugin, service_name, callback, ret, 1, argv);                       \
+            assign = service_create(game, service_name, callback, ret, 1, argv);                       \
         } while(0)
-#define SERVICE_REGISTER2(game, plugin, service_name, callback, ret_type, arg1, arg2) do {              \
+#define SERVICE_CREATE2(game, assign, service_name, callback, ret_type, arg1, arg2) do {              \
             const char* ret = STRINGIFY(ret_type);                                                      \
             const char* argv[] = {STRINGIFY(arg1), STRINGIFY(arg2)};                                    \
-            service_register(game, plugin, service_name, callback, ret, 2, argv);                       \
+            assign = service_create(game, service_name, callback, ret, 2, argv);                       \
         } while(0)
-#define SERVICE_REGISTER3(game, plugin, service_name, callback, ret_type, arg1, arg2, arg3) do {        \
+#define SERVICE_CREATE3(game, assign, service_name, callback, ret_type, arg1, arg2, arg3) do {        \
             const char* ret = STRINGIFY(ret_type);                                                      \
             const char* argv[] = {STRINGIFY(arg1), STRINGIFY(arg2), STRINGIFY(arg3)};                   \
-            service_register(game, plugin, service_name, callback, ret, 3, argv);                       \
+            assign = service_create(game, service_name, callback, ret, 3, argv);                       \
         } while(0)
-#define SERVICE_REGISTER4(game, plugin, service_name, callback, ret_type, arg1, arg2, arg3, arg4) do {  \
+#define SERVICE_CREATE4(game, assign, service_name, callback, ret_type, arg1, arg2, arg3, arg4) do {  \
             const char* ret = STRINGIFY(ret_type);                                                      \
             const char* argv[] = {STRINGIFY(arg1), STRINGIFY(arg2), STRINGIFY(arg3), STRINGIFY(arg4)};  \
-            service_register(game, plugin, service_name, callback, ret, 4, argv);                       \
+            assign = service_create(game, service_name, callback, ret, 4, argv);                       \
         } while(0)
-#define SERVICE_REGISTER5(game, plugin, service_name, callback, ret_type, arg1, arg2, arg3, arg4, arg5) do {            \
+#define SERVICE_CREATE5(game, assign, service_name, callback, ret_type, arg1, arg2, arg3, arg4, arg5) do {            \
             const char* ret = STRINGIFY(ret_type);                                                                      \
             const char* argv[] = {STRINGIFY(arg1), STRINGIFY(arg2), STRINGIFY(arg3), STRINGIFY(arg4), STRINGIFY(arg5)}; \
-            service_register(game, plugin, service_name, callback, ret, 5, argv);                                       \
+            assign = service_create(game, service_name, callback, ret, 5, argv);                                       \
         } while(0)
-#define SERVICE_REGISTER6(game, plugin, service_name, callback, ret_type, arg1, arg2, arg3, arg4, arg5, arg6) do {            \
+#define SERVICE_CREATE6(game, assign, service_name, callback, ret_type, arg1, arg2, arg3, arg4, arg5, arg6) do {            \
             const char* ret = STRINGIFY(ret_type);                                                                      \
             const char* argv[] = {STRINGIFY(arg1), STRINGIFY(arg2), STRINGIFY(arg3), STRINGIFY(arg4), STRINGIFY(arg5), STRINGIFY(arg6)}; \
-            service_register(game, plugin, service_name, callback, ret, 6, argv);                                       \
+            assign = service_create(game, service_name, callback, ret, 6, argv);                                       \
         } while(0)
-/*
-#define SERVICE_REGISTER6(game, plugin, service_name, callback, ret_type, arg1, arg2, arg3, arg4, arg5, arg6) do {                      \
-            const char* ret = STRINGIFY(ret_type);                                                                                      \
-            const char* argv[] = {STRINGIFY(arg1), STRINGIFY(arg2), STRINGIFY(arg3), STRINGIFY(arg4), STRINGIFY(arg5), STRINGIFY(arg6)};\
-            service_register(game, plugin, service_name, callback, ret, 6, argv);                                                       \
-        } while(0)*/
 
 struct service_t
 {

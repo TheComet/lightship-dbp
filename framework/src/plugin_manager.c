@@ -213,17 +213,17 @@ load_plugins_from_yaml(struct game_t* game, const struct ptree_t* plugins_node)
         char* policy_str;
 
         /* extract information from tree */
-        if(!(target.name = yaml_get_value(child, "name")))
+        if(!(target.name = (char*)yaml_get_value(child, "name")))
         {
             llog(LOG_ERROR, game, NULL, 1, "Key \"name\" isn't defined for plugin");
             continue;
         }
-        if(!(version_str = yaml_get_value(child, "version")))
+        if(!(version_str = (char*)yaml_get_value(child, "version")))
         {
             llog(LOG_ERROR, game, NULL, 1, "Key \"version\" isn't defined for plugin");
             continue;
         }
-        if(!(policy_str = yaml_get_value(child, "version_policy")))
+        if(!(policy_str = (char*)yaml_get_value(child, "version_policy")))
         {
             llog(LOG_WARNING, game, NULL, 1, "Key \"version_policy\" isn't defined for plugin. Using default \"minimum\"");
             policy_str = "minimum"; /* default */

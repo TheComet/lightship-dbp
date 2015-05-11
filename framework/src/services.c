@@ -71,13 +71,13 @@ service_create(struct game_t* game,
     if(argc)
         assert(argv);
 
-    /* create node in game's event directory */
-    if(!(node = ptree_add_node(&game->events, directory, NULL)))
+    /* create node in game's service directory */
+    if(!(node = ptree_add_node(&game->services, directory, NULL)))
         return NULL;
 
-    /* allocate and initialise event object, and add it to the directory */
+    /* allocate and initialise service object, and add it to the directory */
     if(!(service = (struct service_t*)MALLOC(sizeof(struct service_t))))
-        OUT_OF_MEMORY("event_create()", NULL);
+        OUT_OF_MEMORY("service_create()", NULL);
     memset(service, 0, sizeof(struct service_t));
     service->game = game;
     service->directory = malloc_string(directory);

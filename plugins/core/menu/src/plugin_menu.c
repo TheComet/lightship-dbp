@@ -10,14 +10,14 @@
 PLUGIN_MENU_PUBLIC_API PLUGIN_INIT()
 {
     struct plugin_t* plugin;
-    
+
     /* init global data */
     glob_create(game);
-    
+
     /* init plugin */
     plugin = plugin_create(game);
     get_global(game)->plugin = plugin;
-    
+
     /* set plugin information - Change this in the file "CMakeLists.txt" */
     plugin_set_info(plugin,
             PLUGIN_NAME,         /* name */
@@ -37,7 +37,7 @@ PLUGIN_MENU_PUBLIC_API PLUGIN_INIT()
 
     register_services(plugin);
     register_events(plugin);
-    
+
     return plugin;
 }
 
