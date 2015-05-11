@@ -42,7 +42,7 @@ load_core_plugins(struct game_t* game)
         return 1;
     }
 
-    if(!load_plugins_from_yaml_dom(game, plugins_node))
+    if(!load_plugins_from_yaml(game, plugins_node))
     {
         llog(LOG_FATAL, game, NULL, 1, "Couldn't start all core plugins");
         return 0;

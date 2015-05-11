@@ -13,6 +13,7 @@
 #include "util/module_loader.h"
 #include "util/dir.h"
 #include "util/memory.h"
+#include "util/yaml.h"
 #include "framework/log.h"
 
 /*!
@@ -194,7 +195,7 @@ plugin_load(struct game_t* game,
 
 /* ------------------------------------------------------------------------- */
 char
-load_plugins_from_yaml_dom(struct game_t* game, const struct ptree_t* plugins_node)
+load_plugins_from_yaml(struct game_t* game, const struct ptree_t* plugins_node)
 {
     struct plugin_info_t target;
     struct unordered_vector_t new_plugins;
@@ -204,71 +205,64 @@ load_plugins_from_yaml_dom(struct game_t* game, const struct ptree_t* plugins_no
     unordered_vector_init_vector(&new_plugins, sizeof(struct plugin_t*));
 
     /* load all plugins listed in the plugins node */
+    { YAML_FOR_EACH(plugins_node, ".", key, child)
     {
-        MAP_FOR_EACH(&plugins_node->children, struct ptree_t, key, child)
+        struct plugin_t* plugin;
+        plugin_search_criteria_t criteria;
+        char* version_str;
+        char* policy_str;
+
+        /* extract information from tree */
+        if(!(target.name = yaml_get_value(child, "name")))
         {
-            struct plugin_t* plugin;
-            plugin_search_criteria_t criteria;
-            char* policy_str;
-
-            /* extract information from tree */
-            const struct ptree_t* name = ptree_get_node_no_depth(child, "name");
-            const struct ptree_t* version = ptree_get_node_no_depth(child, "version");
-            const struct ptree_t* policy = ptree_get_node_no_depth(child, "version_policy");
-            if(!name)
-            {
-                llog(LOG_ERROR, game, NULL, 1, "Key \"name\" isn't defined for plugin");
-                continue;
-            }
-            if(!version)
-            {
-                llog(LOG_ERROR, game, NULL, 1, "Key \"version\" isn't defined for plugin");
-                continue;
-            }
-            if(policy)
-                policy_str = (char*)policy->value;
-            else
-            {
-                llog(LOG_WARNING, game, NULL, 1, "Key \"version_policy\" isn't defined for plugin. Using default \"minimum\"");
-                policy_str = "minimum";
-            }
-
-            /*
-             * Time to fill out the plugin info struct with the gathered info
-             */
-
-            /* the plugin name */
-            target.name = (char*)name->value;
-
-            /* convert version string */
-            if(!plugin_extract_version_from_string((char*)version->value,
-                                                &target.version.major,
-                                                &target.version.minor,
-                                                &target.version.patch))
-            {
-                llog(LOG_ERROR, game, NULL, 3, "Version string of plugin \"", name, "\" is invalid. Should be major.minor.patch");
-                continue;
-            }
-
-            /* determin version policy */
-            if(strncmp("minimum", policy_str, 7) == 0)
-                criteria = PLUGIN_VERSION_MINIMUM;
-            else if(strncmp("exact", policy_str, 5) == 0)
-                criteria = PLUGIN_VERSION_EXACT;
-            else
-            {
-                llog(LOG_ERROR, game, NULL, 3, "Invalid policy \"", policy_str, "\". "
-                                         "Need either \"minimum\" or \"exact\"");
-                continue;
-            }
-
-            /* load plugin, and add to the list of loaded plugins */
-            plugin = plugin_load(game, &target, criteria);
-            if(!plugin)
-                continue;
-            unordered_vector_push(&new_plugins, &plugin);
+            llog(LOG_ERROR, game, NULL, 1, "Key \"name\" isn't defined for plugin");
+            continue;
         }
+        if(!(version_str = yaml_get_value(child, "version")))
+        {
+            llog(LOG_ERROR, game, NULL, 1, "Key \"version\" isn't defined for plugin");
+            continue;
+        }
+        if(!(policy_str = yaml_get_value(child, "version_policy")))
+        {
+            llog(LOG_WARNING, game, NULL, 1, "Key \"version_policy\" isn't defined for plugin. Using default \"minimum\"");
+            policy_str = "minimum"; /* default */
+        }
+
+        /*
+         * Time to fill out the plugin info struct with the gathered info
+         */
+
+        /* convert version string */
+        if(!plugin_extract_version_from_string(version_str,
+                                            &target.version.major,
+                                            &target.version.minor,
+                                            &target.version.patch))
+        {
+            llog(LOG_ERROR, game, NULL, 3, "Version string of plugin \"",
+                 target.name, "\" is invalid. Should be major.minor.patch");
+            continue;
+        }
+
+        /* determine version policy */
+        if(strncmp("minimum", policy_str, 7) == 0)
+            criteria = PLUGIN_VERSION_MINIMUM;
+        else if(strncmp("exact", policy_str, 5) == 0)
+            criteria = PLUGIN_VERSION_EXACT;
+        else
+        {
+            llog(LOG_ERROR, game, NULL, 3, "Invalid policy \"", policy_str, "\". "
+                                        "Need either \"minimum\" or \"exact\"");
+            continue;
+        }
+
+        /* load plugin, and add to the list of loaded plugins */
+        plugin = plugin_load(game, &target, criteria);
+        if(!plugin)
+            continue;
+        unordered_vector_push(&new_plugins, &plugin);
     }
+    YAML_END_FOR_EACH }
 
     /* start loaded plugins */
     {
@@ -301,7 +295,6 @@ plugin_unload(struct game_t* game, struct plugin_t* plugin)
     /* TODO notify everything that this plugin is about to be unloaded */
 
     /* unregister all services and events registered by this plugin */
-    service_destroy_all_matching(plugin);
     /* TODO once the new functions can be called, insert them here
     event_destroy_all_plugin_events(plugin);
     event_unregister_all_listeners_of_plugin(plugin); */
