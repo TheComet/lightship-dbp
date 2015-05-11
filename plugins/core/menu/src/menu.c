@@ -38,7 +38,7 @@ menu_deinit(struct glob_t* g)
             ordered_vector_back(&g->menu.menus.vector))->value;
         menu_destroy(menu);
     }
-    
+
     map_clear_free(&g->menu.menus);
 }
 
@@ -51,9 +51,9 @@ menu_load(struct glob_t* g, const char* file_name)
     struct ptree_t* screens;
     char* menu_name;
     uint32_t doc;
-    
+
     llog(LOG_INFO, g->game, PLUGIN_NAME, 3, "Loading menu from file \"", file_name, "\"");
-    
+
     /* load and parse yaml file, get DOM */
     SERVICE_CALL1(g->services.yaml_load, &doc, PTR(file_name));
     SERVICE_CALL1(g->services.yaml_get_dom, &dom, doc);
@@ -62,19 +62,19 @@ menu_load(struct glob_t* g, const char* file_name)
         SERVICE_CALL1(g->services.yaml_destroy, SERVICE_NO_RETURN, doc);
         return NULL;
     }
-    
+
     /* get ptree for screens */
-    screens = ptree_find_in_node(dom, "screens");
+    screens = ptree_get_node_no_depth(dom, "screens");
     if(!screens)
     {
         llog(LOG_ERROR, g->game, PLUGIN_NAME, 1, "Failed to find \"screens\" node");
         SERVICE_CALL1(g->services.yaml_destroy, SERVICE_NO_RETURN, doc);
         return NULL;
     }
-    
+
     /* menu must have a name */
     {
-        struct ptree_t* name_node = ptree_find_in_node(dom, "name");
+        struct ptree_t* name_node = ptree_get_node_no_depth(dom, "name");
         if(name_node && name_node->value)
             menu_name = name_node->value;
         else
@@ -84,27 +84,27 @@ menu_load(struct glob_t* g, const char* file_name)
             return NULL;
         }
     }
-    
+
     /* create new menu object in which to store menu elements */
     menu = (struct menu_t*)MALLOC(sizeof(struct menu_t));
     memset(menu, 0, sizeof(struct menu_t));
     map_init_map(&menu->screens);
-    
+
     /* Add menu to global list */
     menu->id = ++g->menu.gid;
-    
+
     /* cache glob */
     menu->glob = g;
-    
+
     /* set menu name */
     menu->name = malloc_string(menu_name);
-    
+
     /* load all screens into menu structure */
     menu_load_screens(menu, screens);
-    
+
     /* screens are hidden by default. Show the screen specified in start_screen */
     {
-        struct ptree_t* start_node = ptree_find_in_node(dom, "start_screen");
+        struct ptree_t* start_node = ptree_get_node_no_depth(dom, "start_screen");
         if(start_node && start_node->value)
             menu_set_active_screen(menu, (char*)start_node->value);
         else
@@ -127,10 +127,10 @@ menu_destroy(struct menu_t* menu)
         screen_destroy(screen);
     }
     map_clear_free(&menu->screens);
-    
+
     /* menu name */
     free_string(menu->name);
-    
+
     /* menu object */
     FREE(menu);
 }
@@ -171,10 +171,10 @@ menu_load_screens(struct menu_t* menu, const struct ptree_t* screens)
         {
             struct screen_t* screen;
             char* screen_name;
-            
+
             /* get screen name */
             {
-                struct ptree_t* screen_name_node = ptree_find_in_node(screen_node, "name");
+                struct ptree_t* screen_name_node = ptree_get_node_no_depth(screen_node, "name");
                 if(screen_name_node && screen_name_node->value)
                 {
                     screen_name = (char*)screen_name_node->value;
@@ -186,7 +186,7 @@ menu_load_screens(struct menu_t* menu, const struct ptree_t* screens)
                 }
             }
 
-            /* 
+            /*
             * Screen names must be unique. Verify by searching the map of
             * screens currently registered.
             */
@@ -197,7 +197,7 @@ menu_load_screens(struct menu_t* menu, const struct ptree_t* screens)
                 continue;
             }
             map_insert(&created_screen_names, hash_jenkins_oaat(screen_name, strlen(screen_name)), NULL);
-            
+
             /* create new screen object */
             screen = screen_create();
             map_insert(&menu->screens, hash_jenkins_oaat(screen_name, strlen(screen_name)), screen);
@@ -208,12 +208,12 @@ menu_load_screens(struct menu_t* menu, const struct ptree_t* screens)
                 if(PTREE_HASH_STRING("button") == key)
                     menu_load_button(menu->glob, screen, object_node);
             }}
-            
+
             /* hide the screen by default */
             screen_hide(screen);
         }
     }}
-    
+
     map_clear_free(&created_screen_names);
 }
 
@@ -225,12 +225,12 @@ menu_load_button(struct glob_t* g, struct screen_t* screen, const struct ptree_t
 
     /* retrieve button parameters required to create a button */
     char* text = NULL;
-    const struct ptree_t* text_node   = ptree_find_in_node(button_node, "text");
-    const struct ptree_t* x_node      = ptree_find_in_tree(button_node, "position.x");
-    const struct ptree_t* y_node      = ptree_find_in_tree(button_node, "position.y");
-    const struct ptree_t* width_node  = ptree_find_in_node(button_node, "size.x");
-    const struct ptree_t* height_node = ptree_find_in_node(button_node, "size.y");
-    const struct ptree_t* action_node = ptree_find_in_node(button_node, "action");
+    const struct ptree_t* text_node   = ptree_get_node_no_depth(button_node, "text");
+    const struct ptree_t* x_node      = ptree_get_node(button_node, "position.x");
+    const struct ptree_t* y_node      = ptree_get_node(button_node, "position.y");
+    const struct ptree_t* width_node  = ptree_get_node_no_depth(button_node, "size.x");
+    const struct ptree_t* height_node = ptree_get_node_no_depth(button_node, "size.y");
+    const struct ptree_t* action_node = ptree_get_node_no_depth(button_node, "action");
     if(!x_node || !y_node || !width_node || !height_node)
     {
         llog(LOG_WARNING, g->game, PLUGIN_NAME, 1, "Not enough data to create button. Need at least position and size.");
@@ -238,7 +238,7 @@ menu_load_button(struct glob_t* g, struct screen_t* screen, const struct ptree_t
     }
     if(text_node)
         text = (char*)text_node->value;
-    
+
     /* add button to current screen */
     button = button_create(g,
                            text,  /* text is allowed to be NULL */
@@ -257,7 +257,7 @@ menu_load_button(struct glob_t* g, struct screen_t* screen, const struct ptree_t
 static void
 menu_load_button_action(struct glob_t* g, struct button_t* button, const struct ptree_t* action_node)
 {
-    struct ptree_t* service_node = ptree_find_in_node(action_node, "service");
+    struct ptree_t* service_node = ptree_get_node_no_depth(action_node, "service");
     if(service_node && service_node->value)
     {
         struct service_t* action_service = service_get(button->base.element.glob->game, (char*)service_node->value);
@@ -280,20 +280,20 @@ menu_load_button_action(struct glob_t* g, struct button_t* button, const struct 
             ordered_vector_init_vector(&argv, sizeof(char*));
 
             /* extract each argument and insert into vector as string */
-            argv_node = ptree_find_in_node(action_node, "argv");
+            argv_node = ptree_get_node_no_depth(action_node, "argv");
             while(argv_node)
             {
                 /* retrieve next argument */
                 struct ptree_t* arg_node;
                 sprintf(arg_key, "%d", action_argc);
-                arg_node = ptree_find_in_tree(argv_node, arg_key);
+                arg_node = ptree_get_node(argv_node, arg_key);
                 if(!arg_node)
                     break;
                 /* argument found, add to argument list */
                 ordered_vector_push(&argv, &arg_node->value);
                 ++action_argc;
             }
-            
+
             /* convert the vector of strings into a vector of arguments */
             button->base.element.action.argv = service_create_argument_list_from_strings(action_service, &argv);
             ordered_vector_clear_free(&argv);
@@ -318,7 +318,7 @@ SERVICE(menu_load_wrapper)
     struct menu_t* menu = menu_load(g, file_name);
     if(!menu)
         SERVICE_RETURN(0, uint32_t);
-    
+
     SERVICE_RETURN(menu->id, uint32_t);
 }
 
@@ -340,11 +340,11 @@ SERVICE(menu_set_active_screen_wrapper)
     struct glob_t* g = get_global(service->game);
     SERVICE_EXTRACT_ARGUMENT_PTR(0, menu_name, const char*);
     SERVICE_EXTRACT_ARGUMENT_PTR(1, screen_name, const char*);
-    
+
     uint32_t menu_id = hash_jenkins_oaat(menu_name, strlen(menu_name));
     struct menu_t* menu = map_find(&g->menu.menus, menu_id);
     if(!menu)
         return;
-    
+
     menu_set_active_screen(menu, screen_name);
 }

@@ -80,12 +80,12 @@ plugin_load(struct game_t* game,
     struct plugin_t* plugin = NULL;
     /* buffer for holding the various version strings that will be constructed */
     char version_str[sizeof(int)*27+1];
-    
-    /* 
+
+    /*
      * if anything fails, the program will break from this for loop and clean
      * up any allocated memory before returning NULL. If it succeeds, the
      * plugin is returned.
-     */ 
+     */
     for(;;)
     {
         /* make sure not already loaded */
@@ -102,12 +102,12 @@ plugin_load(struct game_t* game,
             llog(LOG_ERROR, game, NULL, 3, "Error searching for plugin \"", plugin_info->name, "\": Unable to find a file matching the critera");
             break;
         }
-        
+
         /* try to load library */
         handle = module_open(filename);
         if(!handle)
             break;
-        
+
         /* get plugin initialise function */
         *(void**)(&init_func) = module_sym(handle, "plugin_init");
         if(!init_func)
@@ -122,7 +122,7 @@ plugin_load(struct game_t* game,
         *(void**)(&stop_func) = module_sym(handle, "plugin_stop");
         if(!stop_func)
             break;
-        
+
         /* get plugin deinit function */
         *(void**)(&deinit_func) = module_sym(handle, "plugin_deinit");
         if(!deinit_func)
@@ -135,10 +135,10 @@ plugin_load(struct game_t* game,
             llog(LOG_ERROR, game, NULL, 1, "Error initialising plugin: \"plugin_init\" returned NULL");
             break;
         }
-        
+
         /* get the version string the plugin claims to be */
         plugin_get_version_string(version_str, &plugin->info);
-        
+
         /* ensure the plugin claims to be the same version as its filename */
         if(!plugin_version_acceptable(&plugin->info, filename, PLUGIN_VERSION_EXACT))
         {
@@ -151,7 +151,7 @@ plugin_load(struct game_t* game,
             );
             break;
         }
-        
+
         /*
          * If the program has reached this point, it means the plugin has
          * successfully been loaded and passed basic verification. Copy all
@@ -165,7 +165,7 @@ plugin_load(struct game_t* game,
         plugin->stop = stop_func;
         plugin->deinit = deinit_func;
         list_push(&game->plugins, plugin);
-        
+
         /* print info about loaded plugin */
         llog(LOG_INFO, game, NULL, 4,
             "loaded plugin \"",
@@ -173,12 +173,12 @@ plugin_load(struct game_t* game,
             "\", version ",
             version_str
         );
-        
+
         free_string(filename);
         return plugin;
     }
 
-    /* 
+    /*
      * If the program reaches this point, it means something went wrong with
      * loading the plugin. Clean up...
      */
@@ -188,7 +188,7 @@ plugin_load(struct game_t* game,
         module_close(handle);
     if(plugin)
         plugin_destroy(plugin);
-    
+
     return NULL;
 }
 
@@ -199,10 +199,10 @@ load_plugins_from_yaml_dom(struct game_t* game, const struct ptree_t* plugins_no
     struct plugin_info_t target;
     struct unordered_vector_t new_plugins;
     char success = 1;
-    
+
     /* holds a list of successfully loaded plugins that haven't been started */
     unordered_vector_init_vector(&new_plugins, sizeof(struct plugin_t*));
-    
+
     /* load all plugins listed in the plugins node */
     {
         MAP_FOR_EACH(&plugins_node->children, struct ptree_t, key, child)
@@ -210,7 +210,7 @@ load_plugins_from_yaml_dom(struct game_t* game, const struct ptree_t* plugins_no
             struct plugin_t* plugin;
             plugin_search_criteria_t criteria;
             char* policy_str;
-            
+
             /* extract information from tree */
             const struct ptree_t* name = ptree_get_node_no_depth(child, "name");
             const struct ptree_t* version = ptree_get_node_no_depth(child, "version");
@@ -232,24 +232,24 @@ load_plugins_from_yaml_dom(struct game_t* game, const struct ptree_t* plugins_no
                 llog(LOG_WARNING, game, NULL, 1, "Key \"version_policy\" isn't defined for plugin. Using default \"minimum\"");
                 policy_str = "minimum";
             }
-            
+
             /*
              * Time to fill out the plugin info struct with the gathered info
              */
-            
+
             /* the plugin name */
             target.name = (char*)name->value;
-            
+
             /* convert version string */
             if(!plugin_extract_version_from_string((char*)version->value,
                                                 &target.version.major,
                                                 &target.version.minor,
                                                 &target.version.patch))
             {
-                llog(LOG_ERROR, game, NULL, 1, "Version string of plugin \"", name, "\" is invalid. Should be major.minor.patch");
+                llog(LOG_ERROR, game, NULL, 3, "Version string of plugin \"", name, "\" is invalid. Should be major.minor.patch");
                 continue;
             }
-            
+
             /* determin version policy */
             if(strncmp("minimum", policy_str, 7) == 0)
                 criteria = PLUGIN_VERSION_MINIMUM;
@@ -261,7 +261,7 @@ load_plugins_from_yaml_dom(struct game_t* game, const struct ptree_t* plugins_no
                                          "Need either \"minimum\" or \"exact\"");
                 continue;
             }
-            
+
             /* load plugin, and add to the list of loaded plugins */
             plugin = plugin_load(game, &target, criteria);
             if(!plugin)
@@ -294,19 +294,19 @@ plugin_unload(struct game_t* game, struct plugin_t* plugin)
 {
     void* module_handle;
     llog(LOG_INFO, game, NULL, 3, "unloading plugin \"", plugin->info.name, "\"");
-    
+
     /* stop the plugin */
     plugin_stop(plugin);
-    
+
     /* TODO notify everything that this plugin is about to be unloaded */
 
     /* unregister all services and events registered by this plugin */
-    service_unregister_all(plugin);
+    service_destroy_all_matching(plugin);
     /* TODO once the new functions can be called, insert them here
     event_destroy_all_plugin_events(plugin);
     event_unregister_all_listeners_of_plugin(plugin); */
 
-    /* 
+    /*
      * NOTE The plugin object becomes invalid as soon as plugin_deinit() is
      * called. That is why the module handle must first be extracted before
      * stopping the plugin, so we can unload the module safely.
@@ -386,8 +386,8 @@ find_plugin(struct game_t* game,
             info->version.patch);
     llog(LOG_INFO, game, NULL, 4, "looking for plugin \"", info->name, crit_info[criteria],
             version_str);
-    
-    /* 
+
+    /*
      * Get list of files in various plugin directories.
      */
     list = list_create();
@@ -395,13 +395,13 @@ find_plugin(struct game_t* game,
     get_directory_listing(list, "plugins\\");
 #else
     get_directory_listing(list, "plugins/");
-#endif 
+#endif
 
     /* search for plugin file name matching criteria */
     { /* need these braces because LIST_FOR_EACH declares new variables */
         LIST_FOR_EACH(list, char, name)
         {
-            if(!file_found && 
+            if(!file_found &&
                 strstr(name, info->name) &&
                 plugin_version_acceptable(info, name, criteria))
             {
@@ -409,7 +409,7 @@ find_plugin(struct game_t* game,
             }
             else
             {
-                /* 
+                /*
                  * get_directory_listing() allocates the strings it pushes into
                  * the linked list, and it is up to us to free them.
                  */
@@ -417,9 +417,9 @@ find_plugin(struct game_t* game,
             }
         }
     }
-    
+
     /* free list of directories */
     list_destroy(list);
-    
+
     return file_found;
 }

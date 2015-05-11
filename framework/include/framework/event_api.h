@@ -105,7 +105,7 @@ EVENT_LISTENER1(on_event, int arg)
  */
 #   define ELSE_REPORT_EVENT_FIRE_FAILURE(event)                                    \
                 } else {                                                            \
-                    uint32_t size, i;                                               \
+                    int size, i;                                                    \
                     char** backtrace = get_backtrace(&size);                        \
                     llog(LOG_ERROR, (event)->game, NULL, 1, "Cannot fire event for it is NULL");\
                     llog_indent((event)->game, "Backtrace");                        \
@@ -310,7 +310,6 @@ struct event_t
 
 struct event_listener_t
 {
-    char* name_space;
     event_callback_func exec;
     /*
      * See issue #14.
