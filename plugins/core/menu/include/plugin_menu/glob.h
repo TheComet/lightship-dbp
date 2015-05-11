@@ -26,11 +26,6 @@ struct glob_menu_t
 
 struct glob_services_t
 {
-    struct service_t* yaml_load;
-    struct service_t* yaml_get_value;
-    struct service_t* yaml_get_dom;
-    struct service_t* yaml_destroy;
-
     struct service_t* shapes_2d_begin;
     struct service_t* shapes_2d_end;
     struct service_t* shapes_2d_destroy;
