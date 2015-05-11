@@ -11,22 +11,8 @@
 #include <assert.h>
 #include <wchar.h>
 
-/*!
- * @brief Allocates and registers a new service. This is for internal use.
- * @param[in] full_name The full name, including namespace, of the service to
- * create and register.
- * @note *full_name* is owned by the service object after calling this function
- * and will be freed automatically. Therefore, you should pass a malloc'd string
- * as a parameter.
- * @param exec The function address of the callback function of the service.
- */
-static char
-service_malloc_and_register(struct game_t* game,
-                            char* full_name,
-                            const service_callback_func exec,
-                            const char* ret_type,
-                            const int argc,
-                            const char** argv);
+static void
+service_free(struct service_t* service);
 
 static service_script_type_e
 service_get_c_type_equivalent_from_script_type(const char* type);
@@ -38,8 +24,6 @@ service_get_c_type_equivalent_from_service_type(const char* type);
 char
 services_init(struct game_t* game)
 {
-    char* name;
-
     assert(game);
 
     ptree_init_ptree(&game->services, NULL);
@@ -50,16 +34,9 @@ services_init(struct game_t* game)
 
     for(;;)
     {
-        name = malloc_string("start");                                                      if(!name) break;
-        if(!service_malloc_and_register(game, name, game_start_wrapper, "void", 0, NULL))   break;
-        name = malloc_string("pause");                                                      if(!name) break;
-        if(!service_malloc_and_register(game, name, game_pause_wrapper, "void", 0, NULL))   break;
-        name = malloc_string("exit");                                                       if(!name) break;
-        if(!service_malloc_and_register(game, name, game_exit_wrapper, "void", 0, NULL))    break;
-
-        game->service.start = service_get(game, "start");
-        game->service.pause = service_get(game, "pause");
-        game->service.exit = service_get(game, "exit");
+        if(!(game->service.start = service_create(game, "start", game_start_wrapper, "void", 0, NULL))) break;
+        if(!(game->service.pause = service_create(game, "pause", game_pause_wrapper, "void", 0, NULL))) break;
+        if(!(game->service.exit  = service_create(game, "exit",  game_exit_wrapper,  "void", 0, NULL))) break;
 
         return 1;
     }
@@ -76,114 +53,108 @@ services_deinit(struct game_t* game)
 }
 
 /* ------------------------------------------------------------------------- */
-char
-service_register(struct game_t* game,
-                 const struct plugin_t* plugin,
-                 const char* name,
-                 const service_callback_func exec,
-                 const char* ret_type,
-                 const int argc,
-                 const char** argv)
-{
-    char* full_name;
-
-    assert(game);
-    assert(plugin);
-    assert(name);
-    assert(exec);
-    assert(ret_type);
-
-    /* check if service is already registered */
-    full_name = cat_strings(3, plugin->info.name, ".", name);
-    if(!full_name)
-        return 0;
-    if(service_get(game, full_name))
-    {
-        free_string(full_name);
-        return 0;
-    }
-
-    if(!service_malloc_and_register(game, full_name, exec, ret_type, argc, argv))
-        return 0;
-
-    return 1;
-}
-
-/* ------------------------------------------------------------------------- */
-static char
-service_malloc_and_register(struct game_t* game,
-                            char* full_name,
-                            const service_callback_func exec,
-                            const char* ret_type,
-                            const int argc,
-                            const char** argv)
+struct service_t*
+service_create(struct game_t* game,
+               const char* directory,
+               const service_callback_func exec,
+               const char* ret_type,
+               const int argc,
+               const char** argv)
 {
     struct service_t* service;
+    struct ptree_t* node;
 
     assert(game);
-    assert(full_name);
+    assert(directory);
     assert(exec);
     assert(ret_type);
+    if(argc)
+        assert(argv);
 
-    /* create service and add to list */
-    service = (struct service_t*)MALLOC(sizeof(struct service_t));
-    if(!service)
-        OUT_OF_MEMORY("service_malloc_and_register()", 0);
+    /* create node in game's event directory */
+    if(!(node = ptree_add_node(&game->events, directory, NULL)))
+        return NULL;
+
+    /* allocate and initialise event object, and add it to the directory */
+    if(!(service = (struct service_t*)MALLOC(sizeof(struct service_t))))
+        OUT_OF_MEMORY("event_create()", NULL);
     memset(service, 0, sizeof(struct service_t));
     service->game = game;
-    service->name = full_name;
+    service->directory = malloc_string(directory);
     service->exec = exec;
+    node->value = service;
 
-    /* copy type info */
+    /* copy return type info */
+    service->ret_type = malloc_string(ret_type);
+    if(!service->ret_type)
     {
-        int i;
+        service_destroy(service);
+        OUT_OF_MEMORY("service_malloc_and_register()", NULL);
+    }
 
-        /* copy return type */
-        service->ret_type = malloc_string(ret_type);
-        if(!service->ret_type)
-        {
-            service_free(service);
-            return 0;
-        }
+    /* create argument type vector */
+    service->argv_type = (char**)MALLOC(argc * sizeof(char*));
+    if(!service->argv_type)
+    {
+        service_destroy(service);
+        OUT_OF_MEMORY("service_malloc_and_register()", NULL);
+    }
 
-        /* create argument type vector */
-        service->argv_type = (char**)MALLOC(argc * sizeof(char*));
-        if(!service->argv_type)
-        {
-            service_free(service);
-            OUT_OF_MEMORY("service_malloc_and_register()", 0);
-        }
-
-        /* copy argument type vector */
+    /* copy argument types */
+    {   int i;
         for(i = 0; i != argc; ++i)
         {
             service->argv_type[i] = malloc_string(argv[i]);
             if(!service->argv_type[i])
             {
-                service_free(service);
-                return 0;
+                service_destroy(service);
+                OUT_OF_MEMORY("service_malloc_and_register()", NULL);
             }
             ++service->argc;
         }
     }
-    if(!map_insert(&game->services, hash_jenkins_oaat(full_name, strlen(full_name)), service))
-        return 0;
 
-    return 1;
+    return service;
 }
 
 /* ------------------------------------------------------------------------- */
 void
+service_destroy(struct service_t* service)
+{
+    struct ptree_t* node;
+
+    assert(service);
+    assert(service->game);
+    assert(service->directory);
+
+    if(!(node = ptree_get_node(&service->game->services, service->directory)))
+    {
+        llog(LOG_ERROR, service->game, NULL, 5, "Attempted to destroy the "
+            "service \"", service->directory, "\", but the associated game "
+            "object with name \"", service->game->name, "\" doesn't own it! "
+            "The service will not be destroyed.");
+        return;
+    }
+
+    /* unlink service and destroy node */
+    node->value = NULL;
+    ptree_destroy(node);
+
+    service_free(service);
+}
+
+/* ------------------------------------------------------------------------- */
+static void
 service_free(struct service_t* service)
 {
     uint32_t i;
 
     assert(service);
-    assert(service->name);
+    assert(service->directory);
     assert(service->ret_type);
     assert(service->argv_type);
 
-    free_string(service->name);
+    free_string(service->directory);
     free_string((char*)service->ret_type);
     for(i = 0; i != service->argc; ++i)
         free_string((char*)service->argv_type[i]);
@@ -192,78 +163,25 @@ service_free(struct service_t* service)
 }
 
 /* ------------------------------------------------------------------------- */
-char
-service_unregister(struct game_t* game,
-                   const struct plugin_t* plugin,
-                   const char* name)
+uint32_t
+service_destroy_all_matching(const char* pattern)
 {
-    char* full_name;
-    uint32_t hash;
-    struct service_t* service;
-
-    assert(game);
-    assert(plugin);
-    assert(plugin->info.name);
-    assert(name);
-
-    full_name = cat_strings(3, plugin->info.name, ".", name);
-    if(!full_name)
-        return 0;
-
-    /* remove service from map */
-    hash = hash_jenkins_oaat(full_name, strlen(full_name));
-    free_string(full_name);
-    if(!(service = map_erase(&game->services, hash)))
-        return 0;
-    service_free(service);
-
-    return 1;
-}
-
-/* ------------------------------------------------------------------------- */
-char
-service_unregister_all(const struct plugin_t* plugin)
-{/* TODO
-    char* name;
-    int len;
-
-    assert(plugin);
-    assert(plugin->info.name);
-    assert(plugin->game);
-
-    name = cat_strings(2, plugin->info.name, ".");
-    if(!name)
-        return 0;
-
-    len = strlen(plugin->info.name);
-    {
-        PTREE_FOR_EACH_IN_NODE(&plugin->game->services, node)
-        {
-            struct service_t* service = (struct service_t*)node->value;
-            if(strncmp(service->name, name, len) == 0)
-            {
-                service_free(service);
-                MAP_ERASE_CURRENT_ITEM_IN_FOR_LOOP(&plugin->game->services);
-            }
-        }
-    }
-    free_string(name);*/
-
-    return 1;
+    return 0;
 }
 
 /* ------------------------------------------------------------------------- */
 struct service_t*
-service_get(struct game_t* game, const char* name)
+service_get(struct game_t* game, const char* directory)
 {
-    struct service_t* service;
+    struct ptree_t* node;
 
-    assert(name);
+    assert(game);
+    assert(directory);
 
-    if(!(service = map_find(&game->services, hash_jenkins_oaat(name, strlen(name)))))
-        return 0;
-
-    return service;
+    if(!(node = ptree_get_node(&game->services, directory)))
+        return NULL;
+    assert(node->value);
+    return (struct service_t*)node->value;
 }
 
 /* ------------------------------------------------------------------------- */
@@ -273,7 +191,7 @@ service_create_argument_list_from_strings(struct service_t* service, struct orde
     void** ret;
 
     assert(service);
-    assert(service->name);
+    assert(service->directory);
     assert(argv);
 
     /* check argument count */
@@ -284,7 +202,7 @@ service_create_argument_list_from_strings(struct service_t* service, struct orde
         sprintf(argc_provided, "%d", (int)argv->count);
         sprintf(argc_required, "%d", service->argc);
         llog(LOG_ERROR, service->game, NULL, 3, "Cannot create argument list for service \"",
-             service->name, "\": Wrong number of arguments");
+             service->directory, "\": Wrong number of arguments");
         llog(LOG_ERROR, service->game, NULL, 2, "    Required: ", argc_required);
         llog(LOG_ERROR, service->game, NULL, 2, "    Provided: ", argc_provided);
         return NULL;
@@ -374,7 +292,7 @@ service_create_argument_list_from_strings(struct service_t* service, struct orde
                     break;
                 default:
                     llog(LOG_ERROR, service->game, NULL, 4, "Cannot create argument list for service \"",
-                         service->name, "\": Unknown type \"", str, "\"");
+                         service->directory, "\": Unknown type \"", str, "\"");
                     failed = 1;
                     break;
             }

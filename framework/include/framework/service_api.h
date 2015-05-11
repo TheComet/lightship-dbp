@@ -11,10 +11,10 @@ typedef void (*service_callback_func)(struct service_t* service, void* ret, cons
 
 /*!
  * @brief Helper macro for defining a service function.
- * 
+ *
  * This can be used in the header file to create a function prototype as well
  * as in the source file to define the function body.
- * 
+ *
  * The resulting function signature defines 3 arguments:
  *   - service: The service object that called the service function. This can
  *              be used to extract the game object (service->game), retrieve
@@ -45,15 +45,15 @@ typedef void (*service_callback_func)(struct service_t* service, void* ret, cons
  * SERVICE_EXTRACT_ARGUMENT_PTR() instead.
  * @note *cast_from* and *cast_to* are necessary because there are two
  * dereferences. You can think of it as the extracted value being stored into
- * a "temporary state" before casted to its final type. The type it has in its
- * temporary state must be equal to the type it had when it was first inserted
- * into the argument vector. Most of the time, *cast_from* and *cast_to* will
- * be identical, but there are (rare) cases where they differ, namely in the
- * renderer plugin with floats: Internally, floats are of type GLfloat, but
- * because the caller does not have access to GLfloat, he will pass it as a
- * normal float. In order for the cast from float to GLfloat to be successful,
- * the void-pointer must first be cast to a float-pointer (*cast_from*), and
- * finally cast to a GLfloat-pointer (*cast_to*)
+ * an intermediate before being casted to its final type. The type it has in
+ * its intermediate state must be equal to the type it had when it was first
+ * inserted into the argument vector. Most of the time, *cast_from* and
+ * *cast_to* will be identical, but there are (rare) cases where they differ,
+ * namely in the renderer plugin with floats: Internally, floats are of type
+ * GLfloat, but because the caller does not have access to GLfloat, he will
+ * pass it as a normal float. In order for the cast from float to GLfloat to be
+ * successful, the void-pointer must first be cast to a float-pointer
+ * (*cast_from*), and finally cast to a GLfloat-pointer (*cast_to*).
  */
 #define SERVICE_EXTRACT_ARGUMENT(index, var, cast_from, cast_to) \
     cast_to var = (cast_to) *(cast_from*)argv[index]
@@ -246,11 +246,11 @@ typedef void (*service_callback_func)(struct service_t* service, void* ret, cons
 struct service_t
 {
     struct game_t* game;
-    char* name;
-    uint32_t argc;
+    char* directory;
     char* ret_type;
     char** argv_type;
     service_callback_func exec;
+    uint32_t argc;
 };
 
 #endif /* FRAMEWORK_SERVICE_H */

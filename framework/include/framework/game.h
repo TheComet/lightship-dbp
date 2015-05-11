@@ -73,6 +73,12 @@ struct game_t
     struct map_t global_data;   /* maps hashed plugin names to glob structs used by this game */
 };
 
+FRAMEWORK_PUBLIC_API void
+game_init(void);
+
+FRAMEWORK_PUBLIC_API void
+game_deinit(void);
+
 FRAMEWORK_PUBLIC_API struct game_t*
 game_create(const char* name, game_network_role_e net_role);
 

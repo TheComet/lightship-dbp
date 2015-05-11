@@ -47,46 +47,27 @@ services_deinit(struct game_t* game);
 
 /*!
  * @brief Registers a service to the global service directory.
- * @param[in] plugin The plugin the service belongs to. The plugin name is used
- * to create the namespace under which the service name is registered.
- * @param[in] name The name of the service. This should be unique within the
- * plugin, but can have the same name as other services in different plugins.
+ * @param[in] directory The name of the service. This should be unique within
+ * the plugin, but can have the same name as other services in different
+ * plugins.
  * @param[in] exec A function pointer to the service function.
  */
-FRAMEWORK_PUBLIC_API char
-service_register(struct game_t* game,
-                 const struct plugin_t* plugin,
-                 const char* name,
-                 const service_callback_func exec,
-                 const char* ret_type,
-                 const int argc,
-                 const char** argv);
-
-/*!
- * @brief Frees the specified service object's contents and object itself.
- * @param service The service object to free
- */
-FRAMEWORK_PUBLIC_API void
-service_free(struct service_t* service);
+FRAMEWORK_PUBLIC_API struct service_t*
+service_create(struct game_t* game,
+               const char* directory,
+               const service_callback_func exec,
+               const char* ret_type,
+               const int argc,
+               const char** argv);
 
 /*!
  * @brief Unregisters a service from the global service directory.
- * @param[in] plugin The plugin the service belongs to. The plugin name is used
- * to create the namespace under which the service is registered.
- * @param[in] name The name of the service to unregister.
  */
-FRAMEWORK_PUBLIC_API char
-service_unregister(struct game_t* game,
-                   const struct plugin_t* plugin,
-                   const char* name);
+FRAMEWORK_PUBLIC_API void
+service_destroy(struct service_t* service);
 
-/*!
- * @brief Unregisters all services that were previously registered by the
- * specified plugin.
- * @param[in] plugin The plugin to unregister all services.
- */
-FRAMEWORK_PUBLIC_API char
-service_unregister_all(const struct plugin_t* plugin);
+FRAMEWORK_PUBLIC_API uint32_t
+service_destroy_all_matching(const char* pattern);
 
 /*!
  * @brief Retrieves the specified service from the global service directory.
@@ -97,7 +78,7 @@ service_unregister_all(const struct plugin_t* plugin);
  * registered by the plugin. If the service does not exist, 0 is returned.
  */
 FRAMEWORK_PUBLIC_API struct service_t*
-service_get(struct game_t* game, const char* name);
+service_get(struct game_t* game, const char* directory);
 
 FRAMEWORK_PUBLIC_API char
 service_do_typecheck(const struct service_t* service, const char* ret_type, uint32_t argc, const char** argv);
