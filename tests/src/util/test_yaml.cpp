@@ -27,6 +27,16 @@ static const char* basic_yml =
 "            age: 394\n"
 "            sex: dad\n";
 
+static const char* anchor_yml =
+"copyable_item:\n"
+"    item1: value1\n"
+"    item2: value2\n"
+"some_thing:\n"
+"    another_thing:\n"
+"        values: *copyable_item\n"
+"    another_thing2:\n"
+"        values: *copyable_item\n";
+
 TEST(NAME, get_value_in_basic_yaml_doc)
 {
     struct ptree_t* doc;
@@ -76,6 +86,20 @@ TEST(NAME, iterate_nodes_in_basic_yaml_doc)
             StrEq("Big Daddy")));
     }
     YAML_END_FOR_EACH
+
+    yaml_destroy(doc);
+}
+
+TEST(NAME, anchors_copy_ptree_correctly)
+{
+    struct ptree_t* doc;
+
+    ASSERT_THAT((doc = yaml_load_from_memory(anchor_yml)), NotNull());
+
+    ASSERT_THAT(yaml_get_value(doc, "some_thing.another_thing.values.item1"), StrEq("value1"));
+    ASSERT_THAT(yaml_get_value(doc, "some_thing.another_thing.values.item2"), StrEq("value2"));
+    ASSERT_THAT(yaml_get_value(doc, "some_thing.another_thing2.values.item1"), StrEq("value1"));
+    ASSERT_THAT(yaml_get_value(doc, "some_thing.another_thing2.values.item2"), StrEq("value2"));
 
     yaml_destroy(doc);
 }

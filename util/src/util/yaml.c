@@ -368,7 +368,8 @@ yaml_load_into_ptree(struct ptree_t* tree,
                     const struct ptree_t* source = yaml_get_node(root_node, (char*)event.data.alias.anchor);
                     if(source)
                     {
-                        if(!ptree_duplicate_children_into_existing_node(tree, source))
+                        struct ptree_t* child = yaml_set_value(tree, key, NULL);
+                        if(!ptree_duplicate_children_into_existing_node(child, source))
                         {
                             fprintf(stderr, "[yaml] Failed to duplicate tree (anchor copy failed)\n");
                             finished = FINISH_ERROR;
