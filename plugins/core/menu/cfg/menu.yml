@@ -111,42 +111,50 @@ screens:
     # Main Screen
     ###########################################################################
 
-    screen:
+  - main_screen:
         name: main screen
-        button: *btn_host
-        button: *btn_join
-        button: *btn_map_editor
-        button: *btn_settings
-        button: *btn_quit
+        buttons:
+          - *btn_host
+          - *btn_join
+          - *btn_map_editor
+          - *btn_settings
+          - *btn_quit
 
-    screen:
+  - host_screen:
         name: host
-        button: *btn_back_to_main
+        buttons:
+          - *btn_back_to_main
 
-    screen:
+  - join_screen:
         name: join
-        button: *btn_back_to_main
+        buttons:
+          - *btn_back_to_main
 
-    screen:
+  - map_editor_screen:
         name: map editor
-        button: *btn_back_to_main
+        buttons:
+          - *btn_back_to_main
 
-    screen:
+  - settings_screen:
         name: settings
-        button: *btn_settings_input
-        button: *btn_settings_audio
-        button: *btn_settings_video
-        button: *btn_back_to_main
+        buttons:
+          - *btn_settings_input
+          - *btn_settings_audio
+          - *btn_settings_video
+          - *btn_back_to_main
     
-    screen:
+  - input_screen:
         name: input
-        button: *btn_back_to_settings
+        buttons:
+          - *btn_back_to_settings
     
-    screen:
+  - audio_screen:
         name: audio
-        button: *btn_back_to_settings
+        buttons:
+          - *btn_back_to_settings
     
-    screen:
+  - video_screen:
         name: video
-        button: *btn_back_to_settings
+        buttons:
+          - *btn_back_to_settings
     
