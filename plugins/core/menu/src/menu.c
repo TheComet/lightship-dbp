@@ -49,8 +49,7 @@ menu_load(struct glob_t* g, const char* file_name)
 {
     struct menu_t* menu;
     struct ptree_t* doc;
-    struct ptree_t* screens;
-    char* menu_name;
+    const char* menu_name;
 
     llog(LOG_INFO, g->game, PLUGIN_NAME, 3, "Loading menu from file \"", file_name, "\"");
 
@@ -60,8 +59,7 @@ menu_load(struct glob_t* g, const char* file_name)
         return NULL;
 
     /* get ptree for screens */
-    screens = yaml_get_node(doc, "screens");
-    if(!screens)
+    if(!yaml_get_node(doc, "screens"))
     {
         llog(LOG_ERROR, g->game, PLUGIN_NAME, 1, "Failed to find \"screens\" node");
         yaml_destroy(doc);
@@ -69,16 +67,12 @@ menu_load(struct glob_t* g, const char* file_name)
     }
 
     /* menu must have a name */
+    menu_name = yaml_get_value(doc, "name");
+    if(!menu_name)
     {
-        struct ptree_t* name_node = yaml_get_node(doc, "name");
-        if(name_node && name_node->value)
-            menu_name = name_node->value;
-        else
-        {
-            llog(LOG_ERROR, g->game, PLUGIN_NAME, 1, "Failed to find \"name\" node");
-            yaml_destroy(doc);
-            return NULL;
-        }
+        llog(LOG_ERROR, g->game, PLUGIN_NAME, 1, "Failed to find \"name\" node");
+        yaml_destroy(doc);
+        return NULL;
     }
 
     /* create new menu object in which to store menu elements */
@@ -89,20 +83,20 @@ menu_load(struct glob_t* g, const char* file_name)
     /* Add menu to global list */
     menu->id = ++g->menu.gid;
 
+    /* set the name of the menu */
+    menu->name = malloc_string(menu_name);
+
     /* cache glob */
     menu->glob = g;
 
-    /* set menu name */
-    menu->name = malloc_string(menu_name);
-
     /* load all screens into menu structure */
-    menu_load_screens(menu, screens);
+    menu_load_screens(menu, doc);
 
     /* screens are hidden by default. Show the screen specified in start_screen */
     {
-        struct ptree_t* start_node = yaml_get_node(doc, "start_screen");
-        if(start_node && start_node->value)
-            menu_set_active_screen(menu, (char*)start_node->value);
+        const char* start_screen;
+        if((start_screen = yaml_get_value(doc, "start_screen")))
+            menu_set_active_screen(menu, start_screen);
         else
             llog(LOG_WARNING, g->game, PLUGIN_NAME, 1, "You didn't specify start_screen: \"name\" in your YAML file. Don't know which screen to begin with.");
     }
@@ -154,60 +148,49 @@ menu_set_active_screen(struct menu_t* menu, const char* name)
 /* STATIC FUNCTIONS */
 /* ------------------------------------------------------------------------- */
 static void
-menu_load_screens(struct menu_t* menu, const struct ptree_t* screens)
+menu_load_screens(struct menu_t* menu, const struct ptree_t* doc)
 {
     struct map_t created_screen_names;
     map_init_map(&created_screen_names);
 
     /* iterate screens */
-    { YAML_FOR_EACH(screens, ".", key, screen_node)
+    { YAML_FOR_EACH(doc, "screens", key, screen_node)
     {
-        /* handle screens */
-        if(PTREE_HASH_STRING("screen") == key)
+        struct screen_t* screen;
+        const char* screen_name = yaml_get_value(screen_node, "name");
+
+        /* get screen name */
+        if(!screen_name)
         {
-            struct screen_t* screen;
-            char* screen_name;
-
-            /* get screen name */
-            {
-                struct ptree_t* screen_name_node = yaml_get_node(screen_node, "name");
-                if(screen_name_node && screen_name_node->value)
-                {
-                    screen_name = (char*)screen_name_node->value;
-                }
-                else
-                {
-                    llog(LOG_WARNING, menu->glob->game, PLUGIN_NAME, 1, "Screen missing the \"name\" property. Skipping.");
-                    continue;
-                }
-            }
-
-            /*
-            * Screen names must be unique. Verify by searching the map of
-            * screens currently registered.
-            */
-            if(map_key_exists(&created_screen_names, hash_jenkins_oaat(screen_name, strlen(screen_name))))
-            {
-                llog(LOG_WARNING, menu->glob->game, PLUGIN_NAME, 2, "Screen with duplicate name found: ", screen_name);
-                llog(LOG_WARNING, menu->glob->game, PLUGIN_NAME, 1, "Screen will not be created");
-                continue;
-            }
-            map_insert(&created_screen_names, hash_jenkins_oaat(screen_name, strlen(screen_name)), NULL);
-
-            /* create new screen object */
-            screen = screen_create();
-            map_insert(&menu->screens, hash_jenkins_oaat(screen_name, strlen(screen_name)), screen);
-
-            /* iterate objects to add to this screen */
-            { PTREE_FOR_EACH_IN_NODE(screen_node, key, object_node)
-            {
-                if(PTREE_HASH_STRING("button") == key)
-                    menu_load_button(menu->glob, screen, object_node);
-            }}
-
-            /* hide the screen by default */
-            screen_hide(screen);
+            llog(LOG_WARNING, menu->glob->game, PLUGIN_NAME, 1, "Screen missing the \"name\" property. Skipping.");
+            continue;
         }
+
+        /*
+        * Screen names must be unique. Verify by searching the map of
+        * screens currently registered.
+        */
+        if(map_key_exists(&created_screen_names, hash_jenkins_oaat(screen_name, strlen(screen_name))))
+        {
+            llog(LOG_WARNING, menu->glob->game, PLUGIN_NAME, 2, "Screen with duplicate name found: ", screen_name);
+            llog(LOG_WARNING, menu->glob->game, PLUGIN_NAME, 1, "Screen will not be created");
+            continue;
+        }
+        map_insert(&created_screen_names, hash_jenkins_oaat(screen_name, strlen(screen_name)), NULL);
+
+        /* create new screen object */
+        screen = screen_create();
+        map_insert(&menu->screens, hash_jenkins_oaat(screen_name, strlen(screen_name)), screen);
+
+        /* iterate objects to add to this screen */
+        { YAML_FOR_EACH(screen_node, "buttons", key, button_node)
+        {
+            menu_load_button(menu->glob, screen, button_node);
+        }
+        YAML_END_FOR_EACH }
+
+        /* hide the screen by default */
+        screen_hide(screen);
     }
     YAML_END_FOR_EACH }
 
