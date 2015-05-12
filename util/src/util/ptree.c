@@ -33,7 +33,7 @@ ptree_duplicate_children_into_existing_node_recurse(struct ptree_t* target,
                                                     const struct ptree_t* source);
 
 static struct ptree_t*
-ptree_find_in_tree_recurse(const struct ptree_t* tree);
+ptree_find_in_tree_recurse(const struct ptree_t* tree, char** saveptr);
 
 static void
 ptree_print_impl(const struct ptree_t* tree, uint32_t depth);
@@ -425,10 +425,11 @@ ptree_get_node(const struct ptree_t* tree, const char* key)
 {
     /* prepare key for tokenisation */
     struct ptree_t* result;
+    char* saveptr;
     char* key_iter = cat_strings(2, "n.", key); /* root key name is ignored, but must exist */
-    strtok(key_iter, node_delim);
+    strtok_r(key_iter, node_delim, &saveptr);
 
-    result = ptree_find_in_tree_recurse(tree);
+    result = ptree_find_in_tree_recurse(tree, &saveptr);
     free_string(key_iter);
     return result;
 }
@@ -492,7 +493,7 @@ ptree_destroy_recurse(struct ptree_t* tree)
 
 /* ------------------------------------------------------------------------- */
 static struct ptree_t*
-ptree_find_in_tree_recurse(const struct ptree_t* tree)
+ptree_find_in_tree_recurse(const struct ptree_t* tree, char** saveptr)
 {
     /*
      * Get next token, hash, and search in current node. If the tree is NULL
@@ -500,11 +501,11 @@ ptree_find_in_tree_recurse(const struct ptree_t* tree)
      * for.
      */
     char* token;
-    if((token = strtok(NULL, node_delim)) && tree)
+    if((token = strtok_r(NULL, node_delim, saveptr)) && tree)
     {
         struct ptree_t* child;
         child = map_find(&tree->children, PTREE_HASH_STRING(token));
-        return ptree_find_in_tree_recurse(child);
+        return ptree_find_in_tree_recurse(child, saveptr);
     } else
         return (struct ptree_t*)tree;
 }
