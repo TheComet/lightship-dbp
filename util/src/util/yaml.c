@@ -15,11 +15,11 @@ yaml_load_into_ptree(struct ptree_t* tree,
                      yaml_parser_t* parser,
                      char is_sequence);
 
-static struct unordered_vector_t*
-yaml_dup_node_value_func(struct unordered_vector_t* vec);
+static char*
+yaml_dup_node_value_func(char* value);
 
 static void
-yaml_free_node_value_func(struct unordered_vector_t* vec);
+yaml_free_node_value_func(char* value);
 
 static struct ptree_t*
 yaml_init_node(struct ptree_t* node);
@@ -98,7 +98,7 @@ yaml_load_from_stream(FILE* stream)
     {
         yaml_parser_delete(&parser);
         ptree_destroy(doc);
-        fprintf(stderr, "Syntax error: Failed to parse YAML.");
+        fprintf(stderr, "Syntax error: Failed to parse YAML.\n");
         return 0;
     }
 
@@ -128,7 +128,7 @@ yaml_get_value(const struct ptree_t* doc, const char* key)
         return NULL;
 
     /* return the last item in the vector */
-    return *(const char**)unordered_vector_back((struct unordered_vector_t*)node->value);
+    return (const char*)node->value;
 }
 
 /* ------------------------------------------------------------------------- */
@@ -157,23 +157,12 @@ struct ptree_t*
 yaml_set_value(struct ptree_t* doc, const char* key, const char* value)
 {
     struct ptree_t* node;
-    struct unordered_vector_t* vec;
 
-    /* handle duplicate keys by storing a vector as the value */
-    if((node = ptree_add_node(doc, key, NULL)))
-    {
-        if(!yaml_init_node(node))
-            return NULL;
-    }
-    else /* duplicate key, get existing node */
-    {
-        if(!(node = ptree_get_node(doc, key)))
-            return NULL;
-    }
-    vec = (struct unordered_vector_t*)node->value;
-
-    /* add yaml value */
-    unordered_vector_push(vec, &value);
+    if(!(node = ptree_add_node(doc, key, NULL)))
+        return NULL;
+    yaml_init_node(node);
+    if(value)
+        node->value = malloc_string(value);
 
     return node;
 }
@@ -182,9 +171,6 @@ yaml_set_value(struct ptree_t* doc, const char* key, const char* value)
 static struct ptree_t*
 yaml_init_node(struct ptree_t* node)
 {
-    if(!(node->value = unordered_vector_create(sizeof(char*))))
-        return NULL;
-
     /* init duplication and free functions */
     ptree_set_dup_func(node, (ptree_dup_func)yaml_dup_node_value_func);
     ptree_set_free_func(node, (ptree_free_func)yaml_free_node_value_func);
@@ -195,53 +181,21 @@ yaml_init_node(struct ptree_t* node)
 /* ------------------------------------------------------------------------- */
 /*
  * Takes the value of a yaml node (node->value) and duplicates it.
- * Each yaml node points to a vector container, which in turn contains all
- * strings of the yaml node.
  */
-static struct unordered_vector_t*
-yaml_dup_node_value_func(struct unordered_vector_t* vec)
+static char*
+yaml_dup_node_value_func(char* value)
 {
-    struct unordered_vector_t* new_vec;
-
-    for(;;)
-    {
-        /* create new vector and copy all strings into it */
-        if(!(new_vec = unordered_vector_create(sizeof(char*))))
-            break;
-        { UNORDERED_VECTOR_FOR_EACH(vec, char*, pstr)
-        {
-            char* new_str;
-            if(!(new_str = malloc_string(*pstr)))
-                break;
-            unordered_vector_push(new_vec, &new_str);
-        }}
-
-        /* return the new vector */
-        return new_vec;
-    }
-
-    if(new_vec)
-        unordered_vector_destroy(new_vec);
-
-    return NULL;
+    return malloc_string(value);
 }
 
 /* ------------------------------------------------------------------------- */
 /*
  * Takes the value of a yaml node (node->value) and frees it.
- * Each yaml node points to a vector container, which in turn contains all
- * strings of the yaml node.
  */
 static void
-yaml_free_node_value_func(struct unordered_vector_t* vec)
+yaml_free_node_value_func(char* value)
 {
-    /* iterate all strings and free them */
-    UNORDERED_VECTOR_FOR_EACH(vec, char*, pstr)
-    {
-        if(*pstr) /* strings can be NULL */
-            free_string(*pstr);
-    }
-    unordered_vector_destroy(vec);
+    free_string(value);
 }
 
 /* ------------------------------------------------------------------------- */
@@ -303,12 +257,15 @@ yaml_load_into_ptree(struct ptree_t* tree,
                 {
                     /* create child and recurse, setting is_sequence to 1 so
                      * the parser knows to generate sequence keys */
-                    struct ptree_t* child = yaml_set_value(tree, key, NULL);
-                    result = yaml_load_into_ptree(child, root_node, parser, 1);
+                    struct ptree_t* child;
+                    if(!(child = yaml_set_value(tree, key, NULL)) ||
+                       !(result = yaml_load_into_ptree(child, root_node, parser, 1)))
+                    {
+                        finished = FINISH_ERROR;
+                    }
+
                     free_string(key);
                     key = NULL;
-                    if(!result)
-                        finished = FINISH_ERROR;
                 }
 
             case YAML_MAPPING_START_EVENT:
@@ -331,10 +288,11 @@ yaml_load_into_ptree(struct ptree_t* tree,
                     sprintf(index_str, "%d", sequence_index);
                     ++sequence_index;
 
-                    child = yaml_set_value(tree, index_str, NULL);
-                    result = yaml_load_into_ptree(child, root_node, parser, 0);
-                    if(!result)
+                    if(!(child = yaml_set_value(tree, index_str, NULL)) ||
+                        !(result = yaml_load_into_ptree(child, root_node, parser, 0)))
+                    {
                         finished = FINISH_ERROR;
+                    }
                 }
 
                 /*
@@ -343,12 +301,15 @@ yaml_load_into_ptree(struct ptree_t* tree,
                  */
                 else if(key)
                 {
-                    struct ptree_t* child = yaml_set_value(tree, key, NULL);
-                    result = yaml_load_into_ptree(child, root_node, parser, 0);
+                    struct ptree_t* child;
+                    if(!(child = yaml_set_value(tree, key, NULL)) ||
+                       !(result = yaml_load_into_ptree(child, root_node, parser, 0)))
+                    {
+                        finished = FINISH_ERROR;
+                    }
+
                     free_string(key);
                     key = NULL;
-                    if(!result)
-                        finished = FINISH_ERROR;
                 }
                 break;
 
@@ -368,8 +329,9 @@ yaml_load_into_ptree(struct ptree_t* tree,
                     const struct ptree_t* source = yaml_get_node(root_node, (char*)event.data.alias.anchor);
                     if(source)
                     {
-                        struct ptree_t* child = yaml_set_value(tree, key, NULL);
-                        if(!ptree_duplicate_children_into_existing_node(child, source))
+                        struct ptree_t* child;
+                        if(!(child = yaml_set_value(tree, key, NULL)) ||
+                           !ptree_duplicate_children_into_existing_node(child, source))
                         {
                             fprintf(stderr, "[yaml] Failed to duplicate tree (anchor copy failed)\n");
                             finished = FINISH_ERROR;
@@ -407,14 +369,14 @@ yaml_load_into_ptree(struct ptree_t* tree,
                         break;
                     }
                     sprintf(index, "%d", sequence_index);
-                    yaml_set_value(tree, index, malloc_string((char*)event.data.scalar.value));
+                    yaml_set_value(tree, index, (char*)event.data.scalar.value);
                     ++sequence_index;
                 }
                 else /* scalar doesn't belong to a sequence */
                 {
                     if(key)
                     {
-                        yaml_set_value(tree, key, malloc_string((char*)event.data.scalar.value));
+                        yaml_set_value(tree, key, (char*)event.data.scalar.value);
                         free_string(key);
                         key = NULL;
                     }
