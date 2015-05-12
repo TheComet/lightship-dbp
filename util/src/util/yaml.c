@@ -271,35 +271,20 @@ yaml_load_into_ptree(struct ptree_t* tree,
             case YAML_MAPPING_START_EVENT:
 
                 /*
-                 * If this is a sequence, create index key as usual, but
-                 * recurse with is_sequence set to 0, since the child data
-                 * isn't a sequence any more.
+                 * If this is a sequence, create an index key.
                  */
-                if(is_sequence)
+                if(is_sequence && !key)
                 {
-                    struct ptree_t* child;
-                    char index_str[sizeof(int)*8+1];
-                    if(key)
-                    {
-                        fprintf(stderr, "Received a key during a sequence\n");
-                        finished = FINISH_ERROR;
-                        break;
-                    }
-                    sprintf(index_str, "%d", sequence_index);
+                    key = malloc_string("255"); /* sequence_index is a char */
+                    sprintf(key, "%d", sequence_index);
                     ++sequence_index;
-
-                    if(!(child = yaml_set_value(tree, index_str, NULL)) ||
-                        !(result = yaml_load_into_ptree(child, root_node, parser, 0)))
-                    {
-                        finished = FINISH_ERROR;
-                    }
                 }
 
                 /*
                  * If this is not a sequence, then only recurse if a key
                  * exists.
                  */
-                else if(key)
+                if(key)
                 {
                     struct ptree_t* child;
                     if(!(child = yaml_set_value(tree, key, NULL)) ||
@@ -324,6 +309,17 @@ yaml_load_into_ptree(struct ptree_t* tree,
              * copy said node into the current tree.
              */
             case YAML_ALIAS_EVENT:
+
+                /*
+                 * If this is a sequence, create an index key.
+                 */
+                if(is_sequence && !key)
+                {
+                    key = malloc_string("255"); /* sequence_index is a char */
+                    sprintf(key, "%d", sequence_index);
+                    ++sequence_index;
+                }
+
                 if(key)
                 {
                     const struct ptree_t* source = yaml_get_node(root_node, (char*)event.data.alias.anchor);
@@ -334,6 +330,7 @@ yaml_load_into_ptree(struct ptree_t* tree,
                            !ptree_duplicate_children_into_existing_node(child, source))
                         {
                             fprintf(stderr, "[yaml] Failed to duplicate tree (anchor copy failed)\n");
+                            fprintf(stderr, "[yaml] Make sure you're not using the same key more than once\n");
                             finished = FINISH_ERROR;
                         }
                     }

@@ -47,6 +47,32 @@ static const char* anchor_same_names_yml =
 "        items: *copyable_item\n"
 "        items: *copyable_item\n";
 
+static const char* lists1_yml =
+"root:\n"
+"    items:\n"
+"      - item1: thing1\n"
+"      - item2: thing2\n"
+"      - item3: thing3\n";
+
+static const char* lists2_yml =
+"root:\n"
+"    items:\n"
+"      - thing1\n"
+"      - thing2\n"
+"      - thing3\n";
+
+static const char* lists3_yml =
+"root:\n"
+"    items: [thing1, thing2, thing3]\n";
+
+static const char* anchor_and_list_yml =
+"item:\n"
+"    key1: value1\n"
+"    key2: value2\n"
+"items:\n"
+"  - *item\n"
+"  - *item\n";
+
 TEST(NAME, get_value_in_basic_yaml_doc)
 {
     struct ptree_t* doc;
@@ -124,4 +150,57 @@ TEST(NAME, anchors_copy_ptree_correctly)
 TEST(NAME, dont_copy_anchors_into_nodes_sharing_the_same_names)
 {
     ASSERT_THAT(yaml_load_from_memory(anchor_same_names_yml), IsNull());
+}
+
+TEST(NAME, lists1)
+{
+    struct ptree_t* doc;
+
+    ASSERT_THAT((doc = yaml_load_from_memory(lists1_yml)), NotNull());
+
+    ASSERT_THAT(yaml_get_value(doc, "root.items.0.item1"), StrEq("thing1"));
+    ASSERT_THAT(yaml_get_value(doc, "root.items.1.item2"), StrEq("thing2"));
+    ASSERT_THAT(yaml_get_value(doc, "root.items.2.item3"), StrEq("thing3"));
+
+    yaml_destroy(doc);
+}
+
+TEST(NAME, lists2)
+{
+    struct ptree_t* doc;
+
+    ASSERT_THAT((doc = yaml_load_from_memory(lists2_yml)), NotNull());
+
+    ASSERT_THAT(yaml_get_value(doc, "root.items.0"), StrEq("thing1"));
+    ASSERT_THAT(yaml_get_value(doc, "root.items.1"), StrEq("thing2"));
+    ASSERT_THAT(yaml_get_value(doc, "root.items.2"), StrEq("thing3"));
+
+    yaml_destroy(doc);
+}
+
+TEST(NAME, lists3)
+{
+    struct ptree_t* doc;
+
+    ASSERT_THAT((doc = yaml_load_from_memory(lists3_yml)), NotNull());
+
+    ASSERT_THAT(yaml_get_value(doc, "root.items.0"), StrEq("thing1"));
+    ASSERT_THAT(yaml_get_value(doc, "root.items.1"), StrEq("thing2"));
+    ASSERT_THAT(yaml_get_value(doc, "root.items.2"), StrEq("thing3"));
+
+    yaml_destroy(doc);
+}
+
+TEST(NAME, anchors_in_lists)
+{
+    struct ptree_t* doc;
+
+    ASSERT_THAT((doc = yaml_load_from_memory(anchor_and_list_yml)), NotNull());
+
+    EXPECT_THAT(yaml_get_value(doc, "items.0.key1"), StrEq("value1"));
+    EXPECT_THAT(yaml_get_value(doc, "items.0.key2"), StrEq("value2"));
+    EXPECT_THAT(yaml_get_value(doc, "items.1.key1"), StrEq("value1"));
+    EXPECT_THAT(yaml_get_value(doc, "items.1.key2"), StrEq("value2"));
+
+    yaml_destroy(doc);
 }
