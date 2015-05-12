@@ -73,6 +73,18 @@ static const char* anchor_and_list_yml =
 "  - *item\n"
 "  - *item\n";
 
+static const char* anchor_and_list2_yml =
+"item:\n"
+"    key1: value1\n"
+"    key2: value2\n"
+"items:\n"
+"  - \n"
+"    key1: value1\n"
+"    key2: value2\n"
+"  - \n"
+"    key1: value1\n"
+"    key2: value2\n";
+
 TEST(NAME, get_value_in_basic_yaml_doc)
 {
     struct ptree_t* doc;
@@ -191,11 +203,25 @@ TEST(NAME, lists3)
     yaml_destroy(doc);
 }
 
-TEST(NAME, anchors_in_lists)
+TEST(NAME, anchors_in_lists1)
 {
     struct ptree_t* doc;
 
     ASSERT_THAT((doc = yaml_load_from_memory(anchor_and_list_yml)), NotNull());
+
+    EXPECT_THAT(yaml_get_value(doc, "items.0.key1"), StrEq("value1"));
+    EXPECT_THAT(yaml_get_value(doc, "items.0.key2"), StrEq("value2"));
+    EXPECT_THAT(yaml_get_value(doc, "items.1.key1"), StrEq("value1"));
+    EXPECT_THAT(yaml_get_value(doc, "items.1.key2"), StrEq("value2"));
+
+    yaml_destroy(doc);
+}
+
+TEST(NAME, anchors_in_lists2)
+{
+    struct ptree_t* doc;
+
+    ASSERT_THAT((doc = yaml_load_from_memory(anchor_and_list2_yml)), NotNull());
 
     EXPECT_THAT(yaml_get_value(doc, "items.0.key1"), StrEq("value1"));
     EXPECT_THAT(yaml_get_value(doc, "items.0.key2"), StrEq("value2"));

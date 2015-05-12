@@ -111,50 +111,49 @@ screens:
     # Main Screen
     ###########################################################################
 
-  - main_screen:
-        name: main screen
-        buttons:
-          - *btn_host
-          - *btn_join
-          - *btn_map_editor
-          - *btn_settings
-          - *btn_quit
+  -
+    name: main screen
+    buttons:
+      - *btn_host
+      - *btn_join
+      - *btn_map_editor
+      - *btn_settings
+      - *btn_quit
 
-  - host_screen:
-        name: host
-        buttons:
-          - *btn_back_to_main
+  -
+    name: host
+    buttons:
+      - *btn_back_to_main
 
-  - join_screen:
-        name: join
-        buttons:
-          - *btn_back_to_main
+  -
+    name: join
+    buttons:
+      - *btn_back_to_main
 
-  - map_editor_screen:
-        name: map editor
-        buttons:
-          - *btn_back_to_main
+  - screen:
+    name: map editor
+    buttons:
+      - *btn_back_to_main
 
-  - settings_screen:
-        name: settings
-        buttons:
-          - *btn_settings_input
-          - *btn_settings_audio
-          - *btn_settings_video
-          - *btn_back_to_main
-    
-  - input_screen:
-        name: input
-        buttons:
-          - *btn_back_to_settings
-    
-  - audio_screen:
-        name: audio
-        buttons:
-          - *btn_back_to_settings
-    
-  - video_screen:
-        name: video
-        buttons:
-          - *btn_back_to_settings
-    
+  -
+    name: settings
+    buttons:
+      - *btn_settings_input
+      - *btn_settings_audio
+      - *btn_settings_video
+      - *btn_back_to_main
+
+  -
+    name: input
+    buttons:
+      - *btn_back_to_settings
+
+  -
+    name: audio
+    buttons:
+      - *btn_back_to_settings
+
+  -
+    name: video
+    buttons:
+      - *btn_back_to_settings
