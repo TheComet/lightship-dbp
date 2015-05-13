@@ -60,6 +60,10 @@ map_destroy(struct map_t* map);
 LIGHTSHIP_UTIL_PUBLIC_API char
 map_insert(struct map_t* map, uint32_t hash, void* value);
 
+/*!
+ * @brief Sets the value of the specified key in the map.
+ * @note If the key is not found, this function silently fails.
+ */
 LIGHTSHIP_UTIL_PUBLIC_API void
 map_set(struct map_t* map, uint32_t hash, void* value);
 
@@ -77,8 +81,25 @@ map_set(struct map_t* map, uint32_t hash, void* value);
 LIGHTSHIP_UTIL_PUBLIC_API void*
 map_find(const struct map_t* map, uint32_t hash);
 
+/*!
+ * @brief Finds the specified element in the map and returns its key.
+ * @note Complexity is O(n).
+ * @param[in] map The map to search.
+ * @param[in] value The value to search for.
+ * @return Returns the key if it was successfully found, or MAP_INVALID_KEY if
+ * otherwise.
+ */
 LIGHTSHIP_UTIL_PUBLIC_API uint32_t
 map_find_element(const struct map_t* map, const void* value);
+
+/*!
+ * @brief Gets any element from the map.
+ *
+ * This is useful when you want to iterate and remove all items from the map
+ * at the same time.
+ * @return Returns any element as a void pointer.
+ */
+#define map_get_any(map) (ordered_vector_back(&(map)->vector))
 
 /*!
  * @brief Returns 1 if the specified key exists, 0 if otherwise.
@@ -133,8 +154,7 @@ map_clear_free(struct map_t* map);
  * @param[in] map The map to count the elements of.
  * @return The number of elements in the specified map.
  */
-LIGHTSHIP_UTIL_PUBLIC_API uint32_t
-map_count(struct map_t* map);
+#define map_count(map) ((map)->vector.count)
 
 /*!
  * @brief Dumps the contents of the specified map to stdout.

@@ -192,13 +192,6 @@ void map_clear_free(struct map_t* map)
 }
 
 /* ------------------------------------------------------------------------- */
-uint32_t
-map_count(struct map_t* map)
-{
-    return map->vector.count;
-}
-
-/* ------------------------------------------------------------------------- */
 #ifdef _DEBUG
 #include <stdio.h>
 void

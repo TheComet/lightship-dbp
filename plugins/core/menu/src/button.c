@@ -132,10 +132,9 @@ button_destroy(struct button_t* button)
 void
 button_destroy_all(struct glob_t* g)
 {
-    /* TODO use map_get_any() */
-    while(map_count(&g->button.buttons))
+    struct button_t* button;
+    while((button = map_get_any(&g->button.buttons)))
     {
-        struct button_t* button = (struct button_t*) ordered_vector_back(&g->button.buttons.vector);
         button_destroy(button);
     }
 }
