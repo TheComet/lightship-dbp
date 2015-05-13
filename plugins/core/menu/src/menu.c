@@ -204,7 +204,7 @@ menu_load_button(struct glob_t* g, struct screen_t* screen, const struct ptree_t
     struct button_t* button;
 
     /* retrieve button parameters required to create a button */
-    char* text = NULL;
+    const char* text = yaml_get_value(button_node, "text");
     const struct ptree_t* text_node   = yaml_get_node(button_node, "text");
     const struct ptree_t* x_node      = yaml_get_node(button_node, "position.x");
     const struct ptree_t* y_node      = yaml_get_node(button_node, "position.y");
@@ -298,6 +298,7 @@ SERVICE(menu_load_wrapper)
     struct menu_t* menu = menu_load(g, file_name);
     if(!menu)
         SERVICE_RETURN(0, uint32_t);
+    map_insert(&g->menu.menus, PTREE_HASH_STRING(menu->name), menu);
 
     SERVICE_RETURN(menu->id, uint32_t);
 }
@@ -308,8 +309,7 @@ SERVICE(menu_destroy_wrapper)
     struct glob_t* g = get_global(service->game);
     SERVICE_EXTRACT_ARGUMENT_PTR(0, menu_name, const char*);
 
-    uint32_t id = hash_jenkins_oaat(menu_name, strlen(menu_name));
-    struct menu_t* menu = map_erase(&g->menu.menus, id);
+    struct menu_t* menu = map_erase(&g->menu.menus, PTREE_HASH_STRING(menu_name));
     if(menu)
         menu_destroy(menu);
 }
@@ -321,8 +321,7 @@ SERVICE(menu_set_active_screen_wrapper)
     SERVICE_EXTRACT_ARGUMENT_PTR(0, menu_name, const char*);
     SERVICE_EXTRACT_ARGUMENT_PTR(1, screen_name, const char*);
 
-    uint32_t menu_id = hash_jenkins_oaat(menu_name, strlen(menu_name));
-    struct menu_t* menu = map_find(&g->menu.menus, menu_id);
+    struct menu_t* menu = map_find(&g->menu.menus, PTREE_HASH_STRING(menu_name));
     if(!menu)
         return;
 

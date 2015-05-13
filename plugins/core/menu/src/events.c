@@ -15,7 +15,7 @@ void
 register_events(struct plugin_t* plugin)
 {
     struct game_t* game = plugin->game;
-    
+
     /* get events struct and initialise all event pointers to NULL */
     struct glob_events_t* g = &get_global(game)->events;
     memset(g, 0, sizeof(struct glob_events_t));

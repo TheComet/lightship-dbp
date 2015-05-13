@@ -183,15 +183,14 @@ games_run_all(void)
         main_loop_do_loop();
 
         /* if the game wishes to terminate, destroy it */
-        /* TODO
-        { UNORDERED_VECTOR_FOR_EACH(g_games, struct game_t*, p_game)
+        { MAP_FOR_EACH(&g_games, struct game_t, key, game)
         {
-            if((*p_game)->state == GAME_STATE_TERMINATED)
+            if(game->state == GAME_STATE_TERMINATED)
             {
-                game_destroy(*p_game);
+                game_destroy(game);
                 break;
             }
-        }}*/
+        }}
     }
 }
 
