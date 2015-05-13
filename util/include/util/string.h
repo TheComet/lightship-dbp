@@ -83,6 +83,9 @@ cat_wstrings(uint32_t num_strs, ...);
 LIGHTSHIP_UTIL_PUBLIC_API wchar_t*
 malloc_wstring(const wchar_t* wcs);
 
+LIGHTSHIP_UTIL_PUBLIC_API char*
+strtok_r_portable(char* str, char delimiter, char** saveptr);
+
 LIGHTSHIP_UTIL_PUBLIC_API wchar_t*
 strtowcs(const char* str);
 

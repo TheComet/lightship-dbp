@@ -22,7 +22,6 @@ typedef void (*start_loop_func)(void);
 char
 load_core_plugins(struct game_t* game)
 {
-
     struct ptree_t* plugins_node;
 
     /*

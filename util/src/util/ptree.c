@@ -4,7 +4,7 @@
 #include <string.h>
 #include <assert.h>
 
-static const char* node_delim = ".";
+static const char node_delim = '.';
 
 /* ----------------------------------------------------------------------------
  * Static functions
@@ -20,7 +20,6 @@ static char
 ptree_set_parent_hashed_key(struct ptree_t* node,
                             struct ptree_t* parent,
                             uint32_t hash);
-
 
 static struct ptree_t*
 ptree_add_node_recurse(struct ptree_t* node, char* key, char** saveptr, void* value);
@@ -125,7 +124,7 @@ ptree_add_node(struct ptree_t* root, const char* key, void* value)
     char* key_tok = malloc_string(key);
 
     node = ptree_add_node_recurse(root,
-                                  strtok_r(key_tok, node_delim, &saveptr),
+                                  strtok_r_portable(key_tok, node_delim, &saveptr),
                                   &saveptr,
                                   value);
 
@@ -142,7 +141,7 @@ ptree_add_node_recurse(struct ptree_t* node, char* key, char** saveptr, void* va
      */
     char* child_key;
     struct ptree_t* child;
-    if((child_key = strtok_r(NULL, node_delim, saveptr))) /* we haven't reached the last
+    if((child_key = strtok_r_portable(NULL, node_delim, saveptr))) /* we haven't reached the last
                                                 * node yet, create any middle
                                                 * nodes if they don't exist
                                                 * yet, or get the current
@@ -427,7 +426,7 @@ ptree_get_node(const struct ptree_t* tree, const char* key)
     struct ptree_t* result;
     char* saveptr;
     char* key_iter = cat_strings(2, "n.", key); /* root key name is ignored, but must exist */
-    strtok_r(key_iter, node_delim, &saveptr);
+    strtok_r_portable(key_iter, node_delim, &saveptr);
 
     result = ptree_find_in_tree_recurse(tree, &saveptr);
     free_string(key_iter);
@@ -501,7 +500,7 @@ ptree_find_in_tree_recurse(const struct ptree_t* tree, char** saveptr)
      * for.
      */
     char* token;
-    if((token = strtok_r(NULL, node_delim, saveptr)) && tree)
+    if((token = strtok_r_portable(NULL, node_delim, saveptr)) && tree)
     {
         struct ptree_t* child;
         child = map_find(&tree->children, PTREE_HASH_STRING(token));

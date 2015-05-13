@@ -107,6 +107,34 @@ TEST(NAME, malloc_wstring_empty_string)
     free_string(result);
 }
 
+TEST(NAME, strtok)
+{
+    char* saveptr;
+    char* str = malloc_string("this is a test");
+    ASSERT_THAT(strtok_r_portable(str, ' ', &saveptr), StrEq("this"));
+    ASSERT_THAT(strtok_r_portable(NULL, ' ', &saveptr), StrEq("is"));
+    ASSERT_THAT(strtok_r_portable(NULL, ' ', &saveptr), StrEq("a"));
+    ASSERT_THAT(strtok_r_portable(NULL, ' ', &saveptr), StrEq("test"));
+    ASSERT_THAT(strtok_r_portable(NULL, ' ', &saveptr), IsNull());
+    free_string(str);
+}
+
+TEST(NAME, strtok_delimiters_only)
+{
+    char* saveptr;
+    char* str = malloc_string(".....");
+    ASSERT_THAT(strtok_r_portable(str, '.', &saveptr), IsNull());
+    free_string(str);
+}
+
+TEST(NAME, strtok_empty_string)
+{
+    char* saveptr;
+    char* str = malloc_string("");
+    ASSERT_THAT(strtok_r_portable(str, '.', &saveptr), IsNull());
+    free_string(str);
+}
+
 TEST(NAME, string_to_wide_string)
 {
     wchar_t* result = strtowcs("this is a test");

@@ -189,6 +189,38 @@ malloc_wstring(const wchar_t* wcs)
 }
 
 /* ------------------------------------------------------------------------- */
+char*
+strtok_r_portable(char* str, char delimiter, char** saveptr)
+{
+    char* begin_ptr;
+    char* end_ptr;
+
+    if(str)
+        *saveptr = str - 1;
+
+    /* no more tokens */
+    if(!*saveptr)
+        return NULL;
+
+    /* get first occurrence of token in string */
+    begin_ptr = *saveptr + 1;
+    end_ptr = (char*)strchr(begin_ptr, delimiter);
+    if(!end_ptr)
+        *saveptr = NULL; /* last token has been reached */
+    else
+    {
+        /* update saveptr and replace delimiter with null terminator */
+        *saveptr = end_ptr;
+        **saveptr = '\0';
+    }
+
+    /* empty tokens */
+    if(*begin_ptr == '\0')
+        return NULL;
+    return begin_ptr;
+}
+
+/* ------------------------------------------------------------------------- */
 wchar_t*
 strtowcs(const char* str)
 {
