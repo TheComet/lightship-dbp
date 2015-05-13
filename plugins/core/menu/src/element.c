@@ -101,7 +101,7 @@ void
 element_hide(struct element_t* element)
 {
     struct glob_t* g = element->base.element.glob;
-    
+
     { UNORDERED_VECTOR_FOR_EACH(&element->base.element.gl.shapes, uint32_t, id)
     {
         SERVICE_CALL1(g->services.shapes_2d_hide, SERVICE_NO_RETURN, *id);

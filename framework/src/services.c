@@ -48,7 +48,6 @@ services_register_core_services(struct game_t* game)
 void
 services_deinit(struct game_t* game)
 {
-    /* TODO Automatically unregister any left over services? */
     ptree_destroy_keep_root(&game->services);
 }
 
@@ -116,6 +115,10 @@ service_create(struct plugin_t* plugin,
          * because ptree_remove_node uses malloc() */
         if(!(node = ptree_add_node(&service->game->services, directory, service)))
             break;
+
+        /* set the node's free function to service_free() to make deleting
+         * nodes easier */
+        ptree_set_free_func(node, (ptree_free_func)service_free);
 
         /* success! */
         return service;

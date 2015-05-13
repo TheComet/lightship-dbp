@@ -31,7 +31,7 @@ void
 menu_destroy(struct menu_t* menu);
 
 void
-menu_set_active_screen(struct menu_t* menu, const char* name);
+menu_set_active_screen(struct menu_t* menu, const char* screen_name);
 
 SERVICE(menu_load_wrapper);
 SERVICE(menu_destroy_wrapper);

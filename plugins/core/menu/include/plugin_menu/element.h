@@ -89,6 +89,9 @@ element_destructor(struct element_t* element);
 void
 element_destroy(struct element_t* element);
 
+/*!
+ * @brief
+ */
 void
 element_add_text(struct element_t* element, uint32_t font_id, uint32_t text_id);
 

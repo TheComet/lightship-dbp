@@ -16,6 +16,15 @@ static const char* ttf_filename = "../../plugins/core/menu/ttf/DejaVuSans.ttf";
 static const char* ttf_filename = "ttf/DejaVuSans.ttf";
 #endif
 
+static void
+button_constructor(struct button_t* btn, const char* text, float x, float y, float width, float height);
+
+static void
+button_destructor(struct button_t* button);
+
+static void
+button_free_contents(struct button_t* button);
+
 /* ------------------------------------------------------------------------- */
 void button_init(struct glob_t* g)
 {
@@ -35,6 +44,7 @@ void button_deinit(struct glob_t* g)
 {
     SERVICE_CALL1(g->services.text_group_destroy, SERVICE_NO_RETURN, g->button.font_id);
     button_destroy_all(g);
+    map_clear_free(&g->button.buttons);
 }
 
 /* ------------------------------------------------------------------------- */
@@ -50,15 +60,15 @@ button_create(struct glob_t* g, const char* text, float x, float y, float width,
                         (element_destructor_func)button_destructor,
                         x, y,
                         width, height);
-    
+
     /* derived constructor */
     button_constructor(btn, text, x, y, width, height);
-    
+
     return btn;
 }
 
 /* ------------------------------------------------------------------------- */
-void
+static void
 button_constructor(struct button_t* btn, const char* text, float x, float y, float width, float height)
 {
     /* base struct is constructed first, so we can safely get the glob struct */
@@ -96,17 +106,17 @@ button_constructor(struct button_t* btn, const char* text, float x, float y, flo
     SERVICE_CALL0(g->services.shapes_2d_end, &btn->base.button.shapes_normal_id);
     element_add_shapes((struct element_t*)btn, btn->base.button.shapes_normal_id);
 
-    /* insert into internal container of buttons */
+    /* add to global list of buttons */
     map_insert(&g->button.buttons, btn->base.element.id, btn);
 }
 
 /* ------------------------------------------------------------------------- */
-void
+static void
 button_destructor(struct button_t* button)
 {
     struct glob_t* g = button->base.element.glob;
+    map_erase(&g->button.buttons, button->base.element.id);
     button_free_contents(button);
-    map_erase_element(&g->button.buttons, button);
 }
 
 /* ------------------------------------------------------------------------- */
@@ -122,11 +132,12 @@ button_destroy(struct button_t* button)
 void
 button_destroy_all(struct glob_t* g)
 {
-    { MAP_FOR_EACH(&g->button.buttons, struct button_t, id, button)
+    /* TODO use map_get_any() */
+    while(map_count(&g->button.buttons))
     {
+        struct button_t* button = (struct button_t*) ordered_vector_back(&g->button.buttons.vector);
         button_destroy(button);
-    }}
-    map_clear_free(&g->button.buttons);
+    }
 }
 
 /* ------------------------------------------------------------------------- */
@@ -154,14 +165,14 @@ button_collision(struct glob_t* g, struct button_t* button, float x, float y)
         struct element_data_t* elem;
         if(!button->base.element.visible)
             return NULL;
-        
+
         elem = &button->base.element;
         if(x > elem->pos.x - elem->size.x*0.5 && x < elem->pos.x + elem->size.x*0.5)
             if(y > elem->pos.y - elem->size.y*0.5 && y < elem->pos.y + elem->size.y*0.5)
                 return button;
         return NULL;
     }
-    
+
     /* test all buttons */
     { MAP_FOR_EACH(&g->button.buttons, struct button_t, id, cur_btn)
     {
@@ -187,7 +198,7 @@ EVENT_LISTENER3(on_mouse_clicked, char mouse_btn, double x, double y)
     {
         /* let everything know it was clicked */
         EVENT_FIRE_FROM_TEMP1(evt_button_clicked, g->events.button_clicked, button->base.element.id);
-        
+
         /* if button has an action, execute it */
         if(button->base.element.action.service)
         {
@@ -231,7 +242,7 @@ SERVICE(button_get_text_wrapper)
 {
     struct glob_t* g = get_global(service->game);
     SERVICE_EXTRACT_ARGUMENT(0, id, uint32_t, uint32_t);
-    
+
     struct button_t* button = map_find(&g->button.buttons, id);
     if(button)
         SERVICE_RETURN(button->base.button.text, wchar_t*);

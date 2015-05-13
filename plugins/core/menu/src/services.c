@@ -20,7 +20,7 @@ register_services(struct plugin_t* plugin)
     SERVICE_CREATE1(plugin, s, PLUGIN_NAME ".button_destroy",       button_destroy_wrapper, void, uint32_t);
     SERVICE_CREATE1(plugin, s, PLUGIN_NAME ".button_get_text",      button_get_text_wrapper, wchar_t*, uint32_t);
     SERVICE_CREATE1(plugin, s, PLUGIN_NAME ".load",                 menu_load_wrapper, const char*, const char*);
-    SERVICE_CREATE1(plugin, s, PLUGIN_NAME ".destroy",              menu_destroy_wrapper, void, const char*);
+    SERVICE_CREATE1(plugin, s, PLUGIN_NAME ".destroy",              menu_destroy_wrapper, void, uint32_t);
     SERVICE_CREATE2(plugin, s, PLUGIN_NAME ".set_active_screen",    menu_set_active_screen_wrapper, void, const char*, const char*);
 }
 

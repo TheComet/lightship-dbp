@@ -33,13 +33,10 @@ menu_init(struct glob_t* g)
 void
 menu_deinit(struct glob_t* g)
 {
-    while(g->menu.menus.vector.count)
+    MAP_FOR_EACH(&g->menu.menus, struct menu_t, id, menu)
     {
-        struct menu_t* menu = ((struct map_key_value_t*)
-            ordered_vector_back(&g->menu.menus.vector))->value;
         menu_destroy(menu);
     }
-
     map_clear_free(&g->menu.menus);
 }
 
@@ -127,13 +124,14 @@ menu_destroy(struct menu_t* menu)
 
 /* ------------------------------------------------------------------------- */
 void
-menu_set_active_screen(struct menu_t* menu, const char* name)
+menu_set_active_screen(struct menu_t* menu, const char* screen_name)
 {
-    uint32_t screen_id = hash_jenkins_oaat(name, strlen(name));
+    uint32_t screen_id = hash_jenkins_oaat(screen_name, strlen(screen_name));
     struct screen_t* screen = map_find(&menu->screens, screen_id);
     if(!screen)
     {
-        llog(LOG_ERROR, menu->glob->game, PLUGIN_NAME, 3, "Failed to set the active screen to \"", name, "\": Screen name not found");
+        llog(LOG_ERROR, menu->glob->game, PLUGIN_NAME, 3, "Failed to set the "
+            "active screen to \"", screen_name, "\": Screen name not found");
         return;
     }
 
@@ -205,27 +203,25 @@ menu_load_button(struct glob_t* g, struct screen_t* screen, const struct ptree_t
 
     /* retrieve button parameters required to create a button */
     const char* text = yaml_get_value(button_node, "text");
-    const struct ptree_t* text_node   = yaml_get_node(button_node, "text");
-    const struct ptree_t* x_node      = yaml_get_node(button_node, "position.x");
-    const struct ptree_t* y_node      = yaml_get_node(button_node, "position.y");
-    const struct ptree_t* width_node  = yaml_get_node(button_node, "size.x");
-    const struct ptree_t* height_node = yaml_get_node(button_node, "size.y");
+    const char* x_str      = yaml_get_value(button_node, "position.x");
+    const char* y_str      = yaml_get_value(button_node, "position.y");
+    const char* width_str  = yaml_get_value(button_node, "size.x");
+    const char* height_str = yaml_get_value(button_node, "size.y");
     const struct ptree_t* action_node = yaml_get_node(button_node, "action");
-    if(!x_node || !y_node || !width_node || !height_node)
+    if(!x_str || !y_str || !width_str || !height_str)
     {
-        llog(LOG_WARNING, g->game, PLUGIN_NAME, 1, "Not enough data to create button. Need at least position and size.");
+        llog(LOG_WARNING, g->game, PLUGIN_NAME, 1, "Not enough data to create "
+            "button. Need at least position and size.");
         return;
     }
-    if(text_node)
-        text = (char*)text_node->value;
 
     /* add button to current screen */
     button = button_create(g,
                            text,  /* text is allowed to be NULL */
-                           (float)atof(x_node->value),
-                           (float)atof(y_node->value),
-                           (float)atof(width_node->value),
-                           (float)atof(height_node->value));
+                           (float)atof(x_str),
+                           (float)atof(y_str),
+                           (float)atof(width_str),
+                           (float)atof(height_str));
     screen_add_element(screen, (struct element_t*)button);
 
     /* extract service name and arguments tied to action, if any */
@@ -237,15 +233,15 @@ menu_load_button(struct glob_t* g, struct screen_t* screen, const struct ptree_t
 static void
 menu_load_button_action(struct glob_t* g, struct button_t* button, const struct ptree_t* action_node)
 {
-    struct ptree_t* service_node = yaml_get_node(action_node, "service");
-    if(service_node && service_node->value)
+    const char* service_str = yaml_get_value(action_node, "service");
+    if(service_str)
     {
-        struct service_t* action_service = service_get(button->base.element.glob->game, (char*)service_node->value);
-        if(!action_service)
+        struct service_t* action_service;
+        if(!(action_service = service_get(button->base.element.glob->game, service_str)))
         {
-            llog(LOG_WARNING, g->game, PLUGIN_NAME, 3, "Tried to bind button to service \"",
-                                (char*)service_node->value,
-                                "\", but the service was not found.");
+            llog(LOG_WARNING, g->game, PLUGIN_NAME, 3, "Tried to bind button "
+                "to service \"", service_str, "\", but the service was not "
+                "found.");
         }
         else
         {
@@ -298,7 +294,7 @@ SERVICE(menu_load_wrapper)
     struct menu_t* menu = menu_load(g, file_name);
     if(!menu)
         SERVICE_RETURN(0, uint32_t);
-    map_insert(&g->menu.menus, PTREE_HASH_STRING(menu->name), menu);
+    map_insert(&g->menu.menus, menu->id, menu);
 
     SERVICE_RETURN(menu->id, uint32_t);
 }
@@ -307,9 +303,9 @@ SERVICE(menu_load_wrapper)
 SERVICE(menu_destroy_wrapper)
 {
     struct glob_t* g = get_global(service->game);
-    SERVICE_EXTRACT_ARGUMENT_PTR(0, menu_name, const char*);
+    SERVICE_EXTRACT_ARGUMENT(0, menu_id, uint32_t, uint32_t);
 
-    struct menu_t* menu = map_erase(&g->menu.menus, PTREE_HASH_STRING(menu_name));
+    struct menu_t* menu = map_erase(&g->menu.menus, menu_id);
     if(menu)
         menu_destroy(menu);
 }

@@ -21,7 +21,7 @@ struct glob_button_t
 struct glob_menu_t
 {
     uint32_t gid;
-    struct map_t menus;
+    struct map_t menus;     /* maps menu IDs to menu objects */
 };
 
 struct glob_services_t
