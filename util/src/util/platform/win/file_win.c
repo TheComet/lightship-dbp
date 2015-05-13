@@ -1,5 +1,5 @@
 #include "util/file.h"
-#include "util/log.h"
+#include "framework/log.h"
 #include "util/memory.h"
 #include <windows.h>
 

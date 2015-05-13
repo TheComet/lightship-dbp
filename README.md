@@ -11,6 +11,27 @@ Features
   like event interception and service discovery, making it possible for plugins 
   to re-define game mechanics on the fly.
 
+Prototype
+---------
+A playable prototype exists and can be 
+downloaded [here](http://forum.thegamecreators.com/?m=forum_view&t=195801&b=8).
+
+The prototype was written in DarkBASIC Pro and demonstrates the main game 
+mechanics. The DBPro source code can be downloaded [here](https://bitbucket.org/TheComet/lightship/downloads).
+
+Click this to watch a video:
+
+<a href="http://www.youtube.com/watch?feature=player_embedded&v=M-5yaHqDP8o
+" target="_blank"><img src="http://img.youtube.com/vi/M-5yaHqDP8o/0.jpg" 
+alt="IMAGE ALT TEXT HERE" width="240" height="180" border="10" /></a>
+
+![slow down power up](http://i.imgur.com/euHzZuR.png)
+
+![force field power up](http://i.imgur.com/VI9zm9F.png)
+
+![level editor](http://i.imgur.com/SnlExXN.png)
+
+
 How to Build
 ------------
 The tools you will need to build this project are:
@@ -24,16 +45,15 @@ start menu instead of CMD. It sets the required environment variables. If you ar
 using MSYS then you can use regular CMD (or bash).
 
 The general procedure is as follows:
-+ Go into the source directory of lightship (where this README is located).
++ cd into the source directory of lightship (where this README is located).
 + Make a new directory called *build*.
 + cd into that directory with your command prompt/terminal/whatever.
 + Type ```cmake ..``` (Two dots are important)
 
-Depending on what platform you're on, there will now be Visual Studio project
-files, Makefiles, or whatever your default compiler needs inside the *build*
-directory. So go in there and open them up. Linux/Mac users now type *make* to build.
+This will configure the project for your platform. Linux/Mac users now type *make* to build.
 
-Set the target "lightship" as the executable target and build. You're good to go.
+If you're on Windows, there will now be Visual Studio project files, inside the *build*
+directory. So go in there and open them up. Set the target "lightship" as the executable target and build. You're good to go.
 
 Concept
 -------
@@ -74,23 +94,3 @@ Power Ups
 + **Force Field**: Deploy a force field only you can pass through.
 + **Size**: Increase your size by 3, making you claim 9 tiles at a time.
 + **Dash**: Dash a short distance at high speed. Knocks players far away.
-
-Prototype
----------
-A playable prototype exists and can be 
-downloaded [here](http://forum.thegamecreators.com/?m=forum_view&t=195801&b=8).
-
-The prototype was written in DarkBASIC Pro and demonstrates the main game 
-mechanics. The DBPro source code can be downloaded [here](https://bitbucket.org/TheComet/lightship/downloads).
-
-Click this to watch a video:
-
-<a href="http://www.youtube.com/watch?feature=player_embedded&v=M-5yaHqDP8o
-" target="_blank"><img src="http://img.youtube.com/vi/M-5yaHqDP8o/0.jpg" 
-alt="IMAGE ALT TEXT HERE" width="240" height="180" border="10" /></a>
-
-![slow down power up](http://i.imgur.com/euHzZuR.png)
-
-![force field power up](http://i.imgur.com/VI9zm9F.png)
-
-![level editor](http://i.imgur.com/SnlExXN.png)
