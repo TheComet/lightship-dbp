@@ -14,13 +14,11 @@ EVENT_C1(evt_button_clicked, uint32_t)
 void
 register_events(struct plugin_t* plugin)
 {
-    struct game_t* game = plugin->game;
-
     /* get events struct and initialise all event pointers to NULL */
-    struct glob_events_t* g = &get_global(game)->events;
+    struct glob_events_t* g = &get_global(plugin->game)->events;
     memset(g, 0, sizeof(struct glob_events_t));
 
-    g->button_clicked = event_create(game, "button_clicked");
+    g->button_clicked = event_create(plugin, "button_clicked");
 }
 
 void

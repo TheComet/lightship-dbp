@@ -9,6 +9,7 @@ C_HEADER_BEGIN
 
 struct net_connection_t;
 struct glob_t;
+struct plugin_t;
 
 EVENT_H0(evt_start)
 EVENT_H0(evt_pause)
@@ -64,12 +65,13 @@ struct game_t
     char* name;
     game_network_role_e network_role;
     struct net_connection_t* connection;
+    struct plugin_t* core;      /* core plugin providing core functionality */
     struct framework_events_t event;
     struct framework_services_t service;
     struct framework_log_t log;
     struct list_t plugins;      /* list of active plugins used by this game */
-    struct ptree_t services;    /* TODO doc */
-    struct ptree_t events;      /* TODO doc */
+    struct ptree_t services;    /* service directory of this game */
+    struct ptree_t events;      /* event directory of this game */
     struct map_t global_data;   /* maps hashed plugin names to glob structs used by this game */
 };
 
@@ -82,7 +84,7 @@ game_deinit(void);
 FRAMEWORK_PUBLIC_API struct game_t*
 game_create(const char* name, game_network_role_e net_role);
 
-void
+FRAMEWORK_PUBLIC_API void
 game_destroy(struct game_t* game);
 
 FRAMEWORK_PUBLIC_API char

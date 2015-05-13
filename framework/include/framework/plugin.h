@@ -11,10 +11,22 @@ struct game_t;
  * @note The plugin is not stored internally, it is expected for the
  * programmer to eventually call plugin_destroy() when the returned object is
  * no longer needed.
+ * @param[in] name The name of the plugin. This should be globally unique and
+ * should not change between versions, as other plugins might use this string
+ * to discover your plugin.
+ * @param[in] category What category your plugin is in.
+ * @param[in] author The name of the plugin author(s).
+ * @param[in] description A short description about what your plugin does.
+ * @param[in] website A URL to your website.
  * @return Returns the newly created plugin object.
  */
 FRAMEWORK_PUBLIC_API struct plugin_t*
-plugin_create(struct game_t* game);
+plugin_create(struct game_t* game,
+              const char* name,
+              const char* category,
+              const char* author,
+              const char* description,
+              const char* website);
 
 /*!
  * @brief Initialises a plugin object.
@@ -29,25 +41,6 @@ plugin_init_plugin(struct game_t* game, struct plugin_t* plugin);
  */
 FRAMEWORK_PUBLIC_API void
 plugin_destroy(struct plugin_t* plugin);
-
-/*!
- * @brief Sets general information about the plugin.
- * @param[in] plugin The plugin to set information about.
- * @param[in] name The name of the plugin. This should be globally unique and
- * should not change between versions, as other plugins might use this string
- * to discover your plugin.
- * @param[in] category What category your plugin is in.
- * @param[in] author The name of the plugin author(s).
- * @param[in] description A short description about what your plugin does.
- * @param[in] website A URL to your website.
- */
-FRAMEWORK_PUBLIC_API void
-plugin_set_info(struct plugin_t* plugin,
-                const char* name,
-                const char* category,
-                const char* author,
-                const char* description,
-                const char* website);
 
 /*!
  * @brief Sets the programming language of the plugin.

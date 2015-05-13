@@ -22,7 +22,7 @@ service_get_c_type_equivalent_from_service_type(const char* type);
 
 /* ------------------------------------------------------------------------- */
 char
-services_init(struct game_t* game)
+services_register_core_services(struct game_t* game)
 {
     assert(game);
 
@@ -34,9 +34,9 @@ services_init(struct game_t* game)
 
     for(;;)
     {
-        if(!(game->service.start = service_create(game, "start", game_start_wrapper, "void", 0, NULL))) break;
-        if(!(game->service.pause = service_create(game, "pause", game_pause_wrapper, "void", 0, NULL))) break;
-        if(!(game->service.exit  = service_create(game, "exit",  game_exit_wrapper,  "void", 0, NULL))) break;
+        if(!(game->service.start = service_create(game->core, "start", game_start_wrapper, "void", 0, NULL))) break;
+        if(!(game->service.pause = service_create(game->core, "pause", game_pause_wrapper, "void", 0, NULL))) break;
+        if(!(game->service.exit  = service_create(game->core, "exit",  game_exit_wrapper,  "void", 0, NULL))) break;
 
         return 1;
     }
@@ -54,7 +54,7 @@ services_deinit(struct game_t* game)
 
 /* ------------------------------------------------------------------------- */
 struct service_t*
-service_create(struct game_t* game,
+service_create(struct plugin_t* plugin,
                const char* directory,
                const service_callback_func exec,
                const char* ret_type,
@@ -64,57 +64,81 @@ service_create(struct game_t* game,
     struct service_t* service;
     struct ptree_t* node;
 
-    assert(game);
+    assert(plugin);
+    assert(plugin->game);
     assert(directory);
     assert(exec);
     assert(ret_type);
     if(argc)
         assert(argv);
 
-    /* create node in game's service directory */
-    if(!(node = ptree_add_node(&game->services, directory, NULL)))
-        return NULL;
-
-    /* allocate and initialise service object, and add it to the directory */
+    /* allocate and initialise service object */
     if(!(service = (struct service_t*)MALLOC(sizeof(struct service_t))))
         OUT_OF_MEMORY("service_create()", NULL);
     memset(service, 0, sizeof(struct service_t));
-    service->game = game;
-    service->directory = malloc_string(directory);
-    service->exec = exec;
-    node->value = service;
 
-    /* copy return type info */
-    service->ret_type = malloc_string(ret_type);
-    if(!service->ret_type)
+    /* if anything fails, break */
+    for(;;)
     {
-        service_destroy(service);
-        OUT_OF_MEMORY("service_malloc_and_register()", NULL);
+        service->game = plugin->game;
+        service->exec = exec;
+
+        /* copy directory */
+        if(!(service->directory = malloc_string(directory)))
+            break;
+
+        /* plugin object keeps track of all created services */
+        if(!unordered_vector_push(&plugin->services, &service))
+            break;
+
+        /* copy return type info */
+        if(!(service->ret_type = malloc_string(ret_type)))
+            break;
+
+        /* create argument type vector */
+        if(!(service->argv_type = (char**)MALLOC(argc * sizeof(char*))))
+            break;
+        memset(service->argv_type, 0, argc * sizeof(char*));
+
+        /* copy argument types */
+        {   int i;
+            for(i = 0; i != argc; ++i)
+            {
+                if(!(service->argv_type[i] = malloc_string(argv[i])))
+                    break;
+                ++service->argc;
+            }
+            if(i != argc)
+                break;
+        }
+
+        /* create node in game's service directory - want to do this last
+         * because ptree_remove_node uses malloc() */
+        if(!(node = ptree_add_node(&service->game->services, directory, service)))
+            break;
+
+        /* success! */
+        return service;
     }
 
-    /* create argument type vector */
-    service->argv_type = (char**)MALLOC(argc * sizeof(char*));
-    if(!service->argv_type)
-    {
-        service_destroy(service);
-        OUT_OF_MEMORY("service_malloc_and_register()", NULL);
-    }
-
-    /* copy argument types */
+    /* something went wrong, clean up everything */
+    if(service->argv_type)
     {   int i;
         for(i = 0; i != argc; ++i)
         {
-            service->argv_type[i] = malloc_string(argv[i]);
-            if(!service->argv_type[i])
-            {
-                service_destroy(service);
-                OUT_OF_MEMORY("service_malloc_and_register()", NULL);
-            }
-            ++service->argc;
+            if(service->argv_type[i])
+                free_string(service->argv_type[i]);
         }
+        FREE(service->argv_type);
     }
 
-    return service;
+    if(service->ret_type)
+        free_string(service->ret_type);
+
+    if(service->directory)
+        free_string(service->directory);
+
+    return NULL;
 }
 
 /* ------------------------------------------------------------------------- */

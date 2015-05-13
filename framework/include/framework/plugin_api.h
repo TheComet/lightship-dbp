@@ -2,6 +2,7 @@
 #define FRAMEWORK_PLUGIN_API_H
 
 #include "util/pstdint.h"
+#include "util/unordered_vector.h"
 
 /* these must be implemented by the plugin */
 struct game_t;
@@ -72,6 +73,8 @@ struct plugin_t
     struct game_t* game;
     void* handle;
     char started_successfully;
+    struct unordered_vector_t events;
+    struct unordered_vector_t services;
     plugin_init_func init;
     plugin_start_func start;
     plugin_stop_func stop;
@@ -79,4 +82,3 @@ struct plugin_t
 };
 
 #endif /* FRAMEWORK_PLUGIN_API_H */
-

@@ -17,10 +17,23 @@
         (plugin)->info.strname = malloc_string(str);    \
     }
 
+struct service_t;
+
 /* ----------------------------------------------------------------------------
  * Static functions
  * ------------------------------------------------------------------------- */
 
+/*!
+ * @brief Copies the info strings into the plugin object, and frees any strings
+ * that were there before.
+ */
+static void
+plugin_set_info(struct plugin_t* plugin,
+                const char* name,
+                const char* category,
+                const char* author,
+                const char* description,
+                const char* website);
 /*!
  * @brief Frees all buffers allocated for info strings.
  */
@@ -31,12 +44,18 @@ plugin_free_info(struct plugin_t* plugin);
  * Exported functions
  * ------------------------------------------------------------------------- */
 struct plugin_t*
-plugin_create(struct game_t* game)
+plugin_create(struct game_t* game,
+              const char* name,
+              const char* category,
+              const char* author,
+              const char* description,
+              const char* website)
 {
     struct plugin_t* plugin = (struct plugin_t*)MALLOC(sizeof(struct plugin_t));
     if(!plugin)
         OUT_OF_MEMORY("plugin_create()", NULL);
     plugin_init_plugin(game, plugin);
+    plugin_set_info(plugin, name, category, author, description, website);
     return plugin;
 }
 
@@ -45,6 +64,8 @@ void
 plugin_init_plugin(struct game_t* game, struct plugin_t* plugin)
 {
     memset(plugin, 0, sizeof(struct plugin_t));
+    unordered_vector_init_vector(&plugin->events, sizeof(struct event_t*));
+    unordered_vector_init_vector(&plugin->services, sizeof(struct service_t*));
     plugin->game = game;
     plugin->info.language = PLUGIN_PROGRAMMING_LANGUAGE_UNSET;
 }
@@ -58,7 +79,7 @@ plugin_destroy(struct plugin_t* plugin)
 }
 
 /* ------------------------------------------------------------------------- */
-void
+static void
 plugin_set_info(struct plugin_t* plugin,
                 const char* name,
                 const char* category,
@@ -67,7 +88,7 @@ plugin_set_info(struct plugin_t* plugin,
                 const char* website)
 {
     plugin_free_info(plugin);
-    
+
     PLUGIN_ADD_INFO_STRING(plugin, name, name)
     PLUGIN_ADD_INFO_STRING(plugin, category, category);
     PLUGIN_ADD_INFO_STRING(plugin, author, author)
@@ -108,7 +129,7 @@ plugin_extract_version_from_string(const char* file,
     char* pch;
     const char* delim = ".";
     strcpy(buffer, file);
-    
+
     /* extract major, minor, and patch from file name */
     *major = -1;
     *minor = -1;
@@ -132,7 +153,7 @@ plugin_extract_version_from_string(const char* file,
 
     /* FREE temporary buffer */
     FREE(buffer);
-    
+
     /* error check */
     if(*major == (uint32_t)(-1) || *minor == (uint32_t)(-1) || *patch == (uint32_t)(-1))
         return 0;

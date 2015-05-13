@@ -17,22 +17,21 @@
 PLUGIN_RENDERER_GL_PUBLIC_API PLUGIN_INIT()
 {
     struct plugin_t* plugin;
-    
+
     /* init global data */
     glob_create(game);
 
     /* init plugin */
-    plugin = plugin_create(game);
+    plugin = plugin_create(game,
+                           PLUGIN_NAME,
+                           PLUGIN_CATEGORY,
+                           PLUGIN_AUTHOR,
+                           PLUGIN_DESCRIPTION,
+                           PLUGIN_WEBSITE
+    );
     get_global(game)->plugin = plugin;
 
     /* set plugin information */
-    plugin_set_info(plugin,
-            PLUGIN_NAME,            /* name */
-            PLUGIN_CATEGORY,        /* category */
-            PLUGIN_AUTHOR,          /* author */
-            PLUGIN_DESCRIPTION,     /* description */
-            PLUGIN_WEBSITE          /* website */
-    );
     plugin_set_programming_language(plugin,
             PLUGIN_PROGRAMMING_LANGUAGE_C
     );
@@ -52,10 +51,10 @@ PLUGIN_RENDERER_GL_PUBLIC_API PLUGIN_INIT()
 PLUGIN_RENDERER_GL_PUBLIC_API PLUGIN_START()
 {
     struct glob_t* g;
-    
+
     /* get global struct */
     g = get_global(game);
-    
+
     /* initialise GLFW */
     if(!glfwInit())
     {
@@ -66,7 +65,7 @@ PLUGIN_RENDERER_GL_PUBLIC_API PLUGIN_START()
     /* creates the window */
     if(!window_init(g))
         return PLUGIN_FAILURE;
-    
+
     /* clear any GL errors caused by glfw and glew */
     glGetError();
 
@@ -81,7 +80,7 @@ PLUGIN_RENDERER_GL_PUBLIC_API PLUGIN_START()
         return PLUGIN_FAILURE;
 
     register_event_listeners(game, get_global(game)->plugin);
-    
+
     {
         uint32_t id;
         struct sprite_t* sprite = sprite_create(g, "menu/join/join.png", 1, 1, 1, &id);

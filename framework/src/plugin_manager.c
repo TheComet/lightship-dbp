@@ -43,14 +43,6 @@ find_plugin(struct game_t* game,
             const plugin_search_criteria_t criteria);
 
 /* ------------------------------------------------------------------------- */
-char
-plugin_manager_init(struct game_t* game)
-{
-    list_init_list(&game->plugins);
-    return 1;
-}
-
-/* ------------------------------------------------------------------------- */
 void
 plugin_manager_deinit(struct game_t* game)
 {

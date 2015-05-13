@@ -1,5 +1,6 @@
 #include "framework/game.h"
 #include "framework/plugin_manager.h"
+#include "framework/plugin.h"
 #include "framework/services.h"
 #include "framework/events.h"
 #include "framework/log.h"
@@ -52,21 +53,33 @@ game_create(const char* name, game_network_role_e net_role)
     game = (struct game_t*)MALLOC(sizeof(struct game_t));
     if(!game)
         OUT_OF_MEMORY("game_create()", NULL);
-
-    /* initialise game object */
     memset(game, 0, sizeof(struct game_t));
-    game->name = malloc_string(name);
-    game->network_role = net_role;
-
-    /* initialise the game's global data container */
-    map_init_map(&game->global_data);
-
-    /* The initial state of the game is paused. The user must call game_start()
-     * to launch the game */
-    game->state = GAME_STATE_PAUSED;
 
     for(;;)
     {
+        game->network_role = net_role;
+
+        /* initialise the game's global data container */
+        map_init_map(&game->global_data);
+
+        /* The initial state of the game is paused. The user must call game_start()
+         * to launch the game */
+        game->state = GAME_STATE_PAUSED;
+
+        /* copy game name */
+        if(!(game->name = malloc_string(name)))
+            break;
+
+        /* init core plugin */
+        game->core = plugin_create(game,
+            "lightship core",
+            "core",
+            "TheComet",
+            "Provides essential events and services to the game object",
+            "https://github.com/TheComet93/lightship"
+        );
+        if(!game->core)
+            break;
 
         /* if server, try to set up connection now */
         if(net_role == GAME_HOST)
@@ -79,11 +92,9 @@ game_create(const char* name, game_network_role_e net_role)
         /* initialise all services for this game */
         if(!llog_init(game))
             break;
-        if(!services_init(game))
+        if(!services_register_core_services(game))
             break;
-        if(!events_init(game))
-            break;
-        if(!plugin_manager_init(game))
+        if(!events_register_core_events(game))
             break;
 
         /* add to global list of games */

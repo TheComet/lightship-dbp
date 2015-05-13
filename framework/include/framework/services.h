@@ -36,7 +36,7 @@ typedef enum service_script_type_e
  * other service related functions.
  */
 FRAMEWORK_PUBLIC_API char
-services_init(struct game_t* game);
+services_register_core_services(struct game_t* game);
 
 /*!
  * @brief De-initialises the service system. This must be called to clean up
@@ -53,7 +53,7 @@ services_deinit(struct game_t* game);
  * @param[in] exec A function pointer to the service function.
  */
 FRAMEWORK_PUBLIC_API struct service_t*
-service_create(struct game_t* game,
+service_create(struct plugin_t* plugin,
                const char* directory,
                const service_callback_func exec,
                const char* ret_type,

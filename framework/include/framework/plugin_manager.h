@@ -7,17 +7,8 @@
 struct ptree_t;
 
 /*!
- * @brief Initialises the plugin manager.
- * 
- * Must be called before calling any other functions related to the plugin
- * manager.
- */
-FRAMEWORK_PUBLIC_API char
-plugin_manager_init(struct game_t* game);
-
-/*!
  * @brief Starts a loaded plugin.
- * 
+ *
  * This calls the plugin's plugin_start() function.
  * @param[in] plugin The plugin to start.
  * @return Returns 1 if successful, 0 if otherwise.
@@ -32,7 +23,7 @@ plugin_manager_init(struct game_t* game);
 
 /*!
  * @brief De-initialises the plugin manager.
- * 
+ *
  * This will unload all plugins cleanly and clean up any memory being used.
  */
 FRAMEWORK_PUBLIC_API void
@@ -40,7 +31,7 @@ plugin_manager_deinit(struct game_t* game);
 
 /*!
  * @brief Loads the specified plugin.
- * 
+ *
  * In order to load a plugin, one must provide the name of the plugin, the
  * desired version of the plugin, and search criteria. This is done by filling
  * out the datafields in a struct of type *plugin_info_t* and passing it to
@@ -55,7 +46,7 @@ plugin_manager_deinit(struct game_t* game);
  * Note that the name of the plugin isn't what the loaded plugin claims to be
  * named, but is a substring of the actual file name. If the name were
  * *foo*, then the file name would have to be *plugin_foo-1-2-6.so*.
- * 
+ *
  * The search criteria can be:
  *   - *PLUGIN_VERSION_EXACT*: The version of the file has to match exactly.
  *   - *PLUGIN_VERSION_MINIMUM*: The version of the file name must be at least

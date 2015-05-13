@@ -15,17 +15,16 @@ PLUGIN_MENU_PUBLIC_API PLUGIN_INIT()
     glob_create(game);
 
     /* init plugin */
-    plugin = plugin_create(game);
+    plugin = plugin_create(game,
+                           PLUGIN_NAME,
+                           PLUGIN_CATEGORY,
+                           PLUGIN_AUTHOR,
+                           PLUGIN_DESCRIPTION,
+                           PLUGIN_WEBSITE
+    );
     get_global(game)->plugin = plugin;
 
     /* set plugin information - Change this in the file "CMakeLists.txt" */
-    plugin_set_info(plugin,
-            PLUGIN_NAME,         /* name */
-            PLUGIN_CATEGORY,     /* category */
-            PLUGIN_AUTHOR,       /* author */
-            PLUGIN_DESCRIPTION,  /* description */
-            PLUGIN_WEBSITE       /* website */
-    );
     plugin_set_programming_language(plugin,
             PLUGIN_PROGRAMMING_LANGUAGE_C
     );

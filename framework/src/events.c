@@ -25,9 +25,10 @@ event_free(struct event_t* event);
  * Exported functions
  * ------------------------------------------------------------------------- */
 char
-events_init(struct game_t* game)
+events_register_core_events(struct game_t* game)
 {
     assert(game);
+    assert(game->core);
 
     /* this holds all of the game's events */
     ptree_init_ptree(&game->events, NULL);
@@ -46,10 +47,11 @@ events_init(struct game_t* game)
          */
 #define STR_(x) #x
 #define STR(x) STR_(x)
-#define REGISTER_BUILT_IN_EVENT(name) {                             \
-            if(!(game->event.name = event_create(game, STR(name)))) \
+#define REGISTER_BUILT_IN_EVENT(name) {                                     \
+            if(!(game->event.name = event_create(game->core, STR(name))))   \
                 break; }
 
+        /* game core commands */
         REGISTER_BUILT_IN_EVENT(start)
         REGISTER_BUILT_IN_EVENT(pause)
         REGISTER_BUILT_IN_EVENT(exit)
@@ -71,8 +73,6 @@ events_init(struct game_t* game)
      * Reaching this point means something went wrong - Clean up
      * --------------------------------------------------------- */
 
-    events_deinit(game);
-
     return 0;
 }
 
@@ -85,27 +85,47 @@ events_deinit(struct game_t* game)
 
 /* ------------------------------------------------------------------------- */
 struct event_t*
-event_create(struct game_t* game, const char* directory)
+event_create(struct plugin_t* plugin, const char* directory)
 {
     struct ptree_t* node;
     struct event_t* event;
 
-    assert(game);
+    assert(plugin);
+    assert(plugin->game);
     assert(directory);
 
-    /* create node in game's event directory */
-    if(!(node = ptree_add_node(&game->events, directory, NULL)))
-        return NULL;
-
-    /* allocate and initialise event object, and add it to the directory */
+    /* allocate and initialise event object */
     if(!(event = (struct event_t*)MALLOC(sizeof(struct event_t))))
         OUT_OF_MEMORY("event_create()", NULL);
-    event->directory = malloc_string(directory);
-    event->game = game;
-    unordered_vector_init_vector(&event->listeners, sizeof(struct event_listener_t));
-    node->value = event;
+    memset(event, 0, sizeof(struct event_t));
 
-    return event;
+    for(;;)
+    {
+        event->game = plugin->game;
+        unordered_vector_init_vector(&event->listeners, sizeof(struct event_listener_t));
+
+        /* copy directory */
+        if(!(event->directory = malloc_string(directory)))
+            break;
+
+        /* plugin object keeps track of all created events */
+        if(!unordered_vector_push(&plugin->events, &event))
+            break;
+
+        /* create node in game's event directory and add event - do this last
+         * because ptree_remove_node() uses malloc() */
+        if(!(node = ptree_add_node(&plugin->game->events, directory, event)))
+            break;
+
+        /* success! */
+        return event;
+    }
+
+    /* something went wrong, clean up */
+    if(event->directory)
+        free_string(event->directory);
+
+    return NULL;
 }
 
 /* ------------------------------------------------------------------------- */
@@ -118,7 +138,7 @@ event_destroy(struct event_t* event)
     assert(event->game);
     assert(event->directory);
 
-    if(!(node = ptree_remove_node(&event->game->events, event->directory)))
+    if(!(node = ptree_get_node(&event->game->events, event->directory)))
     {
         llog(LOG_ERROR, event->game, NULL, 5, "Attempted to destroy the event"
             " \"", event->directory, "\", but the associated game object with"
@@ -145,7 +165,8 @@ event_get(const struct game_t* game, const char* directory)
 
     if(!(node = ptree_get_node(&game->events, directory)))
         return NULL;
-    assert(node->value);
+    /* The node can be NULL if the node is a "middle node". This doesn't
+     * concern us, though, because we would be returning NULL anyway */
     return (struct event_t*)node->value;
 }
 

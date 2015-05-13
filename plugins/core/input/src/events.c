@@ -23,17 +23,16 @@ EVENT_C0(evt_cancel)
 void
 register_events(struct plugin_t* plugin)
 {
-    struct game_t* game = plugin->game;
-    evt_mouse_clicked   = event_create(game, PLUGIN_NAME ".mouse_clicked");
-    evt_mouse_press     = event_create(game, PLUGIN_NAME ".mouse_press");
-    evt_mouse_release   = event_create(game, PLUGIN_NAME ".mouse_release");
-    evt_mouse_move      = event_create(game, PLUGIN_NAME ".mouse_move");
-    evt_up              = event_create(game, PLUGIN_NAME ".up");
-    evt_down            = event_create(game, PLUGIN_NAME ".down");
-    evt_left            = event_create(game, PLUGIN_NAME ".left");
-    evt_right           = event_create(game, PLUGIN_NAME ".right");
-    evt_action          = event_create(game, PLUGIN_NAME ".action");
-    evt_cancel          = event_create(game, PLUGIN_NAME ".cancel");
+    evt_mouse_clicked   = event_create(plugin, PLUGIN_NAME ".mouse_clicked");
+    evt_mouse_press     = event_create(plugin, PLUGIN_NAME ".mouse_press");
+    evt_mouse_release   = event_create(plugin, PLUGIN_NAME ".mouse_release");
+    evt_mouse_move      = event_create(plugin, PLUGIN_NAME ".mouse_move");
+    evt_up              = event_create(plugin, PLUGIN_NAME ".up");
+    evt_down            = event_create(plugin, PLUGIN_NAME ".down");
+    evt_left            = event_create(plugin, PLUGIN_NAME ".left");
+    evt_right           = event_create(plugin, PLUGIN_NAME ".right");
+    evt_action          = event_create(plugin, PLUGIN_NAME ".action");
+    evt_cancel          = event_create(plugin, PLUGIN_NAME ".cancel");
 }
 
 void

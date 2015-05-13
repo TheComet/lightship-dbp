@@ -7,9 +7,10 @@
 #define NAME events
 
 using namespace testing;
-/*
+
 struct NAME : public testing::Test
 {
+    /*
     NAME()
     {
         plugin_obj.handle = NULL;
@@ -27,7 +28,7 @@ struct NAME : public testing::Test
         plugin_obj.stop = NULL;
 
         plugin = &plugin_obj;
-    }
+    }*/
 
     virtual void SetUp()
     {
@@ -44,7 +45,7 @@ struct NAME : public testing::Test
 private:
     struct plugin_t plugin_obj;
 };
-
+/*
 TEST_F(NAME, create_event_inits_correctly)
 {
     struct event_t* event = event_create(game, "test.event");
@@ -96,4 +97,5 @@ TEST_F(NAME, listeners_receive_events_when_fired)
     ASSERT_EQ(1, g_listener_triggered_2);
 
     event_destroy(evt_1);
-}*/
+}
+*/

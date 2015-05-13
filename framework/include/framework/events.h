@@ -118,7 +118,7 @@ struct game_t;
  * @note Must be called before calling any other event related functions.
  */
 FRAMEWORK_PUBLIC_API char
-events_init(struct game_t* game);
+events_register_core_events(struct game_t* game);
 
 /*!
  * @brief De-initialises the event system and cleans up any events that weren't
@@ -137,7 +137,7 @@ events_deinit(struct game_t* game);
  * @return Returns a new event object which should be stored by the plugin.
  */
 FRAMEWORK_PUBLIC_API struct event_t*
-event_create(struct game_t* game, const char* directory);
+event_create(struct plugin_t* plugin, const char* directory);
 
 /*!
  * @brief Destroys an event object.
