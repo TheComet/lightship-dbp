@@ -7,7 +7,9 @@ const uint32_t MAP_INVALID_KEY = (uint32_t)-1;
 struct map_t*
 map_create(void)
 {
-    struct map_t* map = (struct map_t*)MALLOC(sizeof(struct map_t));
+    struct map_t* map;
+    if(!(map = (struct map_t*)MALLOC(sizeof(struct map_t))))
+        return NULL;
     map_init_map(map);
     return map;
 }
@@ -28,7 +30,7 @@ map_destroy(struct map_t* map)
 }
 
 /* ------------------------------------------------------------------------- */
-struct map_key_value_t*
+static struct map_key_value_t*
 map_find_lower_bound(const struct map_t* map, uint32_t hash)
 {
     uint32_t half;
