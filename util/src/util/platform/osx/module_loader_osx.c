@@ -1,8 +1,8 @@
-#include <stdio.h>
 #include <dlfcn.h>
 #include "util/module_loader.h"
 #include "util/string.h"
 
+/* ------------------------------------------------------------------------- */
 void*
 module_open(const char* filename)
 {
@@ -15,6 +15,7 @@ module_open(const char* filename)
     return handle;
 }
 
+/* ------------------------------------------------------------------------- */
 void*
 module_sym(void* handle, const char* symbol)
 {
@@ -34,6 +35,7 @@ module_sym(void* handle, const char* symbol)
     return ptr;
 }
 
+/* ------------------------------------------------------------------------- */
 void
 module_close(void* handle)
 {

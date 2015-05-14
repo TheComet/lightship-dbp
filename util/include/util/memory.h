@@ -7,7 +7,7 @@
 C_HEADER_BEGIN
 
 #ifdef ENABLE_MEMORY_REPORT
-#   define MALLOC malloc_debug
+#   define MALLOC custom_malloc_debug
 #   define FREE free_debug
 #else
 #   include <stdlib.h>
@@ -45,7 +45,7 @@ memory_deinit(void);
  * additional work monitor and track down memory leaks.
  */
 LIGHTSHIP_UTIL_PUBLIC_API void*
-malloc_debug(intptr_t size);
+custom_malloc_debug(intptr_t size);
 
 /*!
  * @brief Does the same thing as a normal call to fee(), but does some

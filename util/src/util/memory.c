@@ -17,7 +17,7 @@ static struct map_t report;
 static volatile char do_fail_malloc = 0;
 #   endif ENABLE_MEMORY_EXPLICIT_MALLOC_FAILS
 
-/* need a mutex to make malloc_debug() and free_debug() thread safe */
+/* need a mutex to make custom_malloc_debug() and free_debug() thread safe */
 /* NOTE: Mutex must be recursive */
 #   if defined(ENABLE_MULTITHREADING) || defined(ENABLE_MEMORY_EXPLICIT_MALLOC_FAILS)
 #       if defined(LIGHTSHIP_UTIL_PLATFORM_LINUX) || defined(LIGHTSHIP_UTIL_PLATFORM_MACOSX)
@@ -74,7 +74,7 @@ memory_init(void)
 
 /* ------------------------------------------------------------------------- */
 void*
-malloc_debug(intptr_t size)
+custom_malloc_debug(intptr_t size)
 {
     void* p;
 
