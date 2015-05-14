@@ -116,7 +116,7 @@ EVENT_LISTENER1(on_event, int arg)
                 }
 
 #else  /* _DEBUG */
-#   define ELSE_REPORT_EVENT_FIRE_FAILURE
+#   define ELSE_REPORT_EVENT_FIRE_FAILURE(event)
 #   define IF_EVENT_VALID(event)
 #endif /* _DEBUG */
 

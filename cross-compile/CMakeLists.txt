@@ -73,6 +73,22 @@ if (BUILD_HOST STREQUAL "rainbowdash")
                             "/usr/bin/x86_64-pc-mingw32")
     endif ()
 endif ()
+if (BUILD_HOST STREQUAL "twilight")
+    if (CROSS_COMPILE_i686-pc-mingw32)
+        generate_cross_arch("Windows"
+                            "i686-pc-mingw32"
+                            "/usr/bin/i686-pc-mingw32-gcc"
+                            "/usr/bin/i686-pc-mingw32-windres"
+                            "/usr/bin/i686-pc-mingw32")
+    endif ()
+    if (CROSS_COMPILE_x86_64-pc-mingw32)
+        generate_cross_arch ("Windows"
+                            "x86_64-pc-mingw32"
+                            "/usr/bin/x86_64-pc-mingw32-gcc"
+                            "/usr/bin/x86_64-pc-mingw32-windres"
+                            "/usr/bin/x86_64-pc-mingw32")
+    endif ()
+endif ()
 if (BUILD_HOST STREQUAL "game.pixelcloud.ch")
     if (CROSS_COMPILE_i486-pc-mingw32)
         message (FATAL_ERROR "Compiling for i486-pc-mingw32 is not supported on this computer")
