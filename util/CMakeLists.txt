@@ -32,7 +32,7 @@ option (ENABLE_LOG_TIMESTAMPS "Whether or not to prefix log messages with timest
 
 # thread pool and multithreading related stuff
 option (ENABLE_MULTITHREADING "Global switch for whether or not to use multithreading" OFF)
-option (ENABLE_THREAD_POOL "Enables the thread pool (scalable multithreading). Requires multithreading to be enabled." ON)
+option (ENABLE_THREAD_POOL "Enables the thread pool (scalable multithreading). Requires multithreading to be enabled." OFF)
 option (ENABLE_RING_BUFFER_REALLOC "Causes the thread pool's ring buffer to automatically reallocate when necessary" OFF)
 set (RING_BUFFER_FIXED_SIZE "4096" CACHE STRING "If ENABLE_RING_BUFFER_REALLOC is disabled, this determins the fixed size in bytes of the ring buffer. Note that this is also the start size of the ring buffer")
 set (RING_BUFFER_MAX_SIZE "262144" CACHE STRING "Maximum allowable size of the ring buffer.")
@@ -67,20 +67,11 @@ include_directories ("${CMAKE_CURRENT_BINARY_DIR}/include")
 
 if (${PLATFORM} MATCHES "LINUX")
     set (PLATFORM_SOURCE_DIRS ${PLATFORM_SOURCE_DIRS} "src/util/platform/linux/*.c")
-    if (ENABLE_THREAD_POOL)
-        set (PLATFORM_SOURCE_DIRS ${PLATFORM_SOURCE_DIRS} "src/thread_pool/platform/linux/*.c")
-    endif ()
 elseif (${PLATFORM} MATCHES "MACOSX")
     set (PLATFORM_SOURCE_DIRS ${PLATFORM_SOURCE_DIRS} "src/util/platform/osx/*.c")
-    if (ENABLE_THREAD_POOL)
-        set (PLATFORM_SOURCE_DIRS ${PLATFORM_SOURCE_DIRS} "src/thread_pool/platform/osx/*.c")
-    endif ()
 elseif (${PLATFORM} MATCHES "WINDOWS")
     set (PLATFORM_HEADER_DIRS ${PLATFORM_HEADER_DIRS} "include/util/platform/win/*.h")
     set (PLATFORM_SOURCE_DIRS ${PLATFORM_SOURCE_DIRS} "src/util/platform/win/*.c")
-    if (ENABLE_THREAD_POOL)
-        set (PLATFORM_SOURCE_DIRS ${PLATFORM_SOURCE_DIRS} "src/thread_pool/platform/win/*.c")
-    endif ()
 endif ()
 
 ###############################################################################
@@ -89,11 +80,9 @@ endif ()
 
 file (GLOB lightship_util_HEADERS
     "include/util/*.h"
-    "include/thread_pool/*.h"
     ${PLATFORM_HEADER_DIRS})
 file (GLOB lightship_util_SOURCES
     "src/util/*.c"
-    "src/thread_pool/*.c"
     ${PLATFORM_SOURCE_DIRS})
 
 set (lightship_util_HEADERS ${lightship_util_HEADERS}

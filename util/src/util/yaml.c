@@ -62,6 +62,7 @@ yaml_load(const char* filename)
 }
 
 /* ------------------------------------------------------------------------- */
+#if defined(LIGHTSHIP_UTIL_PLATFORM_LINUX) || defined(LIGHTSHIP_UTIL_PLATFORM_MAC)
 struct ptree_t*
 yaml_load_from_memory(const char* buffer)
 {
@@ -82,6 +83,7 @@ yaml_load_from_memory(const char* buffer)
 
     return doc;
 }
+#endif
 
 /* ------------------------------------------------------------------------- */
 struct ptree_t*

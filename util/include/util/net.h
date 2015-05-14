@@ -1,4 +1,5 @@
 #include "util/pstdint.h"
+#include "util/config.h"
 
 struct net_connection_t
 {
@@ -10,13 +11,13 @@ struct net_connection_t
  * @brief Initialises networking.
  * @return Returns 1 if successful, 0 if otherwise.
  */
-char
+LIGHTSHIP_UTIL_PUBLIC_API char
 net_init(void);
 
 /*!
  * @brief De-initialises networking.
  */
-void
+LIGHTSHIP_UTIL_PUBLIC_API void
 net_deinit(void);
 
 /*!
@@ -25,15 +26,15 @@ net_deinit(void);
  * @param[in] max_connections The maximum amount of clients allowed to connect
  * to this address.
  */
-struct net_connection_t*
+LIGHTSHIP_UTIL_PUBLIC_API struct net_connection_t*
 net_host_udp(const char* port, uint32_t max_connections);
 
 /*!
  */
-struct net_connection_t*
+LIGHTSHIP_UTIL_PUBLIC_API struct net_connection_t*
 net_join_udp(const char* node, const char* port);
 
 /*!
  */
-void
+LIGHTSHIP_UTIL_PUBLIC_API void
 net_disconnect(struct net_connection_t* connection);

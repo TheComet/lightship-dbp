@@ -15,14 +15,14 @@ file_load_into_memory(const char* file_name, void** buffer, file_opts_e opts)
     hFile = CreateFile(TEXT(file_name), GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
     if(hFile == INVALID_HANDLE_VALUE)
     {
-        llog(LOG_ERROR, NULL, 3, "CreateFile() failed for file \"", file_name, "\"");
+        fprintf(stderr, "CreateFile() failed for file \"%s\"\n", file_name);
         return 0;
     }
 
     /* get file size */
     if(!GetFileSize(hFile, &buffer_size))
     {
-        llog(LOG_ERROR, NULL, 3, "GetFileSizeEx() failed for file \"", file_name, "\"");
+        fprintf(stderr, "GetFileSizeEx() failed for file \"%s\"\n", file_name);
         return 0;
     }
 
@@ -32,13 +32,16 @@ file_load_into_memory(const char* file_name, void** buffer, file_opts_e opts)
     else
         *buffer = MALLOC(buffer_size + sizeof(char));
     if(*buffer == NULL)
-        OUT_OF_MEMORY("file_load_into_memory()", 0);
+	{
+        fprintf(stderr, "malloc() failed in function file_load_into_memory()\n");
+		return 0;
+	}
     
     /* copy file into buffer */
     ReadFile(hFile, *buffer, buffer_size, &bytes_read, NULL);
     if(buffer_size != bytes_read)
     {
-        llog(LOG_ERROR, NULL, 3, "ReadFile() failed for file \"", file_name, "\"");
+        fprintf(stderr, "ReadFile() failed for file \"%s\"\n", file_name);
         return 0;
     }
     CloseHandle(hFile);

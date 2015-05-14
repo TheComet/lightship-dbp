@@ -31,8 +31,12 @@ add_executable (lightship
     ${lightship_SOURCES}
 )
 
+if(${PLATFORM} MATCHES "LINUX" OR ${PLATFORM} MATCHES "MACOSX")
+	set (MATH_LIB m)
+endif ()
+
 target_link_libraries (lightship
-    m
+	${MATH_LIB}
     lightship_util
     framework
 )

@@ -34,6 +34,7 @@ yaml_deinit(void);
 LIGHTSHIP_UTIL_PUBLIC_API struct ptree_t*
 yaml_load(const char* filename);
 
+#if defined(LIGHTSHIP_UTIL_PLATFORM_LINUX) || defined(LIGHTSHIP_UTIL_PLATFORM_MAC)
 /*!
  * @brief Parses a string containing YAML code located in memory.
  * @param buffer The string to load YAML from.
@@ -42,6 +43,7 @@ yaml_load(const char* filename);
  */
 LIGHTSHIP_UTIL_PUBLIC_API struct ptree_t*
 yaml_load_from_memory(const char* buffer);
+#endif
 
 /*!
  * @brief Parses YAML code from a stream.
@@ -106,7 +108,7 @@ yaml_get_hash(const struct ptree_t* node);
  * @return Returns a property-tree node if the node was successfully found,
  * otherwise NULL is returned.
  */
-struct ptree_t*
+LIGHTSHIP_UTIL_PUBLIC_API struct ptree_t*
 yaml_get_node(const struct ptree_t* node, const char* key);
 
 LIGHTSHIP_UTIL_PUBLIC_API struct ptree_t*
