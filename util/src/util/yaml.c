@@ -7,6 +7,10 @@
 #include "util/unordered_vector.h"
 #include <assert.h>
 
+#ifdef LIGHTSHIP_UTIL_PLATFORM_MACOSX
+#   include "platform/osx/fmemopen.h"
+#endif
+
 static struct list_t g_open_docs;
 
 static char
