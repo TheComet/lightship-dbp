@@ -23,7 +23,7 @@ C_HEADER_BEGIN
 
 /*!
  * @brief Initialises the memory system.
- * 
+ *
  * In release mode this does nothing. In debug mode it will initialise
  * memory reports and backtraces, if enabled.
  */
@@ -32,7 +32,7 @@ memory_init(void);
 
 /*!
  * @brief De-initialises the memory system.
- * 
+ *
  * In release mode this does nothing. In debug mode this will output the memory
  * report and print backtraces, if enabled.
  */
@@ -53,7 +53,28 @@ malloc_debug(intptr_t size);
  */
 LIGHTSHIP_UTIL_PUBLIC_API void
 free_debug(void* ptr);
-#endif
+
+#   ifdef ENABLE_MEMORY_EXPLICIT_MALLOC_FAILS
+/*!
+ * @brief Causes the next call to MALLOC() to fail.
+ * @note Because unit tests are executed in parallel, this function will
+ * acquire a mutex, which will be released again when force_malloc_fail_off()
+ * is called.
+ */
+LIGHTSHIP_UTIL_PUBLIC_API void
+force_malloc_fail_on(void);
+
+/*!
+ * @brief Allows the next call to MALLOC() to function normally again.
+ * @note Because unit tests are executed in parallel, this function releases
+ * the mutex previously acquired in force_malloc_fail_on().
+ */
+LIGHTSHIP_UTIL_PUBLIC_API void
+force_malloc_fail_off(void);
+#   endif /* ENABLE_MEMORY_EXPLICIT_MALLOC_FAILS */
+
+
+#endif /* ENABLE_MEMORY_REPORT */
 
 void
 mutated_string_and_hex_dump(void* data, intptr_t size_in_bytes);

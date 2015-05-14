@@ -13,42 +13,49 @@ static intptr_t deallocations = 0;
 static intptr_t ignore_map_malloc = 0;
 static struct map_t report;
 
+#   ifdef ENABLE_MEMORY_EXPLICIT_MALLOC_FAILS
+static volatile char do_fail_malloc = 0;
+#   endif ENABLE_MEMORY_EXPLICIT_MALLOC_FAILS
+
 /* need a mutex to make malloc_debug() and free_debug() thread safe */
 /* NOTE: Mutex must be recursive */
-#ifdef ENABLE_MULTITHREADING
-    /* linux or mac */
-#   if defined(LIGHTSHIP_UTIL_PLATFORM_LINUX) || defined(LIGHTSHIP_UTIL_PLATFORM_MACOSX)
-#       include <pthread.h>
-#       define MUTEX pthread_mutex_t
-#       define MUTEX_LOCK(x) pthread_mutex_lock(&(x));
-#       define MUTEX_UNLOCK(x) pthread_mutex_unlock(&(x));
-#       define MUTEX_INIT(x) do {                                           \
-            pthread_mutexattr_t attr;                                       \
-            pthread_mutexattr_init(&attr);                                  \
-            pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);      \
-            pthread_mutex_init(&(x), &attr);                                \
-            pthread_mutexattr_destroy(&attr);                               \
-        } while(0);
+#   if defined(ENABLE_MULTITHREADING) || defined(ENABLE_MEMORY_EXPLICIT_MALLOC_FAILS)
+#       if defined(LIGHTSHIP_UTIL_PLATFORM_LINUX) || defined(LIGHTSHIP_UTIL_PLATFORM_MACOSX)
+#           include <pthread.h>
+#           define MUTEX pthread_mutex_t
+#           define MUTEX_LOCK(x) pthread_mutex_lock(&(x));
+#           define MUTEX_UNLOCK(x) pthread_mutex_unlock(&(x));
+#           define MUTEX_INIT(x) do {                                           \
+                pthread_mutexattr_t attr;                                       \
+                pthread_mutexattr_init(&attr);                                  \
+                pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);      \
+                pthread_mutex_init(&(x), &attr);                                \
+                pthread_mutexattr_destroy(&attr);                               \
+            } while(0);
+#           define MUTEX_DEINIT(x) pthread_mutex_destroy(&(x))
 
-#   else
-#       error Dont know how to create a mutex for the target platform. Either disable ENABLE_MULTITHREADING or implement the missing feature.
-#   endif
+#       else /* defined(LIGHTSHIP_UTIL_PLATFORM_LINUX) || defined(LIGHTSHIP_UTIL_PLATFORM_MACOSX) */
+#           error Dont know how to create a mutex for the target platform. Either disable ENABLE_MULTITHREADING or disable BUILD_TESTS -- or implement the missing feature :)
+#       endif /* defined(LIGHTSHIP_UTIL_PLATFORM_LINUX) || defined(LIGHTSHIP_UTIL_PLATFORM_MACOSX) */
+
     static MUTEX mutex;
-#else /* ENABLE_MULTITHREADING */
-#   define mutex
-#   define MUTEX_LOCK(x)
-#   define MUTEX_UNLOCK(x)
-#   define MUTEX_INIT(x)
-#endif /* ENABLE_MULTITHREADING */
+
+#   else /* defined(ENABLE_MULTITHREADING) || defined(ENABLE_MEMORY_EXPLICIT_MALLOC_FAILS) */
+#       define mutex
+#       define MUTEX_LOCK(x)
+#       define MUTEX_UNLOCK(x)
+#       define MUTEX_INIT(x)
+#       define MUTEX_DEINIT(x)
+#   endif /* defined(ENABLE_MULTITHREADING) || defined(ENABLE_MEMORY_EXPLICIT_MALLOC_FAILS) */
 
 struct report_info_t
 {
     intptr_t location;
     intptr_t size;
-#ifdef ENABLE_MEMORY_BACKTRACE
+#   ifdef ENABLE_MEMORY_BACKTRACE
     int backtrace_size;
     char** backtrace;
-#endif
+#   endif
 };
 
 /* ------------------------------------------------------------------------- */
@@ -60,15 +67,25 @@ memory_init(void)
     ignore_map_malloc = 0;
     map_init_map(&report);
     MUTEX_INIT(mutex)
+#   ifdef ENABLE_MEMORY_EXPLICIT_MALLOC_FAILS
+    do_fail_malloc = 0;
+#   endif
 }
 
 /* ------------------------------------------------------------------------- */
 void*
 malloc_debug(intptr_t size)
 {
-    void* p = malloc(size);
+    void* p;
 
-    MUTEX_LOCK(mutex)
+    MUTEX_LOCK(mutex);
+
+#   ifdef ENABLE_MEMORY_EXPLICIT_MALLOC_FAILS
+    if(do_fail_malloc)
+        return NULL;
+#   endif
+
+    p = malloc(size);
 
     if(p)
         ++allocations;
@@ -82,9 +99,11 @@ malloc_debug(intptr_t size)
         struct report_info_t* info = (struct report_info_t*)malloc(sizeof(struct report_info_t));;
         info->location = (intptr_t)p;
         info->size = size;
-#ifdef ENABLE_MEMORY_BACKTRACE
+
+#   ifdef ENABLE_MEMORY_BACKTRACE
         info->backtrace = get_backtrace(&info->backtrace_size);
-#endif
+#   endif
+
         ignore_map_malloc = 1;
         map_insert(&report, (intptr_t)p, info);
         ignore_map_malloc = 0;
@@ -109,9 +128,9 @@ free_debug(void* ptr)
         struct report_info_t* info = map_find(&report, (intptr_t)ptr);
         if(info)
         {
-#ifdef ENABLE_MEMORY_BACKTRACE
+#   ifdef ENABLE_MEMORY_BACKTRACE
             free(info->backtrace);
-#endif
+#   endif
             map_erase(&report, info->location);
             free(info);
             success = 1;
@@ -119,20 +138,20 @@ free_debug(void* ptr)
 
         if(!success)
         {
-#ifdef ENABLE_MEMORY_BACKTRACE
+#   ifdef ENABLE_MEMORY_BACKTRACE
             char** bt;
             int bt_size, i;
             printf("  -----------------------------------------\n");
-#endif
+#   endif
             printf("  WARNING: Freeing something that was never allocated\n");
-#ifdef ENABLE_MEMORY_BACKTRACE
+#   ifdef ENABLE_MEMORY_BACKTRACE
             bt = get_backtrace(&bt_size);
             printf("  backtrace to where free() was called:\n");
             for(i = 0; i < bt_size; ++i)
                 printf("      %s\n", bt[i]);
             printf("  -----------------------------------------\n");
             free(bt);
-#endif
+#   endif
         }
     }
 
@@ -164,7 +183,7 @@ memory_deinit(void)
             printf("  un-freed memory at %p, size %p\n", (void*)info->location, (void*)info->size);
             mutated_string_and_hex_dump((void*)info->location, info->size);
 
-#ifdef ENABLE_MEMORY_BACKTRACE
+#   ifdef ENABLE_MEMORY_BACKTRACE
             printf("  Backtrace to where malloc() was called:\n");
             {
                 intptr_t i;
@@ -173,7 +192,7 @@ memory_deinit(void)
             }
             free(info->backtrace); /* this was allocated when malloc() was called */
             printf("  -----------------------------------------\n");
-#endif
+#   endif
             free(info);
         }}
         printf("=========================================\n");
@@ -188,7 +207,28 @@ memory_deinit(void)
     ++allocations; /* this is the single allocation still held by the report vector */
     ignore_map_malloc = 1;
     map_clear_free(&report);
+
+    MUTEX_DEINIT(mutex);
 }
+
+#   ifdef ENABLE_MEMORY_EXPLICIT_MALLOC_FAILS
+/* ------------------------------------------------------------------------- */
+void
+force_malloc_fail_on(void)
+{
+    MUTEX_LOCK(mutex);
+    do_fail_malloc = 1;
+}
+
+/* ------------------------------------------------------------------------- */
+void
+force_malloc_fail_off(void)
+{
+    do_fail_malloc = 0;
+    MUTEX_UNLOCK(mutex);
+}
+#   endif /* ENABLE_MEMORY_EXPLICIT_MALLOC_FAILS */
+
 #else /* ENABLE_MEMORY_REPORT */
 
 void memory_init(void) {}

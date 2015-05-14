@@ -27,15 +27,24 @@ else ()
     option (ENABLE_MEMORY_BACKTRACE "Generates backtraces for every malloc(), making it easy to track down memory leaks" OFF)
 endif ()
 
+# some unit tests require malloc failures
+if (BUILD_TESTS AND ENABLE_MEMORY_REPORT)
+    option (ENABLE_MEMORY_EXPLICIT_MALLOC_FAILS "Allows calls to malloc() to fail on purpose" ON)
+else ()
+    option (ENABLE_MEMORY_EXPLICIT_MALLOC_FAILS "Allows calls to malloc() to fail on purpose" OFF)
+endif ()
+
 # log related stuff
 option (ENABLE_LOG_TIMESTAMPS "Whether or not to prefix log messages with timestamps" ON)
 
 # thread pool and multithreading related stuff
 option (ENABLE_MULTITHREADING "Global switch for whether or not to use multithreading" OFF)
-option (ENABLE_THREAD_POOL "Enables the thread pool (scalable multithreading). Requires multithreading to be enabled." OFF)
-option (ENABLE_RING_BUFFER_REALLOC "Causes the thread pool's ring buffer to automatically reallocate when necessary" OFF)
-set (RING_BUFFER_FIXED_SIZE "4096" CACHE STRING "If ENABLE_RING_BUFFER_REALLOC is disabled, this determins the fixed size in bytes of the ring buffer. Note that this is also the start size of the ring buffer")
-set (RING_BUFFER_MAX_SIZE "262144" CACHE STRING "Maximum allowable size of the ring buffer.")
+if (ENABLE_MULTITHREADING)
+    option (ENABLE_THREAD_POOL "Enables the thread pool (scalable multithreading). Requires multithreading to be enabled." OFF)
+    option (ENABLE_RING_BUFFER_REALLOC "Causes the thread pool's ring buffer to automatically reallocate when necessary" OFF)
+    set (RING_BUFFER_FIXED_SIZE "4096" CACHE STRING "If ENABLE_RING_BUFFER_REALLOC is disabled, this determins the fixed size in bytes of the ring buffer. Note that this is also the start size of the ring buffer")
+    set (RING_BUFFER_MAX_SIZE "262144" CACHE STRING "Maximum allowable size of the ring buffer.")
+endif ()
 
 # resolve depending options
 if (NOT ENABLE_MULTITHREADING)
@@ -50,6 +59,7 @@ endif ()
 # print out a summary
 message (STATUS "Memory reports: ${ENABLE_MEMORY_REPORT}")
 message (STATUS "Backtraces in memory reports: ${ENABLE_MEMORY_BACKTRACE}")
+message (STATUS "Explicit malloc() fails: ${ENABLE_MEMORY_EXPLICIT_MALLOC_FAILS}")
 message (STATUS "Log timestamps: ${ENABLE_LOG_TIMESTAMPS}")
 message (STATUS "Thread pools: ${ENABLE_THREAD_POOL}")
 message (STATUS "Ring buffer reallocations: ${ENABLE_RING_BUFFER_REALLOC}")
@@ -118,7 +128,7 @@ target_link_libraries (lightship_util
 # threads
 ###############################################################################
 
-if (ENABLE_THREAD_POOL)
+if (ENABLE_MULTITHREADING OR ENABLE_MEMORY_EXPLICIT_MALLOC_FAILS)
     if (${PLATFORM} MATCHES "LINUX")
         target_link_libraries(lightship_util pthread)
     endif ()

@@ -136,7 +136,7 @@ if(ENABLE_DLANG)
     if (D_COMPILER MATCHES "dmd")
         set (D_GLOBAL_COMPILER_FLAGS -shared -fPIC)
     endif ()
-    
+
 else ()
     set (ENABLE_DLANG OFF)
 endif ()
@@ -158,6 +158,7 @@ set (EXPORT_H_TEMPLATE "${CMAKE_SOURCE_DIR}/util/include/common/export.h.in")
 ###############################################################################
 
 option (BUILD_TESTS "Whether or not to build unit tests (note: requires C++)" OFF)
+message (STATUS "Unit Tests: ${BUILD_TESTS}")
 
 # utility library and plugin manager header files are globally accessable
 include_directories ("${CMAKE_SOURCE_DIR}/util/include")
