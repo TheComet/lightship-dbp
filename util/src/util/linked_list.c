@@ -43,7 +43,7 @@ list_clear(struct list_t* list)
 }
 
 /* ------------------------------------------------------------------------- */
-void
+char
 list_push(struct list_t* list, void* data)
 {
     struct list_node_t* node;
@@ -51,9 +51,9 @@ list_push(struct list_t* list, void* data)
     if(!node)
     {
         fprintf(stderr, "malloc() failed in list_push() -- not enough memory\n");
-        return;
+        return 0;
     }
-    
+
     /* first element being inserted, set tail */
     if(!list->head)
         list->tail = node;
@@ -65,6 +65,8 @@ list_push(struct list_t* list, void* data)
     node->next = NULL;          /* new node has no next node */
     node->data = data;
     ++list->count;
+
+    return 1;
 }
 
 /* ------------------------------------------------------------------------- */
@@ -72,11 +74,11 @@ void*
 list_pop(struct list_t* list)
 {
     void* data;
-    
+
     struct list_node_t* node = list->head;
     if(!node)
         return NULL;
-    
+
     list->head = node->prev;    /* new head is previous node */
     if(list->head)              /* does the previous node exist? */
         list->head->next = NULL;/* previous node no longer has a next node */
@@ -101,7 +103,7 @@ list_erase_node(struct list_t* list, struct list_node_t* node)
         prev->next = next;  /* node after current node is the previous' node next node */
     else
         list->tail = next;  /* tail was pointing at current node - point to next */
-        
+
     if(next)
         next->prev = prev;  /* node before current node is the next' node previous node */
     else

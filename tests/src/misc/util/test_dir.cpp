@@ -42,7 +42,7 @@ TEST(NAME, files_and_directories)
     struct list_t* list = list_create();
 
 #define SEARCH_DIR_FILES "tests/test_dir/files/"
-    EXPECT_THAT(get_directory_listing(list, "tests/test_dir/files/"), Ne(0));
+    EXPECT_THAT(get_directory_listing(list, SEARCH_DIR_FILES), Ne(0));
     EXPECT_THAT(list->count, Eq(7));
     EXPECT_THAT(list_find(list, SEARCH_DIR_FILES "."), Ne(0));
     EXPECT_THAT(list_find(list, SEARCH_DIR_FILES ".."), Ne(0));

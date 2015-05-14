@@ -83,7 +83,7 @@ list_clear(struct list_t* list);
 
 /*!
  * @brief Adds a new node to the head of the list.
- * 
+ *
  * Creates a new node and links it into the specified list. The new node
  * becomes the head node of the list. The specified data is referenced by
  * the new node.
@@ -92,13 +92,15 @@ list_clear(struct list_t* list);
  * in the list.
  * @param[in] list The list to add a new node to.
  * @param[in] data The data the new node should reference.
+ * @return Returns non-zero if the item was successfully inserted, zero if
+ * otherwise.
  */
-LIGHTSHIP_UTIL_PUBLIC_API void
+LIGHTSHIP_UTIL_PUBLIC_API char
 list_push(struct list_t* list, void* data);
 
 /*!
  * @brief Removes a node from the head of the list.
- * 
+ *
  * Removes the head node from the list, if any. The head of the list will point
  * to the item preceeding the removed item, or if there is no preceeding item,
  * the head of the list will point to NULL.
@@ -131,7 +133,7 @@ list_erase_element(struct list_t* list, void* data);
 /*!
  * @brief Convenient macro for iterating a list's elements in forward order.
  * @note It is **unsafe** to erase the current element from the list.
- * 
+ *
  * Example:
  * @code
  * list_t* someList = (a list containing elements of type "struct bar")

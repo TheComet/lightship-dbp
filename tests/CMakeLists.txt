@@ -6,10 +6,16 @@ include_directories ("gmock/include")
 include_directories ("gmock/gtest/include")
 include_directories ("include")
 
-file (GLOB tests_HEADERS            "include/tests/*.hpp")
-file (GLOB tests_SOURCES            "src/*.cpp")
-file (GLOB tests_SOURCES_UTIL       "src/util/*.cpp")
-file (GLOB tests_SOURCES_FRAMEWORK  "src/framework/*.cpp")
+file (GLOB tests_SOURCES_UTIL
+            "src/death/util/*.cpp"
+            "src/env/util/*.cpp"
+            "src/malloc/util/*.cpp"
+            "src/misc/util/*.cpp")
+file (GLOB tests_SOURCES_FRAMEWORK
+            "src/death/framework/*.cpp"
+            "src/env/framework/*.cpp"
+            "src/malloc/framework/*.cpp"
+            "src/misc/framework/*.cpp")
 
 add_definitions (${DEFINE_CMD}TESTING)
 
