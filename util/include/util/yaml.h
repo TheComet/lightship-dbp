@@ -34,7 +34,7 @@ yaml_deinit(void);
 LIGHTSHIP_UTIL_PUBLIC_API struct ptree_t*
 yaml_load(const char* filename);
 
-#if defined(LIGHTSHIP_UTIL_PLATFORM_LINUX) || defined(LIGHTSHIP_UTIL_PLATFORM_MAC)
+#if defined(LIGHTSHIP_UTIL_PLATFORM_LINUX) || defined(LIGHTSHIP_UTIL_PLATFORM_MACOSX)
 /*!
  * @brief Parses a string containing YAML code located in memory.
  * @param buffer The string to load YAML from.
