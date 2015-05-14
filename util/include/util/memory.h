@@ -65,6 +65,17 @@ LIGHTSHIP_UTIL_PUBLIC_API void
 force_malloc_fail_on(void);
 
 /*!
+ * @brief Causes all calls to malloc() after the nth call to fail.
+ * @note Because unit tests are executed in parallel, this function will
+ * acquire a mutex, which will be released again when force_malloc_fail_off()
+ * is called.
+ * @param num_allocations After how many allocations malloc() should begin to
+ * fail. 1 means instantly, 2 means after one call, etc.
+ */
+void
+force_malloc_fail_after(int num_allocations);
+
+/*!
  * @brief Allows the next call to MALLOC() to function normally again.
  * @note Because unit tests are executed in parallel, this function releases
  * the mutex previously acquired in force_malloc_fail_on().

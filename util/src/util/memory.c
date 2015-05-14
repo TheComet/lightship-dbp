@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <assert.h>
 
 #define BACKTRACE_OMIT_COUNT 2
 
@@ -14,8 +15,8 @@ static intptr_t ignore_map_malloc = 0;
 static struct map_t report;
 
 #   ifdef ENABLE_MEMORY_EXPLICIT_MALLOC_FAILS
-static volatile char do_fail_malloc = 0;
-#   endif ENABLE_MEMORY_EXPLICIT_MALLOC_FAILS
+static volatile int malloc_fail_counter = 0;
+#   endif /* ENABLE_MEMORY_EXPLICIT_MALLOC_FAILS */
 
 /* need a mutex to make custom_malloc_debug() and free_debug() thread safe */
 /* NOTE: Mutex must be recursive */
@@ -68,7 +69,7 @@ memory_init(void)
     map_init_map(&report);
     MUTEX_INIT(mutex)
 #   ifdef ENABLE_MEMORY_EXPLICIT_MALLOC_FAILS
-    do_fail_malloc = 0;
+    malloc_fail_counter = 0;
 #   endif
 }
 
@@ -81,8 +82,14 @@ custom_malloc_debug(intptr_t size)
     MUTEX_LOCK(mutex);
 
 #   ifdef ENABLE_MEMORY_EXPLICIT_MALLOC_FAILS
-    if(do_fail_malloc)
-        return NULL;
+    if(malloc_fail_counter)
+    {
+        /* fail when counter reaches 1 */
+        if(malloc_fail_counter == 1)
+            return NULL;
+        else
+            --malloc_fail_counter;
+    }
 #   endif
 
     p = malloc(size);
@@ -216,15 +223,23 @@ memory_deinit(void)
 void
 force_malloc_fail_on(void)
 {
+    force_malloc_fail_after(1);
+}
+
+/* ------------------------------------------------------------------------- */
+void
+force_malloc_fail_after(int num_allocations)
+{
+    assert(num_allocations > 0);
     MUTEX_LOCK(mutex);
-    do_fail_malloc = 1;
+    malloc_fail_counter = num_allocations;
 }
 
 /* ------------------------------------------------------------------------- */
 void
 force_malloc_fail_off(void)
 {
-    do_fail_malloc = 0;
+    malloc_fail_counter = 0;
     MUTEX_UNLOCK(mutex);
 }
 #   endif /* ENABLE_MEMORY_EXPLICIT_MALLOC_FAILS */

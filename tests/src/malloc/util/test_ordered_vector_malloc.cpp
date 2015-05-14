@@ -97,7 +97,7 @@ TEST(NAME, push_emplace_realloc)
     ordered_vector_destroy(vec);
 }
 
-TEST(NAME, push_vector_fail_instantly)
+TEST(NAME, push_vector)
 {
     struct ordered_vector_t* vec1 = ordered_vector_create(sizeof(int));
     struct ordered_vector_t* vec2 = ordered_vector_create(sizeof(int));
