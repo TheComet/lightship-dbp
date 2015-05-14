@@ -2,11 +2,11 @@
  * @file ordered_vector.h
  * @brief Dynamic contiguous sequence container with guaranteed element order.
  * @page ordered_vector Ordered Vector
- * 
+ *
  * Ordered vectors arrange all inserted elements next to each other in memory.
  * Because of this, vector access is just as efficient as a normal array, but
  * they are able to grow and shrink in size automatically.
- * 
+ *
  * As opposed to an @ref unordered_vector, an ordered vector guarantees that the
  * elements it contains preserve the exact order in which they were inserted.
  * Behind the curtains, this means that whenever an element which is **not**
@@ -97,8 +97,10 @@ ordered_vector_clear_free(struct ordered_vector_t* vector);
  * @param[in] data The data to copy into the vector. It is assumed that
  * sizeof(data) is equal to what was specified when the vector was first
  * created. If this is not the case then it could cause undefined behaviour.
+ * @return Returns non-zero if the data was successfully pushed, zero if
+ * otherwise.
  */
-LIGHTSHIP_UTIL_PUBLIC_API void
+LIGHTSHIP_UTIL_PUBLIC_API char
 ordered_vector_push(struct ordered_vector_t* vector, void* data);
 
 /*!
@@ -117,8 +119,9 @@ ordered_vector_push_emplace(struct ordered_vector_t* vector);
 
 /*!
  * @brief Copies the contents of another vector and pushes it into the vector.
+ * @return Returns non-zero if successful, false if otherwise.
  */
-LIGHTSHIP_UTIL_PUBLIC_API void
+LIGHTSHIP_UTIL_PUBLIC_API char
 ordered_vector_push_vector(struct ordered_vector_t* vector, struct ordered_vector_t* source_vector);
 
 /*!
@@ -131,7 +134,7 @@ ordered_vector_push_vector(struct ordered_vector_t* vector, struct ordered_vecto
  * @return A pointer to the popped element. See warning and use with caution.
  * If there are no elements to pop, NULL is returned.
  */
-LIGHTSHIP_UTIL_PUBLIC_API void* 
+LIGHTSHIP_UTIL_PUBLIC_API void*
 ordered_vector_pop(struct ordered_vector_t* vector);
 
 /*!
@@ -139,7 +142,7 @@ ordered_vector_pop(struct ordered_vector_t* vector);
  * @warning The returned pointer could be invalidated if any other vector
  * related function is called, as the underlying memory of the vector could be
  * re-allocated. Use the pointer immediately after calling this function.
- * 
+ *
  * @param[in] vector The vector to return the last element from.
  * @return A pointer to the last element. See warning and use with caution.
  * If there are no elements in the vector, NULL is returned.
@@ -215,7 +218,7 @@ ordered_vector_get_element(struct ordered_vector_t*, uint32_t index);
 
 /*!
  * @brief Convenient macro for iterating a vector's elements.
- * 
+ *
  * Example:
  * @code
  * ordered_vector_t* some_vector = (a vector containing elements of type "struct bar")

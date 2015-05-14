@@ -30,7 +30,9 @@ ordered_vector_expand(struct ordered_vector_t *vector,
 struct ordered_vector_t*
 ordered_vector_create(const uint32_t element_size)
 {
-    struct ordered_vector_t* vector = (struct ordered_vector_t*)MALLOC(sizeof(struct ordered_vector_t));
+    struct ordered_vector_t* vector;
+    if(!(vector = (struct ordered_vector_t*)MALLOC(sizeof(struct ordered_vector_t))))
+        return NULL;
     ordered_vector_init_vector(vector, element_size);
     return vector;
 }
@@ -87,29 +89,36 @@ ordered_vector_push_emplace(struct ordered_vector_t* vector)
 }
 
 /* ------------------------------------------------------------------------- */
-void
+char
 ordered_vector_push(struct ordered_vector_t* vector, void* data)
 {
-    memcpy(ordered_vector_push_emplace(vector), data, vector->element_size);
+    void* emplaced = ordered_vector_push_emplace(vector);
+    if(!emplaced)
+        return 0;
+    memcpy(emplaced, data, vector->element_size);
+    return 1;
 }
 
 /* ------------------------------------------------------------------------- */
-void
+char
 ordered_vector_push_vector(struct ordered_vector_t* vector, struct ordered_vector_t* source_vector)
 {
     /* make sure element sizes are equal */
     if(vector->element_size != source_vector->element_size)
-        return;
+        return 0;
 
     /* make sure there's enough space in the target vector */
     if(vector->count + source_vector->count > vector->capacity)
-        ordered_vector_expand(vector, -1, vector->count + source_vector->count);
+        if(!ordered_vector_expand(vector, -1, vector->count + source_vector->count))
+            return 0;
 
     /* copy data */
     memcpy(vector->data + (vector->count * vector->element_size),
            source_vector->data,
            source_vector->count * vector->element_size);
     vector->count += source_vector->count;
+
+    return 1;
 }
 
 /* ------------------------------------------------------------------------- */
@@ -243,8 +252,10 @@ ordered_vector_expand(struct ordered_vector_t *vector,
     {
         new_count = (new_count == 0 ? 2 : new_count);
         vector->data = MALLOC(new_count * vector->element_size);
+        if(!vector->data)
+            return 0;
         vector->capacity = new_count;
-        return (vector->data != NULL);
+        return 1;
     }
 
     /* prepare for reallocating data */

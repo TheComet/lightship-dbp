@@ -2,6 +2,7 @@
 #include "util/dir.h"
 #include "util/memory.h"
 #include "util/linked_list.h"
+#include "util/string.h"
 
 #define NAME dir_malloc
 
@@ -24,12 +25,16 @@ TEST(NAME, get_directory_listing_valid_path)
 {
     struct list_t* list = list_create();
 
-#define SEARCH_DIR_FILES "tests/test_dir/files/"
+#define DIR "tests/test_dir/files/"
     force_malloc_fail_on();
-    ASSERT_THAT(get_directory_listing(list, SEARCH_DIR_FILES), Eq(0));
+    ASSERT_THAT(get_directory_listing(list, DIR), Eq(0));
     force_malloc_fail_off();
-
     ASSERT_THAT(list->count, Eq(0));
+
+    ASSERT_THAT(get_directory_listing(list, DIR), Ne(0));
+    ASSERT_THAT(list->count, Eq(7));
+    LIST_FOR_EACH(list, char, file)
+        free_string(file);
 
     list_destroy(list);
 }

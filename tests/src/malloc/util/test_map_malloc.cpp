@@ -11,6 +11,10 @@ TEST(NAME, create)
     force_malloc_fail_on();
     ASSERT_THAT(map_create(), IsNull());
     force_malloc_fail_off();
+
+    struct map_t* map;
+    ASSERT_THAT((map = map_create()), NotNull());
+    map_destroy(map);
 }
 
 TEST(NAME, insert)
@@ -20,6 +24,8 @@ TEST(NAME, insert)
     force_malloc_fail_on();
     ASSERT_THAT(map_insert(map, 1, NULL), Eq(0));
     force_malloc_fail_off();
+
+    ASSERT_THAT(map_insert(map, 1, NULL), Ne(0));
 
     map_destroy(map);
 }
