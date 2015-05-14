@@ -56,7 +56,7 @@ file_load_into_memory(const char* file_name, void** buffer, file_opts_e opts)
             *buffer = MALLOC(buffer_size + sizeof(char));
         if(*buffer == NULL)
         {
-            fprintf(stderr, "malloc() failed in file_load_into_memory() -- not enough memory");
+            fprintf(stderr, "malloc() failed in file_load_into_memory() -- not enough memory\n");
             break;
         }
 

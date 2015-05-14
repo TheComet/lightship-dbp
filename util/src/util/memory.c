@@ -82,7 +82,7 @@ custom_malloc_debug(intptr_t size)
     MUTEX_LOCK(mutex);
 
 #   ifdef ENABLE_MEMORY_EXPLICIT_MALLOC_FAILS
-    if(malloc_fail_counter)
+    if(malloc_fail_counter && !ignore_map_malloc)
     {
         /* fail when counter reaches 1 */
         if(malloc_fail_counter == 1)
@@ -131,7 +131,6 @@ free_debug(void* ptr)
     if(!ignore_map_malloc)
     {
         /*struct report_info_t* info = (struct report_info_t*)map_find(&report, (intptr_t)ptr);*/
-        int success = 0;
         struct report_info_t* info = map_find(&report, (intptr_t)ptr);
         if(info)
         {
@@ -140,10 +139,8 @@ free_debug(void* ptr)
 #   endif
             map_erase(&report, info->location);
             free(info);
-            success = 1;
         }
-
-        if(!success)
+        else
         {
 #   ifdef ENABLE_MEMORY_BACKTRACE
             char** bt;
