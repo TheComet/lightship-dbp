@@ -14,7 +14,6 @@ TEST(NAME, force_malloc_fail)
     force_malloc_fail_on();
     void* p2 = MALLOC(1);
     ASSERT_THAT(p2, IsNull());
-    FREE(p2);
     force_malloc_fail_off();
 
     void* p3 = MALLOC(1);
