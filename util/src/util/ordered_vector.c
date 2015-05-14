@@ -19,9 +19,9 @@
  * Otherwise the vector will expand to the specified target size.
  * @note No checks are performed to make sure the target size is large enough.
  */
-static void
+static char
 ordered_vector_expand(struct ordered_vector_t *vector,
-                      int32_t insertion_index,
+                      uintptr_t insertion_index,
                       uint32_t target_size);
 
 /* ----------------------------------------------------------------------------
@@ -79,7 +79,8 @@ ordered_vector_push_emplace(struct ordered_vector_t* vector)
 {
     void* data;
     if(vector->count == vector->capacity)
-        ordered_vector_expand(vector, -1, 0);
+        if(!ordered_vector_expand(vector, -1, 0))
+            return NULL;
     data = vector->data + (vector->element_size * vector->count);
     ++(vector->count);
     return data;
@@ -128,7 +129,7 @@ ordered_vector_back(struct ordered_vector_t* vector)
 {
     if(!vector->count)
         return NULL;
-    
+
     return vector->data + (vector->element_size * (vector->count - 1));
 }
 
@@ -219,12 +220,12 @@ ordered_vector_get_element(struct ordered_vector_t* vector, uint32_t index)
 /* ----------------------------------------------------------------------------
  * Static functions
  * ------------------------------------------------------------------------- */
-static void
+static char
 ordered_vector_expand(struct ordered_vector_t *vector,
-                      int32_t insertion_index,
+                      uintptr_t insertion_index,
                       uint32_t target_count)
 {
-    uint32_t new_count;
+    uintptr_t new_count;
     DATA_POINTER_TYPE* old_data;
     DATA_POINTER_TYPE* new_data;
 
@@ -243,15 +244,17 @@ ordered_vector_expand(struct ordered_vector_t *vector,
         new_count = (new_count == 0 ? 2 : new_count);
         vector->data = MALLOC(new_count * vector->element_size);
         vector->capacity = new_count;
-        return;
+        return (vector->data != NULL);
     }
 
     /* prepare for reallocating data */
     old_data = vector->data;
     new_data = (DATA_POINTER_TYPE*)MALLOC(new_count * vector->element_size);
+    if(!new_data)
+        return 0;
 
     /* if no insertion index is required, copy all data to new memory */
-    if(insertion_index == (uint32_t)-1 || insertion_index >= new_count)
+    if(insertion_index == (uintptr_t)-1 || insertion_index >= new_count)
         memcpy(new_data, old_data, vector->count * vector->element_size);
 
     /* keep space for one element at the insertion index */
@@ -270,5 +273,6 @@ ordered_vector_expand(struct ordered_vector_t *vector,
     vector->data = new_data;
     vector->capacity = new_count;
     FREE(old_data);
-    
+
+    return 1;
 }

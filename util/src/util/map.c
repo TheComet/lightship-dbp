@@ -136,6 +136,9 @@ map_insert(struct map_t* map, uint32_t hash, void* value)
         emplaced_data = ordered_vector_insert_emplace(&map->vector,
                           data - (struct map_key_value_t*)map->vector.data);
 
+    if(!emplaced_data)
+        return 0;
+
     emplaced_data->hash = hash;
     emplaced_data->value = value;
 
