@@ -158,7 +158,10 @@ ordered_vector_insert_emplace(struct ordered_vector_t* vector, uint32_t index)
 
     /* re-allocate? */
     if(vector->count == vector->capacity)
-        ordered_vector_expand(vector, index, 0);
+    {
+        if(!ordered_vector_expand(vector, index, 0))
+            return NULL;
+    }
     else
     {
         /* shift all elements up by one to make space for insertion */
@@ -175,10 +178,14 @@ ordered_vector_insert_emplace(struct ordered_vector_t* vector, uint32_t index)
 }
 
 /* ------------------------------------------------------------------------- */
-void
+char
 ordered_vector_insert(struct ordered_vector_t* vector, uint32_t index, void* data)
 {
-    memcpy(ordered_vector_insert_emplace(vector, index), data, vector->element_size);
+    void* emplaced = ordered_vector_insert_emplace(vector, index);
+    if(!emplaced)
+        return 0;
+    memcpy(emplaced, data, vector->element_size);
+    return 1;
 }
 
 /* ------------------------------------------------------------------------- */

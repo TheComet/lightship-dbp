@@ -179,7 +179,7 @@ ordered_vector_insert_emplace(struct ordered_vector_t* vector, uint32_t index);
  * sizeof(data) is equal to what was specified when the vector was first
  * created. If this is not the case then it could cause undefined behaviour.
  */
-LIGHTSHIP_UTIL_PUBLIC_API void
+LIGHTSHIP_UTIL_PUBLIC_API char
 ordered_vector_insert(struct ordered_vector_t* vector, uint32_t index, void* data);
 
 /*!
