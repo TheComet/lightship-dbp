@@ -47,7 +47,9 @@ ptree_print_impl(const struct ptree_t* tree, uint32_t depth);
 struct ptree_t*
 ptree_create(void* value)
 {
-    struct ptree_t* tree = (struct ptree_t*)MALLOC(sizeof(struct ptree_t));
+    struct ptree_t* tree;
+    if(!(tree = (struct ptree_t*)MALLOC(sizeof(struct ptree_t))))
+        return NULL;
     ptree_init_ptree(tree, value);
     return tree;
 }
@@ -118,16 +120,40 @@ ptree_destroy_keep_root(struct ptree_t* tree)
 struct ptree_t*
 ptree_add_node(struct ptree_t* root, const char* key, void* value)
 {
-    /* prepare for tokenisation */
     struct ptree_t* node;
     char* saveptr;
-    char* key_tok = malloc_string(key);
+    char* key_tok;
+    char* child_node_key;
+    uint32_t child_count = map_count(&root->children);
 
+    assert(root);
+    assert(key);
+
+    /* prepare for tokenisation */
+    if(!(key_tok = malloc_string(key)))
+        return NULL;
+    child_node_key = strtok_r_portable(key_tok, node_delim, &saveptr);
+
+    /* recursively fills in any middle nodes until the end node is reached */
     node = ptree_add_node_recurse(root,
-                                  strtok_r_portable(key_tok, node_delim, &saveptr),
+                                  child_node_key,
                                   &saveptr,
                                   value);
 
+    /*
+     * If the node wasn't added successfully and the children of root were
+     * modified, undo all changes.
+     * Note that ptree_get_node() uses malloc() because of strtok. Use
+     * ptree_get_node_no_depth() instead.
+     */
+    if(!node && map_count(&root->children) != child_count)
+    {
+        if((node = ptree_get_node_no_depth(root, child_node_key)))
+            ptree_destroy(node);
+        node = NULL;
+    }
+
+    /* child_node_key points into key_tok -- free key_tok after cleaning up */
     free_string(key_tok);
 
     return node;
@@ -153,23 +179,25 @@ ptree_add_node_recurse(struct ptree_t* node, char* key, char** saveptr, void* va
             if(!(child = ptree_add_node_hashed_key(node, PTREE_HASH_STRING(key), NULL)))
                 return NULL;
 #ifdef _DEBUG
-            child->key = malloc_string(key);
+            if(!(child->key = malloc_string(key)))
+                return NULL;
 #endif
         }
 
         /* continue with child node */
         return ptree_add_node_recurse(child, child_key, saveptr, value);
     }
-    else /* this is the last node to create, if it already exists we return
-          * NULL */
-    {
-        if(!(child = ptree_add_node_hashed_key(node, PTREE_HASH_STRING(key), value)))
-            return NULL;
+
+    /*
+     * this is the last node to create, if it already exists we return NULL
+     */
+    if(!(child = ptree_add_node_hashed_key(node, PTREE_HASH_STRING(key), value)))
+        return NULL;
 #ifdef _DEBUG
-        child->key = malloc_string(key);
+    if(!(child->key = malloc_string(key)))
+        return NULL;
 #endif
-        return child;
-    }
+    return child;
 }
 
 /* ------------------------------------------------------------------------- */
@@ -180,7 +208,10 @@ ptree_add_node_recurse(struct ptree_t* node, char* key, char** saveptr, void* va
 static struct ptree_t*
 ptree_add_node_hashed_key(struct ptree_t* tree, uint32_t hash, void* value)
 {
-    struct ptree_t* child = (struct ptree_t*)MALLOC(sizeof(struct ptree_t));
+    struct ptree_t* child;
+    if(!(child = (struct ptree_t*)MALLOC(sizeof(struct ptree_t))))
+        return NULL;
+
     if(!map_insert(&tree->children, hash, child))
     {
         FREE(child);
@@ -426,6 +457,8 @@ ptree_get_node(const struct ptree_t* tree, const char* key)
     struct ptree_t* result;
     char* saveptr;
     char* key_iter = cat_strings(2, "n.", key); /* root key name is ignored, but must exist */
+    if(!key_iter)
+        return NULL;
     strtok_r_portable(key_iter, node_delim, &saveptr);
 
     result = ptree_find_in_tree_recurse(tree, &saveptr);

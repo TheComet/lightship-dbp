@@ -15,6 +15,8 @@
  * }
  * ```
  */
+#ifndef LIGHTSHIP_UTIL_PTREE_H
+#define LIGHTSHIP_UTIL_PTREE_H
 
 #include "util/pstdint.h"
 #include "util/config.h"
@@ -233,3 +235,5 @@ ptree_print(const struct ptree_t* tree);
 #define PTREE_HASH_STRING(str) hash_jenkins_oaat(str, strlen(str))
 
 C_HEADER_END
+
+#endif /* LIGHTSHIP_UTIL_PTREE_H */

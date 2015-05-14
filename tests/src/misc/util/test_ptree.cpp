@@ -330,8 +330,8 @@ TEST(NAME, dont_allow_duplicate_keys_with_fill_in)
 {
     struct ptree_t* tree = ptree_create(NULL);
 
-    EXPECT_THAT(ptree_add_node(tree, "node1.node2.node3", NULL), NotNull());
-    EXPECT_THAT(ptree_add_node(tree, "node1.node2.node3", NULL), IsNull());
+    EXPECT_THAT(ptree_add_node(tree, "node.node.node", NULL), NotNull());
+    EXPECT_THAT(ptree_add_node(tree, "node.node.node", NULL), IsNull());
     EXPECT_THAT(map_count(&tree->children), Eq(1));
 
     ptree_destroy(tree);
