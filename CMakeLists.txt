@@ -160,7 +160,7 @@ set (EXPORT_H_TEMPLATE "${CMAKE_SOURCE_DIR}/util/include/common/export.h.in")
 option (BUILD_TESTS "Whether or not to build unit tests (note: requires C++)" OFF)
 message (STATUS "Unit Tests: ${BUILD_TESTS}")
 
-# utility library and plugin manager header files are globally accessable
+# utility library and plugin manager header files are globally accessible
 include_directories ("${CMAKE_SOURCE_DIR}/util/include")
 include_directories ("${CMAKE_BINARY_DIR}/util/include")
 include_directories ("${CMAKE_SOURCE_DIR}/framework/include")
