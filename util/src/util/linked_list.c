@@ -8,7 +8,9 @@
 struct list_t*
 list_create(void)
 {
-    struct list_t* list = (struct list_t*)MALLOC(sizeof(struct list_t));
+    struct list_t* list;
+    if(!(list = (struct list_t*)MALLOC(sizeof(struct list_t))))
+        return NULL;
     list_init_list(list);
     return list;
 }
