@@ -11,7 +11,7 @@
 
 /*!
  * @brief Expands the underlying memory.
- * 
+ *
  * This implementation will expand the memory by a factor of 2 each time this
  * is called. All elements are copied into the new section of memory.
  * @param [in] insertion_index Set to -1 if no space should be made for element
@@ -19,7 +19,7 @@
  * "evade" when re-allocating all other elements.
  */
 static void*
-unordered_vector_expand(struct unordered_vector_t* vector, 
+unordered_vector_expand(struct unordered_vector_t* vector,
                         uint32_t insertion_index);
 
 /* ----------------------------------------------------------------------------
@@ -28,7 +28,9 @@ unordered_vector_expand(struct unordered_vector_t* vector,
 struct unordered_vector_t*
 unordered_vector_create(const uint32_t element_size)
 {
-    struct unordered_vector_t* vector = (struct unordered_vector_t*)MALLOC(sizeof(struct unordered_vector_t));
+    struct unordered_vector_t* vector;
+    if(!(vector = (struct unordered_vector_t*)MALLOC(sizeof(struct unordered_vector_t))))
+        return NULL;
     unordered_vector_init_vector(vector, element_size);
     return vector;
 }
@@ -59,7 +61,7 @@ void
 unordered_vector_clear(struct unordered_vector_t* vector)
 {
     assert(vector);
-    /* 
+    /*
      * No need to free or overwrite existing memory, just reset the counter
      * and let future insertions overwrite
      */
@@ -117,7 +119,7 @@ unordered_vector_push(struct unordered_vector_t* vector, void* data)
     target = unordered_vector_push_emplace(vector);
     if(!target)
         return 0;
-    
+
     memcpy(target, data, vector->element_size);
     return 1;
 }
@@ -141,7 +143,7 @@ unordered_vector_back(struct unordered_vector_t* vector)
 {
     if(!vector->count)
         return NULL;
-    
+
     return vector->data + (vector->element_size * (vector->count - 1));
 }
 
@@ -154,7 +156,7 @@ unordered_vector_erase_index(struct unordered_vector_t* vector, uint32_t index)
 
     if(index >= vector->count)
         return;
-    
+
     /* no need to copy memory if erasing the last index */
     if(index + 1 < vector->count)
     {
@@ -163,7 +165,7 @@ unordered_vector_erase_index(struct unordered_vector_t* vector, uint32_t index)
                (void*)((intptr_t)vector->data + (vector->count-1) * vector->element_size), /* last element */
                vector->element_size);
     }
-    
+
     --vector->count;
 }
 
@@ -213,15 +215,17 @@ unordered_vector_expand(struct unordered_vector_t* vector,
 
     /* expand by factor 2 */
     new_size = vector->capacity << 1;
-    
-    /* 
+
+    /*
      * If vector hasn't allocated anything yet, allocate the first two elements
-     * and return 
+     * and return
      */
     if(new_size == 0)
     {
         new_size = 2;
         vector->data = MALLOC(vector->element_size * new_size);
+        if(!vector->data)
+            return NULL;
         vector->capacity = new_size;
         return vector->data;
     }
@@ -231,11 +235,11 @@ unordered_vector_expand(struct unordered_vector_t* vector,
     new_data = (DATA_POINTER_TYPE*)MALLOC(vector->element_size * new_size);
     if(!new_data)
         return NULL;
-    
+
     /* if no insertion index is required, copy all data to new memory */
     if(insertion_index == (uint32_t)-1 || insertion_index >= new_size)
         memcpy(new_data, old_data, vector->element_size * vector->count);
-    
+
     /* keep space for one element at the insertion index */
     else
     {

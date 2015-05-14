@@ -2,11 +2,11 @@
  * @file unordered_vector.h
  * @brief Dynamic contiguous sequence container with no guarantee for element order preservation.
  * @page unordered_vector Unordered Vector
- * 
+ *
  * Unrdered vectors arrange all inserted elements next to each other in memory.
  * Because of this, vector access is just as efficient as a normal array, but
  * they are able to grow and shrink in size automatically.
- * 
+ *
  * As opposed to an @ref ordered_vector, an unordered vector does not guarantee
  * the elements it contains will remain in that order. The reason for this is
  * that whenever an element, except for the last element, is removed or
@@ -14,8 +14,8 @@
  * of removal), or the element in question will be moved to the end of the
  * vector to make space for insertion. Because of this, order cannot be
  * guaranteed.
- * 
- * An @ref unordered_vector is faster at insertion/deletion than an 
+ *
+ * An @ref unordered_vector is faster at insertion/deletion than an
  * @ref ordered_vector.
  */
 
@@ -127,7 +127,7 @@ unordered_vector_push_emplace(struct unordered_vector_t* vector);
  * @return A pointer to the popped element. See warning and use with caution.
  * If there are no elements to pop, NULL is returned.
  */
-LIGHTSHIP_UTIL_PUBLIC_API void* 
+LIGHTSHIP_UTIL_PUBLIC_API void*
 unordered_vector_pop(struct unordered_vector_t* vector);
 
 /*!
@@ -135,7 +135,7 @@ unordered_vector_pop(struct unordered_vector_t* vector);
  * @warning The returned pointer could be invalidated if any other vector
  * related function is called, as the underlying memory of the vector could be
  * re-allocated. Use the pointer immediately after calling this function.
- * 
+ *
  * @param[in] vector The vector to return the last element from.
  * @return A pointer to the last element. See warning and use with caution.
  * If there are no elements in the vector, NULL is returned.
@@ -164,7 +164,7 @@ unordered_vector_erase_index(struct unordered_vector_t* vector, uint32_t index);
  * @param[in] element A pointer to an element within the vector.
  */
 LIGHTSHIP_UTIL_PUBLIC_API void
-unordered_vector_erase_element(struct unordered_vector_t* vector, 
+unordered_vector_erase_element(struct unordered_vector_t* vector,
                                void* element);
 
 /*!
@@ -185,15 +185,15 @@ unordered_vector_get_element(struct unordered_vector_t*, uint32_t index);
 
 /*!
  * @brief Convenient macro for iterating a vector's elements.
- * 
+ *
  * Example:
-@code
-unordered_vector_t* some_vector = (a vector containing elements of type "struct bar")
-UNORDERED_VECTOR_FOR_EACH(some_vector, struct bar, element)
-{
-    do_something_with(element);  ("element" is now of type "struct bar*")
-}
-@endcode
+ * ```
+ * unordered_vector_t* some_vector = (a vector containing elements of type "struct bar")
+ * UNORDERED_VECTOR_FOR_EACH(some_vector, struct bar, element)
+ * {
+ *     do_something_with(element);  ("element" is now of type "struct bar*")
+ * }
+ * ```
  * @param[in] vector The vector to iterate.
  * @param[in] var_type Should be the type of data stored in the vector.
  * @param[in] var The name of a temporary variable you'd like to use within the
@@ -205,17 +205,17 @@ UNORDERED_VECTOR_FOR_EACH(some_vector, struct bar, element)
     for(var = (var_type*)(vector)->data; \
         (DATA_POINTER_TYPE*)var != end_of_vector; \
         var = (var_type*)(((DATA_POINTER_TYPE*)var) + (vector)->element_size))
-        
+
 /*!
  * @brief Convenient macro for erasing an element while iterating a vector.
  * @warning Only call this while iterating.
  * Example:
-@code
-UNORDERED_VECTOR_FOR_EACH(some_vector, struct bar, element)
-{
-    UNORDERED_VECTOR_ERASE_IN_FOR_LOOP(some_vector, struct bar, element);
-}
-@endcode
+ * ```
+ * UNORDERED_VECTOR_FOR_EACH(some_vector, struct bar, element)
+ * {
+ *     UNORDERED_VECTOR_ERASE_IN_FOR_LOOP(some_vector, struct bar, element);
+ * }
+ * ```
  * @param[in] vector The vector to erase from.
  * @param[in] var_type Should be the type of data stored in the vector.
  * @param[in] element The element to erase.
@@ -224,7 +224,7 @@ UNORDERED_VECTOR_FOR_EACH(some_vector, struct bar, element)
     unordered_vector_erase_element(vector, element); \
     element = (element_type*)(((DATA_POINTER_TYPE*)element) - (vector)->element_size); \
     end_of_vector = (vector)->data + (vector)->count * (vector)->element_size;
-        
+
 C_HEADER_END
 
 #endif /* LIGHTSHIP_UTIL_UNORDERED_VECTOR_H */
