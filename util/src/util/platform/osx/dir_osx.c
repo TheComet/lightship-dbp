@@ -27,7 +27,8 @@ get_directory_listing(struct list_t* list, const char* dir)
     errno = 0;
     while((fp = readdir(dirp)) != NULL)
     {
-        list_push(list, cat_strings(2, dir, fp->d_name));
+        if(!list_push(list, cat_strings(2, dir, fp->d_name)))
+            return 0;
     }
 
     /* catch any errors */
@@ -35,6 +36,6 @@ get_directory_listing(struct list_t* list, const char* dir)
         perror("Error reading directory");
 
     closedir(dirp);
-    
+
     return (errno == 0);
 }
