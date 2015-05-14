@@ -8,7 +8,7 @@
 #include <assert.h>
 
 #ifdef LIGHTSHIP_UTIL_PLATFORM_MACOSX
-#   include "platform/osx/fmemopen.h"
+#   include "util/platform/osx/fmemopen.h"
 #endif
 
 static struct list_t g_open_docs;
@@ -66,7 +66,7 @@ yaml_load(const char* filename)
 }
 
 /* ------------------------------------------------------------------------- */
-#if defined(LIGHTSHIP_UTIL_PLATFORM_LINUX) || defined(LIGHTSHIP_UTIL_PLATFORM_MAC)
+#if defined(LIGHTSHIP_UTIL_PLATFORM_LINUX) || defined(LIGHTSHIP_UTIL_PLATFORM_MACOSX)
 struct ptree_t*
 yaml_load_from_memory(const char* buffer)
 {
