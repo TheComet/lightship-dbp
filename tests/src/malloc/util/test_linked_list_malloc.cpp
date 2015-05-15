@@ -13,7 +13,7 @@ TEST(NAME, list_create)
     list_destroy(list);
 
     force_malloc_fail_on();
-    ASSERT_THAT(list_create(), IsNull());
+    EXPECT_THAT(list_create(), IsNull());
     force_malloc_fail_off();
 }
 
@@ -26,12 +26,12 @@ TEST(NAME, list_push)
     list_push(list, &b);
 
     force_malloc_fail_on();
-    ASSERT_THAT(list_push(list, NULL), Eq(0));
+    EXPECT_THAT(list_push(list, NULL), Eq(0));
     force_malloc_fail_off();
 
-    ASSERT_THAT(list->count, Eq(2));
-    ASSERT_THAT((int*)list->tail->data, Pointee(a));
-    ASSERT_THAT((int*)list->tail->next->data, Pointee(b));
+    EXPECT_THAT(list->count, Eq(2));
+    EXPECT_THAT((int*)list->tail->data, Pointee(a));
+    EXPECT_THAT((int*)list->tail->next->data, Pointee(b));
 
     list_destroy(list);
 }
@@ -48,9 +48,9 @@ TEST(NAME, list_clear)
     list_clear(list);
     force_malloc_fail_off();
 
-    ASSERT_THAT(list->count, Eq(0));
-    ASSERT_THAT(list->tail, IsNull());
-    ASSERT_THAT(list->head, IsNull());
+    EXPECT_THAT(list->count, Eq(0));
+    EXPECT_THAT(list->tail, IsNull());
+    EXPECT_THAT(list->head, IsNull());
 
     list_destroy(list);
 }
@@ -67,10 +67,10 @@ TEST(NAME, list_pop)
     int* val = (int*)list_pop(list);
     force_malloc_fail_off();
 
-    ASSERT_THAT(list->count, Eq(1));
-    ASSERT_THAT((int*)list->tail->data, Pointee(a));
-    ASSERT_THAT((int*)list->head->data, Pointee(a));
-    ASSERT_THAT(val, Pointee(b));
+    EXPECT_THAT(list->count, Eq(1));
+    EXPECT_THAT((int*)list->tail->data, Pointee(a));
+    EXPECT_THAT((int*)list->head->data, Pointee(a));
+    EXPECT_THAT(val, Pointee(b));
 
     list_destroy(list);
 }
@@ -88,10 +88,10 @@ TEST(NAME, list_erase_node)
     int* val = (int*)list_erase_node(list, list->tail->next); /* erase middle node */
     force_malloc_fail_off();
 
-    ASSERT_THAT(list->count, Eq(2));
-    ASSERT_THAT((int*)list->tail->data, Pointee(a));
-    ASSERT_THAT((int*)list->head->data, Pointee(c));
-    ASSERT_THAT(val, Pointee(b));
+    EXPECT_THAT(list->count, Eq(2));
+    EXPECT_THAT((int*)list->tail->data, Pointee(a));
+    EXPECT_THAT((int*)list->head->data, Pointee(c));
+    EXPECT_THAT(val, Pointee(b));
 
     list_destroy(list);
 }
@@ -106,12 +106,12 @@ TEST(NAME, list_erase_element)
     list_push(list, &c);
 
     force_malloc_fail_on();
-    ASSERT_THAT(list_erase_element(list, &b), Ne(0)); /* erase middle node */
+    EXPECT_THAT(list_erase_element(list, &b), Ne(0)); /* erase middle node */
     force_malloc_fail_off();
 
-    ASSERT_THAT(list->count, Eq(2));
-    ASSERT_THAT((int*)list->tail->data, Pointee(a));
-    ASSERT_THAT((int*)list->head->data, Pointee(c));
-    
+    EXPECT_THAT(list->count, Eq(2));
+    EXPECT_THAT((int*)list->tail->data, Pointee(a));
+    EXPECT_THAT((int*)list->head->data, Pointee(c));
+
     list_destroy(list);
 }
