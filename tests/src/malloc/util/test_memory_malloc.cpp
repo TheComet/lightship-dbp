@@ -1,11 +1,11 @@
 #include "gmock/gmock.h"
 #include "util/memory.h"
 
-#define NAME name
+#define NAME memory_malloc
 
 using namespace testing;
 
-TEST(NAME, force_malloc_fail)
+TEST(NAME, malloc)
 {
     void* p1 = MALLOC(1);
     ASSERT_THAT(p1, NotNull());
