@@ -55,38 +55,6 @@ free_string(void* ptr)
 }
 
 /* ------------------------------------------------------------------------- */
-void
-stdout_strings(uint32_t num_strs, ...)
-{
-    uint32_t i;
-    va_list ap;
-
-    assert(num_strs);
-
-    va_start(ap, num_strs);
-    for(i = 0; i != num_strs; ++i)
-        fprintf(stdout, "%s", va_arg(ap, char*));
-    fprintf(stdout, "\n");
-    va_end(ap);
-}
-
-/* ------------------------------------------------------------------------- */
-void
-stderr_strings(uint32_t num_strs, ...)
-{
-    uint32_t i;
-    va_list ap;
-
-    assert(num_strs);
-
-    va_start(ap, num_strs);
-    for(i = 0; i != num_strs; ++i)
-        fprintf(stdout, "%s", va_arg(ap, char*));
-    fprintf(stdout, "\n");
-    va_end(ap);
-}
-
-/* ------------------------------------------------------------------------- */
 char*
 cat_strings(uint32_t num_strs, ...)
 {

@@ -23,7 +23,7 @@ get_directory_listing(struct list_t* list, const char* dir)
     if(fh == INVALID_HANDLE_VALUE)
     {
         char* error = get_last_error_string();
-        stderr_strings(4, "Error searching directory \"", dir, "\": ", error);
+        fprintf(stderr, "Error searching directory \"%s\": %s\n", dir, error);
         FREE(error);
         return 0;
     }
@@ -39,6 +39,6 @@ get_directory_listing(struct list_t* list, const char* dir)
 
     FindClose(fh);
     FREE(search_str);
-    
+
     return 1;
 }

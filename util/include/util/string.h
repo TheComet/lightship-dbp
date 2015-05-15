@@ -16,22 +16,6 @@ LIGHTSHIP_UTIL_PUBLIC_API void
 free_string(void* str);
 
 /*!
- * @brief Concatenates n number of strings and prints it to stdout.
- * @param[in] num_strs The number of strings that should be concatenated.
- * @param[in] ...str A list of comma-seperated strings to concatenate.
- */
-LIGHTSHIP_UTIL_PUBLIC_API void
-stdout_strings(uint32_t num_strs, ...);
-
-/*!
- * @brief Concatenates n number of strings and prints it to stderr.
- * @param[in] num_strs The number of strings that should be concatenated.
- * @param[in] ...str A list of comma-seperated strings to concatenate.
- */
-LIGHTSHIP_UTIL_PUBLIC_API void
-stderr_strings(uint32_t num_strs, ...);
-
-/*!
  * @brief Concatenates n number of strings and returns the buffer.
  * @note The buffer needs to be freed manually with string_free() when it is no
  * longer required.

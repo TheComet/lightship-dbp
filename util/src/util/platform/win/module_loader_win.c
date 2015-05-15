@@ -14,7 +14,7 @@ module_open(const char* filename)
         char* error = get_last_error_string();
         if(error)
         {
-            stderr_strings(2, "Error loading plugin: ", error);
+            fprintf(stderr, "Error loading plugin: %s\n", error);
             FREE(error);
         }
     }
@@ -32,7 +32,7 @@ module_sym(void* handle, const char* symbol)
         char* error = get_last_error_string();
         if(error)
         {
-            stderr_strings(2, "Error loading plugin: ", error);
+            fprintf(stderr, "Error loading plugin: %s\n", error);
             FREE(error);
         }
     }

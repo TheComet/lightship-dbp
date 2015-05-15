@@ -18,7 +18,7 @@ get_directory_listing(struct list_t* list, const char* dir)
     dirp = opendir(dir);
     if(dirp == NULL)
     {
-        stderr_strings(3, "Error searching directory \"", dir, "\": ");
+        fprintf(stderr, "Error searching directory \"%s\": ", dir);
         perror("");
         return 0;
     }
