@@ -36,13 +36,13 @@ void button_init(struct glob_t* g)
     /* load font and characters */
     char_size = 9;
     SERVICE_CALL2(g->services.text_group_create, &g->button.font_id, PTR(ttf_filename), char_size);
-    SERVICE_CALL2(g->services.text_group_load_character_set, SERVICE_NO_RETURN, g->button.font_id, PTR(NULL));
+    SERVICE_CALL2(g->services.text_group_load_character_set, NULL, g->button.font_id, PTR(NULL));
 }
 
 /* ------------------------------------------------------------------------- */
 void button_deinit(struct glob_t* g)
 {
-    SERVICE_CALL1(g->services.text_group_destroy, SERVICE_NO_RETURN, g->button.font_id);
+    SERVICE_CALL1(g->services.text_group_destroy, NULL, g->button.font_id);
     button_destroy_all(g);
     map_clear_free(&g->button.buttons);
 }
@@ -93,7 +93,7 @@ button_constructor(struct button_t* btn, const char* text, float x, float y, flo
     }
 
     /* draw box */
-    SERVICE_CALL0(g->services.shapes_2d_begin, SERVICE_NO_RETURN);
+    SERVICE_CALL0(g->services.shapes_2d_begin, NULL);
     {
         float x1, y1, x2, y2;
         uint32_t colour = BUTTON_COLOUR_NORMAL;
@@ -101,7 +101,7 @@ button_constructor(struct button_t* btn, const char* text, float x, float y, flo
         y1 = y - height * 0.5f;
         x2 = x + width  * 0.5f;
         y2 = y + height * 0.5f;
-        SERVICE_CALL5(g->services.box_2d, SERVICE_NO_RETURN, x1, y1, x2, y2, colour);
+        SERVICE_CALL5(g->services.box_2d, NULL, x1, y1, x2, y2, colour);
     }
     SERVICE_CALL0(g->services.shapes_2d_end, &btn->base.button.shapes_normal_id);
     element_add_shapes((struct element_t*)btn, btn->base.button.shapes_normal_id);
@@ -147,7 +147,7 @@ button_free_contents(struct button_t* button)
 
     if(button->base.button.text)
     {
-        SERVICE_CALL2(g->services.text_destroy, SERVICE_NO_RETURN, g->button.font_id, button->base.button.text_id);
+        SERVICE_CALL2(g->services.text_destroy, NULL, g->button.font_id, button->base.button.text_id);
         free_string(button->base.button.text);
         if(button->base.element.action.service)
             service_destroy_argument_list(button->base.element.action.service, button->base.element.action.argv);
@@ -204,7 +204,7 @@ EVENT_LISTENER3(on_mouse_clicked, char mouse_btn, double x, double y)
             /* Pass vector of args (if there are no args, argv->data should be NULL */
             /* Ignore the return value */
             button->base.element.action.service->exec(button->base.element.action.service,
-                                                      SERVICE_NO_RETURN,
+                                                      NULL,
                                                       (const void**)button->base.element.action.argv);
         }
     }
@@ -217,19 +217,19 @@ EVENT_LISTENER3(on_mouse_clicked, char mouse_btn, double x, double y)
 SERVICE(button_create_wrapper)
 {
     struct glob_t* g = get_global(service->game);
-    SERVICE_EXTRACT_ARGUMENT(0, text, const char*, const char*);
-    SERVICE_EXTRACT_ARGUMENT(1, x, float, float);
-    SERVICE_EXTRACT_ARGUMENT(2, y, float, float);
-    SERVICE_EXTRACT_ARGUMENT(3, width, float, float);
-    SERVICE_EXTRACT_ARGUMENT(4, height, float, float);
-    SERVICE_RETURN(button_create(g, text, x, y, width, height), struct button_t*);
+    EXTRACT_ARG(0, text, const char*, const char*);
+    EXTRACT_ARG(1, x, float, float);
+    EXTRACT_ARG(2, y, float, float);
+    EXTRACT_ARG(3, width, float, float);
+    EXTRACT_ARG(4, height, float, float);
+    RETURN(button_create(g, text, x, y, width, height), struct button_t*);
 }
 
 /* ------------------------------------------------------------------------- */
 SERVICE(button_destroy_wrapper)
 {
     struct glob_t* g = get_global(service->game);
-    SERVICE_EXTRACT_ARGUMENT(0, id, uint32_t, uint32_t);
+    EXTRACT_ARG(0, id, uint32_t, uint32_t);
 
     struct button_t* button = map_find(&g->button.buttons, id);
     if(button)
@@ -240,10 +240,10 @@ SERVICE(button_destroy_wrapper)
 SERVICE(button_get_text_wrapper)
 {
     struct glob_t* g = get_global(service->game);
-    SERVICE_EXTRACT_ARGUMENT(0, id, uint32_t, uint32_t);
+    EXTRACT_ARG(0, id, uint32_t, uint32_t);
 
     struct button_t* button = map_find(&g->button.buttons, id);
     if(button)
-        SERVICE_RETURN(button->base.button.text, wchar_t*);
-    SERVICE_RETURN(NULL, wchar_t*);
+        RETURN(button->base.button.text, wchar_t*);
+    RETURN(NULL, wchar_t*);
 }

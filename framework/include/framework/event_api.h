@@ -24,15 +24,15 @@ typedef void (*event_callback_func)();
  *
  * You can use this for function prototypes as well as function definitions.
  * Example:
-@code
-EVENT_LISTENER1(on_event, int arg);
-
-...
-
-EVENT_LISTENER1(on_event, int arg)
-{
-}
-@endcode
+ * ```
+ * EVENT_LISTENER1(on_event, int arg);
+ *
+ * ...
+ *
+ * EVENT_LISTENER1(on_event, int arg)
+ * {
+ * }
+ * ```
  * @param[in] name The name to give the event listener. Usually something like
  * *on_event*.
  * @param[in] arg... The arguments to receive from the event.

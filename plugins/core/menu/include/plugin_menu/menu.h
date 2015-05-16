@@ -1,6 +1,6 @@
 #include "util/pstdint.h"
 #include "util/map.h"
-#include "framework/service_api.h"
+#include "framework/se_api.h"
 
 struct screen_t;
 struct game_t;

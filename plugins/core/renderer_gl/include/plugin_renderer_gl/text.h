@@ -1,6 +1,6 @@
 #include "plugin_renderer_gl/glutils.h"
 #include "util/ordered_vector.h"
-#include "framework/service_api.h"
+#include "framework/se_api.h"
 #include <GL/glew.h>
 #include <wchar.h>
 

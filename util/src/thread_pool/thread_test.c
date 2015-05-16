@@ -266,7 +266,7 @@ do_thread_test(struct game_t* game)
                                text_size);
             SERVICE_CALL_NAME2(game,
                                "renderer_gl.text_group_load_character_set",
-                               SERVICE_NO_RETURN,
+                               NULL,
                                font_id,
                                PTR(NULL));
             SERVICE_CALL_NAME5(game,

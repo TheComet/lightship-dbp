@@ -1,6 +1,6 @@
 #include "plugin_renderer_gl/glutils.h"
 #include "util/pstdint.h"
-#include "framework/service_api.h"
+#include "framework/se_api.h"
 
 struct glob_t;
 

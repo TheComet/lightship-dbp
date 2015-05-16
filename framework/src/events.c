@@ -78,9 +78,9 @@ events_register_core_events(struct game_t* game)
 
 /* ------------------------------------------------------------------------- */
 void
-events_deinit(struct game_t* game)
+events_deinit(void)
 {
-    /* TODO free all events */
+    /* TODO */
 }
 
 /* ------------------------------------------------------------------------- */

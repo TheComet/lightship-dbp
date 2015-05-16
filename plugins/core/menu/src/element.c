@@ -1,7 +1,7 @@
 #include "plugin_menu/element.h"
 #include "plugin_menu/services.h"
 #include "plugin_menu/glob.h"
-#include "framework/service_api.h"
+#include "framework/se_api.h"
 #include "util/map.h"
 #include "util/memory.h"
 #include <string.h>
@@ -40,11 +40,11 @@ element_destructor(struct element_t* element)
     struct glob_t* g = element->base.element.glob;
     { UNORDERED_VECTOR_FOR_EACH(&element->base.element.gl.shapes, uint32_t, id)
     {
-        SERVICE_CALL1(g->services.shapes_2d_destroy, SERVICE_NO_RETURN, id);
+        SERVICE_CALL1(g->services.shapes_2d_destroy, NULL, id);
     }}
     { UNORDERED_VECTOR_FOR_EACH(&element->base.element.gl.text, struct element_font_text_id_pair_t, pair)
     {
-        SERVICE_CALL2(g->services.text_destroy, SERVICE_NO_RETURN, pair->font_id,pair->text_id);
+        SERVICE_CALL2(g->services.text_destroy, NULL, pair->font_id,pair->text_id);
     }}
     unordered_vector_clear_free(&element->base.element.gl.shapes);
     unordered_vector_clear_free(&element->base.element.gl.text);
@@ -87,11 +87,11 @@ element_show(struct element_t* element)
 
     { UNORDERED_VECTOR_FOR_EACH(&element->base.element.gl.shapes, uint32_t, id)
     {
-        SERVICE_CALL1(g->services.shapes_2d_show, SERVICE_NO_RETURN, *id);
+        SERVICE_CALL1(g->services.shapes_2d_show, NULL, *id);
     }}
     { UNORDERED_VECTOR_FOR_EACH(&element->base.element.gl.text, struct element_font_text_id_pair_t, pair)
     {
-        SERVICE_CALL1(g->services.text_show, SERVICE_NO_RETURN, pair->text_id);
+        SERVICE_CALL1(g->services.text_show, NULL, pair->text_id);
     }}
     element->base.element.visible = 1;
 }
@@ -104,11 +104,11 @@ element_hide(struct element_t* element)
 
     { UNORDERED_VECTOR_FOR_EACH(&element->base.element.gl.shapes, uint32_t, id)
     {
-        SERVICE_CALL1(g->services.shapes_2d_hide, SERVICE_NO_RETURN, *id);
+        SERVICE_CALL1(g->services.shapes_2d_hide, NULL, *id);
     }}
     { UNORDERED_VECTOR_FOR_EACH(&element->base.element.gl.text, struct element_font_text_id_pair_t, pair)
     {
-        SERVICE_CALL1(g->services.text_hide, SERVICE_NO_RETURN, pair->text_id);
+        SERVICE_CALL1(g->services.text_hide, NULL, pair->text_id);
     }}
     element->base.element.visible = 0;
 }

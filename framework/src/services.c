@@ -17,9 +17,6 @@ service_free(struct service_t* service);
 static service_script_type_e
 service_get_c_type_equivalent_from_script_type(const char* type);
 
-static service_script_type_e
-service_get_c_type_equivalent_from_service_type(const char* type);
-
 /* ------------------------------------------------------------------------- */
 char
 services_register_core_services(struct game_t* game)
@@ -55,7 +52,7 @@ services_deinit(struct game_t* game)
 struct service_t*
 service_create(struct plugin_t* plugin,
                const char* directory,
-               const service_callback_func exec,
+               const service_func exec,
                const char* ret_type,
                const int argc,
                const char** argv)
@@ -193,7 +190,7 @@ service_free(struct service_t* service)
 uint32_t
 service_destroy_all_matching(const char* pattern)
 {
-    return 0;
+    return 0; /* TODO implement */
 }
 
 /* ------------------------------------------------------------------------- */
@@ -246,7 +243,7 @@ service_create_argument_list_from_strings(struct service_t* service, struct orde
         ORDERED_VECTOR_FOR_EACH(argv, const char*, str_p)
         {
             const char* str = *str_p;
-            service_script_type_e type = service_get_c_type_equivalent_from_service_type(service->argv_type[i]);
+            service_script_type_e type = service_get_type_from_string(service->argv_type[i]);
             switch(type)
             {
                 /*
@@ -256,64 +253,64 @@ service_create_argument_list_from_strings(struct service_t* service, struct orde
                  * strtowcs(), but that would require us to use free_string()
                  * instead of FREE().
                  */
-                case SERVICE_SCRIPT_TYPE_STRING:
+                case SERVICE_TYPE_STRING:
                     ret[i] = MALLOC((strlen(str) + 1) * sizeof(char));
                     strcpy(ret[i], str);
                     break;
-                case SERVICE_SCRIPT_TYPE_WSTRING:
+                case SERVICE_TYPE_WSTRING:
                     ret[i] = MALLOC((wcslen((const wchar_t*)str) + 1) * sizeof(wchar_t));
                     wcscpy(ret[i], (const wchar_t*)str);
                     ret[i] = strtowcs(str);
                     break;
 /* ------------------------------------------------------------------------- */
-                case SERVICE_SCRIPT_TYPE_INT8:
+                case SERVICE_TYPE_INT8:
                     ret[i] = MALLOC(sizeof(int8_t));
                     *((int8_t*)ret[i]) = (int8_t)atoi(str);
                     break;
-                case SERVICE_SCRIPT_TYPE_UINT8:
+                case SERVICE_TYPE_UINT8:
                     ret[i] = MALLOC(sizeof(uint8_t));
                     *((uint8_t*)ret[i]) = (uint8_t)atoi(str);
                     break;
-                case SERVICE_SCRIPT_TYPE_INT16:
+                case SERVICE_TYPE_INT16:
                     ret[i] = MALLOC(sizeof(int16_t));
                     *((int16_t*)ret[i]) = (int16_t)atoi(str);
                     break;
-                case SERVICE_SCRIPT_TYPE_UINT16:
+                case SERVICE_TYPE_UINT16:
                     ret[i] = MALLOC(sizeof(uint16_t));
                     *((uint16_t*)ret[i]) = (uint16_t)atoi(str);
                     break;
-                case SERVICE_SCRIPT_TYPE_INT32:
+                case SERVICE_TYPE_INT32:
                     ret[i] = MALLOC(sizeof(int32_t));
                     *((int32_t*)ret[i]) = (int32_t)atoi(str);
                     break;
-                case SERVICE_SCRIPT_TYPE_UINT32:
+                case SERVICE_TYPE_UINT32:
                     ret[i] = MALLOC(sizeof(uint32_t));
                     *((uint32_t*)ret[i]) = (uint32_t)atoi(str);
                     break;
-                case SERVICE_SCRIPT_TYPE_INT64:
+                case SERVICE_TYPE_INT64:
                     ret[i] = MALLOC(sizeof(int64_t));
                     *((int64_t*)ret[i]) = (int64_t)atoi(str);
                     break;
-                case SERVICE_SCRIPT_TYPE_UINT64:
+                case SERVICE_TYPE_UINT64:
                     ret[i] = MALLOC(sizeof(uint64_t));
                     *((uint64_t*)ret[i]) = (uint64_t)atoi(str);
                     break;
 /* ------------------------------------------------------------------------- */
-                case SERVICE_SCRIPT_TYPE_INTPTR:
+                case SERVICE_TYPE_INTPTR:
                     ret[i] = MALLOC(sizeof(intptr_t));
                     *((intptr_t*)ret[i]) = (intptr_t)atoi(str);
                     break;
 /* ------------------------------------------------------------------------- */
-                case SERVICE_SCRIPT_TYPE_FLOAT:
+                case SERVICE_TYPE_FLOAT:
                     ret[i] = MALLOC(sizeof(float));
                     *((float*)ret[i]) = (float)atof(str);
                     break;
-                case SERVICE_SCRIPT_TYPE_DOUBLE:
+                case SERVICE_TYPE_DOUBLE:
                     ret[i] = MALLOC(sizeof(double));
                     *((double*)ret[i]) = atof(str);
                     break;
 /* ------------------------------------------------------------------------- */
-                case SERVICE_SCRIPT_TYPE_NONE:
+                case SERVICE_TYPE_NONE:
                     ret[i] = MALLOC(sizeof(char));
                     *((char*)ret[i]) = '\0';
                     break;
@@ -377,31 +374,81 @@ static service_script_type_e
 service_get_c_type_equivalent_from_script_type(const char* type)
 {
     if(strcmp(type, "string") == 0)
-        return SERVICE_SCRIPT_TYPE_STRING;
+        return SERVICE_TYPE_STRING;
     if(strcmp(type, "wstring") == 0)
-        return SERVICE_SCRIPT_TYPE_WSTRING;
+        return SERVICE_TYPE_WSTRING;
     if(strcmp(type, "int") == 0)
-        return SERVICE_SCRIPT_TYPE_INT32;
+        return SERVICE_TYPE_INT32;
     if(strcmp(type, "uint") == 0)
-        return SERVICE_SCRIPT_TYPE_UINT32;
+        return SERVICE_TYPE_UINT32;
     if(strcmp(type, "float") == 0)
-        return SERVICE_SCRIPT_TYPE_FLOAT;
+        return SERVICE_TYPE_FLOAT;
     if(strcmp(type, "double") == 0)
-        return SERVICE_SCRIPT_TYPE_DOUBLE;
+        return SERVICE_TYPE_DOUBLE;
     if(strcmp(type, "none") == 0)
-        return SERVICE_SCRIPT_TYPE_NONE;
+        return SERVICE_TYPE_NONE;
 
-    return SERVICE_SCRIPT_TYPE_UNKNOWN;
+    return SERVICE_TYPE_UNKNOWN;
 }
 
 /* ------------------------------------------------------------------------- */
-static service_script_type_e
-service_get_c_type_equivalent_from_service_type(const char* type)
+service_script_type_e
+service_get_type_from_string(const char* type)
 {
-    /* strings */
+    /* integers */
+    if(strstr(type, "int"))
     {
+        /*
+         * Here we inspect the string to be any of the following:
+         * int, int8_t, int16_t, int32_t, int64_t, intptr_t and all of their
+         * unsigned counterparts.
+         *
+         */
+
+        /* default to an int32 */
+        service_script_type_e ret = SERVICE_TYPE_INT32;
+
+        /* reject pointer types */
+        if(strstr(type, "*"))
+            return SERVICE_TYPE_UNKNOWN;
+        /* intptr_t */
+        if(strstr(type, "intptr"))
+            ret = SERVICE_TYPE_INTPTR;
+        /* number of bits */
+        else if(strstr(type, "8"))
+            ret = SERVICE_TYPE_INT8;
+        else if(strstr(type, "16"))
+            ret = SERVICE_TYPE_INT16;
+        else if(strstr(type, "32"))
+            ret = SERVICE_TYPE_INT32;
+        else if(strstr(type, "64"))
+            ret = SERVICE_TYPE_INT64;
+
+        /* sign */
+        if(strchr(type, 'u'))
+            ++ret;
+        return ret;
+    }
+
+    /* strings (or an int8/uint8) */
+    {
+        /* any form of wchar_t* is acceptable */
+        if(strstr(type, "wchar_t"))
+        {
+            /* make sure it's not actually a wchar_t** */
+            int num_chrs = 0;
+            const char* str = type;
+            /* one-liner for counting the number of '*' characters in a string
+             * NOTE: modifies "str" */
+            for(num_chrs = 0; str[num_chrs]; str[num_chrs] == '*' ? num_chrs++ : *str++);
+            /* make sure it is a wchar_t* */
+            if(num_chrs == 1)
+                return SERVICE_TYPE_WSTRING;
+            return SERVICE_TYPE_UNKNOWN;
+        }
+
         /* any form of char* is acceptable */
-        if(strstr(type, "char*"))
+        if(strstr(type, "char"))
         {
             /* make sure it's not actually a char** */
             int num_chrs = 0;
@@ -410,52 +457,17 @@ service_get_c_type_equivalent_from_service_type(const char* type)
              * NOTE: modifies "str" */
             for(num_chrs = 0; str[num_chrs]; str[num_chrs] == '*' ? num_chrs++ : *str++);
             if(num_chrs >= 2)
-                return SERVICE_SCRIPT_TYPE_UNKNOWN;
-            return SERVICE_SCRIPT_TYPE_STRING;
+                return SERVICE_TYPE_UNKNOWN;
+            /* make sure it is a char* */
+            if(num_chrs == 1)
+                return SERVICE_TYPE_STRING;
+
+            /* it's only a char - determine if signed or unsigned, and return
+             * either int8 or uint8 */
+            if(strstr(type, "u"))
+                return SERVICE_TYPE_UINT8;
+            return SERVICE_TYPE_INT8;
         }
-
-        /* any form of wchar_t* is acceptable */
-        if(strstr(type, "wchar_t*"))
-        {
-            /* make sure it's not actually a wchar_t** */
-            int num_chrs = 0;
-            const char* str = type;
-            /* one-liner for counting the number of '*' characters in a string
-             * NOTE: modifies "str" */
-            for(num_chrs = 0; str[num_chrs]; str[num_chrs] == '*' ? num_chrs++ : *str++);
-            if(num_chrs >= 2)
-                return SERVICE_SCRIPT_TYPE_UNKNOWN;
-            return SERVICE_SCRIPT_TYPE_WSTRING;
-        }
-    }
-
-    /* integers */
-    if(strstr(type, "int"))
-    {
-        service_script_type_e ret = SERVICE_SCRIPT_TYPE_UNKNOWN;
-
-        /* reject pointer types */
-        if(strstr(type, "*"))
-            return SERVICE_SCRIPT_TYPE_UNKNOWN;
-        /* intptr_t */
-        if(strstr(type, "intptr"))
-            return SERVICE_SCRIPT_TYPE_INTPTR;
-        /* number of bits */
-        if(strstr(type, "8"))
-            ret = SERVICE_SCRIPT_TYPE_INT8;
-        else if(strstr(type, "16"))
-            ret = SERVICE_SCRIPT_TYPE_INT16;
-        else if(strstr(type, "32"))
-            ret = SERVICE_SCRIPT_TYPE_INT32;
-        else if(strstr(type, "64"))
-            ret = SERVICE_SCRIPT_TYPE_INT64;
-        else
-            return SERVICE_SCRIPT_TYPE_UNKNOWN;
-        /* sign */
-        if(strchr(type, 'u'))
-            ++ret;
-        return ret;
-
     }
 
     /* floats */
@@ -463,8 +475,8 @@ service_get_c_type_equivalent_from_service_type(const char* type)
     {
         /* make sure it's not actually a float* */
         if(strstr(type, "*"))
-            return SERVICE_SCRIPT_TYPE_UNKNOWN;
-        return SERVICE_SCRIPT_TYPE_FLOAT;
+            return SERVICE_TYPE_UNKNOWN;
+        return SERVICE_TYPE_FLOAT;
     }
 
     /* doubles */
@@ -472,8 +484,8 @@ service_get_c_type_equivalent_from_service_type(const char* type)
     {
         /* make sure it's not actually a float* */
         if(strstr(type, "*"))
-            return SERVICE_SCRIPT_TYPE_UNKNOWN;
-        return SERVICE_SCRIPT_TYPE_DOUBLE;
+            return SERVICE_TYPE_UNKNOWN;
+        return SERVICE_TYPE_DOUBLE;
     }
 
     /* none/void */
@@ -481,10 +493,10 @@ service_get_c_type_equivalent_from_service_type(const char* type)
     {
         /* reject pointer types */
         if(strstr(type, "*"))
-            return SERVICE_SCRIPT_TYPE_UNKNOWN;
-        return SERVICE_SCRIPT_TYPE_NONE;
+            return SERVICE_TYPE_UNKNOWN;
+        return SERVICE_TYPE_NONE;
     }
 
     /* unknown */
-    return SERVICE_SCRIPT_TYPE_UNKNOWN;
+    return SERVICE_TYPE_UNKNOWN;
 }

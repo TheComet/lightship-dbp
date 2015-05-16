@@ -34,16 +34,16 @@
  * and another event that should make the player run, they are defined as:
  *
  * **events.h:**
-@code
-EVENT_H(evt_jump)
-EVENT_H(evt_run)
-@endcode
+ * ```
+ * EVENT_H(evt_jump)
+ * EVENT_H(evt_run)
+ * ```
  *
  * **events.c:**
-@code
-EVENT_C(evt_jump)
-EVENT_C(evt_run)
-@endcode
+ * ```
+ * EVENT_C(evt_jump)
+ * EVENT_C(evt_run)
+ * ```
  *
  * **EVENT_H** is a helper macro to declare an extern variable for the
  * specified event. **EVENT_C** is a helper macro for defining and initialising
@@ -59,11 +59,11 @@ EVENT_C(evt_run)
  * Events are registered by calling event_create(). The return struct should be
  * stored in the event variables defined earlier. Again, the sample with run
  * and jump:
-@code
-<during PLUGIN_INIT()>
-evt_jump = event_create(plugin, "jump");
-evt_run = event_create(plugin, "run");
-@endcode
+ * ```
+ * (during PLUGIN_INIT())
+ * evt_jump = event_create(plugin, "jump");
+ * evt_run = event_create(plugin, "run");
+ * ```
  *
  * Once that is done, every plugin - including the one that registered the
  * events - will be able to listen to them under the name **plugin.jump** and
@@ -77,20 +77,20 @@ evt_run = event_create(plugin, "run");
  * macro EVENT_LISTENERn(), where n is the number of arguments being passed.
  *
  * First the callback function must be defined:
-@code
-EVENT_LISTENER0(on_player_jump)
-{
-    <do stuff to make a player jump>
-}
-@endcode
+ * ```
+ * EVENT_LISTENER0(on_player_jump)
+ * {
+ *     (do stuff to make a player jump)
+ * }
+ * ```
  * Next, the callback function needs to be registered to an event. It is very
  * important to **register listeners after PLUGIN_INIT()**. The reason for this
  * is because events are registered during PLUGIN_INIT() and may not be
  * available until after the plugin is fully initialised.
-@code
-<during or after PLUGIN_START()>
-event_register_listener(plugin, "plugin_name.jump", on_player_jump);
-@endcode
+ * ```
+ * (during or after PLUGIN_START())
+ * event_register_listener(plugin, "plugin_name.jump", on_player_jump);
+ * ```
  *
  * See event_register_listener() for more information.
  */
@@ -109,23 +109,12 @@ struct plugin_t;
 struct log_t;
 struct game_t;
 
-/* ----------------------------
- * Built-in events
- * --------------------------*/
-
 /*!
  * @brief Initialises the event system.
  * @note Must be called before calling any other event related functions.
  */
 FRAMEWORK_PUBLIC_API char
 events_register_core_events(struct game_t* game);
-
-/*!
- * @brief De-initialises the event system and cleans up any events that weren't
- * removed.
- */
-FRAMEWORK_PUBLIC_API void
-events_deinit(struct game_t* game);
 
 /*!
  * @brief Creates and registers a new event in the host program.
