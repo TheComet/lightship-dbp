@@ -2,6 +2,8 @@
 #include "util/memory.h"
 #include "util/yaml.h"
 
+using testing::Eq;
+
 class UtilGlobalEnvironment : public testing::Environment
 {
 public:
@@ -9,6 +11,7 @@ public:
 
     virtual void SetUp()
     {
+        testing::FLAGS_gtest_death_test_style = "threadsafe";
         memory_init();
         yaml_init();
     }
@@ -16,7 +19,7 @@ public:
     virtual void TearDown()
     {
         yaml_deinit();
-        memory_deinit();
+        EXPECT_THAT(memory_deinit(), Eq(0)) << "Number of memory leaks";
     }
 };
 

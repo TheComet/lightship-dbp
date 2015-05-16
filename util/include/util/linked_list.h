@@ -92,10 +92,10 @@ list_clear(struct list_t* list);
  * in the list.
  * @param[in] list The list to add a new node to.
  * @param[in] data The data the new node should reference.
- * @return Returns non-zero if the item was successfully inserted, zero if
- * otherwise.
+ * @return Returns the new node that was inserted if successful or NULL if
+ * unsuccessful.
  */
-LIGHTSHIP_UTIL_PUBLIC_API char
+LIGHTSHIP_UTIL_PUBLIC_API struct list_node_t*
 list_push(struct list_t* list, void* data);
 
 /*!

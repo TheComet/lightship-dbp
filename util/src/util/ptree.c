@@ -42,6 +42,8 @@ ptree_create(void* value)
 void
 ptree_init_ptree(struct ptree_t* tree, void* value)
 {
+    assert(tree);
+
     ptree_init_node(tree, NULL, value);
 #ifdef _DEBUG
     tree->key = malloc_string("root");
@@ -57,6 +59,8 @@ ptree_init_ptree(struct ptree_t* tree, void* value)
 void
 ptree_destroy(struct ptree_t* tree)
 {
+    assert(tree);
+
     ptree_destroy_keep_root(tree);
     FREE(tree);
 }
@@ -109,6 +113,8 @@ ptree_destroy_children_recurse(struct ptree_t* tree)
 void
 ptree_destroy_keep_root(struct ptree_t* tree)
 {
+    assert(tree);
+
     /* if tree has parent, detach */
     if(tree->parent)
         map_erase_element(&tree->parent->children, tree);
@@ -190,7 +196,7 @@ ptree_add_node(struct ptree_t* root, const char* key, void* value)
     char* saveptr;
     char* key_tok;
     char* child_node_key;
-    uint32_t child_count = map_count(&root->children);
+    uint32_t child_count;
 
     assert(root);
     assert(key);
@@ -199,6 +205,9 @@ ptree_add_node(struct ptree_t* root, const char* key, void* value)
     if(!(key_tok = malloc_string(key)))
         return NULL;
     child_node_key = strtok_r_portable(key_tok, node_delim, &saveptr);
+
+    /* store current child count so we can tell if malloc failed */
+    child_count = map_count(&root->children);
 
     /* recursively fills in any middle nodes until the end node is reached */
     node = ptree_add_node_recurse(root,
@@ -231,27 +240,31 @@ ptree_add_node(struct ptree_t* root, const char* key, void* value)
  */
 static char
 ptree_set_parent_hashed_key(struct ptree_t* node,
-                            struct ptree_t* target,
+                            struct ptree_t* parent,
                             uint32_t hash)
 {
-    /*
-     * Make sure that target is independent of node, thus avoiding cycles.
-     * Note that it is perfectly valid for node to be a child of target.
-     * Shifting nodes around in a tree is valid.
-     */
-    if(node == target || ptree_node_is_child_of(target, node))
-        return 0;
+    /* if parent is non-NULL, we need to do some inspections */
+    if(parent)
+    {
+        /*
+         * Make sure that parent is independent of node, thus avoiding cycles.
+         * Note that it is perfectly valid for node to be a child of parent.
+         * Shifting nodes around in a tree is valid.
+         */
+        if(node == parent || ptree_node_is_child_of(parent, node))
+            return 0;
 
-    /* insert into target */
-    if(!map_insert(&target->children, hash, node))
-        return 0;
+        /* insert into parent */
+        if(!map_insert(&parent->children, hash, node))
+            return 0;
+    }
 
     /* remove from parent */
     if(node->parent)
         map_erase_element(&node->parent->children, node);
 
     /* set new parent */
-    node->parent = target;
+    node->parent = parent;
 
     return 1;
 }
@@ -261,6 +274,12 @@ ptree_set_parent(struct ptree_t* node, struct ptree_t* parent, const char* key)
 {
 #ifdef _DEBUG
     char* new_key;
+#endif
+
+    assert(node);
+    assert(key);
+
+#ifdef _DEBUG
     if(!(new_key = malloc_string(key)))
         return 0;
 #endif
@@ -287,6 +306,10 @@ char
 ptree_remove_node(struct ptree_t* root, const char* key)
 {
     struct ptree_t* node;
+
+    assert(root);
+    assert(key);
+
     if(!(node = ptree_get_node(root, key)))
         return 0;
     ptree_destroy(node);
@@ -300,7 +323,9 @@ ptree_clean(struct ptree_t* root)
 {
     uint32_t count = 0;
 
-    MAP_FOR_EACH(&root->children, struct ptree_t, key, child)
+    assert(root);
+
+    { MAP_FOR_EACH(&root->children, struct ptree_t, key, child)
     {
         count += ptree_clean(child);
         if(map_count(&child->children) == 0 && child->value == NULL)
@@ -315,7 +340,7 @@ ptree_clean(struct ptree_t* root)
 
             ++count;
         }
-    }
+    }}
 
     return count;
 }
@@ -324,6 +349,8 @@ ptree_clean(struct ptree_t* root)
 struct ptree_t*
 ptree_get_root(const struct ptree_t* node)
 {
+    assert(node);
+
     while(node->parent)
         node = node->parent;
 
@@ -334,6 +361,7 @@ ptree_get_root(const struct ptree_t* node)
 void
 ptree_set_dup_func(struct ptree_t* node, ptree_dup_func func)
 {
+    assert(node);
     node->dup_value = func;
 }
 
@@ -341,6 +369,7 @@ ptree_set_dup_func(struct ptree_t* node, ptree_dup_func func)
 void
 ptree_set_free_func(struct ptree_t* node, ptree_free_func func)
 {
+    assert(node);
     node->free_value = func;
 }
 
@@ -389,11 +418,15 @@ char
 ptree_duplicate_children_into_existing_node(struct ptree_t* target,
                                             const struct ptree_t* source)
 {
+    struct map_t temp;
+
+    assert(target);
+    assert(source);
+
     /*
      * In order to avoid circular copying, store all copied children in a
      * temporary map before inserting them into the actual target tree.
      */
-    struct map_t temp;
     map_init_map(&temp);
     { MAP_FOR_EACH(&source->children, struct ptree_t, hash, node)
     {
@@ -462,12 +495,16 @@ ptree_duplicate_children_into_existing_node(struct ptree_t* target,
 struct ptree_t*
 ptree_duplicate_tree(const struct ptree_t* source_node)
 {
+    struct ptree_t* new_root;
+
+    assert(source_node);
+
     /*
      * Create a new root, into which source_node is copied.
      * Note that the value is being set to NULL, but will be overwritten
      * in ptree_duplicate_children_into_existing_node().
      */
-    struct ptree_t* new_root = ptree_create(NULL);
+    new_root = ptree_create(NULL);
     if(!new_root)
         return NULL;
 
@@ -486,6 +523,8 @@ ptree_duplicate_tree(const struct ptree_t* source_node)
 struct ptree_t*
 ptree_get_node_no_depth(const struct ptree_t* tree, const char* key)
 {
+    assert(tree);
+    assert(key);
     return map_find(&tree->children, PTREE_HASH_STRING(key));
 }
 
@@ -511,10 +550,15 @@ ptree_get_node_recurse(const struct ptree_t* tree, char** saveptr)
 struct ptree_t*
 ptree_get_node(const struct ptree_t* tree, const char* key)
 {
-    /* prepare key for tokenisation */
     struct ptree_t* result;
     char* saveptr;
-    char* key_iter = cat_strings(2, "n.", key); /* root key name is ignored, but must exist */
+    char* key_iter;
+
+    assert(tree);
+    assert(key);
+
+    /* prepare key for tokenisation */
+    key_iter = cat_strings(2, "n.", key); /* root key name is ignored, but must exist */
     if(!key_iter)
         return NULL;
     strtok_r_portable(key_iter, node_delim, &saveptr);
@@ -529,11 +573,13 @@ char
 ptree_node_is_child_of(const struct ptree_t* node,
                        const struct ptree_t* tree)
 {
-    MAP_FOR_EACH(&tree->children, struct ptree_t, hash, n)
+    assert(tree);
+
+    { MAP_FOR_EACH(&tree->children, struct ptree_t, hash, n)
     {
         if(n == node || ptree_node_is_child_of(node, n))
             return 1;
-    }
+    }}
 
     return 0;
 }

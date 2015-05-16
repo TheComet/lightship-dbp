@@ -141,6 +141,8 @@ unordered_vector_pop(struct unordered_vector_t* vector)
 void*
 unordered_vector_back(struct unordered_vector_t* vector)
 {
+    assert(vector);
+
     if(!vector->count)
         return NULL;
 

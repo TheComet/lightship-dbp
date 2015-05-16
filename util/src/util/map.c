@@ -1,5 +1,6 @@
 #include "util/map.h"
 #include "util/memory.h"
+#include <assert.h>
 
 const uint32_t MAP_INVALID_KEY = (uint32_t)-1;
 
@@ -18,6 +19,7 @@ map_create(void)
 void
 map_init_map(struct map_t* map)
 {
+    assert(map);
     ordered_vector_init_vector(&map->vector, sizeof(struct map_key_value_t));
 }
 
@@ -25,6 +27,7 @@ map_init_map(struct map_t* map)
 void
 map_destroy(struct map_t* map)
 {
+    assert(map);
     map_clear_free(map);
     FREE(map);
 }
@@ -35,8 +38,13 @@ map_find_lower_bound(const struct map_t* map, uint32_t hash)
 {
     uint32_t half;
     struct map_key_value_t* middle;
-    struct map_key_value_t* data = (struct map_key_value_t*)map->vector.data;
-    uint32_t len = map->vector.count;
+    struct map_key_value_t* data;
+    uint32_t len;
+
+    assert(map);
+
+    data = (struct map_key_value_t*)map->vector.data;
+    len = map->vector.count;
 
     /* if the vector has no data, return NULL */
     if(!len)
@@ -69,7 +77,11 @@ map_find_lower_bound(const struct map_t* map, uint32_t hash)
 void*
 map_find(const struct map_t* map, uint32_t hash)
 {
-    struct map_key_value_t* data = map_find_lower_bound(map, hash);
+    struct map_key_value_t* data;
+
+    assert(map);
+
+    data = map_find_lower_bound(map, hash);
     if(!data || data->hash != hash)
         return NULL;
     return data->value;
@@ -79,11 +91,13 @@ map_find(const struct map_t* map, uint32_t hash)
 uint32_t
 map_find_element(const struct map_t* map, const void* value)
 {
-    ORDERED_VECTOR_FOR_EACH(&map->vector, struct map_key_value_t, kv)
+    assert(map);
+
+    { ORDERED_VECTOR_FOR_EACH(&map->vector, struct map_key_value_t, kv)
     {
         if(kv->value == value)
             return kv->hash;
-    }
+    }}
     return MAP_INVALID_KEY;
 }
 
@@ -91,7 +105,11 @@ map_find_element(const struct map_t* map, const void* value)
 char
 map_key_exists(struct map_t* map, uint32_t hash)
 {
-    struct map_key_value_t* data = map_find_lower_bound(map, hash);
+    struct map_key_value_t* data;
+
+    assert(map);
+
+    data = map_find_lower_bound(map, hash);
     if(data && data->hash == hash)
         return 1;
     return 0;
@@ -103,12 +121,14 @@ map_find_unused_key(struct map_t* map)
 {
     uint32_t i = 0;
 
-    MAP_FOR_EACH(map, void, key, value)
+    assert(map);
+
+    { MAP_FOR_EACH(map, void, key, value)
     {
         if(i != key)
             break;
         ++i;
-    }
+    }}
     return i;
 }
 
@@ -118,6 +138,8 @@ map_insert(struct map_t* map, uint32_t hash, void* value)
 {
     struct map_key_value_t* emplaced_data;
     struct map_key_value_t* data;
+
+    assert(map);
 
     /* don't insert reserved hashes */
     if(hash == MAP_INVALID_KEY)
@@ -149,7 +171,11 @@ map_insert(struct map_t* map, uint32_t hash, void* value)
 void
 map_set(struct map_t* map, uint32_t hash, void* value)
 {
-    struct map_key_value_t* data = map_find_lower_bound(map, hash);
+    struct map_key_value_t* data;
+
+    assert(map);
+
+    data = map_find_lower_bound(map, hash);
     if(data && data->hash == hash)
         data->value = value;
 }
@@ -159,7 +185,11 @@ void*
 map_erase(struct map_t* map, uint32_t hash)
 {
     void* value;
-    struct map_key_value_t* data = map_find_lower_bound(map, hash);
+    struct map_key_value_t* data;
+
+    assert(map);
+
+    data = map_find_lower_bound(map, hash);
     if(!data || data->hash != hash)
         return NULL;
 
@@ -173,7 +203,11 @@ void*
 map_erase_element(struct map_t* map, void* value)
 {
     void* data;
-    uint32_t hash = map_find_element(map, value);
+    uint32_t hash;
+
+    assert(map);
+
+    hash = map_find_element(map, value);
     if(hash == MAP_INVALID_KEY)
         return NULL;
 
@@ -187,12 +221,14 @@ map_erase_element(struct map_t* map, void* value)
 void
 map_clear(struct map_t* map)
 {
+    assert(map);
     ordered_vector_clear(&map->vector);
 }
 
 /* ------------------------------------------------------------------------- */
 void map_clear_free(struct map_t* map)
 {
+    assert(map);
     ordered_vector_clear_free(&map->vector);
 }
 

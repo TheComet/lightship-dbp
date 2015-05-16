@@ -245,9 +245,11 @@ free_wrapper(void* ptr)
 }
 
 /* ------------------------------------------------------------------------- */
-void
+uintptr_t
 memory_deinit(void)
 {
+    uintptr_t leaks;
+
     --allocations; /* this is the single allocation still held by the report vector */
 
     printf("=========================================\n");
@@ -278,9 +280,10 @@ memory_deinit(void)
     }
 
     /* overall report */
+    leaks = (allocations > deallocations ? allocations - deallocations : deallocations - allocations);
     printf("allocations: %lu\n", allocations);
     printf("deallocations: %lu\n", deallocations);
-    printf("memory leaks: %lu\n", (allocations > deallocations ? allocations - deallocations : deallocations - allocations));
+    printf("memory leaks: %lu\n", leaks);
     printf("=========================================\n");
 
     ++allocations; /* this is the single allocation still held by the report vector */
@@ -288,6 +291,8 @@ memory_deinit(void)
     map_clear_free(&report);
 
     MUTEX_DEINIT(mutex)
+
+    return leaks;
 }
 
 #   ifdef ENABLE_MEMORY_EXPLICIT_MALLOC_FAILURES
@@ -319,7 +324,7 @@ force_malloc_fail_off(void)
 #else /* ENABLE_MEMORY_DEBUGGING */
 
 void memory_init(void) {}
-void memory_deinit(void) {}
+uintptr_t memory_deinit(void) { return 0; }
 
 #endif /* ENABLE_MEMORY_DEBUGGING */
 

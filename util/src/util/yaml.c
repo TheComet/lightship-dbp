@@ -143,6 +143,7 @@ yaml_load_from_stream(FILE* stream)
 void
 yaml_destroy(struct ptree_t* doc)
 {
+    assert(doc);
     ptree_destroy(doc);
     list_erase_element(&g_open_docs, doc);
 }
@@ -152,6 +153,10 @@ const char*
 yaml_get_value(const struct ptree_t* doc, const char* key)
 {
     struct ptree_t* node;
+
+    assert(doc);
+    assert(key);
+
     if(!(node = yaml_get_node(doc, key)))
         return NULL;
 
@@ -163,6 +168,9 @@ yaml_get_value(const struct ptree_t* doc, const char* key)
 struct ptree_t*
 yaml_get_node(const struct ptree_t* node, const char* key)
 {
+    assert(node);
+    assert(key);
+
     return ptree_get_node(node, key);
 }
 
@@ -170,6 +178,8 @@ yaml_get_node(const struct ptree_t* node, const char* key)
 uint32_t
 yaml_get_hash(const struct ptree_t* node)
 {
+    assert(node);
+
     /*
      * The hash isn't stored in the node itself, but in the map of the parent
      * node.
@@ -186,6 +196,9 @@ yaml_set_value(struct ptree_t* doc, const char* key, const char* value)
 {
     struct ptree_t* node;
     char* value_cpy = NULL;
+
+    assert(doc);
+    assert(key);
 
     if(value)
         if(!(value_cpy = malloc_string(value)))

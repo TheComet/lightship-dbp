@@ -7,15 +7,21 @@ include_directories ("gmock/gtest/include")
 include_directories ("include")
 
 file (GLOB tests_SOURCES_UTIL
-            "src/death/util/*.cpp"
             "src/env/util/*.cpp"
             "src/malloc/util/*.cpp"
             "src/misc/util/*.cpp")
 file (GLOB tests_SOURCES_FRAMEWORK
-            "src/death/framework/*.cpp"
             "src/env/framework/*.cpp"
             "src/malloc/framework/*.cpp"
             "src/misc/framework/*.cpp")
+file (GLOB tests_HEADERS
+            "include/tests/*.hpp")
+
+# death tests in debug mode
+if (CMAKE_BUILD_TYPE MATCHES "Debug")
+    file (GLOB tests_SOURCES_UTIL ${tests_SOURCES_UTIL} "src/death/util/*.cpp")
+    file (GLOB tests_SOURCES_FRAMEWORK ${tests_SOURCES_FRAMEWORK} "src/death/framework/*.cpp")
+endif ()
 
 add_definitions (${DEFINE_CMD}TESTING)
 

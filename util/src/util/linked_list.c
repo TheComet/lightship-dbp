@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <assert.h>
 #include "util/linked_list.h"
 #include "util/memory.h"
 
@@ -19,6 +20,7 @@ list_create(void)
 void
 list_init_list(struct list_t* list)
 {
+    assert(list);
     memset(list, 0, sizeof(struct list_t));
 }
 
@@ -26,6 +28,7 @@ list_init_list(struct list_t* list)
 void
 list_destroy(struct list_t* list)
 {
+    assert(list);
     list_clear(list);
     FREE(list);
 }
@@ -35,6 +38,9 @@ void
 list_clear(struct list_t* list)
 {
     struct list_node_t* current;
+
+    assert(list);
+
     while((current = list->tail))
     {
         list->tail = list->tail->next;
@@ -45,15 +51,18 @@ list_clear(struct list_t* list)
 }
 
 /* ------------------------------------------------------------------------- */
-char
+struct list_node_t*
 list_push(struct list_t* list, void* data)
 {
     struct list_node_t* node;
+
+    assert(list);
+
     node = (struct list_node_t*)MALLOC(sizeof(struct list_node_t));
     if(!node)
     {
         fprintf(stderr, "malloc() failed in list_push() -- not enough memory\n");
-        return 0;
+        return NULL;
     }
 
     /* first element being inserted, set tail */
@@ -68,7 +77,7 @@ list_push(struct list_t* list, void* data)
     node->data = data;
     ++list->count;
 
-    return 1;
+    return node;
 }
 
 /* ------------------------------------------------------------------------- */
@@ -76,8 +85,11 @@ void*
 list_pop(struct list_t* list)
 {
     void* data;
+    struct list_node_t* node;
 
-    struct list_node_t* node = list->head;
+    assert(list);
+
+    node = list->head;
     if(!node)
         return NULL;
 
@@ -98,9 +110,16 @@ list_pop(struct list_t* list)
 void*
 list_erase_node(struct list_t* list, struct list_node_t* node)
 {
-    struct list_node_t* prev = node->prev;
-    struct list_node_t* next = node->next;
+    struct list_node_t* prev;
+    struct list_node_t* next;
     void* data;
+
+    assert(list);
+    assert(node);
+
+    prev = node->prev;
+    next = node->next;
+
     if(prev)
         prev->next = next;  /* node after current node is the previous' node next node */
     else
@@ -121,7 +140,11 @@ list_erase_node(struct list_t* list, struct list_node_t* node)
 char
 list_erase_element(struct list_t* list, void* data)
 {
-    struct list_node_t* current = list->tail;
+    struct list_node_t* current;
+
+    assert(list);
+
+    current = list->tail;
     while(current)
     {
         if(current->data == data)

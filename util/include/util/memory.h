@@ -35,8 +35,9 @@ memory_init(void);
  *
  * In release mode this does nothing. In debug mode this will output the memory
  * report and print backtraces, if enabled.
+ * @return Returns the number of memory leaks.
  */
-LIGHTSHIP_UTIL_PUBLIC_API void
+LIGHTSHIP_UTIL_PUBLIC_API uintptr_t
 memory_deinit(void);
 
 #ifdef ENABLE_MEMORY_DEBUGGING

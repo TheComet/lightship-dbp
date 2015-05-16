@@ -26,7 +26,7 @@ TEST(NAME, list_push)
     list_push(list, &b);
 
     force_malloc_fail_on();
-    EXPECT_THAT(list_push(list, NULL), Eq(0));
+    EXPECT_THAT(list_push(list, NULL), IsNull());
     force_malloc_fail_off();
 
     EXPECT_THAT(list->count, Eq(2));

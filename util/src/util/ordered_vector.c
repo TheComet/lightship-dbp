@@ -1,5 +1,6 @@
 #include <string.h>
 #include <stdlib.h>
+#include <assert.h>
 #include "util/ordered_vector.h"
 #include "util/memory.h"
 
@@ -41,6 +42,7 @@ ordered_vector_create(const uint32_t element_size)
 void
 ordered_vector_init_vector(struct ordered_vector_t* vector, const uint32_t element_size)
 {
+    assert(vector);
     memset(vector, 0, sizeof(struct ordered_vector_t));
     vector->element_size = element_size;
 }
@@ -49,6 +51,7 @@ ordered_vector_init_vector(struct ordered_vector_t* vector, const uint32_t eleme
 void
 ordered_vector_destroy(struct ordered_vector_t* vector)
 {
+    assert(vector);
     ordered_vector_clear_free(vector);
     FREE(vector);
 }
@@ -57,6 +60,7 @@ ordered_vector_destroy(struct ordered_vector_t* vector)
 void
 ordered_vector_clear(struct ordered_vector_t* vector)
 {
+    assert(vector);
     /*
      * No need to free or overwrite existing memory, just reset the counter
      * and let future insertions overwrite
@@ -68,8 +72,11 @@ ordered_vector_clear(struct ordered_vector_t* vector)
 void
 ordered_vector_clear_free(struct ordered_vector_t* vector)
 {
+    assert(vector);
+
     if(vector->data)
         FREE(vector->data);
+
     vector->data = NULL;
     vector->count = 0;
     vector->capacity = 0;
@@ -80,6 +87,9 @@ void*
 ordered_vector_push_emplace(struct ordered_vector_t* vector)
 {
     void* data;
+
+    assert(vector);
+
     if(vector->count == vector->capacity)
         if(!ordered_vector_expand(vector, -1, 0))
             return NULL;
@@ -92,7 +102,12 @@ ordered_vector_push_emplace(struct ordered_vector_t* vector)
 char
 ordered_vector_push(struct ordered_vector_t* vector, void* data)
 {
-    void* emplaced = ordered_vector_push_emplace(vector);
+    void* emplaced;
+
+    assert(vector);
+    assert(data);
+
+    emplaced = ordered_vector_push_emplace(vector);
     if(!emplaced)
         return 0;
     memcpy(emplaced, data, vector->element_size);
@@ -103,6 +118,9 @@ ordered_vector_push(struct ordered_vector_t* vector, void* data)
 char
 ordered_vector_push_vector(struct ordered_vector_t* vector, struct ordered_vector_t* source_vector)
 {
+    assert(vector);
+    assert(source_vector);
+
     /* make sure element sizes are equal */
     if(vector->element_size != source_vector->element_size)
         return 0;
@@ -125,6 +143,8 @@ ordered_vector_push_vector(struct ordered_vector_t* vector, struct ordered_vecto
 void*
 ordered_vector_pop(struct ordered_vector_t* vector)
 {
+    assert(vector);
+
     if(!vector->count)
         return NULL;
 
@@ -136,6 +156,8 @@ ordered_vector_pop(struct ordered_vector_t* vector)
 void*
 ordered_vector_back(struct ordered_vector_t* vector)
 {
+    assert(vector);
+
     if(!vector->count)
         return NULL;
 
@@ -147,6 +169,8 @@ void*
 ordered_vector_insert_emplace(struct ordered_vector_t* vector, uint32_t index)
 {
     uint32_t offset;
+
+    assert(vector);
 
     /*
      * Normally the last valid index is (capacity-1), but in this case it's valid
@@ -181,7 +205,12 @@ ordered_vector_insert_emplace(struct ordered_vector_t* vector, uint32_t index)
 char
 ordered_vector_insert(struct ordered_vector_t* vector, uint32_t index, void* data)
 {
-    void* emplaced = ordered_vector_insert_emplace(vector, index);
+    void* emplaced;
+
+    assert(vector);
+    assert(data);
+
+    emplaced = ordered_vector_insert_emplace(vector, index);
     if(!emplaced)
         return 0;
     memcpy(emplaced, data, vector->element_size);
@@ -192,6 +221,8 @@ ordered_vector_insert(struct ordered_vector_t* vector, uint32_t index, void* dat
 void
 ordered_vector_erase_index(struct ordered_vector_t* vector, uint32_t index)
 {
+    assert(vector);
+
     if(index >= vector->count)
         return;
 
@@ -214,7 +245,14 @@ ordered_vector_erase_index(struct ordered_vector_t* vector, uint32_t index)
 void
 ordered_vector_erase_element(struct ordered_vector_t* vector, void* element)
 {
-    uintptr_t last_element = (uintptr_t)vector->data + (vector->count-1) * vector->element_size;
+    uintptr_t last_element;
+
+    assert(vector);
+    last_element = (uintptr_t)vector->data + (vector->count-1) * vector->element_size;
+    assert(element);
+    assert((uintptr_t)element >= (uintptr_t)vector->data);
+    assert((uintptr_t)element <= (uintptr_t)last_element);
+
     if(element != (void*)last_element)
     {
         memmove(element,    /* target is to overwrite the element */
@@ -228,6 +266,8 @@ ordered_vector_erase_element(struct ordered_vector_t* vector, void* element)
 void*
 ordered_vector_get_element(struct ordered_vector_t* vector, uint32_t index)
 {
+    assert(vector);
+
     if(index >= vector->count)
         return NULL;
     return vector->data + (vector->element_size * index);

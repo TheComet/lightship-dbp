@@ -6,6 +6,7 @@
 #include <errno.h>
 #include <sys/types.h>
 #include <stdlib.h>
+#include <assert.h>
 
 /* ------------------------------------------------------------------------- */
 char
@@ -13,6 +14,9 @@ get_directory_listing(struct list_t* list, const char* dir)
 {
     DIR* dirp = NULL;
     struct dirent* fp;
+
+    assert(list);
+    assert(dir);
 
     /* open directory */
     dirp = opendir(dir);
