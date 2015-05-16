@@ -28,7 +28,7 @@ TEST(NAME, load_fail_immediately)
 
 TEST(NAME, load_fail_later)
 {
-    for(int i = 2; i != 5; ++i)
+    for(int i = 2; i != 50; ++i)
     {
         force_malloc_fail_after(i);
         EXPECT_THAT(yaml_load_from_memory(yml), IsNull());

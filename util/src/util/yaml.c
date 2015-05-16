@@ -281,13 +281,7 @@ yaml_load_into_ptree(struct ptree_t* tree,
 
             /* begin of sequence (yaml list) */
             case YAML_SEQUENCE_START_EVENT:
-                if(!key)
-                {
-                    fprintf(stderr, "[yaml] Received sequence start without a key\n");
-                    finished = FINISH_ERROR;
-                    break;
-                }
-
+                if(key)
                 {
                     /* create child and recurse, setting is_sequence to 1 so
                      * the parser knows to generate sequence keys */
@@ -301,6 +295,12 @@ yaml_load_into_ptree(struct ptree_t* tree,
                     free_string(key);
                     key = NULL;
                 }
+                else
+                {
+                    fprintf(stderr, "[yaml] Received sequence start without a key\n");
+                    finished = FINISH_ERROR;
+                    break;
+                }
 
             case YAML_MAPPING_START_EVENT:
 
@@ -309,7 +309,11 @@ yaml_load_into_ptree(struct ptree_t* tree,
                  */
                 if(is_sequence && !key)
                 {
-                    key = malloc_string("255"); /* sequence_index is a char */
+                    if(!(key = malloc_string("255"))) /* sequence_index is a char */
+                    {
+                        finished = FINISH_ERROR;
+                        break;
+                    }
                     sprintf(key, "%d", sequence_index);
                     ++sequence_index;
                 }
@@ -349,7 +353,11 @@ yaml_load_into_ptree(struct ptree_t* tree,
                  */
                 if(is_sequence && !key)
                 {
-                    key = malloc_string("255"); /* sequence_index is a char */
+                    if(!(key = malloc_string("255"))) /* sequence_index is a char */
+                    {
+                        finished = FINISH_ERROR;
+                        break;
+                    }
                     sprintf(key, "%d", sequence_index);
                     ++sequence_index;
                 }
@@ -373,7 +381,6 @@ yaml_load_into_ptree(struct ptree_t* tree,
                         fprintf(stderr, "[yaml] Failed to copy ptree \"%s\" (yaml anchor failed)\n", event.data.alias.anchor);
                         fprintf(stderr, "[yaml] Possible solution: References need to be defined before they are used.\n");
                         finished = FINISH_ERROR;
-                        break;
                     }
                     free_string(key);
                     key = NULL;
@@ -413,7 +420,8 @@ yaml_load_into_ptree(struct ptree_t* tree,
                     }
                     else
                     {
-                        key = malloc_string((char*)event.data.scalar.value);
+                        if(!(key = malloc_string((char*)event.data.scalar.value)))
+                            finished = FINISH_ERROR;
                     }
                 }
                 break;
