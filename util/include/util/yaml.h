@@ -117,8 +117,8 @@ yaml_get_node(const struct ptree_t* node, const char* key);
 LIGHTSHIP_UTIL_PUBLIC_API struct ptree_t*
 yaml_set_value(struct ptree_t* node, const char* key, const char* value);
 
-LIGHTSHIP_UTIL_PUBLIC_API struct ptree_t*
-yaml_destroy_value(struct ptree_t* node, const char* key);
+LIGHTSHIP_UTIL_PUBLIC_API char
+yaml_remove_value(struct ptree_t* node, const char* key);
 
 #define YAML_FOR_EACH(m_root, m_key, m_hash_var, m_node_var) {                  \
     struct ptree_t* yaml_internal_##m_root_node;                                \

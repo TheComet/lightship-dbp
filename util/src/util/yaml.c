@@ -233,9 +233,10 @@ yaml_free_node_value_func(char* value)
 }
 
 /* ------------------------------------------------------------------------- */
-struct ptree_t*
-yaml_destroy_value(struct ptree_t* doc, const char* key)
+char
+yaml_remove_value(struct ptree_t* doc, const char* key)
 {
+    return ptree_remove_node(doc, key);
 }
 
 /* ------------------------------------------------------------------------- */

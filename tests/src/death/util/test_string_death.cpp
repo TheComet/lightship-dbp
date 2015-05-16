@@ -6,10 +6,16 @@
 
 using namespace testing;
 
-#ifdef LIGHTSHIP_UTIL_PLATFORM_MACOSX
-#define ASSERTION_REGEX ".*Assertion failed.*"
+#ifdef _DEBUG
+#   ifdef LIGHTSHIP_UTIL_PLATFORM_MACOSX
+#       define ASSERTION_REGEX ".*Assertion failed.*"
+#   elif defined(LIGHTSHIP_UTIL_PLATFORM_LINUX)
+#       define ASSERTION_REGEX "\\bAssertion `\\w+' failed."
+#   else
+#       define ASSERTION_REGEX ""
+#   endif
 #else
-#define ASSERTION_REGEX "\\bAssertion `\\w+' failed."
+#   define ASSERTION_REGEX ""
 #endif
 
 TEST(NAME, malloc_string_with_null_ptr)

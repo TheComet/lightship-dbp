@@ -1,5 +1,3 @@
-project ("plugin_renderer_gl" C)
-
 if (${CMAKE_C_COMPILER_ID} STREQUAL "GNU")
     if (NOT MINGW) # MinGW always builds position independent code
         add_definitions (-fPIC)

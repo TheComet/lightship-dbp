@@ -28,7 +28,11 @@ TEST(NAME, create)
 
 TEST(NAME, load)
 {
+#ifdef _DEBUG
     for(int i = 1; i != 50; ++i)
+#else
+    for(int i = 1; i != 25; ++i)
+#endif
     {
         force_malloc_fail_after(i);
         EXPECT_THAT(yaml_load_from_memory(yml), IsNull());
@@ -44,8 +48,11 @@ TEST(NAME, set_value)
 {
     struct ptree_t* doc = yaml_create();
     yaml_set_value(doc, "key1.key2", "value");
-
+#ifdef _DEBUG
     for(int i = 1; i != 8; ++i)
+#else
+    for(int i = 1; i != 4; ++i)
+#endif
     {
         force_malloc_fail_after(i);
         EXPECT_THAT(yaml_set_value(doc, "test.whatever", "value"), IsNull());

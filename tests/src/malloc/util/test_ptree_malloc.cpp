@@ -21,7 +21,11 @@ TEST(NAME, add_node)
 {
     struct ptree_t* tree = ptree_create(NULL);
 
+#ifdef _DEBUG
     for(int i = 1; i != 13; ++i)
+#else
+    for(int i = 1; i != 7; ++i)
+#endif
     {
         force_malloc_fail_after(i);
         EXPECT_THAT(ptree_add_node(tree, "test.test.test.test", NULL), IsNull());
@@ -41,7 +45,11 @@ TEST(NAME, set_parent_fail_later)
     struct ptree_t* root = ptree_create(NULL);
     struct ptree_t* node = ptree_create(NULL);
 
+#ifdef _DEBUG
     for(int i = 1; i != 3; ++i)
+#else
+    for(int i = 1; i != 2; ++i)
+#endif
     {
         force_malloc_fail_after(i);
         EXPECT_THAT(ptree_set_parent(node, root, "node"), Eq(0));
@@ -85,7 +93,11 @@ TEST(NAME, duplicate_tree_fail_later)
     ptree_set_dup_func(n3, (ptree_dup_func)dup_value);
     ptree_set_free_func(n3, (ptree_free_func)free_value);
 
+#ifdef _DEBUG
     for(int i = 1; i != 11; ++i)
+#else
+    for(int i = 1; i != 6; ++i)
+#endif
     {
         force_malloc_fail_after(i);
         EXPECT_THAT(ptree_duplicate_tree(tree), IsNull());
@@ -122,7 +134,11 @@ TEST(NAME, duplicate_into_existing_node_fail_later)
     ptree_set_dup_func(n3, (ptree_dup_func)dup_value);
     ptree_set_free_func(n3, (ptree_free_func)free_value);
 
+#ifdef _DEBUG
     for(int i = 1; i != 18; ++i)
+#else
+    for(int i = 1; i != 9; ++i)
+#endif
     {
         force_malloc_fail_after(i);
         EXPECT_THAT(ptree_duplicate_children_into_existing_node(n2, tree), Eq(0));

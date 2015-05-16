@@ -17,9 +17,12 @@ endif ()
 ###############################################################################
 
 set (PROJECT_NAME "FRAMEWORK")
-set (BUILTIN_NAMESPACE_NAME "builtin" CACHE STRING "This is the namespace under which built-in events and services are registered")
+set (BUILTIN_NAMESPACE_NAME "core" CACHE STRING "This is the namespace under which built-in events and services are registered")
 
-message (STATUS "Built-in namespace: ${BUILTIN_NAMESPACE_NAME}")
+message (STATUS "------------------------------------------------------------")
+message (STATUS "Settings for framework")
+message (STATUS " + Built-in namespace: ${BUILTIN_NAMESPACE_NAME}")
+message (STATUS "------------------------------------------------------------")
 
 configure_file ("${EXPORT_H_TEMPLATE}"
                 "include/framework/export.h")

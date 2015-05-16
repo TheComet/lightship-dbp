@@ -1,4 +1,4 @@
-#define _SVID_SOURCE
+#define _DEFAULT_SOURCE
 #include "util/dir.h"
 #include "util/linked_list.h"
 #include "util/string.h"
