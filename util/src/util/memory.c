@@ -8,19 +8,19 @@
 
 #define BACKTRACE_OMIT_COUNT 2
 
-#ifdef ENABLE_MEMORY_REPORT
+#ifdef ENABLE_MEMORY_DEBUGGING
 static uintptr_t allocations = 0;
 static uintptr_t deallocations = 0;
 static uintptr_t ignore_map_malloc = 0;
 static struct map_t report;
 
-#   ifdef ENABLE_MEMORY_EXPLICIT_MALLOC_FAILS
+#   ifdef ENABLE_MEMORY_EXPLICIT_MALLOC_FAILURES
 static volatile int malloc_fail_counter = 0;
-#   endif /* ENABLE_MEMORY_EXPLICIT_MALLOC_FAILS */
+#   endif /* ENABLE_MEMORY_EXPLICIT_MALLOC_FAILURES */
 
-/* need a mutex to make custom_malloc_debug() and free_debug() thread safe */
+/* need a mutex to make malloc_wrapper() and free_wrapper() thread safe */
 /* NOTE: Mutex must be recursive */
-#   if defined(ENABLE_MULTITHREADING) || defined(ENABLE_MEMORY_EXPLICIT_MALLOC_FAILS)
+#   if defined(ENABLE_MULTITHREADING) || defined(ENABLE_MEMORY_EXPLICIT_MALLOC_FAILURES)
 #       if defined(LIGHTSHIP_UTIL_PLATFORM_LINUX) || defined(LIGHTSHIP_UTIL_PLATFORM_MACOSX)
 #           include <pthread.h>
 #           define MUTEX pthread_mutex_t
@@ -41,13 +41,13 @@ static volatile int malloc_fail_counter = 0;
 
     static MUTEX mutex;
 
-#   else /* defined(ENABLE_MULTITHREADING) || defined(ENABLE_MEMORY_EXPLICIT_MALLOC_FAILS) */
+#   else /* defined(ENABLE_MULTITHREADING) || defined(ENABLE_MEMORY_EXPLICIT_MALLOC_FAILURES) */
 #       define mutex
 #       define MUTEX_LOCK(x)
 #       define MUTEX_UNLOCK(x)
 #       define MUTEX_INIT(x)
 #       define MUTEX_DEINIT(x)
-#   endif /* defined(ENABLE_MULTITHREADING) || defined(ENABLE_MEMORY_EXPLICIT_MALLOC_FAILS) */
+#   endif /* defined(ENABLE_MULTITHREADING) || defined(ENABLE_MEMORY_EXPLICIT_MALLOC_FAILURES) */
 
 struct report_info_t
 {
@@ -68,14 +68,14 @@ memory_init(void)
     ignore_map_malloc = 0;
     map_init_map(&report);
     MUTEX_INIT(mutex)
-#   ifdef ENABLE_MEMORY_EXPLICIT_MALLOC_FAILS
+#   ifdef ENABLE_MEMORY_EXPLICIT_MALLOC_FAILURES
     malloc_fail_counter = 0;
 #   endif
 }
 
 /* ------------------------------------------------------------------------- */
 void*
-custom_malloc_debug(intptr_t size)
+malloc_wrapper(intptr_t size)
 {
     void* p = NULL;
     struct report_info_t* info = NULL;
@@ -86,7 +86,7 @@ custom_malloc_debug(intptr_t size)
     for(;;)
     {
 
-#   ifdef ENABLE_MEMORY_EXPLICIT_MALLOC_FAILS
+#   ifdef ENABLE_MEMORY_EXPLICIT_MALLOC_FAILURES
         if(malloc_fail_counter && !ignore_map_malloc)
         {
             /* fail when counter reaches 1 */
@@ -191,7 +191,7 @@ custom_malloc_debug(intptr_t size)
 
 /* ------------------------------------------------------------------------- */
 void
-free_debug(void* ptr)
+free_wrapper(void* ptr)
 {
     MUTEX_LOCK(mutex)
 
@@ -290,7 +290,7 @@ memory_deinit(void)
     MUTEX_DEINIT(mutex)
 }
 
-#   ifdef ENABLE_MEMORY_EXPLICIT_MALLOC_FAILS
+#   ifdef ENABLE_MEMORY_EXPLICIT_MALLOC_FAILURES
 /* ------------------------------------------------------------------------- */
 void
 force_malloc_fail_on(void)
@@ -314,14 +314,14 @@ force_malloc_fail_off(void)
     malloc_fail_counter = 0;
     MUTEX_UNLOCK(mutex);
 }
-#   endif /* ENABLE_MEMORY_EXPLICIT_MALLOC_FAILS */
+#   endif /* ENABLE_MEMORY_EXPLICIT_MALLOC_FAILURES */
 
-#else /* ENABLE_MEMORY_REPORT */
+#else /* ENABLE_MEMORY_DEBUGGING */
 
 void memory_init(void) {}
 void memory_deinit(void) {}
 
-#endif /* ENABLE_MEMORY_REPORT */
+#endif /* ENABLE_MEMORY_DEBUGGING */
 
 /* ------------------------------------------------------------------------- */
 void

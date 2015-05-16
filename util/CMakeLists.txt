@@ -1,4 +1,4 @@
-set (BUILD_TYPE "SHARED" CACHE STRING "The build type of the utility library")
+set (BUILD_TYPE "SHARED")
 
 ###############################################################################
 # compiler flags for this library
@@ -20,18 +20,17 @@ set (PROJECT_NAME "LIGHTSHIP_UTIL")
 
 # memory debugging
 if (CMAKE_BUILD_TYPE MATCHES Debug)
-    option (ENABLE_MEMORY_REPORT "Keeps track of the number of allocations and de-allocations and prints a report when the program shuts down" ON)
-    option (ENABLE_MEMORY_BACKTRACE "Generates backtraces for every malloc(), making it easy to track down memory leaks" ON)
+    option (ENABLE_MEMORY_DEBUGGING "Global switch for memory options. Keeps track of the number of allocations and de-allocations and prints a report when the program shuts down" ON)
 else ()
-    option (ENABLE_MEMORY_REPORT "Keeps track of the number of allocations and de-allocations and prints a report when the program shuts down" OFF)
-    option (ENABLE_MEMORY_BACKTRACE "Generates backtraces for every malloc(), making it easy to track down memory leaks" OFF)
+    option (ENABLE_MEMORY_DEBUGGING "Global switch for memory options. Keeps track of the number of allocations and de-allocations and prints a report when the program shuts down" OFF)
 endif ()
-
-# some unit tests require malloc failures
-if (BUILD_TESTS AND ENABLE_MEMORY_REPORT)
-    option (ENABLE_MEMORY_EXPLICIT_MALLOC_FAILS "Allows calls to malloc() to fail on purpose" ON)
-else ()
-    option (ENABLE_MEMORY_EXPLICIT_MALLOC_FAILS "Allows calls to malloc() to fail on purpose" OFF)
+if (ENABLE_MEMORY_DEBUGGING)
+    option (ENABLE_MEMORY_BACKTRACE "Generates backtraces for every malloc(), making it easy to track down memory leaks" ON)
+    if (BUILD_TESTS)
+        option (ENABLE_MEMORY_EXPLICIT_MALLOC_FAILURES "Allows calls to malloc() to fail on purpose" ON)
+    else ()
+        option (ENABLE_MEMORY_EXPLICIT_MALLOC_FAILURES "Allows calls to malloc() to fail on purpose" ON)
+    endif ()
 endif ()
 
 # log related stuff
@@ -46,23 +45,37 @@ if (ENABLE_MULTITHREADING)
     set (RING_BUFFER_MAX_SIZE "262144" CACHE STRING "Maximum allowable size of the ring buffer.")
 endif ()
 
-# resolve depending options
-if (NOT ENABLE_MULTITHREADING)
-    set (ENABLE_THREAD_POOL OFF)
+# detect invalid settings
+if (BUILD_TESTS AND NOT ENABLE_MEMORY_EXPLICIT_MALLOC_FAILURES)
+    message (FATAL_ERROR "Can't build tests without ENABLE_MEMORY_EXPLICIT_MALLOC_FAILURES")
 endif ()
-
-# disable backtraces on Windows, as those aren't implemented yet
-if (WIN32)
-    set (ENABLE_MEMORY_BACKTRACE OFF)
+if (ENABLE_MEMORY_EXPLICIT_MALLOC_FAILURES AND NOT ENABLE_MEMORY_DEBUGGING)
+    message (FATAL_ERROR "Explicit memory failures requires ENABLE_MEMORY_DEBUGGING")
+endif ()
+if (ENABLE_MEMORY_BACKTRACE AND NOT ENABLE_MEMORY_DEBUGGING)
+    message (FATAL_ERROR "Memory backtraces requires ENABLE_MEMORY_DEBUGGING")
+endif ()
+if (ENABLE_THREAD_POOL AND NOT ENABLE_MULTITHREADING)
+    message (FATAL_ERROR "Thread pools require ENABLE_MULTITHREADING")
+endif ()
+if (ENABLE_RING_BUFFER_REALLOC AND NOT ENABLE_MULTITHREADING)
+    message (FATAL_ERROR "Ring buffer reallocation requires ENABLE_MULTITHREADING")
 endif ()
 
 # print out a summary
-message (STATUS "Memory reports: ${ENABLE_MEMORY_REPORT}")
-message (STATUS "Backtraces in memory reports: ${ENABLE_MEMORY_BACKTRACE}")
-message (STATUS "Explicit malloc() fails: ${ENABLE_MEMORY_EXPLICIT_MALLOC_FAILS}")
-message (STATUS "Log timestamps: ${ENABLE_LOG_TIMESTAMPS}")
-message (STATUS "Thread pools: ${ENABLE_THREAD_POOL}")
-message (STATUS "Ring buffer reallocations: ${ENABLE_RING_BUFFER_REALLOC}")
+message (STATUS "------------------------------------------------------------")
+message (STATUS "Settings for utility library")
+message (STATUS "------------------------------------------------------------")
+message (STATUS " + Memory debugging: ${ENABLE_MEMORY_DEBUGGING}")
+message (STATUS " + Backtraces in memory reports: ${ENABLE_MEMORY_BACKTRACE}")
+message (STATUS " + Explicit malloc() failures: ${ENABLE_MEMORY_EXPLICIT_MALLOC_FAILURES}")
+message (STATUS " + Log timestamps: ${ENABLE_LOG_TIMESTAMPS}")
+message (STATUS " + Multithreading: ${ENABLE_MULTITHREADING}")
+message (STATUS " + Thread pools: ${ENABLE_THREAD_POOL}")
+message (STATUS " + Ring buffer reallocations: ${ENABLE_RING_BUFFER_REALLOC}")
+message (STATUS " + Ring buffer fixed size: ${RING_BUFFER_FIXED_SIZE}")
+message (STATUS " + Ring buffer max size: ${RING_BUFFER_MAX_SIZE}")
+message (STATUS "------------------------------------------------------------")
 
 configure_file ("${EXPORT_H_TEMPLATE}"
                 "include/util/export.h")
@@ -128,7 +141,7 @@ target_link_libraries (lightship_util
 # threads
 ###############################################################################
 
-if (ENABLE_MULTITHREADING OR ENABLE_MEMORY_EXPLICIT_MALLOC_FAILS)
+if (ENABLE_MULTITHREADING OR ENABLE_MEMORY_EXPLICIT_MALLOC_FAILURES)
     if (${PLATFORM} MATCHES "LINUX")
         target_link_libraries(lightship_util pthread)
     endif ()

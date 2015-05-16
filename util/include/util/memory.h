@@ -6,9 +6,9 @@
 
 C_HEADER_BEGIN
 
-#ifdef ENABLE_MEMORY_REPORT
-#   define MALLOC custom_malloc_debug
-#   define FREE free_debug
+#ifdef ENABLE_MEMORY_DEBUGGING
+#   define MALLOC malloc_wrapper
+#   define FREE free_wrapper
 #else
 #   include <stdlib.h>
 #   define MALLOC malloc
@@ -39,22 +39,22 @@ memory_init(void);
 LIGHTSHIP_UTIL_PUBLIC_API void
 memory_deinit(void);
 
-#ifdef ENABLE_MEMORY_REPORT
+#ifdef ENABLE_MEMORY_DEBUGGING
 /*!
  * @brief Does the same thing as a normal call to malloc(), but does some
  * additional work monitor and track down memory leaks.
  */
 LIGHTSHIP_UTIL_PUBLIC_API void*
-custom_malloc_debug(intptr_t size);
+malloc_wrapper(intptr_t size);
 
 /*!
  * @brief Does the same thing as a normal call to fee(), but does some
  * additional work monitor and track down memory leaks.
  */
 LIGHTSHIP_UTIL_PUBLIC_API void
-free_debug(void* ptr);
+free_wrapper(void* ptr);
 
-#   ifdef ENABLE_MEMORY_EXPLICIT_MALLOC_FAILS
+#   ifdef ENABLE_MEMORY_EXPLICIT_MALLOC_FAILURES
 /*!
  * @brief Causes the next call to MALLOC() to fail.
  * @note Because unit tests are executed in parallel, this function will
@@ -82,10 +82,10 @@ force_malloc_fail_after(int num_allocations);
  */
 LIGHTSHIP_UTIL_PUBLIC_API void
 force_malloc_fail_off(void);
-#   endif /* ENABLE_MEMORY_EXPLICIT_MALLOC_FAILS */
+#   endif /* ENABLE_MEMORY_EXPLICIT_MALLOC_FAILURES */
 
 
-#endif /* ENABLE_MEMORY_REPORT */
+#endif /* ENABLE_MEMORY_DEBUGGING */
 
 void
 mutated_string_and_hex_dump(void* data, intptr_t size_in_bytes);

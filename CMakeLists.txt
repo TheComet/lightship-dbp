@@ -19,6 +19,8 @@ project ("lightship" C)
 # Make macs happy
 set (CMAKE_MACOSX_RPATH OFF)
 
+# determine platform - this is used to replace @PLATFORM@ in the various
+# export.h.in files.
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     set (PLATFORM "LINUX")
 elseif (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
@@ -74,9 +76,6 @@ if (${CMAKE_C_COMPILER_ID} STREQUAL "GNU")
     set (DEFINE_CMD -D)
     if (ENABLE_PROFILING)
         add_definitions(-pg)
-        set (CMAKE_EXE_LINKER_FLAGS -pg)
-        set (CMAKE_LIBRARY_LINKER_FLAGS -pg)
-        set (CMAKE_MODULE_LINKER_FLAGS -pg)
     endif ()
 elseif (${CMAKE_C_COMPILER_ID} STREQUAL "Clang")
     set (DEFINE_CMD -D)
