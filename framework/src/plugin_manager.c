@@ -43,6 +43,28 @@ find_plugin(struct game_t* game,
             const plugin_search_criteria_t criteria);
 
 /* ------------------------------------------------------------------------- */
+char
+plugin_manager_init(struct game_t* game)
+{
+    /* init game's plugin container - this keeps track of all of the loaded
+     * plugins */
+    list_init_list(&game->plugins);
+
+    /* init core plugin */
+    game->core = plugin_create(game,
+            "lightship core",
+            "core",
+            "TheComet",
+            "Provides essential events and services to the game object",
+            "https://github.com/TheComet93/lightship"
+    );
+    if(!game->core)
+        return 0;
+
+    return 1;
+}
+
+/* ------------------------------------------------------------------------- */
 void
 plugin_manager_deinit(struct game_t* game)
 {
@@ -52,6 +74,9 @@ plugin_manager_deinit(struct game_t* game)
         /* NOTE this erases the plugin object from the linked list */
         plugin_unload(game, plugin);
     }
+
+    /* destroy core plugin */
+    plugin_destroy(game->core);
 }
 
 /* ------------------------------------------------------------------------- */

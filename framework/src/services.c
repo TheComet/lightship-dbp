@@ -14,12 +14,9 @@
 static void
 service_free(struct service_t* service);
 
-static service_script_type_e
-service_get_c_type_equivalent_from_script_type(const char* type);
-
 /* ------------------------------------------------------------------------- */
 char
-services_register_core_services(struct game_t* game)
+service_init(struct game_t* game)
 {
     assert(game);
 
@@ -43,7 +40,7 @@ services_register_core_services(struct game_t* game)
 
 /* ------------------------------------------------------------------------- */
 void
-services_deinit(struct game_t* game)
+service_deinit(struct game_t* game)
 {
     ptree_destroy_keep_root(&game->services);
 }
@@ -78,31 +75,44 @@ service_create(struct plugin_t* plugin,
     {
         service->game = plugin->game;
         service->exec = exec;
-
-        /* copy directory */
-        if(!(service->directory = malloc_string(directory)))
-            break;
+        service->type_info.has_unknown_types = 0; /* will be set to 1 during
+                                                   * parsing if an unknown
+                                                   * type is found */
 
         /* plugin object keeps track of all created services */
         if(!unordered_vector_push(&plugin->services, &service))
             break;
 
+        /* copy directory */
+        if(!(service->directory = malloc_string(directory)))
+            break;
+
         /* copy return type info */
-        if(!(service->ret_type = malloc_string(ret_type)))
+        if(!(service->type_info.ret_type_str = malloc_string(ret_type)))
             break;
+        service->type_info.ret_type = service_get_type_from_string(ret_type);
+        if(service->type_info.ret_type == SERVICE_TYPE_UNKNOWN)
+            service->type_info.has_unknown_types = 1;
 
-        /* create argument type vector */
-        if(!(service->argv_type = (char**)MALLOC(argc * sizeof(char*))))
+        /* create argument type vectors */
+        if(!(service->type_info.argv_type_str = (char**)MALLOC(argc * sizeof(char*))))
             break;
-        memset(service->argv_type, 0, argc * sizeof(char*));
+        memset(service->type_info.argv_type_str, 0, argc * sizeof(char*));
+        if(!(service->type_info.argv_type = (service_type_e*)MALLOC(argc * sizeof(service_type_e))))
+            break;
+        memset(service->type_info.argv_type, 0, argc * sizeof(service_type_e));
 
-        /* copy argument types */
+        /* copy argument type strings */
         {   int i;
             for(i = 0; i != argc; ++i)
             {
-                if(!(service->argv_type[i] = malloc_string(argv[i])))
+                if(!(service->type_info.argv_type_str[i] = malloc_string(argv[i])))
                     break;
-                ++service->argc;
+                service->type_info.argv_type[i] = service_get_type_from_string(argv[i]);
+                if(service->type_info.argv_type[i] == SERVICE_TYPE_UNKNOWN)
+                    service->type_info.has_unknown_types = 1;
+
+                ++service->type_info.argc;
             }
             if(i != argc)
                 break;
@@ -113,6 +123,8 @@ service_create(struct plugin_t* plugin,
         if(!(node = ptree_add_node(&service->game->services, directory, service)))
             break;
 
+        /* NOTE: don't MALLOC() past this point ----------------------- */
+
         /* set the node's free function to service_free() to make deleting
          * nodes easier */
         ptree_set_free_func(node, (ptree_free_func)service_free);
@@ -122,18 +134,28 @@ service_create(struct plugin_t* plugin,
     }
 
     /* something went wrong, clean up everything */
-    if(service->argv_type)
+
+    /* remove from plugin's list of services */
+    unordered_vector_erase_element(&plugin->services, &service);
+
+    /* free type info argument string vector */
+    if(service->type_info.argv_type_str)
     {   int i;
         for(i = 0; i != argc; ++i)
         {
-            if(service->argv_type[i])
-                free_string(service->argv_type[i]);
+            if(service->type_info.argv_type_str[i])
+                free_string(service->type_info.argv_type_str[i]);
         }
-        FREE(service->argv_type);
+        FREE(service->type_info.argv_type_str);
     }
 
-    if(service->ret_type)
-        free_string(service->ret_type);
+    /* free type info argument vectors */
+    if(service->type_info.argv_type)
+        FREE(service->type_info.argv_type);
+
+    /* free return type info */
+    if(service->type_info.ret_type_str)
+        free_string(service->type_info.ret_type_str);
 
     if(service->directory)
         free_string(service->directory);
@@ -175,14 +197,15 @@ service_free(struct service_t* service)
 
     assert(service);
     assert(service->directory);
-    assert(service->ret_type);
-    assert(service->argv_type);
+    assert(service->type_info.ret_type_str);
+    assert(service->type_info.argv_type_str);
 
     free_string(service->directory);
-    free_string((char*)service->ret_type);
-    for(i = 0; i != service->argc; ++i)
-        free_string((char*)service->argv_type[i]);
-    FREE(service->argv_type);
+    free_string((char*)service->type_info.ret_type_str);
+    for(i = 0; i != service->type_info.argc; ++i)
+        free_string((char*)service->type_info.argv_type_str[i]);
+    FREE(service->type_info.argv_type_str);
+    FREE(service->type_info.argv_type);
     FREE(service);
 }
 
@@ -219,12 +242,12 @@ service_create_argument_list_from_strings(struct service_t* service, struct orde
     assert(argv);
 
     /* check argument count */
-    if(service->argc != argv->count)
+    if(service->type_info.argc != argv->count)
     {
         char argc_provided[sizeof(int)*8+1];
         char argc_required[sizeof(int)*8+1];
         sprintf(argc_provided, "%d", (int)argv->count);
-        sprintf(argc_required, "%d", service->argc);
+        sprintf(argc_required, "%d", service->type_info.argc);
         llog(LOG_ERROR, service->game, NULL, 3, "Cannot create argument list for service \"",
              service->directory, "\": Wrong number of arguments");
         llog(LOG_ERROR, service->game, NULL, 2, "    Required: ", argc_required);
@@ -233,17 +256,17 @@ service_create_argument_list_from_strings(struct service_t* service, struct orde
     }
 
     /* create void** argument vector */
-    ret = (void**)MALLOC(service->argc * sizeof(void*));
+    ret = (void**)MALLOC(service->type_info.argc * sizeof(void*));
     if(!ret)
         OUT_OF_MEMORY("service_create_argument_list_from_strings()", NULL);
-    memset(ret, 0, service->argc * sizeof(void*));
+    memset(ret, 0, service->type_info.argc * sizeof(void*));
     {
         int i = 0;
         char failed = 0;
         ORDERED_VECTOR_FOR_EACH(argv, const char*, str_p)
         {
             const char* str = *str_p;
-            service_script_type_e type = service_get_type_from_string(service->argv_type[i]);
+            service_type_e type = service_get_type_from_string(service->type_info.argv_type_str[i]);
             switch(type)
             {
                 /*
@@ -340,7 +363,7 @@ void
 service_destroy_argument_list(struct service_t* service, void** argv)
 {
     uint32_t i;
-    for(i = 0; i != service->argc; ++i)
+    for(i = 0; i != service->type_info.argc; ++i)
         if(argv[i])
             FREE(argv[i]);
     FREE(argv);
@@ -353,14 +376,14 @@ service_do_typecheck(const struct service_t* service, const char* ret_type, uint
     uint32_t i;
 
     /* verify argument count */
-    if(argc != service->argc)
+    if(argc != service->type_info.argc)
         return 0;
     /* verify return type */
-    if(!ret_type || strcmp(ret_type, service->ret_type))
+    if(!ret_type || strcmp(ret_type, service->type_info.ret_type_str))
         return 0;
     /* verify argument types */
     for(i = 0; i != argc; ++i)
-        if(!argv[i] || strcmp(argv[i], service->argv_type[i]))
+        if(!argv[i] || strcmp(argv[i], service->type_info.argv_type_str[i]))
             return 0;
 
     /* valid! */
@@ -370,29 +393,7 @@ service_do_typecheck(const struct service_t* service, const char* ret_type, uint
 /* ------------------------------------------------------------------------- */
 /* Static functions */
 /* ------------------------------------------------------------------------- */
-static service_script_type_e
-service_get_c_type_equivalent_from_script_type(const char* type)
-{
-    if(strcmp(type, "string") == 0)
-        return SERVICE_TYPE_STRING;
-    if(strcmp(type, "wstring") == 0)
-        return SERVICE_TYPE_WSTRING;
-    if(strcmp(type, "int") == 0)
-        return SERVICE_TYPE_INT32;
-    if(strcmp(type, "uint") == 0)
-        return SERVICE_TYPE_UINT32;
-    if(strcmp(type, "float") == 0)
-        return SERVICE_TYPE_FLOAT;
-    if(strcmp(type, "double") == 0)
-        return SERVICE_TYPE_DOUBLE;
-    if(strcmp(type, "none") == 0)
-        return SERVICE_TYPE_NONE;
-
-    return SERVICE_TYPE_UNKNOWN;
-}
-
-/* ------------------------------------------------------------------------- */
-service_script_type_e
+service_type_e
 service_get_type_from_string(const char* type)
 {
     /* integers */
@@ -406,7 +407,7 @@ service_get_type_from_string(const char* type)
          */
 
         /* default to an int32 */
-        service_script_type_e ret = SERVICE_TYPE_INT32;
+        service_type_e ret = SERVICE_TYPE_INT32;
 
         /* reject pointer types */
         if(strstr(type, "*"))

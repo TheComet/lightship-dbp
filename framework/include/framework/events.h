@@ -114,7 +114,10 @@ struct game_t;
  * @note Must be called before calling any other event related functions.
  */
 FRAMEWORK_PUBLIC_API char
-events_register_core_events(struct game_t* game);
+event_init(struct game_t* game);
+
+FRAMEWORK_PUBLIC_API void
+event_deinit(struct game_t* game);
 
 /*!
  * @brief Creates and registers a new event in the host program.

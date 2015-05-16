@@ -235,14 +235,47 @@ typedef void (*event_func)(struct event_t* event, const void** argv);
             assign = service_create(plugin, service_name, callback, ret, 6, argv);                                       \
         } while(0)
 
+typedef enum service_type_e
+{
+    SERVICE_TYPE_UNKNOWN,
+    SERVICE_TYPE_NONE,
+
+    SERVICE_TYPE_INT8,   /* NOTE: Interleaving signed and unsigned-ness so */
+    SERVICE_TYPE_UINT8,  /*       a signed type can be set to an unsigned */
+    SERVICE_TYPE_INT16,  /*       type, simply by adding 1. */
+    SERVICE_TYPE_UINT16,
+    SERVICE_TYPE_INT32,
+    SERVICE_TYPE_UINT32,
+    SERVICE_TYPE_INT64,
+    SERVICE_TYPE_UINT64,
+    SERVICE_TYPE_INTPTR,
+    SERVICE_TYPE_UINTPTR,
+
+    SERVICE_TYPE_FLOAT,
+    SERVICE_TYPE_DOUBLE,
+
+    SERVICE_TYPE_STRING,
+    SERVICE_TYPE_WSTRING
+} service_type_e;
+
+struct service_type_info_t
+{
+    char* ret_type_str;         /* return type as a plain string */
+    char** argv_type_str;       /* argument types as plain strings */
+    service_type_e* argv_type;  /* argument types */
+    service_type_e ret_type;    /* return type */
+    uint32_t argc;              /* number of arguments */
+    char has_unknown_types;     /* stores whether or not any of the service
+                                 * arguments or return type are unknown after
+                                 * being parsed */
+};
+
 struct service_t
 {
-    struct game_t* game;
+    struct game_t* game;        /* reference to the game object */
     char* directory;
-    char* ret_type;
-    char** argv_type;
     service_func exec;
-    uint32_t argc;
+    struct service_type_info_t type_info;
 };
 
 #endif /* FRAMEWORK_SERVICE_EVENT_API_H */

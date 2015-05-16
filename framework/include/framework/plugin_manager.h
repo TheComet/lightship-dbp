@@ -22,6 +22,15 @@ struct ptree_t;
 #define plugin_deinit(plugin) do { (plugin)->deinit((plugin)->game); } while(0)
 
 /*!
+ * @brief Initialises the plugin manager for the specified game object.
+ *
+ * Each game object can have one plugin manager.
+ * @param[in] game The game to initialise for.
+ */
+FRAMEWORK_PUBLIC_API char
+plugin_manager_init(struct game_t* game);
+
+/*!
  * @brief De-initialises the plugin manager.
  *
  * This will unload all plugins cleanly and clean up any memory being used.

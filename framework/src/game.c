@@ -62,23 +62,12 @@ game_create(const char* name, game_network_role_e net_role)
         /* initialise the game's global data container */
         map_init_map(&game->global_data);
 
-        /* The initial state of the game is paused. The user must call game_start()
-         * to launch the game */
+        /* The initial state of the game is paused. The user must call
+         * game_start() to launch the game */
         game->state = GAME_STATE_PAUSED;
 
         /* copy game name */
         if(!(game->name = malloc_string(name)))
-            break;
-
-        /* init core plugin */
-        game->core = plugin_create(game,
-            "lightship core",
-            "core",
-            "TheComet",
-            "Provides essential events and services to the game object",
-            "https://github.com/TheComet93/lightship"
-        );
-        if(!game->core)
             break;
 
         /* if server, try to set up connection now */
@@ -92,9 +81,11 @@ game_create(const char* name, game_network_role_e net_role)
         /* initialise all services for this game */
         if(!llog_init(game))
             break;
-        if(!services_register_core_services(game))
+        if(!plugin_manager_init(game))
             break;
-        if(!events_register_core_events(game))
+        if(!service_init(game))
+            break;
+        if(!event_init(game))
             break;
 
         /* add to global list of games */
@@ -131,8 +122,8 @@ game_destroy(struct game_t* game)
 
     /* deinit plugin manager, services, and events (in reverse order) */
     plugin_manager_deinit(game);
-    events_deinit(game);
-    services_deinit(game);
+    event_deinit(game);
+    service_deinit(game);
 
     /* clean up data held by game object */
     map_clear_free(&game->global_data);

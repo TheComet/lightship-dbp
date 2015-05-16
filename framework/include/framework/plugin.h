@@ -4,6 +4,8 @@
 #include "framework/config.h"
 #include "framework/plugin_api.h"
 
+C_HEADER_BEGIN
+
 struct game_t;
 
 /*!
@@ -88,5 +90,7 @@ plugin_extract_version_from_string(const char* file,
  */
 FRAMEWORK_PUBLIC_API void
 plugin_get_version_string(char* str, const struct plugin_info_t* info);
+
+C_HEADER_END
 
 #endif /* FRAMEWORK_PLUGIN_H */

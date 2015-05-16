@@ -75,6 +75,8 @@ void
 plugin_destroy(struct plugin_t* plugin)
 {
     plugin_free_info(plugin);
+    unordered_vector_clear_free(&plugin->services);
+    unordered_vector_clear_free(&plugin->events);
     FREE(plugin);
 }
 

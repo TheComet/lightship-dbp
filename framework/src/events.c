@@ -25,7 +25,7 @@ event_free(struct event_t* event);
  * Exported functions
  * ------------------------------------------------------------------------- */
 char
-events_register_core_events(struct game_t* game)
+event_init(struct game_t* game)
 {
     assert(game);
     assert(game->core);
@@ -78,9 +78,9 @@ events_register_core_events(struct game_t* game)
 
 /* ------------------------------------------------------------------------- */
 void
-events_deinit(void)
+event_deinit(struct game_t* game)
 {
-    /* TODO */
+    ptree_destroy_keep_root(&game->events);
 }
 
 /* ------------------------------------------------------------------------- */
@@ -116,6 +116,12 @@ event_create(struct plugin_t* plugin, const char* directory)
          * because ptree_remove_node() uses malloc() */
         if(!(node = ptree_add_node(&plugin->game->events, directory, event)))
             break;
+
+        /* NOTE: don't MALLOC() past this point ----------------------- */
+
+        /* set the node's free function to event_free() to make deleting
+         * nodes easier */
+        ptree_set_free_func(node, (ptree_free_func)event_free);
 
         /* success! */
         return event;
