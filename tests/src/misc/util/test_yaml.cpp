@@ -6,6 +6,8 @@
 
 using namespace testing;
 
+static const char* bare_minimum_yml = "key:\n    key: value\n";
+
 static const char* basic_yml =
 "root:\n"
 "    players:\n"
@@ -84,6 +86,36 @@ static const char* anchor_and_list2_yml =
 "  - \n"
 "    key1: value1\n"
 "    key2: value2\n";
+
+TEST(NAME, create)
+{
+    struct ptree_t* doc;
+
+    ASSERT_THAT((doc = yaml_create()), NotNull());
+    struct ptree_t* node = yaml_set_value(doc, "test", "value");
+    EXPECT_THAT(yaml_get_node(doc, "test"), Eq(node));
+    EXPECT_THAT(yaml_get_value(doc, "test"), StrEq("value"));
+
+    yaml_destroy(doc);
+}
+
+TEST(NAME, load_empty_string)
+{
+    struct ptree_t* doc;
+    ASSERT_THAT((doc = yaml_load_from_memory("  ")), NotNull());
+    EXPECT_THAT(map_count(&doc->children), Eq(0));
+    yaml_destroy(doc);
+}
+
+TEST(NAME, load_bare_minimum_yaml_doc)
+{
+    struct ptree_t* doc;
+
+    ASSERT_THAT((doc = yaml_load_from_memory(bare_minimum_yml)), NotNull());
+    EXPECT_THAT(strcmp(yaml_get_value(doc, "key.key"), "value"), Eq(0));
+
+    yaml_destroy(doc);
+}
 
 TEST(NAME, get_value_in_basic_yaml_doc)
 {

@@ -32,7 +32,7 @@ TEST(NAME, add_node_fail_immediately)
     ptree_destroy(tree);
 }
 
-TEST(NAME, add_node_fail_in_middle)
+TEST(NAME, add_node_fail_later)
 {
     struct ptree_t* tree = ptree_create(NULL);
 
@@ -71,7 +71,7 @@ TEST(NAME, set_parent_fail_immediately)
     ptree_destroy(root);
 }
 
-TEST(NAME, set_parent_fail_in_middle)
+TEST(NAME, set_parent_fail_later)
 {
     struct ptree_t* root = ptree_create(NULL);
     struct ptree_t* node = ptree_create(NULL);
@@ -138,7 +138,7 @@ TEST(NAME, duplicate_tree_fail_immediately)
     ptree_destroy(copy);
 }
 
-TEST(NAME, duplicate_tree_fail_in_middle)
+TEST(NAME, duplicate_tree_fail_later)
 {
     int *a=(int*)MALLOC(sizeof(int)), *b=(int*)MALLOC(sizeof(int));
     *a = 6, *b = 3;
@@ -199,7 +199,7 @@ TEST(NAME, duplicate_into_existing_node_fail_immediately)
     ptree_destroy(tree);
 }
 
-TEST(NAME, duplicate_into_existing_node_fail_in_middle)
+TEST(NAME, duplicate_into_existing_node_fail_later)
 {
     int *a=(int*)MALLOC(sizeof(int)), *b=(int*)MALLOC(sizeof(int));
     *a = 6, *b = 3;

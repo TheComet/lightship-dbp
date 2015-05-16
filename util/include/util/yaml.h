@@ -25,6 +25,9 @@ yaml_init(void);
 LIGHTSHIP_UTIL_PUBLIC_API void
 yaml_deinit(void);
 
+LIGHTSHIP_UTIL_PUBLIC_API struct ptree_t*
+yaml_create(void);
+
 /*!
  * @brief Loads and parses a yaml file.
  * @param filename The file to load.

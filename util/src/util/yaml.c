@@ -25,7 +25,7 @@ yaml_dup_node_value_func(char* value);
 static void
 yaml_free_node_value_func(char* value);
 
-static struct ptree_t*
+static void
 yaml_init_node(struct ptree_t* node);
 
 /* ------------------------------------------------------------------------- */
@@ -40,6 +40,13 @@ void
 yaml_deinit(void)
 {
     list_clear(&g_open_docs);
+}
+
+/* ------------------------------------------------------------------------- */
+struct ptree_t*
+yaml_create(void)
+{
+    return ptree_create(NULL);
 }
 
 /* ------------------------------------------------------------------------- */
@@ -94,27 +101,42 @@ struct ptree_t*
 yaml_load_from_stream(FILE* stream)
 {
     yaml_parser_t parser;
-    struct ptree_t* doc;
+    struct ptree_t* doc = NULL;
 
-    /* parse file and load into tree */
-    yaml_parser_initialize(&parser);
+    assert(stream);
+
+    /* init parser */
+    if(!yaml_parser_initialize(&parser))
+        return NULL;
     yaml_parser_set_input_file(&parser, stream);
-    doc = ptree_create(NULL);
-    if(!yaml_init_node(doc) || !yaml_load_into_ptree(doc, doc, &parser, 0))
-    {
-        yaml_parser_delete(&parser);
-        ptree_destroy(doc);
-        fprintf(stderr, "Syntax error: Failed to parse YAML.\n");
-        return 0;
-    }
 
-    /* add to open documents */
-    list_push(&g_open_docs, doc);
+    for(;;)
+    {
+        /* parse file and load into tree */
+        if(!(doc = ptree_create(NULL)))
+            break;
+        yaml_init_node(doc);
+        if(!yaml_load_into_ptree(doc, doc, &parser, 0))
+        {
+            fprintf(stderr, "Syntax error: Failed to parse YAML.\n");
+            break;
+        }
+
+        /* add to open documents */
+        if(!list_push(&g_open_docs, doc))
+            break;
+
+        yaml_parser_delete(&parser);
+
+        return doc;
+    }
 
     /* clean up */
     yaml_parser_delete(&parser);
+    if(doc)
+        ptree_destroy(doc);
 
-    return doc;
+    return NULL;
 }
 
 /* ------------------------------------------------------------------------- */
@@ -163,25 +185,31 @@ struct ptree_t*
 yaml_set_value(struct ptree_t* doc, const char* key, const char* value)
 {
     struct ptree_t* node;
+    char* value_cpy = NULL;
 
-    if(!(node = ptree_add_node(doc, key, NULL)))
-        return NULL;
-    yaml_init_node(node);
     if(value)
-        node->value = malloc_string(value);
+        if(!(value_cpy = malloc_string(value)))
+            return NULL;
+
+    if(!(node = ptree_add_node(doc, key, value_cpy)))
+    {
+        if(value_cpy)
+            free_string(value_cpy);
+        return NULL;
+    }
+
+    yaml_init_node(node);
 
     return node;
 }
 
 /* ------------------------------------------------------------------------- */
-static struct ptree_t*
+static void
 yaml_init_node(struct ptree_t* node)
 {
     /* init duplication and free functions */
     ptree_set_dup_func(node, (ptree_dup_func)yaml_dup_node_value_func);
     ptree_set_free_func(node, (ptree_free_func)yaml_free_node_value_func);
-
-    return node;
 }
 
 /* ------------------------------------------------------------------------- */

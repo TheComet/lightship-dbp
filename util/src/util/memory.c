@@ -128,7 +128,7 @@ custom_malloc_debug(intptr_t size)
             * occurred */
 #   ifdef ENABLE_MEMORY_BACKTRACE
             if(!(info->backtrace = get_backtrace(&info->backtrace_size)))
-                printf("[memory] WARNING: Failed to generate backtrace\n");
+                fprintf(stderr, "[memory] WARNING: Failed to generate backtrace\n");
 #   endif
 
             /* insert into map */
@@ -202,7 +202,11 @@ free_debug(void* ptr)
         if(info)
         {
 #   ifdef ENABLE_MEMORY_BACKTRACE
-            free(info->backtrace);
+            if(info->backtrace)
+                free(info->backtrace);
+            else
+                fprintf(stderr, "[memory] WARNING: free(): Allocation didn't"
+                    "have a backtrace (it was NULL)\n");
 #   endif
             free(info);
         }
@@ -211,16 +215,16 @@ free_debug(void* ptr)
 #   ifdef ENABLE_MEMORY_BACKTRACE
             char** bt;
             int bt_size, i;
-            printf("  -----------------------------------------\n");
+            fprintf(stderr, "  -----------------------------------------\n");
 #   endif
-            printf("  WARNING: Freeing something that was never allocated\n");
+            fprintf(stderr, "  WARNING: Freeing something that was never allocated\n");
 #   ifdef ENABLE_MEMORY_BACKTRACE
             if((bt = get_backtrace(&bt_size)))
             {
-                printf("  backtrace to where free() was called:\n");
+                fprintf(stderr, "  backtrace to where free() was called:\n");
                 for(i = 0; i < bt_size; ++i)
-                    printf("      %s\n", bt[i]);
-                printf("  -----------------------------------------\n");
+                    fprintf(stderr, "      %s\n", bt[i]);
+                fprintf(stderr, "  -----------------------------------------\n");
                 free(bt);
             }
             else
