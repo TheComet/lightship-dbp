@@ -14,7 +14,7 @@ static const char* yml =
 "items:\n"
 "  - *item\n"
 "  - *item\n";
-/*
+
 TEST(NAME, load_fail_immediately)
 {
     force_malloc_fail_on();
@@ -34,4 +34,4 @@ TEST(NAME, load_fail_later)
         EXPECT_THAT(yaml_load_from_memory(yml), IsNull());
         force_malloc_fail_off();
     }
-}*/
+}
