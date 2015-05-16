@@ -99,7 +99,8 @@ map_find_element(const struct map_t* map, const void* value);
  * at the same time.
  * @return Returns any element as a void pointer.
  */
-#define map_get_any(map) (ordered_vector_back(&(map)->vector))
+LIGHTSHIP_UTIL_PUBLIC_API void*
+map_get_any(const struct map_t* map);
 
 /*!
  * @brief Returns 1 if the specified key exists, 0 if otherwise.

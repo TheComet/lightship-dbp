@@ -230,15 +230,15 @@ game_dispatch_tick(void)
 /* ------------------------------------------------------------------------- */
 SERVICE(game_start_wrapper)
 {
-    game_start(service->game);
+    game_start(service->plugin->game);
 }
 
 SERVICE(game_pause_wrapper)
 {
-    game_pause(service->game);
+    game_pause(service->plugin->game);
 }
 
 SERVICE(game_exit_wrapper)
 {
-    game_exit(service->game);
+    game_exit(service->plugin->game);
 }

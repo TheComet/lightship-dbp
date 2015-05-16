@@ -42,7 +42,8 @@ TEST_F(NAME, create_verify_type_info)
     // general structure
     EXPECT_THAT(s->directory, StrEq("test.service"));
     EXPECT_THAT(s->exec, Eq((service_func)callback1));
-    EXPECT_THAT(s->game, Eq(game));
+    EXPECT_THAT(s->plugin, Eq(plugin));
+    EXPECT_THAT(s->plugin->game, Eq(game));
 
     // check type info
     EXPECT_THAT(s->type_info.argc, Eq(3));

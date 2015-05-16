@@ -2,6 +2,7 @@
 #include "plugin_menu/services.h"
 #include "plugin_menu/events.h"
 #include "plugin_menu/glob.h"
+#include "framework/plugin.h"
 #include "framework/services.h"
 #include "framework/log.h"
 #include "util/map.h"
@@ -216,7 +217,7 @@ EVENT_LISTENER3(on_mouse_clicked, char mouse_btn, double x, double y)
 
 SERVICE(button_create_wrapper)
 {
-    struct glob_t* g = get_global(service->game);
+    struct glob_t* g = get_global(service->plugin->game);
     EXTRACT_ARG(0, text, const char*, const char*);
     EXTRACT_ARG(1, x, float, float);
     EXTRACT_ARG(2, y, float, float);
@@ -228,7 +229,7 @@ SERVICE(button_create_wrapper)
 /* ------------------------------------------------------------------------- */
 SERVICE(button_destroy_wrapper)
 {
-    struct glob_t* g = get_global(service->game);
+    struct glob_t* g = get_global(service->plugin->game);
     EXTRACT_ARG(0, id, uint32_t, uint32_t);
 
     struct button_t* button = map_find(&g->button.buttons, id);
@@ -239,7 +240,7 @@ SERVICE(button_destroy_wrapper)
 /* ------------------------------------------------------------------------- */
 SERVICE(button_get_text_wrapper)
 {
-    struct glob_t* g = get_global(service->game);
+    struct glob_t* g = get_global(service->plugin->game);
     EXTRACT_ARG(0, id, uint32_t, uint32_t);
 
     struct button_t* button = map_find(&g->button.buttons, id);

@@ -4,7 +4,7 @@
 #include "util/pstdint.h"
 #include "framework/config.h"
 
-struct game_t;
+struct plugin_t;
 struct service_t;
 struct event_t;
 
@@ -19,7 +19,7 @@ typedef void (*event_func)(struct event_t* event, const void** argv);
  *
  * The resulting function signature defines 3 arguments:
  *   - service: The service object that called the service function. This can
- *              be used to extract the game object (service->game), retrieve
+ *              be used to extract the game object (service->plugin->game), retrieve
  *              type information about the arguments, or otherwise help
  *              identify information about the service.
  *   - ret    : A void* pointing to a location where a return value can be
@@ -272,7 +272,7 @@ struct service_type_info_t
 
 struct service_t
 {
-    struct game_t* game;        /* reference to the game object */
+    struct plugin_t* plugin;    /* reference to the plugin that owns this service */
     char* directory;
     service_func exec;
     struct service_type_info_t type_info;

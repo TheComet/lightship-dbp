@@ -73,7 +73,7 @@ service_create(struct plugin_t* plugin,
     /* if anything fails, break */
     for(;;)
     {
-        service->game = plugin->game;
+        service->plugin = plugin;
         service->exec = exec;
         service->type_info.has_unknown_types = 0; /* will be set to 1 during
                                                    * parsing if an unknown
@@ -120,7 +120,7 @@ service_create(struct plugin_t* plugin,
 
         /* create node in game's service directory - want to do this last
          * because ptree_remove_node uses malloc() */
-        if(!(node = ptree_add_node(&service->game->services, directory, service)))
+        if(!(node = ptree_add_node(&plugin->game->services, directory, service)))
             break;
 
         /* NOTE: don't MALLOC() past this point ----------------------- */
@@ -168,25 +168,25 @@ void
 service_destroy(struct service_t* service)
 {
     struct ptree_t* node;
+    struct game_t* game;
 
     assert(service);
-    assert(service->game);
+    assert(service->plugin);
+    assert(service->plugin->game);
     assert(service->directory);
 
-    if(!(node = ptree_get_node(&service->game->services, service->directory)))
+    game = service->plugin->game;
+    if(!(node = ptree_get_node(&game->services, service->directory)))
     {
-        llog(LOG_ERROR, service->game, NULL, 5, "Attempted to destroy the "
+        llog(LOG_ERROR, game, NULL, 5, "Attempted to destroy the "
             "service \"", service->directory, "\", but the associated game "
-            "object with name \"", service->game->name, "\" doesn't own it! "
+            "object with name \"", game->name, "\" doesn't own it! "
             "The service will not be destroyed.");
         return;
     }
 
-    /* unlink service and destroy node */
-    node->value = NULL;
+    /* destroying the node will free the service using ptree's free function */
     ptree_destroy(node);
-
-    service_free(service);
 }
 
 /* ------------------------------------------------------------------------- */
@@ -238,6 +238,8 @@ service_create_argument_list_from_strings(struct service_t* service, struct orde
     void** ret;
 
     assert(service);
+    assert(service->plugin);
+    assert(service->plugin->game);
     assert(service->directory);
     assert(argv);
 
@@ -248,10 +250,10 @@ service_create_argument_list_from_strings(struct service_t* service, struct orde
         char argc_required[sizeof(int)*8+1];
         sprintf(argc_provided, "%d", (int)argv->count);
         sprintf(argc_required, "%d", service->type_info.argc);
-        llog(LOG_ERROR, service->game, NULL, 3, "Cannot create argument list for service \"",
+        llog(LOG_ERROR, service->plugin->game, NULL, 3, "Cannot create argument list for service \"",
              service->directory, "\": Wrong number of arguments");
-        llog(LOG_ERROR, service->game, NULL, 2, "    Required: ", argc_required);
-        llog(LOG_ERROR, service->game, NULL, 2, "    Provided: ", argc_provided);
+        llog(LOG_ERROR, service->plugin->game, NULL, 2, "    Required: ", argc_required);
+        llog(LOG_ERROR, service->plugin->game, NULL, 2, "    Provided: ", argc_provided);
         return NULL;
     }
 
@@ -338,7 +340,7 @@ service_create_argument_list_from_strings(struct service_t* service, struct orde
                     *((char*)ret[i]) = '\0';
                     break;
                 default:
-                    llog(LOG_ERROR, service->game, NULL, 4, "Cannot create argument list for service \"",
+                    llog(LOG_ERROR, service->plugin->game, NULL, 4, "Cannot create argument list for service \"",
                          service->directory, "\": Unknown type \"", str, "\"");
                     failed = 1;
                     break;

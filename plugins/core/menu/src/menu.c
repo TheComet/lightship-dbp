@@ -4,6 +4,7 @@
 #include "plugin_menu/services.h"
 #include "plugin_menu/button.h"
 #include "plugin_menu/glob.h"
+#include "framework/plugin.h"
 #include "framework/services.h"
 #include "framework/log.h"
 #include "util/ordered_vector.h"
@@ -33,7 +34,8 @@ menu_init(struct glob_t* g)
 void
 menu_deinit(struct glob_t* g)
 {
-    MAP_FOR_EACH(&g->menu.menus, struct menu_t, id, menu)
+    struct menu_t* menu;
+    while((menu = map_get_any(&g->menu.menus)))
     {
         menu_destroy(menu);
     }
@@ -98,6 +100,9 @@ menu_load(struct glob_t* g, const char* file_name)
             llog(LOG_WARNING, g->game, PLUGIN_NAME, 1, "You didn't specify start_screen: \"name\" in your YAML file. Don't know which screen to begin with.");
     }
 
+    /* insert into global list of menus */
+    map_insert(&g->menu.menus, menu->id, menu);
+
     /* clean up */
     yaml_destroy(doc);
 
@@ -117,6 +122,9 @@ menu_destroy(struct menu_t* menu)
 
     /* menu name */
     free_string(menu->name);
+
+    /* remove from global list of menus */
+    map_erase(&menu->glob->menu.menus, menu->id);
 
     /* menu object */
     FREE(menu);
@@ -288,13 +296,12 @@ menu_load_button_action(struct glob_t* g, struct button_t* button, const struct 
 /* ------------------------------------------------------------------------- */
 SERVICE(menu_load_wrapper)
 {
-    struct glob_t* g = get_global(service->game);
+    struct glob_t* g = get_global(service->plugin->game);
     EXTRACT_ARG_PTR(0, file_name, const char*);
 
     struct menu_t* menu = menu_load(g, file_name);
     if(!menu)
         RETURN(0, uint32_t);
-    map_insert(&g->menu.menus, menu->id, menu);
 
     RETURN(menu->id, uint32_t);
 }
@@ -302,10 +309,10 @@ SERVICE(menu_load_wrapper)
 /* ------------------------------------------------------------------------- */
 SERVICE(menu_destroy_wrapper)
 {
-    struct glob_t* g = get_global(service->game);
+    struct glob_t* g = get_global(service->plugin->game);
     EXTRACT_ARG(0, menu_id, uint32_t, uint32_t);
 
-    struct menu_t* menu = map_erase(&g->menu.menus, menu_id);
+    struct menu_t* menu = map_find(&g->menu.menus, menu_id);
     if(menu)
         menu_destroy(menu);
 }
@@ -313,13 +320,21 @@ SERVICE(menu_destroy_wrapper)
 /* ------------------------------------------------------------------------- */
 SERVICE(menu_set_active_screen_wrapper)
 {
-    struct glob_t* g = get_global(service->game);
+    struct glob_t* g = get_global(service->plugin->game);
     EXTRACT_ARG_PTR(0, menu_name, const char*);
     EXTRACT_ARG_PTR(1, screen_name, const char*);
 
-    struct menu_t* menu = map_find(&g->menu.menus, PTREE_HASH_STRING(menu_name));
-    if(!menu)
-        return;
+    { MAP_FOR_EACH(&g->menu.menus, struct menu_t, hash, menu)
+    {
+        if(strcmp(menu_name, menu->name) == 0)
+        {
+            menu_set_active_screen(menu, screen_name);
+            return;
+        }
+    }}
 
-    menu_set_active_screen(menu, screen_name);
+    llog(LOG_WARNING, service->plugin->game, PLUGIN_NAME, 5, "Failed to "
+        "set the active screen to \"", screen_name, "\" in menu \"", menu_name,
+         "\" -- menu was not found."
+    );
 }

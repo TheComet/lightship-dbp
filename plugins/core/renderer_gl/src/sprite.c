@@ -2,6 +2,7 @@
 #include "plugin_renderer_gl/sprite.h"
 #include "plugin_renderer_gl/config.h"
 #include "plugin_renderer_gl/glob.h"
+#include "framework/plugin.h"
 #include "framework/game.h"
 #include "framework/log.h"
 #include "util/map.h"
@@ -45,11 +46,11 @@ char
 sprite_init(struct glob_t* g)
 {
     map_init_map(&g_sprites);
-    
+
     g_sprite_shader_id = shader_load(g, sprite_shader_file);printOpenGLError();
     g_uniform_sprite_position_location = glGetUniformLocation(g_sprite_shader_id, "spritePosition");
     g_uniform_sprite_size_location     = glGetUniformLocation(g_sprite_shader_id, "spriteSize");
-    
+
     glGenVertexArrays(1, &g_vao);printOpenGLError();
     glBindVertexArray(g_vao);
         glGenBuffers(1, &g_vbo);
@@ -89,7 +90,7 @@ sprite_create(struct glob_t* g,
     unsigned char* pixel_buffer;
     int x, y, n;
     struct sprite_t* sprite;
-    
+
     assert(file_name);
     assert(x_frame_count >= 1);
     assert(y_frame_count >= 1);
@@ -102,10 +103,10 @@ sprite_create(struct glob_t* g,
         llog(LOG_ERROR, g->game, PLUGIN_NAME, 3, "Failed to load image: \"", file_name, "\"");
         return NULL;
     }
-    
+
     sprite = sprite_create_from_memory(pixel_buffer, x, y, x_frame_count, y_frame_count, total_frame_count, id);
     stbi_image_free(pixel_buffer);
-    
+
     return sprite;
 }
 
@@ -120,12 +121,12 @@ sprite_create_from_memory(const unsigned char* pixel_buffer,
                           uint32_t* id)
 {
     struct sprite_t* sprite;
-    
+
     assert(pixel_buffer);
     assert(x_frame_count >= 1);
     assert(y_frame_count >= 1);
     assert(total_frame_count >= 1);
-    
+
     /* create and set up sprite object */
     sprite = (struct sprite_t*)MALLOC(sizeof(struct sprite_t));
     memset(sprite, 0, sizeof(struct sprite_t));
@@ -149,14 +150,14 @@ sprite_create_from_memory(const unsigned char* pixel_buffer,
     sprite->frame_size.x = sprite->size.x;
     sprite->frame_size.y = sprite->size.y;
     sprite->is_visible = 1;
-    
+
     /* create GL texture and hand over pixel data */
     glGenTextures(1, &sprite->gl.tex);printOpenGLError();
     glBindTexture(GL_TEXTURE_2D, sprite->gl.tex);printOpenGLError();
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, img_width, img_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixel_buffer);printOpenGLError();
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);printOpenGLError();
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);printOpenGLError();
-    
+
     return sprite;
 }
 
@@ -261,8 +262,8 @@ SERVICE(sprite_create_wrapper)
     EXTRACT_ARG(1, x_frame_count, uint16_t, uint16_t);
     EXTRACT_ARG(2, y_frame_count, uint16_t, uint16_t);
     EXTRACT_ARG(3, total_frame_count, uint16_t, uint16_t);
-    struct glob_t* g = get_global(service->game);
-    
+    struct glob_t* g = get_global(service->plugin->game);
+
     if(sprite_create(g, file_name, x_frame_count, y_frame_count, total_frame_count, &id))
         RETURN(id, uint32_t);
     RETURN(0, uint32_t);
@@ -278,7 +279,7 @@ SERVICE(sprite_create_from_memory_wrapper)
     EXTRACT_ARG(4, y_frame_count, uint16_t, uint16_t);
     EXTRACT_ARG(5, total_frame_count, uint16_t, uint16_t);
     uint32_t id;
-    
+
     if(sprite_create_from_memory(pixel_buffer, img_width, img_height, x_frame_count, y_frame_count, total_frame_count, &id))
         RETURN(id, uint32_t);
     RETURN(0, uint32_t);
