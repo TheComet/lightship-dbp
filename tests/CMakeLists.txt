@@ -28,6 +28,11 @@ endif ()
 
 add_definitions (${DEFINE_CMD}TESTING)
 
+message (STATUS "------------------------------------------------------------")
+message (STATUS "Settings for tests")
+message (STATUS " + Death tests: ${ENABLE_DEATH_TESTS}")
+message (STATUS "------------------------------------------------------------")
+
 add_executable (lightship_tests
     ${tests_HEADERS}
     ${tests_SOURCES}
