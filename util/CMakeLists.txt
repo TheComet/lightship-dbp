@@ -52,6 +52,12 @@ if (ENABLE_MULTITHREADING)
     set (RING_BUFFER_MAX_SIZE "262144" CACHE STRING "Maximum allowable size of the ring buffer.")
 endif ()
 
+# type size checks
+include (CheckTypeSize)
+check_type_size (void* SIZEOF_VOID_PTR)
+check_type_size (float SIZEOF_FLOAT)
+check_type_size (double SIZEOF_DOUBLE)
+
 # detect invalid settings
 if (BUILD_TESTS AND NOT ENABLE_MEMORY_EXPLICIT_MALLOC_FAILURES)
     message (FATAL_ERROR "Can't build tests without ENABLE_MEMORY_EXPLICIT_MALLOC_FAILURES")
@@ -91,6 +97,9 @@ if (ENABLE_MULTITHREADING)
     message (STATUS " + Ring buffer fixed size: ${RING_BUFFER_FIXED_SIZE}")
     message (STATUS " + Ring buffer max size: ${RING_BUFFER_MAX_SIZE}")
 endif ()
+message (STATUS "sizeof(void*): ${SIZEOF_VOID_PTR}")
+message (STATUS "sizeof(float): ${SIZEOF_FLOAT}")
+message (STATUS "sizeof(double): ${SIZEOF_DOUBLE}")
 message (STATUS "------------------------------------------------------------")
 
 configure_file ("${EXPORT_H_TEMPLATE}"

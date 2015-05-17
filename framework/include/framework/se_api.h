@@ -2,6 +2,7 @@
 #define FRAMEWORK_SERVICE_EVENT_API_H
 
 #include "util/pstdint.h"
+#include "util/dynamic_call.h"
 #include "framework/config.h"
 
 struct plugin_t;
@@ -37,61 +38,7 @@ typedef void (*event_func)(struct event_t* event, const void** argv);
 
 #define EVENT(evt_name) \
         void evt_name(struct event_t* event, const void** argv);
-/*!
- * @brief Helper macro for extracting an argument from an argument vector in a
- * service or event callback function.
- * @param index The index of the argument, beginning at 0.
- * @param var The identifier to give the extracted variable.
- * @param cast_from The type of the value stored at the specified index.
- * @param cast_to The type to cast the extracted argument to. This is also the
- * type of *var*.
- * @note If the argument being extracted is a pointer type, use
- * EXTRACT_ARG_PTR() instead.
- * @note *cast_from* and *cast_to* are necessary because there are two
- * dereferences. You can think of it as the extracted value being stored into
- * an intermediate before being casted to its final type. The type it has in
- * its intermediate state must be equal to the type it had when it was first
- * inserted into the argument vector. Most of the time, *cast_from* and
- * *cast_to* will be identical, but there are (rare) cases where they differ,
- * namely in the renderer plugin with floats: Internally, floats are of type
- * GLfloat, but because the caller does not have access to GLfloat, he will
- * pass it as a normal float. In order for the cast from float to GLfloat to be
- * successful, the void-pointer must first be cast to a float-pointer
- * (*cast_from*), and finally cast to a GLfloat-pointer (*cast_to*).
- */
-#define EXTRACT_ARG(index, var, cast_from, cast_to) \
-    cast_to var = (cast_to) *(cast_from*)argv[index]
 
-/*!
- * @brief Helper macro for extracting a pointer argument from an argument
- * vector in a service function.
- * @param index The index of the argument, beginning at 0.
- * @param var The identifier to give the extracted variable.
- * @param cast_to The pointer type to cast the extracted argument to. This is
- * also the type of *var*.
- * @note If the argument being extracted is not a pointer, use
- * EXTRACT_ARG().
- */
-#define EXTRACT_ARG_PTR(index, var, cast_to) \
-    cast_to var = (cast_to)argv[index]
-
-/*!
- * @brief Helper macro for returning values from a service function to the
- * caller.
- * @param value The identifier of the variable to return.
- * @param ret_type The type of the return value. This **must** be identical to
- * the type the caller is expecting to be returned. If this is not the cast,
- * the returned value will become undefined.
- */
-#define RETURN(value, ret_type) do { \
-        *(ret_type*)ret = (ret_type)value; return; } while(0)
-
-/*!
- * @brief All arguments that are of a pointer type must be passed to a
- * SERVICE_CALLx or EVENT_FIREx function using this macro.
- * @param arg The pointer argument to pass to the service function call.
- */
-#define PTR(arg) *(char*)arg
 
 #define SERVICE_CALL0(service, ret_value) do {                                                  \
             ((struct service_t*)service)->exec(service, ret_value, NULL);                       \
@@ -145,7 +92,7 @@ typedef void (*event_func)(struct event_t* event, const void** argv);
 #define SERVICE_INTERNAL_GET_AND_CHECK(game, service_name)                                      \
         struct service_t* service_internal_service = service_get(game, service_name);           \
         if(!service_internal_service)                                                           \
-            llog(LOG_WARNING, game, NULL, 3, "Service \"", service_name, "\" does not exist");        \
+            llog(LOG_WARNING, game, NULL, 3, "Service \"", service_name, "\" does not exist");  \
         else
 
 #define SERVICE_CALL_NAME0(game, service_name, ret_value) do {                                  \
@@ -234,41 +181,6 @@ typedef void (*event_func)(struct event_t* event, const void** argv);
             const char* argv[] = {STRINGIFY(arg1), STRINGIFY(arg2), STRINGIFY(arg3), STRINGIFY(arg4), STRINGIFY(arg5), STRINGIFY(arg6)}; \
             assign = service_create(plugin, service_name, callback, ret, 6, argv);                                       \
         } while(0)
-
-typedef enum service_type_e
-{
-    SERVICE_TYPE_UNKNOWN,
-    SERVICE_TYPE_NONE,
-
-    SERVICE_TYPE_INT8,   /* NOTE: Interleaving signed and unsigned-ness so */
-    SERVICE_TYPE_UINT8,  /*       a signed type can be set to an unsigned */
-    SERVICE_TYPE_INT16,  /*       type, simply by adding 1. */
-    SERVICE_TYPE_UINT16,
-    SERVICE_TYPE_INT32,
-    SERVICE_TYPE_UINT32,
-    SERVICE_TYPE_INT64,
-    SERVICE_TYPE_UINT64,
-    SERVICE_TYPE_INTPTR,
-    SERVICE_TYPE_UINTPTR,
-
-    SERVICE_TYPE_FLOAT,
-    SERVICE_TYPE_DOUBLE,
-
-    SERVICE_TYPE_STRING,
-    SERVICE_TYPE_WSTRING
-} service_type_e;
-
-struct service_type_info_t
-{
-    char* ret_type_str;         /* return type as a plain string */
-    char** argv_type_str;       /* argument types as plain strings */
-    service_type_e* argv_type;  /* argument types */
-    service_type_e ret_type;    /* return type */
-    uint32_t argc;              /* number of arguments */
-    char has_unknown_types;     /* stores whether or not any of the service
-                                 * arguments or return type are unknown after
-                                 * being parsed */
-};
 
 struct service_t
 {
