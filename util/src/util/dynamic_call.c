@@ -64,7 +64,7 @@ dynamic_call_create_argument_vector_from_strings(const struct type_info_t* type_
                 {   uint8_t value = (uint8_t)atoi(str);
                     memcpy(ret + i, &value, sizeof value);
                     break; }
-#if SIZEOF_VOID_PTR >= 16
+#if SIZEOF_VOID_PTR >= 2
                 case TYPE_INT16:
                 {   int16_t value = (int16_t)atoi(str);
                     memcpy(ret + i, &value, sizeof value);
@@ -83,7 +83,7 @@ dynamic_call_create_argument_vector_from_strings(const struct type_info_t* type_
                     *(uint16_t*)ret[i] = (uint16_t)atoi(str);
                     break; }
 #endif
-#if SIZEOF_VOID_PTR >= 32
+#if SIZEOF_VOID_PTR >= 4
                 case TYPE_INT32:
                 {   int32_t value = (int32_t)atoi(str);
                     memcpy(ret + i, &value, sizeof value);
@@ -102,7 +102,7 @@ dynamic_call_create_argument_vector_from_strings(const struct type_info_t* type_
                     *(uint32_t*)ret[i] = (uint32_t)atoi(str);
                     break; }
 #endif
-#if SIZEOF_VOID_PTR >= 64
+#if SIZEOF_VOID_PTR >= 8
                 case TYPE_INT64:
                 {   int64_t value = (int64_t)atoi(str);
                     memcpy(ret + i, &value, sizeof value);
@@ -132,6 +132,7 @@ dynamic_call_create_argument_vector_from_strings(const struct type_info_t* type_
                     memcpy(ret + i, &value, sizeof value);
                     break; }
                 /* ------------------------------------------------------------------------- */
+                /* floating point types */
 #if SIZEOF_VOID_PTR >= SIZEOF_FLOAT
                 case TYPE_FLOAT:
                 {   float value = (float)atof(str);
@@ -154,6 +155,12 @@ dynamic_call_create_argument_vector_from_strings(const struct type_info_t* type_
                     *(double*)ret[i] = (double)atoi(str);
                     break; }
 #endif
+                /* ------------------------------------------------------------------------- */
+                /* none types can't be passed as an argument */
+                case TYPE_NONE:
+                    fprintf(stderr, "Cannot create argument vector: Invalid type \"%s\"\n", str);
+                    failed = 1;
+                    break;
                 /* ------------------------------------------------------------------------- */
                 default:
                     fprintf(stderr, "Cannot create argument vector: Unknown type \"%s\"\n", str);
@@ -182,8 +189,49 @@ dynamic_call_destroy_argument_vector(const struct type_info_t* type_info,
 {
     uint32_t i;
     for(i = 0; i != type_info->argc; ++i)
+    {
         if(argv[i])
-            FREE(argv[i]);
+        {
+            switch(type_info->argv_type[i])
+            {
+                /* free strings */
+                case TYPE_STRING:
+                case TYPE_WSTRING:
+                    free_string(argv[i]);
+                    break;
+
+                /* nothing to free */
+                case TYPE_INT8:
+                case TYPE_UINT8:
+                    break;
+
+                /* free 16-64 bit integers, floats, and doubles */
+#if SIZEOF_VOID_PTR < 2
+                case TYPE_INT16:
+                case TYPE_UINT16:
+#endif
+#if SIZEOF_VOID_PTR < 4
+                case TYPE_INT32:
+                case TYPE_UINT32:
+#endif
+#if SIZEOF_VOID_PTR < 8
+                case TYPE_INT64:
+                case TYPE_UINT64:
+#endif
+#if SIZEOF_VOID_PTR < SIZEOF_FLOAT
+                case TYPE_FLOAT:
+#endif
+#if SIZEOF_VOID_PTR < SIZEOF_DOUBLE
+                case TYPE_DOUBLE:
+#endif
+                    FREE(argv[i]);
+                    break;
+
+                default:
+                    break;
+            }
+        }
+    }
 
     FREE(argv);
 }
