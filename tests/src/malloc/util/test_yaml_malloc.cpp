@@ -26,6 +26,7 @@ TEST(NAME, create)
     yaml_destroy(doc);
 }
 
+#if defined(LIGHTSHIP_UTIL_PLATFORM_LINUX) || defined(LIGHTSHIP_UTIL_PLATFORM_MACOSX)
 TEST(NAME, load)
 {
 #ifdef _DEBUG
@@ -43,6 +44,7 @@ TEST(NAME, load)
     ASSERT_THAT(doc, NotNull());
     yaml_destroy(doc);
 }
+#endif /* #if defined(LIGHTSHIP_UTIL_PLATFORM_LINUX) || defined(LIGHTSHIP_UTIL_PLATFORM_MACOSX) */
 
 TEST(NAME, set_value)
 {

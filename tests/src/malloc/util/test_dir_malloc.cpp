@@ -3,6 +3,7 @@
 #include "util/memory.h"
 #include "util/linked_list.h"
 #include "util/string.h"
+#include "util/config.h"
 
 #define NAME dir_malloc
 
@@ -24,8 +25,11 @@ TEST(NAME, get_directory_listing_invalid_path)
 TEST(NAME, get_directory_listing_valid_path)
 {
     struct list_t* list = list_create();
-
-#define DIR "tests/test_dir/files/"
+#ifdef LIGHTSHIP_UTIL_PLATFORM_WINDOWS
+#	define DIR "tests\\test_dir\\files\\"
+#else
+#	define DIR "tests/test_dir/files/"
+#endif
     force_malloc_fail_on();
     EXPECT_THAT(get_directory_listing(list, DIR), Eq(0));
     force_malloc_fail_off();

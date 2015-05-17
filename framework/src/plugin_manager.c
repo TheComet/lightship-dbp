@@ -75,8 +75,9 @@ plugin_manager_deinit(struct game_t* game)
         plugin_unload(game, plugin);
     }
 
-    /* destroy core plugin */
-    plugin_destroy(game->core);
+    /* destroy core plugin if it exists */
+	if(game->core)
+		plugin_destroy(game->core);
 }
 
 /* ------------------------------------------------------------------------- */

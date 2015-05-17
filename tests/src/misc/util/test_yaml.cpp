@@ -1,6 +1,7 @@
 #include "gmock/gmock.h"
 #include "util/yaml.h"
 #include "util/ptree.h"
+#include "util/config.h"
 
 #define NAME yaml
 
@@ -99,6 +100,7 @@ TEST(NAME, create)
     yaml_destroy(doc);
 }
 
+#if defined(LIGHTSHIP_UTIL_PLATFORM_LINUX) || defined(LIGHTSHIP_UTIL_PLATFORM_MACOSX)
 TEST(NAME, load_empty_string)
 {
     struct ptree_t* doc;
@@ -262,3 +264,4 @@ TEST(NAME, anchors_in_lists2)
 
     yaml_destroy(doc);
 }
+#endif /* #if defined(LIGHTSHIP_UTIL_PLATFORM_LINUX) || defined(LIGHTSHIP_UTIL_PLATFORM_MACOSX) */
