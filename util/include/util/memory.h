@@ -73,7 +73,7 @@ force_malloc_fail_on(void);
  * @param num_allocations After how many allocations malloc() should begin to
  * fail. 1 means instantly, 2 means after one call, etc.
  */
-void
+LIGHTSHIP_UTIL_PUBLIC_API void
 force_malloc_fail_after(int num_allocations);
 
 /*!
@@ -88,7 +88,7 @@ force_malloc_fail_off(void);
 
 #endif /* ENABLE_MEMORY_DEBUGGING */
 
-void
+LIGHTSHIP_UTIL_PUBLIC_API void
 mutated_string_and_hex_dump(void* data, intptr_t size_in_bytes);
 
 C_HEADER_END

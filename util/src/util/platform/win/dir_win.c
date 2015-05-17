@@ -16,6 +16,8 @@ get_directory_listing(struct list_t* list, const char* dir)
 
     /* windows needs a wildcard to get a complete list of files in a directory */
     search_str = (char*)MALLOC((strlen(dir)+2) * sizeof(char*));
+	if(!search_str)
+		return 0;
     sprintf(search_str, "%s*", dir);
 
     /* open directory with search string */
@@ -24,6 +26,7 @@ get_directory_listing(struct list_t* list, const char* dir)
     {
         char* error = get_last_error_string();
         fprintf(stderr, "Error searching directory \"%s\": %s\n", dir, error);
+		FREE(search_str);
         FREE(error);
         return 0;
     }
@@ -33,7 +36,12 @@ get_directory_listing(struct list_t* list, const char* dir)
     {
         /* is directory */
         if(!(fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
-            list_push(list, cat_strings(2, dir, fd.cFileName));
+            if(!list_push(list, cat_strings(2, dir, fd.cFileName)))
+			{
+				FindClose(fh);
+				FREE(search_str);
+				return 0;
+			}
 
     } while(FindNextFile(fh, &fd));
 

@@ -1,7 +1,7 @@
 #include "gmock/gmock.h"
 #include "util/yaml.h"
 #include "util/ptree.h"
-#include "util/config.h
+#include "util/config.h"
 
 #define NAME yaml
 

@@ -35,7 +35,7 @@ int callback1(unsigned int a, double b, char* str)
 TEST_F(NAME, create_verify_type_info)
 {
     struct service_t* s;
-    SERVICE_CREATE3(plugin, s, "test.service", (service_func)callback1, int, int, double, char*);
+    SERVICE_CREATE3(plugin, s, "test.service", (service_func)callback1, int, unsigned int, double, char*);
 
     ASSERT_THAT(s, NotNull());
 

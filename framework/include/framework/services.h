@@ -78,7 +78,7 @@ service_destroy_argument_list(struct service_t* service, void** argv);
  * @param[in] type The type string to parse.
  * @return Returns the type as a service_type_e.
  */
-service_type_e
+FRAMEWORK_PUBLIC_API service_type_e
 service_get_type_from_string(const char* type);
 
 C_HEADER_END
