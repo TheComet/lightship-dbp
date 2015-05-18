@@ -6,7 +6,8 @@ set (MAKE_ARGS -j5 CACHE STRING "Arguments to pass to make")
 
 file (WRITE "toolchains/.gitignore" "*")
 
-macro (generate_cross_arch ARCH_NAME ARCH C_COMPILER RC_COMPILER ROOT_PATH)
+macro (generate_cross_arch ARCH_NAME ARCH C_COMPILER RC_COMPILER ROOT_PATH
+        ENABLE_WINDOWS_EX)
 
     # create build directory for this architecture and make sure it gets
     # ignored by git
@@ -29,7 +30,7 @@ macro (generate_cross_arch ARCH_NAME ARCH C_COMPILER RC_COMPILER ROOT_PATH)
     configure_file ("install-arch.cmake.in"
                     "${CMAKE_CURRENT_BINARY_DIR}/install-${ARCH}.cmake"
                     @ONLY)
-
+                message(" asdfasdf${ADDITIONAL_CMAKE_ARGS}")
     # execute cmake to configure the project for this architecture
     execute_process (
         COMMAND
@@ -37,6 +38,7 @@ macro (generate_cross_arch ARCH_NAME ARCH C_COMPILER RC_COMPILER ROOT_PATH)
                 -DCMAKE_TOOLCHAIN_FILE=${CMAKE_CURRENT_LIST_DIR}/toolchains/toolchain-${ARCH}.cmake
                 -DCMAKE_INSTALL_PREFIX=${${ARCH}_INSTALL_PREFIX}
                 -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+                -DENABLE_WINDOWS_EX=${ENABLE_WINDOWS_EX}
                 ${CMAKE_SOURCE_DIR}
         WORKING_DIRECTORY
             ${BUILD_DIR}
@@ -63,30 +65,34 @@ if (BUILD_HOST STREQUAL "rainbowdash")
                             "i486-pc-mingw32"
                             "/usr/bin/i486-pc-mingw32-gcc"
                             "/usr/bin/i486-pc-mingw32-windres"
-                            "/usr/bin/i486-pc-mingw32")
+                            "/usr/bin/i486-pc-mingw32"
+                            OFF)
     endif ()
     if (CROSS_COMPILE_x86_64-pc-mingw32)
         generate_cross_arch ("Windows"
                             "x86_64-pc-mingw32"
                             "/usr/bin/x86_64-pc-mingw32-gcc"
                             "/usr/bin/x86_64-pc-mingw32-windres"
-                            "/usr/bin/x86_64-pc-mingw32")
+                            "/usr/bin/x86_64-pc-mingw32"
+                            ON)
     endif ()
 endif ()
 if (BUILD_HOST STREQUAL "twilight")
-    if (CROSS_COMPILE_i686-pc-mingw32)
+    if (CROSS_COMPILE_i486-pc-mingw32)
         generate_cross_arch("Windows"
-                            "i686-pc-mingw32"
-                            "/usr/bin/i686-pc-mingw32-gcc"
-                            "/usr/bin/i686-pc-mingw32-windres"
-                            "/usr/bin/i686-pc-mingw32")
+                            "i486-pc-mingw32"
+                            "/usr/bin/i486-pc-mingw32-gcc"
+                            "/usr/bin/i486-pc-mingw32-windres"
+                            "/usr/bin/i486-pc-mingw32"
+                            OFF)
     endif ()
     if (CROSS_COMPILE_x86_64-pc-mingw32)
         generate_cross_arch ("Windows"
                             "x86_64-pc-mingw32"
                             "/usr/bin/x86_64-pc-mingw32-gcc"
                             "/usr/bin/x86_64-pc-mingw32-windres"
-                            "/usr/bin/x86_64-pc-mingw32")
+                            "/usr/bin/x86_64-pc-mingw32"
+                            ON)
     endif ()
 endif ()
 if (BUILD_HOST STREQUAL "game.pixelcloud.ch")
@@ -98,13 +104,15 @@ if (BUILD_HOST STREQUAL "game.pixelcloud.ch")
                             "i586-pc-mingw32"
                             "/usr/bin/i586-mingw32msvc-gcc"
                             "/usr/bin/i586-mingw32msvc-windres"
-                            "/usr/bin/i586-mingw32msvc")
+                            "/usr/bin/i586-mingw32msvc"
+                            ON)
     endif ()
     if (CROSS_COMPILE_x86_64-pc-mingw32)
         generate_cross_arch ("Windows"
                             "x86_64-pc-mingw32"
                             "/usr/bin/x86_64-w64-mingw32-gcc"
                             "/usr/bin/x86_64-w64-mingw32-windres"
-                            "/usr/bin/x86_64-w64-mingw32")
+                            "/usr/bin/x86_64-w64-mingw32"
+                            ON)
     endif ()
 endif ()

@@ -32,4 +32,6 @@
 #   define SIZEOF_FLOAT     @SIZEOF_FLOAT@
 #   define SIZEOF_DOUBLE    @SIZEOF_DOUBLE@
 
+    #cmakedefine ENABLE_WINDOWS_EX
+
 #endif /* @PROJECT_NAME@_CONFIG_HPP */

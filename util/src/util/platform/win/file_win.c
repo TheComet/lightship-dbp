@@ -10,11 +10,11 @@ uint32_t
 file_load_into_memory(const char* file_name, void** buffer, file_opts_e opts)
 {
     HANDLE hFile;
-    LARGE_INTEGER buffer_size_ex;
     DWORD buffer_size;
     DWORD bytes_read;
-
-    printf("file name: %s\n", file_name);
+#ifdef ENABLE_WINDOWS_EX
+    LARGE_INTEGER buffer_size_ex;
+#endif
 
     /* open file */
     hFile = CreateFile(TEXT(file_name), GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
@@ -26,8 +26,12 @@ file_load_into_memory(const char* file_name, void** buffer, file_opts_e opts)
 
     for(;;)
     {
-        /* get file size */
+        /* get file size in bytes */
+#ifdef ENABLE_WINDOWS_EX
         if(!GetFileSizeEx(hFile, &buffer_size_ex))
+#else
+        if(!GetFileSize(hFile, &buffer_size))
+#endif
         {
             char* error = get_last_error_string();
             fprintf(stderr, "GetFileSizeEx() failed for file \"%s\"\n", file_name);
@@ -35,7 +39,11 @@ file_load_into_memory(const char* file_name, void** buffer, file_opts_e opts)
             free_string(error);
             break;
         }
+
+        /* reading the lower 32-bits should be enough */
+#ifdef ENABLE_WINDOWS_EX
         buffer_size = buffer_size_ex.LowPart;
+#endif
 
         /* allocate buffer to copy file into */
         if(opts & FILE_BINARY)
