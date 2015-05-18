@@ -46,7 +46,7 @@ llog_init(struct game_t* game)
 {
     /* initialise indent level */
     game->log.indent_level = 0;
-    
+
     return 1;
 }
 
@@ -79,7 +79,7 @@ llog_unindent(struct game_t* game)
         llog(LOG_WARNING, NULL, NULL, 1, "llog_unindent() was called with a NULL game object");
         return;
     }
-    
+
     EVENT_FIRE_FROM_TEMP0(evt_log_unindent, game->event.log_unindent);
     on_llog_unindent(game);
 
@@ -105,7 +105,7 @@ llog(log_level_e level, const struct game_t* game, const char* plugin, uint32_t 
     char* buffer = NULL;
     char* tag = NULL;
 
-    /* 
+    /*
      * Get timestamp string.
      * NOTE also sets the total length to the length of the timestamp string.
      */
@@ -114,7 +114,7 @@ llog(log_level_e level, const struct game_t* game, const char* plugin, uint32_t 
     timeinfo = localtime(&rawtime); /* convert to local time */
     total_length = strftime(timestamp, 12, "[%X] ", timeinfo);
 #endif
-    
+
     /* determine tag string */
     switch(level)
     {
@@ -138,11 +138,11 @@ llog(log_level_e level, const struct game_t* game, const char* plugin, uint32_t 
             break;
     }
     total_length += strlen(tag);
-    
+
     /* add length of game string, plus three characters for [] and space */
     if(game)
         total_length += strlen(game->name) + 3;
-    
+
     /* add length of plugin tag, if any */
     if(plugin)
     {
@@ -158,22 +158,22 @@ llog(log_level_e level, const struct game_t* game, const char* plugin, uint32_t 
     for(i = 0; i != num_strs; ++i)
         total_length += safe_strlen(va_arg(ap, char*));
     va_end(ap);
-    
+
     /* null terminator and newline */
     total_length += 2;
-    
+
     /* allocate buffer and copy all strings into it */
     buffer = (char*)MALLOC(total_length);
     *buffer = '\0'; /* so strcat() works */
-    
+
     /* copy timestamp into buffer */
 #ifdef ENABLE_LOG_TIMESTAMPS
     strcat(buffer, timestamp);
 #endif
-    
+
     /* copy tag */
     strcat(buffer, tag);
-    
+
     /* copy game name */
     if(game)
     {
@@ -181,7 +181,7 @@ llog(log_level_e level, const struct game_t* game, const char* plugin, uint32_t 
         strcat(buffer, game->name);
         strcat(buffer, "] ");
     }
-    
+
     /* copy plugin name into buffer, if any */
     if(plugin)
     {
@@ -189,18 +189,18 @@ llog(log_level_e level, const struct game_t* game, const char* plugin, uint32_t 
         strcat(buffer, plugin);
         strcat(buffer, "] ");
     }
-    
+
     /* copy all other strings into buffer and end with newline */
     va_start(ap, num_strs);
     for(i = 0; i != num_strs; ++i)
         safe_strcat(buffer, va_arg(ap, char*));
     va_end(ap);
-    
+
     /* null terminator and newline */
     buffer[total_length-2] = '\n';
     buffer[total_length-1] = '\0';
 
-    /* fire event and output mesasge */
+    /* fire event and output message */
     if(game)
         EVENT_FIRE_FROM_TEMP2(evt_log, game->event.log, level, (const char*)buffer);
     on_llog(game, level, buffer);
@@ -249,12 +249,12 @@ on_llog(const struct game_t* game, log_level_e level, const char* message)
     switch(level)
     {
         case LOG_INFO:
-        case LOG_USER: 
+        case LOG_USER:
             do_indent(stdout, game); break;
         default:
             do_indent(stderr, game); break;
     }
-    
+
     /* output message with the appropriate colours */
     switch(level)
     {

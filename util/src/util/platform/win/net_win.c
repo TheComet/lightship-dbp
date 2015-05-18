@@ -21,7 +21,7 @@ net_deinit(void)
 struct net_connection_t*
 net_host_udp(const char* port, uint32_t max_connections)
 {
-	return NULL;
+	return 1;
 }
 
 /* ------------------------------------------------------------------------- */

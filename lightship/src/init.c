@@ -80,7 +80,10 @@ init_game(char is_server)
      */
     localhost = game_create("localhost", GAME_HOST);
     if(!localhost)
+    {
+        llog(LOG_FATAL, NULL, NULL, 1, "Failed to create game");
         return 0;
+    }
 
     /*
      * Load and start the core plugins specified in the settings YAML file.

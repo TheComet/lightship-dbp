@@ -75,7 +75,10 @@ game_create(const char* name, game_network_role_e net_role)
         {
             game->connection = net_host_udp("3190", 20);
             if(!game->connection)
+            {
+                llog(LOG_ERROR, NULL, NULL, 1, "Failed to host connection");
                 break;
+            }
         }
 
         /* initialise all services for this game */
