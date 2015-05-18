@@ -151,7 +151,8 @@ button_free_contents(struct button_t* button)
         SERVICE_CALL2(g->services.text_destroy, NULL, g->button.font_id, button->base.button.text_id);
         free_string(button->base.button.text);
         if(button->base.element.action.service)
-            service_destroy_argument_list(button->base.element.action.service, button->base.element.action.argv);
+            dynamic_call_destroy_argument_vector(button->base.element.action.service->type_info,
+                                                 button->base.element.action.argv);
     }
 }
 

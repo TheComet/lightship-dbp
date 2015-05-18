@@ -28,9 +28,12 @@ service_init(struct game_t* game)
 
     for(;;)
     {
-        if(!(game->service.start = service_create(game->core, "start", game_start_wrapper, "void", 0, NULL))) break;
-        if(!(game->service.pause = service_create(game->core, "pause", game_pause_wrapper, "void", 0, NULL))) break;
-        if(!(game->service.exit  = service_create(game->core, "exit",  game_exit_wrapper,  "void", 0, NULL))) break;
+        if(!(game->service.start = service_create(game->core, "start", game_start_wrapper,
+            dynamic_call_create_type_info("void", 0, NULL)))) break;
+        if(!(game->service.pause = service_create(game->core, "pause", game_pause_wrapper,
+            dynamic_call_create_type_info("void", 0, NULL)))) break;
+        if(!(game->service.exit  = service_create(game->core, "exit",  game_exit_wrapper,
+            dynamic_call_create_type_info("void", 0, NULL)))) break;
 
         return 1;
     }
@@ -50,9 +53,7 @@ struct service_t*
 service_create(struct plugin_t* plugin,
                const char* directory,
                const service_func exec,
-               const char* ret_type,
-               const int argc,
-               const char** argv)
+               struct type_info_t* type_info)
 {
     struct service_t* service;
     struct ptree_t* node;
@@ -61,9 +62,7 @@ service_create(struct plugin_t* plugin,
     assert(plugin->game);
     assert(directory);
     assert(exec);
-    assert(ret_type);
-    if(argc)
-        assert(argv);
+    assert(type_info);
 
     /* allocate and initialise service object */
     if(!(service = (struct service_t*)MALLOC(sizeof(struct service_t))))
@@ -75,9 +74,7 @@ service_create(struct plugin_t* plugin,
     {
         service->plugin = plugin;
         service->exec = exec;
-        service->type_info.has_unknown_types = 0; /* will be set to 1 during
-                                                   * parsing if an unknown
-                                                   * type is found */
+        service->type_info = type_info;
 
         /* plugin object keeps track of all created services */
         if(!unordered_vector_push(&plugin->services, &service))
@@ -86,37 +83,6 @@ service_create(struct plugin_t* plugin,
         /* copy directory */
         if(!(service->directory = malloc_string(directory)))
             break;
-
-        /* copy return type info */
-        if(!(service->type_info.ret_type_str = malloc_string(ret_type)))
-            break;
-        service->type_info.ret_type = service_get_type_from_string(ret_type);
-        if(service->type_info.ret_type == SERVICE_TYPE_UNKNOWN)
-            service->type_info.has_unknown_types = 1;
-
-        /* create argument type vectors */
-        if(!(service->type_info.argv_type_str = (char**)MALLOC(argc * sizeof(char*))))
-            break;
-        memset(service->type_info.argv_type_str, 0, argc * sizeof(char*));
-        if(!(service->type_info.argv_type = (service_type_e*)MALLOC(argc * sizeof(service_type_e))))
-            break;
-        memset(service->type_info.argv_type, 0, argc * sizeof(service_type_e));
-
-        /* copy argument type strings */
-        {   int i;
-            for(i = 0; i != argc; ++i)
-            {
-                if(!(service->type_info.argv_type_str[i] = malloc_string(argv[i])))
-                    break;
-                service->type_info.argv_type[i] = service_get_type_from_string(argv[i]);
-                if(service->type_info.argv_type[i] == SERVICE_TYPE_UNKNOWN)
-                    service->type_info.has_unknown_types = 1;
-
-                ++service->type_info.argc;
-            }
-            if(i != argc)
-                break;
-        }
 
         /* create node in game's service directory - want to do this last
          * because ptree_remove_node uses malloc() */
@@ -137,25 +103,6 @@ service_create(struct plugin_t* plugin,
 
     /* remove from plugin's list of services */
     unordered_vector_erase_element(&plugin->services, &service);
-
-    /* free type info argument string vector */
-    if(service->type_info.argv_type_str)
-    {   int i;
-        for(i = 0; i != argc; ++i)
-        {
-            if(service->type_info.argv_type_str[i])
-                free_string(service->type_info.argv_type_str[i]);
-        }
-        FREE(service->type_info.argv_type_str);
-    }
-
-    /* free type info argument vectors */
-    if(service->type_info.argv_type)
-        FREE(service->type_info.argv_type);
-
-    /* free return type info */
-    if(service->type_info.ret_type_str)
-        free_string(service->type_info.ret_type_str);
 
     if(service->directory)
         free_string(service->directory);
@@ -193,19 +140,12 @@ service_destroy(struct service_t* service)
 static void
 service_free(struct service_t* service)
 {
-    uint32_t i;
-
     assert(service);
     assert(service->directory);
-    assert(service->type_info.ret_type_str);
-    assert(service->type_info.argv_type_str);
+    assert(service->type_info);
 
     free_string(service->directory);
-    free_string((char*)service->type_info.ret_type_str);
-    for(i = 0; i != service->type_info.argc; ++i)
-        free_string((char*)service->type_info.argv_type_str[i]);
-    FREE(service->type_info.argv_type_str);
-    FREE(service->type_info.argv_type);
+    dynamic_call_destroy_type_info(service->type_info);
     FREE(service);
 }
 

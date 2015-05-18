@@ -11,6 +11,7 @@
 #include "util/memory.h"
 #include "util/string.h"
 #include "util/yaml.h"
+#include "util/dynamic_call.h"
 #include <string.h>
 #include <stdlib.h>
 
@@ -279,7 +280,8 @@ menu_load_button_action(struct glob_t* g, struct button_t* button, const struct 
             }
 
             /* convert the vector of strings into a vector of arguments */
-            button->base.element.action.argv = service_create_argument_list_from_strings(action_service, &argv);
+            button->base.element.action.argv =
+                    dynamic_call_create_argument_vector_from_strings(action_service->type_info, &argv);
             ordered_vector_clear_free(&argv);
             /* only set service if the arguments were successfully created */
             if(button->base.element.action.argv)

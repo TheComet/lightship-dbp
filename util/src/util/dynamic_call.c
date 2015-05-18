@@ -8,6 +8,96 @@
 #include <string.h>
 
 /* ------------------------------------------------------------------------- */
+struct type_info_t*
+dynamic_call_create_type_info(const char* ret_type, int argc, const char** argv)
+{
+    struct type_info_t* type_info;
+
+    assert(ret_type);
+    if(argc)
+        assert(argv);
+
+    /* allocate and initialise type info object */
+    if(!(type_info = (struct type_info_t*)MALLOC(sizeof(struct type_info_t))))
+    {
+        fprintf(stderr, "malloc() failed in dynamic_call_create_type_info() -- not enough memory\n");
+        return NULL;
+    }
+    memset(type_info, 0, sizeof(struct type_info_t));
+
+    for(;;)
+    {
+        type_info->has_unknown_types = 0; /* will be set to 1 during parsing
+                                           * if an unknown type is found */
+
+        /* copy return type info */
+        if(!(type_info->ret_type_str = malloc_string(ret_type)))
+            break;
+        type_info->ret_type = dynamic_call_get_type_from_string(ret_type);
+        if(type_info->ret_type == TYPE_UNKNOWN)
+            type_info->has_unknown_types = 1;
+
+        /* create argument type vectors */
+        if(!(type_info->argv_type_str = (char**)MALLOC(argc * sizeof(char*))))
+            break;
+        memset(type_info->argv_type_str, 0, argc * sizeof(char*));
+        if(!(type_info->argv_type = (type_e*)MALLOC(argc * sizeof(type_e))))
+            break;
+        memset(type_info->argv_type, 0, argc * sizeof(type_e));
+
+        /* copy argument type strings */
+        {   int i;
+            for(i = 0; i != argc; ++i)
+            {
+                if(!(type_info->argv_type_str[i] = malloc_string(argv[i])))
+                    break;
+                type_info->argv_type[i] = dynamic_call_get_type_from_string(argv[i]);
+                if(type_info->argv_type[i] == TYPE_UNKNOWN)
+                    type_info->has_unknown_types = 1;
+
+                ++type_info->argc;
+            }
+            if(i != argc)
+                break;
+        }
+
+        /* success! */
+        return type_info;
+    }
+
+    /* something went wrong, clean up everything */
+    dynamic_call_destroy_type_info(type_info);
+
+    return NULL;
+}
+
+/* ------------------------------------------------------------------------- */
+void
+dynamic_call_destroy_type_info(struct type_info_t* type_info)
+{
+    /* free type info argument string vector */
+    if(type_info->argv_type_str)
+    {   uint32_t i;
+        for(i = 0; i != type_info->argc; ++i)
+        {
+            if(type_info->argv_type_str[i])
+                free_string(type_info->argv_type_str[i]);
+        }
+        FREE(type_info->argv_type_str);
+    }
+
+    /* free type info argument vectors */
+    if(type_info->argv_type)
+        FREE(type_info->argv_type);
+
+    /* free return type info */
+    if(type_info->ret_type_str)
+        free_string(type_info->ret_type_str);
+
+    FREE(type_info);
+}
+
+/* ------------------------------------------------------------------------- */
 void**
 dynamic_call_create_argument_vector_from_strings(const struct type_info_t* type_info,
                                                  const struct ordered_vector_t* argv)
@@ -20,20 +110,21 @@ dynamic_call_create_argument_vector_from_strings(const struct type_info_t* type_
     /* check argument count */
     if(type_info->argc != argv->count)
     {
-        char argc_provided[sizeof(int)*8+1];
-        char argc_required[sizeof(int)*8+1];
-        sprintf(argc_provided, "%d", (int)argv->count);
-        sprintf(argc_required, "%d", type_info->argc);
         fprintf(stderr, "Cannot create argument list: Wrong number of arguments\n");
-        fprintf(stderr, "    Required: %d\n", argc_required);
-        fprintf(stderr, "    Provided: %d\n", argc_provided);
+        fprintf(stderr, "    Required: %d\n", type_info->argc);
+        fprintf(stderr, "    Provided: %d\n", argv->count);
         return NULL;
     }
 
     /* create void** argument vector */
-    ret = (void**)MALLOC(type_info->argc * sizeof(void*));
+    /* reserve double the space for when values smaller than the size of void*
+     * are copied into the argument vector directly */
+    ret = (void**)MALLOC(type_info->argc * sizeof(void*) * 2);
     if(!ret)
-        OUT_OF_MEMORY("dynamic_call_create_argument_vector_from_strings()", NULL);
+    {
+        fprintf(stderr, "malloc() failed in dynamic_call_create_argument_vector_from_strings() -- not enough memory\n");
+        return NULL;
+    }
     memset(ret, 0, type_info->argc * sizeof(void*));
 
     /* parse argument vector */
@@ -58,20 +149,24 @@ dynamic_call_create_argument_vector_from_strings(const struct type_info_t* type_
                 /* integer types */
                 case TYPE_INT8:
                 {   int8_t value = (int8_t)atoi(str);
-                    memcpy(ret + i, &value, sizeof value);
+                    ret[i] = ret + type_info->argc + i;
+                    memcpy(ret[i], &value, sizeof value);
                     break; }
                 case TYPE_UINT8:
                 {   uint8_t value = (uint8_t)atoi(str);
-                    memcpy(ret + i, &value, sizeof value);
+                    ret[i] = ret + type_info->argc + i;
+                    memcpy(ret[i], &value, sizeof value);
                     break; }
 #if SIZEOF_VOID_PTR >= 2
                 case TYPE_INT16:
                 {   int16_t value = (int16_t)atoi(str);
-                    memcpy(ret + i, &value, sizeof value);
+                    ret[i] = ret + type_info->argc + i;
+                    memcpy(ret[i], &value, sizeof value);
                     break; }
                 case TYPE_UINT16:
                 {   uint16_t value = (uint16_t)atoi(str);
-                    memcpy(ret + i, &value, sizeof value);
+                    ret[i] = ret + type_info->argc + i;
+                    memcpy(ret[i], &value, sizeof value);
                     break; }
 #else
                 case TYPE_INT16:
@@ -86,11 +181,13 @@ dynamic_call_create_argument_vector_from_strings(const struct type_info_t* type_
 #if SIZEOF_VOID_PTR >= 4
                 case TYPE_INT32:
                 {   int32_t value = (int32_t)atoi(str);
-                    memcpy(ret + i, &value, sizeof value);
+                    ret[i] = ret + type_info->argc + i;
+                    memcpy(ret[i], &value, sizeof value);
                     break; }
                 case TYPE_UINT32:
                 {   uint32_t value = (uint32_t)atoi(str);
-                    memcpy(ret + i, &value, sizeof value);
+                    ret[i] = ret + type_info->argc + i;
+                    memcpy(ret[i], &value, sizeof value);
                     break; }
 #else
                 case TYPE_INT32:
@@ -105,11 +202,13 @@ dynamic_call_create_argument_vector_from_strings(const struct type_info_t* type_
 #if SIZEOF_VOID_PTR >= 8
                 case TYPE_INT64:
                 {   int64_t value = (int64_t)atoi(str);
-                    memcpy(ret + i, &value, sizeof value);
+                    ret[i] = ret + type_info->argc + i;
+                    memcpy(ret[i], &value, sizeof value);
                     break; }
                 case TYPE_UINT64:
                 {   uint64_t value = (uint64_t)atoi(str);
-                    memcpy(ret + i, &value, sizeof value);
+                    ret[i] = ret + type_info->argc + i;
+                    memcpy(ret[i], &value, sizeof value);
                     break; }
 #else
                 case TYPE_INT64:
@@ -125,18 +224,21 @@ dynamic_call_create_argument_vector_from_strings(const struct type_info_t* type_
                 /* intptr is by definition the same size as void* */
                 case TYPE_INTPTR:
                 {   intptr_t value = (intptr_t)atoi(str);
-                    memcpy(ret + i, &value, sizeof value);
+                    ret[i] = ret + type_info->argc + i;
+                    memcpy(ret[i], &value, sizeof value);
                     break; }
                 case TYPE_UINTPTR:
                 {   uintptr_t value = (uintptr_t)atoi(str);
-                    memcpy(ret + i, &value, sizeof value);
+                    ret[i] = ret + type_info->argc + i;
+                    memcpy(ret[i], &value, sizeof value);
                     break; }
                 /* ------------------------------------------------------------------------- */
                 /* floating point types */
 #if SIZEOF_VOID_PTR >= SIZEOF_FLOAT
                 case TYPE_FLOAT:
                 {   float value = (float)atof(str);
-                    memcpy(ret + i, &value, sizeof value);
+                    ret[i] = ret + type_info->argc + i;
+                    memcpy(ret[i], &value, sizeof value);
                     break; }
 #else
                 case TYPE_FLOAT:
@@ -147,7 +249,8 @@ dynamic_call_create_argument_vector_from_strings(const struct type_info_t* type_
 #if SIZEOF_VOID_PTR >= SIZEOF_DOUBLE
                 case TYPE_DOUBLE:
                 {   double value = (double)atof(str);
-                    memcpy(ret + i, &value, sizeof value);
+                    ret[i] = ret + type_info->argc + i;
+                    memcpy(ret[i], &value, sizeof value);
                     break; }
 #else
                 case TYPE_DOUBLE:
@@ -277,7 +380,7 @@ dynamic_call_get_type_from_string(const char* type)
          */
 
         /* default to an int32 */
-        service_type_e ret = TYPE_INT32;
+        type_e ret = TYPE_INT32;
 
         /* reject pointer types */
         if(strstr(type, "*"))

@@ -1,4 +1,12 @@
+#ifndef LIGHTSHIP_UTIL_DYNAMIC_CALL_H
+#define LIGHTSHIP_UTIL_DYNAMIC_CALL_H
+
 #include "util/pstdint.h"
+#include "util/config.h"
+
+C_HEADER_BEGIN
+
+struct ordered_vector_t;
 
 /*!
  * @brief Helper macro for extracting an argument from an argument vector in a
@@ -23,7 +31,7 @@
  * (*cast_from*), and finally cast to a GLfloat-pointer (*cast_to*).
  */
 #define EXTRACT_ARG(index, var, cast_from, cast_to) \
-cast_to var = (cast_to) *(cast_from*)argv[index]
+        cast_to var = (cast_to) *(cast_from*)argv[index]
 
 /*!
  * @brief Helper macro for extracting a pointer argument from an argument
@@ -36,7 +44,7 @@ cast_to var = (cast_to) *(cast_from*)argv[index]
  * EXTRACT_ARG().
  */
 #define EXTRACT_ARG_PTR(index, var, cast_to) \
-cast_to var = (cast_to)argv[index]
+        cast_to var = (cast_to)argv[index]
 
 /*!
  * @brief Helper macro for returning values from a service function to the
@@ -47,7 +55,7 @@ cast_to var = (cast_to)argv[index]
  * the returned value will become undefined.
  */
 #define RETURN(value, ret_type) do { \
-*(ret_type*)ret = (ret_type)value; return; } while(0)
+        *(ret_type*)ret = (ret_type)value; return; } while(0)
 
 /*!
  * @brief All arguments that are of a pointer type must be passed to a
@@ -55,6 +63,43 @@ cast_to var = (cast_to)argv[index]
  * @param arg The pointer argument to pass to the service function call.
  */
 #define PTR(arg) *(char*)arg
+
+
+#define DYNAMIC_FUNCTION(func_name)                                         \
+        void func_name(void* ret, const void** argv)
+
+#define DYNAMIC_CALL0(func_name, ret_value) do {                            \
+    func_name(ret_value, NULL); } while(0)
+#define DYNAMIC_CALL1(func_name, ret_value, arg1) do {                      \
+    const void* argv[1];                                                    \
+    argv[0] = &arg1;                                                        \
+    func_name(ret_value, argv); } while(0)
+#define DYNAMIC_CALL2(func_name, ret_value, arg1, arg2) do {                \
+    const void* argv[2];                                                    \
+    argv[0] = &arg1;                                                        \
+    argv[1] = &arg2;                                                        \
+    func_name(ret_value, argv); } while(0)
+#define DYNAMIC_CALL3(func_name, ret_value, arg1, arg2, arg3) do {          \
+    const void* argv[3];                                                    \
+    argv[0] = &arg1;                                                        \
+    argv[1] = &arg2;                                                        \
+    argv[2] = &arg3;                                                        \
+    func_name(ret_value, argv); } while(0)
+#define DYNAMIC_CALL4(func_name, ret_value, arg1, arg2, arg3, arg4) do {    \
+    const void* argv[4];                                                    \
+    argv[0] = &arg1;                                                        \
+    argv[1] = &arg2;                                                        \
+    argv[2] = &arg3;                                                        \
+    argv[3] = &arg4;                                                        \
+    func_name(ret_value, argv); } while(0)
+#define DYNAMIC_CALL5(func_name, ret_value, arg1, arg2, arg3, arg4, arg5) do {\
+    const void* argv[5];                                                    \
+    argv[0] = &arg1;                                                        \
+    argv[1] = &arg2;                                                        \
+    argv[2] = &arg3;                                                        \
+    argv[3] = &arg4;                                                        \
+    argv[4] = &arg5;                                                        \
+    func_name(ret_value, argv); } while(0)
 
 typedef enum type_e
 {
@@ -90,3 +135,48 @@ struct type_info_t
                                  * or return type are unknown after being
                                  * parsed */
 };
+
+/*!
+ *
+ */
+struct type_info_t*
+dynamic_call_create_type_info(const char* ret_type, int argc, const char** argv);
+
+/*!
+ *
+ */
+void
+dynamic_call_destroy_type_info(struct type_info_t* type_info);
+
+/*!
+ *
+ */
+void**
+dynamic_call_create_argument_vector_from_strings(const struct type_info_t* type_info,
+                                                 const struct ordered_vector_t* argv);
+
+/*!
+ *
+ */
+void
+dynamic_call_destroy_argument_vector(const struct type_info_t* type_info,
+                                     void** argv);
+
+/*!
+ *
+ */
+char
+dynamic_call_do_typecheck(const struct type_info_t* type_info,
+                          const char* ret_type,
+                          uint32_t argc,
+                          const char** argv);
+
+/*!
+ *
+ */
+type_e
+dynamic_call_get_type_from_string(const char* type);
+
+C_HEADER_END
+
+#endif /* LIGHTSHIP_UTIL_DYNAMIC_CALL_H */
