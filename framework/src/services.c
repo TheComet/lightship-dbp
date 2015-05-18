@@ -116,18 +116,40 @@ service_destroy(struct service_t* service)
 {
     struct ptree_t* node;
     struct game_t* game;
+    char found_in_plugin;
 
     assert(service);
     assert(service->plugin);
     assert(service->plugin->game);
     assert(service->directory);
 
+    /* get the node in the directory and verify */
     game = service->plugin->game;
     if(!(node = ptree_get_node(&game->services, service->directory)))
     {
         llog(LOG_ERROR, game, NULL, 5, "Attempted to destroy the "
             "service \"", service->directory, "\", but the associated game "
             "object with name \"", game->name, "\" doesn't own it! "
+            "The service will not be destroyed.");
+        return;
+    }
+
+    /* remove service from plugin */
+    found_in_plugin = 0;
+    { UNORDERED_VECTOR_FOR_EACH(&service->plugin->services, struct service_t*, servp)
+    {
+        if(*servp == service)
+        {
+            unordered_vector_erase_element(&service->plugin->services, servp);
+            found_in_plugin = 1;
+            break;
+        }
+    }}
+    if(!found_in_plugin)
+    {
+        llog(LOG_ERROR, game, NULL, 5, "Attempting to destroy the service \"",
+            service->directory, "\", but the associated plugin object with "
+            "name \"", service->plugin->info.name, "\" doesn't own it! "
             "The service will not be destroyed.");
         return;
     }

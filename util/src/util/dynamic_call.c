@@ -143,7 +143,7 @@ dynamic_call_create_argument_vector_from_strings(const struct type_info_t* type_
                     ret[i] = malloc_string(str);
                     break;
                 case TYPE_WSTRING:
-                    ret[i] = malloc_wstring((wchar_t*)str);
+                    ret[i] = strtowcs(str);
                     break;
                 /* ------------------------------------------------------------------------- */
                 /* integer types */

@@ -199,16 +199,26 @@ TEST(NAME, callback_create_argument_vector_from_strings)
         "int32_t", "uint32_t", "int64_t", "uint64_t", "intptr_t", "uintptr_t",
         "float", "double"
     };
-    struct type_info_t* t = dynamic_call_create_type_info("int", 3, argvstr);
+    struct type_info_t* t = dynamic_call_create_type_info("int", 14, argvstr);
     ASSERT_THAT(t, NotNull());
 
     /* create return type and argument vector */
     int ret;
-    struct ordered_vector_t argv;
+    struct ordered_vector_t argv_params;
+    const char* args[] = {"test", "hello", "3", "6", "3", "8", "9", "4", "2", "4", "3", "6", "4.0", "65.0"};
+    ordered_vector_init_vector(&argv_params, sizeof(char*));
+    for(int i = 0; i != 14; ++i)
+        ordered_vector_push(&argv_params, &args[i]);
 
-    /*const char* argv_params[] = {"4", "8.0", "hello world!"};
-    void** argv = dynamic_call_create_argument_vector_from_strings(t, argv_params);*/
+    void** argv = dynamic_call_create_argument_vector_from_strings(t, &argv_params);
+    ASSERT_THAT(argv, NotNull());
 
+    /* call */
+    callback(&ret, argv);
+    EXPECT_THAT(ret, Eq(4 + 5 + 3 + 6 + 3 + 8 + 9 + 4 + 2 + 4 + 3 + 6 + 4.0 + 65.0));
+
+    ordered_vector_clear_free(&argv_params);
+    dynamic_call_destroy_argument_vector(t, argv);
     dynamic_call_destroy_type_info(t);
 }
 
