@@ -174,7 +174,7 @@ add_subdirectory ("lightship")
 add_subdirectory ("framework")
 add_subdirectory ("plugins")
 add_subdirectory ("util")
-add_subdirectory ("cross-compile")
+add_subdirectory ("cross-compile/cmake")
 
 if (BUILD_TESTS)
     add_subdirectory ("tests")
