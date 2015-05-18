@@ -299,7 +299,7 @@ menu_load_button_action(struct glob_t* g, struct button_t* button, const struct 
 SERVICE(menu_load_wrapper)
 {
     struct glob_t* g = get_global(service->plugin->game);
-    EXTRACT_ARG_PTR(0, file_name, const char*);
+    EXTRACT_ARGUMENT_PTR(0, file_name, const char*);
 
     struct menu_t* menu = menu_load(g, file_name);
     if(!menu)
@@ -312,7 +312,7 @@ SERVICE(menu_load_wrapper)
 SERVICE(menu_destroy_wrapper)
 {
     struct glob_t* g = get_global(service->plugin->game);
-    EXTRACT_ARG(0, menu_id, uint32_t, uint32_t);
+    EXTRACT_ARGUMENT(0, menu_id, uint32_t, uint32_t);
 
     struct menu_t* menu = map_find(&g->menu.menus, menu_id);
     if(menu)
@@ -323,8 +323,8 @@ SERVICE(menu_destroy_wrapper)
 SERVICE(menu_set_active_screen_wrapper)
 {
     struct glob_t* g = get_global(service->plugin->game);
-    EXTRACT_ARG_PTR(0, menu_name, const char*);
-    EXTRACT_ARG_PTR(1, screen_name, const char*);
+    EXTRACT_ARGUMENT_PTR(0, menu_name, const char*);
+    EXTRACT_ARGUMENT_PTR(1, screen_name, const char*);
 
     { MAP_FOR_EACH(&g->menu.menus, struct menu_t, hash, menu)
     {

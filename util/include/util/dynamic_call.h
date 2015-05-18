@@ -1,6 +1,7 @@
 #ifndef LIGHTSHIP_UTIL_DYNAMIC_CALL_H
 #define LIGHTSHIP_UTIL_DYNAMIC_CALL_H
 
+#include <stdarg.h>
 #include "util/pstdint.h"
 #include "util/config.h"
 
@@ -17,7 +18,7 @@ struct ordered_vector_t;
  * @param cast_to The type to cast the extracted argument to. This is also the
  * type of *var*.
  * @note If the argument being extracted is a pointer type, use
- * EXTRACT_ARG_PTR() instead.
+ * EXTRACT_ARGUMENT_PTR() instead.
  * @note *cast_from* and *cast_to* are necessary because there are two
  * dereferences. You can think of it as the extracted value being stored into
  * an intermediate before being casted to its final type. The type it has in
@@ -30,7 +31,7 @@ struct ordered_vector_t;
  * successful, the void-pointer must first be cast to a float-pointer
  * (*cast_from*), and finally cast to a GLfloat-pointer (*cast_to*).
  */
-#define EXTRACT_ARG(index, var, cast_from, cast_to) \
+#define EXTRACT_ARGUMENT(index, var, cast_from, cast_to) \
         cast_to var = (cast_to) *(cast_from*)argv[index]
 
 /*!
@@ -41,9 +42,9 @@ struct ordered_vector_t;
  * @param cast_to The pointer type to cast the extracted argument to. This is
  * also the type of *var*.
  * @note If the argument being extracted is not a pointer, use
- * EXTRACT_ARG().
+ * EXTRACT_ARGUMENT().
  */
-#define EXTRACT_ARG_PTR(index, var, cast_to) \
+#define EXTRACT_ARGUMENT_PTR(index, var, cast_to) \
         cast_to var = (cast_to)argv[index]
 
 /*!
@@ -66,34 +67,34 @@ struct ordered_vector_t;
 
 
 #define DYNAMIC_FUNCTION(func_name)                                         \
-        void func_name(void* ret, const void** argv)
+        void func_name(void* ret, void** argv)
 
 #define DYNAMIC_CALL0(func_name, ret_value) do {                            \
     func_name(ret_value, NULL); } while(0)
 #define DYNAMIC_CALL1(func_name, ret_value, arg1) do {                      \
-    const void* argv[1];                                                    \
+    void* argv[1];                                                          \
     argv[0] = &arg1;                                                        \
     func_name(ret_value, argv); } while(0)
 #define DYNAMIC_CALL2(func_name, ret_value, arg1, arg2) do {                \
-    const void* argv[2];                                                    \
+    void* argv[2];                                                          \
     argv[0] = &arg1;                                                        \
     argv[1] = &arg2;                                                        \
     func_name(ret_value, argv); } while(0)
 #define DYNAMIC_CALL3(func_name, ret_value, arg1, arg2, arg3) do {          \
-    const void* argv[3];                                                    \
+    void* argv[3];                                                          \
     argv[0] = &arg1;                                                        \
     argv[1] = &arg2;                                                        \
     argv[2] = &arg3;                                                        \
     func_name(ret_value, argv); } while(0)
 #define DYNAMIC_CALL4(func_name, ret_value, arg1, arg2, arg3, arg4) do {    \
-    const void* argv[4];                                                    \
+    void* argv[4];                                                          \
     argv[0] = &arg1;                                                        \
     argv[1] = &arg2;                                                        \
     argv[2] = &arg3;                                                        \
     argv[3] = &arg4;                                                        \
     func_name(ret_value, argv); } while(0)
 #define DYNAMIC_CALL5(func_name, ret_value, arg1, arg2, arg3, arg4, arg5) do {\
-    const void* argv[5];                                                    \
+    void* argv[5];                                                          \
     argv[0] = &arg1;                                                        \
     argv[1] = &arg2;                                                        \
     argv[2] = &arg3;                                                        \
@@ -147,6 +148,16 @@ dynamic_call_create_type_info(const char* ret_type, int argc, const char** argv)
  */
 void
 dynamic_call_destroy_type_info(struct type_info_t* type_info);
+
+/*!
+ *
+ */
+void**
+dynamic_call_create_argument_vector_from_varargs(const struct type_info_t* type_info,
+                                                  ...);
+void**
+vdynamic_call_create_argument_vector_from_varargs(const struct type_info_t* type_info,
+                                                  va_list ap);
 
 /*!
  *

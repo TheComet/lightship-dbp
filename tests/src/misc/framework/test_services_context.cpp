@@ -7,6 +7,14 @@
 
 using namespace testing;
 
+SERVICE(callback1)
+{
+    EXTRACT_ARGUMENT(0, a, int, int);
+    EXTRACT_ARGUMENT(1, b, double, double);
+    EXTRACT_ARGUMENT_PTR(2, str, const char*);
+    RETURN(a + b + strlen(str), int);
+}
+
 class NAME : public Test
 {
 public:
@@ -26,11 +34,6 @@ public:
     struct game_t* game;
     struct plugin_t* plugin;
 };
-
-int callback1(unsigned int a, double b, char* str)
-{
-    return a + b + strlen(str);
-}
 
 TEST_F(NAME, create_verify_type_info)
 {

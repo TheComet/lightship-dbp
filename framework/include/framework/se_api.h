@@ -28,7 +28,7 @@ typedef void (*event_func)(struct event_t* event, const void** argv);
  *              information on returning values from service functions.
  *   - argv   : An argument vector of void** pointing to the memory locations
  *              where argument types can be read from. See the helper macros
- *              EXTRACT_ARG() and EXTRACT_ARG_PTR()
+ *              EXTRACT_ARGUMENT() and EXTRACT_ARGUMENT_PTR()
  *              for more information on extracting arguments from service
  *              functions.
  * @param func_name The name of the service function.

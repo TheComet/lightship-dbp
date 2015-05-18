@@ -258,10 +258,10 @@ sprite_draw(void)
 SERVICE(sprite_create_wrapper)
 {
     uint32_t id;
-    EXTRACT_ARG_PTR(0, file_name, const char*);
-    EXTRACT_ARG(1, x_frame_count, uint16_t, uint16_t);
-    EXTRACT_ARG(2, y_frame_count, uint16_t, uint16_t);
-    EXTRACT_ARG(3, total_frame_count, uint16_t, uint16_t);
+    EXTRACT_ARGUMENT_PTR(0, file_name, const char*);
+    EXTRACT_ARGUMENT(1, x_frame_count, uint16_t, uint16_t);
+    EXTRACT_ARGUMENT(2, y_frame_count, uint16_t, uint16_t);
+    EXTRACT_ARGUMENT(3, total_frame_count, uint16_t, uint16_t);
     struct glob_t* g = get_global(service->plugin->game);
 
     if(sprite_create(g, file_name, x_frame_count, y_frame_count, total_frame_count, &id))
@@ -272,12 +272,12 @@ SERVICE(sprite_create_wrapper)
 /* ------------------------------------------------------------------------- */
 SERVICE(sprite_create_from_memory_wrapper)
 {
-    EXTRACT_ARG_PTR(0, pixel_buffer, const unsigned char*);
-    EXTRACT_ARG(1, img_width, uint16_t, uint16_t);
-    EXTRACT_ARG(2, img_height, uint16_t, uint16_t);
-    EXTRACT_ARG(3, x_frame_count, uint16_t, uint16_t);
-    EXTRACT_ARG(4, y_frame_count, uint16_t, uint16_t);
-    EXTRACT_ARG(5, total_frame_count, uint16_t, uint16_t);
+    EXTRACT_ARGUMENT_PTR(0, pixel_buffer, const unsigned char*);
+    EXTRACT_ARGUMENT(1, img_width, uint16_t, uint16_t);
+    EXTRACT_ARGUMENT(2, img_height, uint16_t, uint16_t);
+    EXTRACT_ARGUMENT(3, x_frame_count, uint16_t, uint16_t);
+    EXTRACT_ARGUMENT(4, y_frame_count, uint16_t, uint16_t);
+    EXTRACT_ARGUMENT(5, total_frame_count, uint16_t, uint16_t);
     uint32_t id;
 
     if(sprite_create_from_memory(pixel_buffer, img_width, img_height, x_frame_count, y_frame_count, total_frame_count, &id))
@@ -288,7 +288,7 @@ SERVICE(sprite_create_from_memory_wrapper)
 /* ------------------------------------------------------------------------- */
 SERVICE(sprite_destroy_wrapper)
 {
-    EXTRACT_ARG(0, id, uint32_t, uint32_t);
+    EXTRACT_ARGUMENT(0, id, uint32_t, uint32_t);
     struct sprite_t* sprite = map_find(&g_sprites, id);
     if(sprite)
         sprite_destroy(sprite);
