@@ -219,11 +219,11 @@ EVENT_LISTENER3(on_mouse_clicked, char mouse_btn, double x, double y)
 SERVICE(button_create_wrapper)
 {
     struct glob_t* g = get_global(service->plugin->game);
-    EXTRACT_ARG(0, text, const char*, const char*);
-    EXTRACT_ARG(1, x, float, float);
-    EXTRACT_ARG(2, y, float, float);
-    EXTRACT_ARG(3, width, float, float);
-    EXTRACT_ARG(4, height, float, float);
+    EXTRACT_ARGUMENT(0, text, const char*, const char*);
+    EXTRACT_ARGUMENT(1, x, float, float);
+    EXTRACT_ARGUMENT(2, y, float, float);
+    EXTRACT_ARGUMENT(3, width, float, float);
+    EXTRACT_ARGUMENT(4, height, float, float);
     RETURN(button_create(g, text, x, y, width, height), struct button_t*);
 }
 
@@ -231,7 +231,7 @@ SERVICE(button_create_wrapper)
 SERVICE(button_destroy_wrapper)
 {
     struct glob_t* g = get_global(service->plugin->game);
-    EXTRACT_ARG(0, id, uint32_t, uint32_t);
+    EXTRACT_ARGUMENT(0, id, uint32_t, uint32_t);
 
     struct button_t* button = map_find(&g->button.buttons, id);
     if(button)
@@ -242,7 +242,7 @@ SERVICE(button_destroy_wrapper)
 SERVICE(button_get_text_wrapper)
 {
     struct glob_t* g = get_global(service->plugin->game);
-    EXTRACT_ARG(0, id, uint32_t, uint32_t);
+    EXTRACT_ARGUMENT(0, id, uint32_t, uint32_t);
 
     struct button_t* button = map_find(&g->button.buttons, id);
     if(button)

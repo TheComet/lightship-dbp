@@ -143,7 +143,7 @@ dynamic_call_create_argument_vector_from_strings(const struct type_info_t* type_
                     ret[i] = malloc_string(str);
                     break;
                 case TYPE_WSTRING:
-                    ret[i] = malloc_wstring((wchar_t*)str);
+                    ret[i] = strtowcs(str);
                     break;
                 /* ------------------------------------------------------------------------- */
                 /* integer types */
@@ -261,17 +261,203 @@ dynamic_call_create_argument_vector_from_strings(const struct type_info_t* type_
                 /* ------------------------------------------------------------------------- */
                 /* none types can't be passed as an argument */
                 case TYPE_NONE:
-                    fprintf(stderr, "Cannot create argument vector: Invalid type \"%s\"\n", str);
+                    fprintf(stderr, "Cannot create argument in vector: Invalid type \"%s\"\n", str);
                     failed = 1;
                     break;
                 /* ------------------------------------------------------------------------- */
                 default:
-                    fprintf(stderr, "Cannot create argument vector: Unknown type \"%s\"\n", str);
+                    fprintf(stderr, "Cannot create argument in vector: Unknown type \"%s\"\n", str);
                     failed = 1;
                     break;
             }
 
             ++i;
+        }
+
+        /* if any of the conversions failed, free the list and return NULL */
+        if(failed)
+        {
+            dynamic_call_destroy_argument_vector(type_info, ret);
+            ret = NULL;
+        }
+    }
+
+    return ret;
+}
+
+/* ------------------------------------------------------------------------- */
+void**
+dynamic_call_create_argument_vector_from_varargs(const struct type_info_t* type_info,
+                                                  ...)
+{
+    va_list ap;
+    void** ret;
+    va_start(ap, type_info);
+    ret = vdynamic_call_create_argument_vector_from_varargs(type_info, ap);
+    va_end(ap);
+    return ret;
+}
+
+void**
+vdynamic_call_create_argument_vector_from_varargs(const struct type_info_t* type_info,
+                                                   va_list ap)
+{
+    void** ret;
+
+    assert(type_info);
+
+    /* create void** argument vector */
+    /* reserve double the space for when values smaller than the size of void*
+     * are copied into the argument vector directly */
+    ret = (void**)MALLOC(type_info->argc * sizeof(void*) * 2);
+    if(!ret)
+    {
+        fprintf(stderr, "malloc() failed in dynamic_call_create_argument_vector_from_strings() -- not enough memory\n");
+        return NULL;
+    }
+    memset(ret, 0, type_info->argc * sizeof(void*));
+
+    /* parse argument vector */
+    {
+        uint32_t i;
+        char failed = 0;
+        for(i = 0; i != type_info->argc; ++i)
+        {
+            switch(type_info->argv_type[i])
+            {
+                /* ------------------------------------------------------------------------- */
+                /* string types */
+                case TYPE_STRING:
+                    ret[i] = malloc_string(va_arg(ap, char*));
+                    break;
+                case TYPE_WSTRING:
+                    ret[i] = malloc_wstring(va_arg(ap, wchar_t*));
+                    break;
+                /* ------------------------------------------------------------------------- */
+                /* integer types */
+                case TYPE_INT8:
+                {   int8_t value = (int8_t)va_arg(ap, int);
+                    ret[i] = ret + type_info->argc + i;
+                    memcpy(ret[i], &value, sizeof value);
+                    break; }
+                case TYPE_UINT8:
+                {   uint8_t value = (uint8_t)va_arg(ap, int);
+                    ret[i] = ret + type_info->argc + i;
+                    memcpy(ret[i], &value, sizeof value);
+                    break; }
+#if SIZEOF_VOID_PTR >= 2
+                case TYPE_INT16:
+                {   int16_t value = (int16_t)va_arg(ap, int);
+                    ret[i] = ret + type_info->argc + i;
+                    memcpy(ret[i], &value, sizeof value);
+                    break; }
+                case TYPE_UINT16:
+                {   uint16_t value = (uint16_t)va_arg(ap, int);
+                    ret[i] = ret + type_info->argc + i;
+                    memcpy(ret[i], &value, sizeof value);
+                    break; }
+#else
+                case TYPE_INT16:
+                {   ret[i] = MALLOC(sizeof(int16_t));
+                    *(int16_t*)ret[i] = (int16_t)va_arg(ap, int);
+                    break; }
+                case TYPE_UINT16:
+                {   ret[i] = MALLOC(sizeof(uint16_t));
+                    *(uint16_t*)ret[i] = (uint16_t)va_arg(ap, int);
+                    break; }
+#endif
+#if SIZEOF_VOID_PTR >= 4
+                case TYPE_INT32:
+                {   int32_t value = va_arg(ap, int32_t);
+                    ret[i] = ret + type_info->argc + i;
+                    memcpy(ret[i], &value, sizeof value);
+                    break; }
+                case TYPE_UINT32:
+                {   uint32_t value = va_arg(ap, uint32_t);
+                    ret[i] = ret + type_info->argc + i;
+                    memcpy(ret[i], &value, sizeof value);
+                    break; }
+#else
+                case TYPE_INT32:
+                {   ret[i] = MALLOC(sizeof(int32_t));
+                    *(int32_t*)ret[i] = va_arg(ap, int32_t);
+                    break; }
+                case TYPE_UINT32:
+                {   ret[i] = MALLOC(sizeof(uint32_t));
+                    *(uint32_t*)ret[i] = va_arg(ap, uint32_t);
+                    break; }
+#endif
+#if SIZEOF_VOID_PTR >= 8
+                case TYPE_INT64:
+                {   int64_t value = va_arg(ap, int64_t);
+                    ret[i] = ret + type_info->argc + i;
+                    memcpy(ret[i], &value, sizeof value);
+                    break; }
+                case TYPE_UINT64:
+                {   uint64_t value = va_arg(ap, uint64_t);
+                    ret[i] = ret + type_info->argc + i;
+                    memcpy(ret[i], &value, sizeof value);
+                    break; }
+#else
+                case TYPE_INT64:
+                {   ret[i] = MALLOC(sizeof(int64_t));
+                    *(int64_t*)ret[i] = va_arg(ap, int64_t);
+                    break; }
+                case TYPE_UINT64:
+                {   ret[i] = MALLOC(sizeof(uint64_t));
+                    *(uint64_t*)ret[i] = va_arg(ap, uint64_t);
+                    break; }
+#endif
+                /* ------------------------------------------------------------------------- */
+                /* intptr is by definition the same size as void* */
+                case TYPE_INTPTR:
+                {   intptr_t value = (intptr_t)va_arg(ap, int);
+                    ret[i] = ret + type_info->argc + i;
+                    memcpy(ret[i], &value, sizeof value);
+                    break; }
+                case TYPE_UINTPTR:
+                {   uintptr_t value = (uintptr_t)va_arg(ap, int);
+                    ret[i] = ret + type_info->argc + i;
+                    memcpy(ret[i], &value, sizeof value);
+                    break; }
+                /* ------------------------------------------------------------------------- */
+                /* floating point types */
+#if SIZEOF_VOID_PTR >= SIZEOF_FLOAT
+                case TYPE_FLOAT:
+                {   float value = (float)va_arg(ap, double);
+                    ret[i] = ret + type_info->argc + i;
+                    memcpy(ret[i], &value, sizeof value);
+                    break; }
+#else
+                case TYPE_FLOAT:
+                {   ret[i] = MALLOC(sizeof(float));
+                    *(float*)ret[i] = (float)va_arg(ap, double);
+                    break; }
+#endif
+#if SIZEOF_VOID_PTR >= SIZEOF_DOUBLE
+                case TYPE_DOUBLE:
+                {   double value = va_arg(ap, double);
+                    ret[i] = ret + type_info->argc + i;
+                    memcpy(ret[i], &value, sizeof value);
+                    break; }
+#else
+                case TYPE_DOUBLE:
+                {   ret[i] = MALLOC(sizeof(double));
+                    *(double*)ret[i] = va_arg(ap, double);
+                    break; }
+#endif
+                /* ------------------------------------------------------------------------- */
+                /* none types can't be passed as an argument */
+                case TYPE_NONE:
+                    fprintf(stderr, "Cannot create argument in vector: Invalid type!\n");
+                    failed = 1;
+                    break;
+                /* ------------------------------------------------------------------------- */
+                default:
+                    fprintf(stderr, "Cannot create argument in vector: Unknown type!\n");
+                    failed = 1;
+                    break;
+            }
         }
 
         /* if any of the conversions failed, free the list and return NULL */
@@ -293,46 +479,43 @@ dynamic_call_destroy_argument_vector(const struct type_info_t* type_info,
     uint32_t i;
     for(i = 0; i != type_info->argc; ++i)
     {
-        if(argv[i])
+        switch(type_info->argv_type[i])
         {
-            switch(type_info->argv_type[i])
-            {
-                /* free strings */
-                case TYPE_STRING:
-                case TYPE_WSTRING:
-                    free_string(argv[i]);
-                    break;
+            /* free strings */
+            case TYPE_STRING:
+            case TYPE_WSTRING:
+                free_string(argv[i]);
+                break;
 
-                /* nothing to free */
-                case TYPE_INT8:
-                case TYPE_UINT8:
-                    break;
+            /* nothing to free */
+            case TYPE_INT8:
+            case TYPE_UINT8:
+                break;
 
-                /* free 16-64 bit integers, floats, and doubles */
+            /* free 16-64 bit integers, floats, and doubles */
 #if SIZEOF_VOID_PTR < 2
-                case TYPE_INT16:
-                case TYPE_UINT16:
+            case TYPE_INT16:
+            case TYPE_UINT16:
 #endif
 #if SIZEOF_VOID_PTR < 4
-                case TYPE_INT32:
-                case TYPE_UINT32:
+            case TYPE_INT32:
+            case TYPE_UINT32:
 #endif
 #if SIZEOF_VOID_PTR < 8
-                case TYPE_INT64:
-                case TYPE_UINT64:
+            case TYPE_INT64:
+            case TYPE_UINT64:
 #endif
 #if SIZEOF_VOID_PTR < SIZEOF_FLOAT
-                case TYPE_FLOAT:
+            case TYPE_FLOAT:
 #endif
 #if SIZEOF_VOID_PTR < SIZEOF_DOUBLE
-                case TYPE_DOUBLE:
+            case TYPE_DOUBLE:
 #endif
-                    FREE(argv[i]);
-                    break;
+                FREE(argv[i]);
+                break;
 
-                default:
-                    break;
-            }
+            default:
+                break;
         }
     }
 
