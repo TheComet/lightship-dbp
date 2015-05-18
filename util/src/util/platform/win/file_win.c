@@ -2,14 +2,19 @@
 #include "framework/log.h"
 #include "util/memory.h"
 #include <windows.h>
+#include "util/platform/win/error.h"
+#include "util/string.h"
 
 /* ------------------------------------------------------------------------- */
 uint32_t
 file_load_into_memory(const char* file_name, void** buffer, file_opts_e opts)
 {
     HANDLE hFile;
+    LARGE_INTEGER buffer_size_ex;
     DWORD buffer_size;
     DWORD bytes_read;
+
+    printf("file name: %s\n", file_name);
 
     /* open file */
     hFile = CreateFile(TEXT(file_name), GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
@@ -21,13 +26,16 @@ file_load_into_memory(const char* file_name, void** buffer, file_opts_e opts)
 
     for(;;)
     {
-
         /* get file size */
-        if(!GetFileSize(hFile, &buffer_size))
+        if(!GetFileSizeEx(hFile, &buffer_size_ex))
         {
+            char* error = get_last_error_string();
             fprintf(stderr, "GetFileSizeEx() failed for file \"%s\"\n", file_name);
+            fprintf(stderr, "error: %s\n", error);
+            free_string(error);
             break;
         }
+        buffer_size = buffer_size_ex.LowPart;
 
         /* allocate buffer to copy file into */
         if(opts & FILE_BINARY)
@@ -47,7 +55,6 @@ file_load_into_memory(const char* file_name, void** buffer, file_opts_e opts)
             fprintf(stderr, "ReadFile() failed for file \"%s\"\n", file_name);
             break;
         }
-
 
         CloseHandle(hFile);
 

@@ -36,7 +36,7 @@ init_2d(struct glob_t* g)
     g_line_shader_id = shader_load(g, two_d_shader_file);
 
     unordered_vector_init_vector(&g_shapes_collection, sizeof(struct shapes_t));
-    
+
     return 1;
 }
 
@@ -80,11 +80,11 @@ shapes_2d_end(void)
     /* current shapes must be active */
     if(!g_current_shapes)
         return 0;
-    
+
     /* give this shapes a uinque ID */
     ID = guid_counter++;
     g_current_shapes->ID = ID;
-    
+
     /* generate VAO, VBO, VIO, and set up render state */
     glGenVertexArrays(1, &g_current_shapes->vao);printOpenGLError();
     glBindVertexArray(g_current_shapes->vao);printOpenGLError();
@@ -106,7 +106,7 @@ shapes_2d_end(void)
                         g_current_shapes->index_data.data,
                         GL_STATIC_DRAW);printOpenGLError();
     glBindVertexArray(0);printOpenGLError();
-    
+
     g_current_shapes = NULL;
 
     return ID;
@@ -140,7 +140,7 @@ line_2d(float x1, float y1, float x2, float y2, uint32_t colour)
 
     if(!g_current_shapes)
         return;
-    
+
     /* add two new vertices and indices to the shapes */
     vertex = (struct vertex_2d_t*)unordered_vector_push_emplace(&g_current_shapes->vertex_data);
     vertex->position[0] = x1;
@@ -169,7 +169,7 @@ box_2d(float x1, float y1, float x2, float y2, uint32_t colour)
 {
     if(!g_current_shapes)
         return;
-    
+
     line_2d(x1, y1, x2, y1, colour);
     line_2d(x2, y1, x2, y2, colour);
     line_2d(x2, y2, x1, y2, colour);
@@ -209,7 +209,7 @@ draw_2d(void)
 
             glBindVertexArray(shapes->vao);printOpenGLError();
                 glDrawElements(GL_LINES, shapes->index_data.count, GL_UNSIGNED_SHORT, NULL);printOpenGLError();
-            
+
         }
     }
     glBindVertexArray(0);

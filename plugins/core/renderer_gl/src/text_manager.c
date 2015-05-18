@@ -72,7 +72,7 @@ char
 text_manager_init(struct glob_t* g)
 {
     FT_Error error;
-    
+
     /* load the text shader */
     g_text_shader_id = shader_load(g, text_shader_file);printOpenGLError();
 
@@ -84,11 +84,11 @@ text_manager_init(struct glob_t* g)
         llog(LOG_ERROR, g->game, PLUGIN_NAME, 1, "Failed to initialise freetype");
         return 0;
     }
-    
+
     /* This is used as a render list and as a map to expose group objects to the
      * service API */
     map_init_map(&g_text_groups);
-    
+
     return 1;
 }
 
@@ -123,18 +123,18 @@ text_group_create(struct glob_t* g,
 {
     struct text_group_t* group;
     uint32_t id;
-    
+
     /* create new text group object */
     group = (struct text_group_t*)MALLOC(sizeof(struct text_group_t));
     memset(group, 0, sizeof(struct text_group_t));
-    
+
     /* load font face */
     if(!text_group_load_font(g, group, font_filename, char_size))
     {
         FREE(group);
         return 0;
     }
-    
+
     /* initialise containers */
     map_init_map(&group->char_info);
     unordered_vector_init_vector(&group->texts, sizeof(struct text_t*));
@@ -154,7 +154,7 @@ text_group_create(struct glob_t* g,
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);printOpenGLError();
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);printOpenGLError();
     glBindVertexArray(0);printOpenGLError();
-    
+
     /* generate ID and add group to global list */
     id = guid++;
     map_insert(&g_text_groups, id, group);
@@ -170,7 +170,7 @@ text_group_destroy(uint32_t id)
     struct text_group_t* group = map_erase(&g_text_groups, id);
     if(!group)
         return;
-    
+
     /* destroy character info */
     {
         MAP_FOR_EACH(&group->char_info, struct char_info_t, key, info)
@@ -180,12 +180,12 @@ text_group_destroy(uint32_t id)
         }
         map_clear_free(&group->char_info);
     }
-    
+
     /* destroy texts */
     {
         UNORDERED_VECTOR_FOR_EACH(&group->texts, struct text_t*, ptext)
         {
-            /* 
+            /*
              * NOTE: text_destroy WILL call text_group_remove_text_object,
              * which in turn will modify this vector we're currently
              * iterating. For this not to happen, we have to first set
@@ -196,11 +196,11 @@ text_group_destroy(uint32_t id)
         }
         unordered_vector_clear_free(&group->texts);
     }
-    
+
     /* clear vertex and index buffers */
     ordered_vector_clear_free(&group->vertex_buffer);
     ordered_vector_clear_free(&group->index_buffer);
-    
+
     /* clean up GL stuff */
     glDeleteTextures(1, &group->gl.tex);printOpenGLError();
     glDeleteBuffers(1, &group->gl.ibo);printOpenGLError();
@@ -209,7 +209,7 @@ text_group_destroy(uint32_t id)
 
     /* clean up freetype stuff */
     FT_Done_Face(group->face);
-    
+
     /* finally, destroy font object */
     FREE(group);
 }
@@ -230,16 +230,16 @@ text_group_load_character_set(struct glob_t* g,
     const wchar_t* iterator;
     wchar_t* null_terminator = L'\0';
     struct unordered_vector_t sorted_chars;
-    
+
     struct text_group_t* group = map_find(&g_text_groups, id);
     if(!group)
         return;
-    
+
     /* if no characters were supplied (NULL), use default set */
     if(!characters)
         characters = g_default_characters;
 
-    /* 
+    /*
      * The following code does two things:
      *  1) Elminiate any duplicate characters.
      *     Maps will only insert elements successfully when the key is unique:
@@ -253,7 +253,7 @@ text_group_load_character_set(struct glob_t* g,
         map_insert(&group->char_info, (uint32_t)*iterator, NULL);
     }
 
-    /* 
+    /*
      * Copy the characters from the map into a linear container as wchar_t's.
      * This is required to load the atlass.
      */
@@ -270,7 +270,7 @@ text_group_load_character_set(struct glob_t* g,
     /* sorted_chars now contains all characters as wchar_t's. Ready to load atlass */
     if(sorted_chars.count > 1)
         text_group_load_atlass(g, group, (wchar_t*)sorted_chars.data);
-    
+
     unordered_vector_clear_free(&sorted_chars);
 }
 
@@ -283,10 +283,10 @@ text_group_add_text_object(struct text_group_t* text_group, struct text_t* text)
         if(*pregistered_text == text)
             return;
     }
-    
+
     unordered_vector_push(&text_group->texts, &text);
     text->group = text_group;
-    
+
     text_group->mesh_needs_reuploading = 1;
 }
 
@@ -302,7 +302,7 @@ text_group_remove_text_object(struct text_group_t* text_group, struct text_t* te
             return;
         }
     }
-    
+
     text_group->mesh_needs_reuploading = 1;
 }
 
@@ -326,12 +326,12 @@ text_draw(void)
             /* if any text objects were updated, then mesh needs re-uploading */
             if(group->mesh_needs_reuploading)
                 text_group_sync_with_gpu(group);
-            
+
             /* render */
             glBindVertexArray(group->gl.vao);printOpenGLError();
                 glBindTexture(GL_TEXTURE_2D, group->gl.tex);
                 glDrawElements(GL_TRIANGLES, group->index_buffer.count, GL_UNSIGNED_SHORT, NULL);printOpenGLError();
-            
+
         }
     }
     glBindVertexArray(0);printOpenGLError();
@@ -359,7 +359,7 @@ text_group_load_font(struct glob_t* g,
         llog(LOG_ERROR, g->game, PLUGIN_NAME, 3, "Failed to open font file \"", filename, "\"");
         return 0;
     }
-    
+
     /* set character size */
     error = FT_Set_Char_Size(group->face, TO_26DOT6(char_size), 0, 300, 300);
     if(error)
@@ -367,7 +367,7 @@ text_group_load_font(struct glob_t* g,
         llog(LOG_ERROR, g->game, PLUGIN_NAME, 1, "Failed to set the character size");
         return 0;
     }
-    
+
     return 1;
 }
 
@@ -383,11 +383,11 @@ text_group_load_atlass(struct glob_t* g,
     unsigned int tex_width, tex_height, glyph_offset_y;
     unsigned int min_advance;
     GLuint* buffer = NULL;
-    
+
     /* the number of pixels to place between each glyph */
     /* TODO for some reason this isn't actually true with all glyphs. Who knows why. */
     min_advance = 2;
-    
+
     /*
      * First, we need to:
      *   + find the glyph with the maximum height.
@@ -395,7 +395,7 @@ text_group_load_atlass(struct glob_t* g,
      *   + accumulate all advance spacings.
      * This will be used to determine the dimensions of the atlass as well as
      * the correct Y offsets of each glyph when rendering to the atlass.
-     * 
+     *
      * Report any missing glyphs to the log.
      */
     tex_width = 0;
@@ -415,15 +415,15 @@ text_group_load_atlass(struct glob_t* g,
             llog(LOG_ERROR, g->game, PLUGIN_NAME, 3, "Failed to load glyph \"", buffer, "\"");
             continue;
         }
-        
+
         /* calculate maximum Y bearing offset */
         offset = TO_PIXELS(group->face->glyph->metrics.horiBearingY);
         if(glyph_offset_y < offset)
             glyph_offset_y = offset;
-        
+
         /* accumulate advances to get maximum width */
         tex_width += TO_PIXELS(group->face->glyph->advance.x) + min_advance;
-        
+
         /* calculate maximum height */
         height = group->face->glyph->bitmap.rows;
         if(tex_height < height)
@@ -453,12 +453,12 @@ text_group_load_atlass(struct glob_t* g,
         error = FT_Load_Char(group->face, *iterator, FT_LOAD_RENDER);
         if(error)
             continue;
-        
+
         bmp_ptr = (GLubyte*)group->face->glyph->bitmap.buffer;
         bmp_width = group->face->glyph->bitmap.width;
         bmp_height = group->face->glyph->bitmap.rows;
         bmp_offset_y = glyph_offset_y - TO_PIXELS(group->face->glyph->metrics.horiBearingY);
-        
+
         /* need to convert whatever pixel mode bitmap has to RGBA */
         switch(group->face->glyph->bitmap.pixel_mode)
         {
@@ -488,7 +488,7 @@ text_group_load_atlass(struct glob_t* g,
                 break;
         }
 
-        /* 
+        /*
          * Either create new character info object, or use an existing one if
          * the value associated with this character is not NULL (this is the
          * case if the character was already in the map)
@@ -561,7 +561,7 @@ text_group_sync_with_gpu(struct text_group_t* group)
             glBufferData(GL_ARRAY_BUFFER, group->vertex_buffer.count * sizeof(struct vertex_quad_t), group->vertex_buffer.data, GL_DYNAMIC_DRAW);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, group->index_buffer.count * sizeof(INDEX_DATA_TYPE), group->index_buffer.data, GL_DYNAMIC_DRAW);
     glBindVertexArray(0);
-    
+
     /* reset flag */
     group->mesh_needs_reuploading = 0;
 }
