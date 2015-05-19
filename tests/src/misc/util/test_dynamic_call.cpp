@@ -177,10 +177,22 @@ TEST(NAME, callback_create_argument_vector_from_varargs)
 
     /* create return type and argument vector */
     int ret;
+	const char* a = "another test!";
+	const wchar_t* b = L"lolololol";
+	int8_t c = 3;
+	uint8_t d = 6;
+	int16_t e = 3;
+	uint16_t f = 8;
+	int32_t g = 9;
+	uint32_t h = 4;
+	int64_t i = 2;
+	uint64_t j = 4;
+	intptr_t k = 3;
+	uintptr_t l = 6;
+	float m = 4.0;
+	double n = 65.0;
     void** argv = dynamic_call_create_argument_vector_from_varargs(t,
-        "another test!",
-        L"lolololol",
-        3, 6, 3, 8, 9, 4, 2, 4, 3, 6, 4.0, 65.0
+        a, b, c, d, e, f, g, h, i, j, k, l, m, n
     );
 
     /* call */
