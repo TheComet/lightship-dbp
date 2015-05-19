@@ -1,6 +1,5 @@
 #include "framework/config.h"
 #include "framework/config.h"
-#include "framework/event_api.h"
 #include "framework/se_api.h"
 #include "util/ptree.h"
 #include "util/linked_list.h"
