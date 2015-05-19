@@ -5,6 +5,8 @@
 #include "framework/config.h"
 #include "framework/event_api.h"
 
+C_HEADER_BEGIN
+
 /* http://stackoverflow.com/questions/3585846/color-text-in-terminal-aplications-in-unix*/
 #define KNRM  "\x1B[0m"
 #define KRED  "\x1B[31m"
@@ -22,7 +24,7 @@ struct game_t;
 typedef enum log_level_e
 {
     LOG_INFO = 0,
-    LOG_WARNING = 1, 
+    LOG_WARNING = 1,
     LOG_ERROR = 2,
     LOG_FATAL = 3,
     LOG_USER = 4,
@@ -46,7 +48,7 @@ llog_set_events(struct event_t* on_indent, struct event_t* on_unindent, struct e
 
 /*!
  * @brief Opens an indentation level of the log.
- * 
+ *
  * This causes every succeeding call to llog() to be indented by a certain
  * amount, until llog_unindent() is called.
  * @param[in] indent_name The name of the new indentation level.
@@ -56,7 +58,7 @@ llog_indent(struct game_t* game, const char* indent_name);
 
 /*!
  * @brief Closes one indentation level of the log.
- * 
+ *
  * This causes every succeeding call to llog() to be indented one level less
  * than before. If the indent level is at 0, then nothing happens.
  */
@@ -79,5 +81,7 @@ llog(log_level_e level, const struct game_t* game, const char* plugin, uint32_t 
 
 FRAMEWORK_PUBLIC_API void
 llog_critical_use_no_memory(const char* message);
+
+C_HEADER_END
 
 #endif /* FRAMEWORK_LOG_H */

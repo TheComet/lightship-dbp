@@ -1,10 +1,9 @@
 #ifndef FRAMEWORK_EVENT_API_H
 #define FRAMEWORK_EVENT_API_H
 
-#include <stdio.h>
+#include "util/config.h"
 #include "util/unordered_vector.h"
-
-C_HEADER_BEGIN
+#include <stdio.h>
 
 struct event_t;
 struct game_t;
@@ -298,8 +297,6 @@ EVENT_C(evt_foo, args...);
 #define EVENT_C4(event, arg1_t, arg2_t, arg3_t, arg4_t)                     \
     struct event_t* event = (struct event_t*)0;                             \
     EVENT_GEN_DUMMY_FUNCTION_DEF4(event, arg1_t, arg2_t, arg3_t, arg4_t)
-
-C_HEADER_END
 
 struct event_t
 {
