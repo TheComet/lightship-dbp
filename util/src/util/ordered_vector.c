@@ -154,7 +154,7 @@ ordered_vector_pop(struct ordered_vector_t* vector)
 
 /* ------------------------------------------------------------------------- */
 void*
-ordered_vector_back(struct ordered_vector_t* vector)
+ordered_vector_back(const struct ordered_vector_t* vector)
 {
     assert(vector);
 

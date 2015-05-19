@@ -148,7 +148,7 @@ ordered_vector_pop(struct ordered_vector_t* vector);
  * If there are no elements in the vector, NULL is returned.
  */
 LIGHTSHIP_UTIL_PUBLIC_API void*
-ordered_vector_back(struct ordered_vector_t* vector);
+ordered_vector_back(const struct ordered_vector_t* vector);
 
 /*!
  * @brief Allocates space for a new element at the specified index, but does

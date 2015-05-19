@@ -36,7 +36,7 @@ load_and_compile_shader(struct glob_t* g, GLuint shader_ID, const char* file_nam
     GLchar* code;
 
     /* copy file into memory */
-    uint32_t bytes = file_load_into_memory(file_name, (void**)&code, 0);
+    file_load_into_memory(file_name, (void**)&code, 0);
     if(!code)
     {
         llog(LOG_ERROR, g->game, PLUGIN_NAME, 3, "failed to load file \"", file_name, "\"");
