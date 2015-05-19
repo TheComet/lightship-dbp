@@ -401,11 +401,11 @@ vdynamic_call_create_argument_vector_from_varargs(const struct type_info_t* type
 #else
                 case TYPE_INT64:
                 {   ret[i] = MALLOC(sizeof(int64_t));
-                    *(int64_t*)ret[i] = va_arg(ap, int64_t);
+                    *(int64_t*)ret[i] = (int64_t)va_arg(ap, int64_t);
                     break; }
                 case TYPE_UINT64:
                 {   ret[i] = MALLOC(sizeof(uint64_t));
-                    *(uint64_t*)ret[i] = va_arg(ap, uint64_t);
+                    *(uint64_t*)ret[i] = (uint64_t)va_arg(ap, uint64_t);
                     break; }
 #endif
                 /* ------------------------------------------------------------------------- */
