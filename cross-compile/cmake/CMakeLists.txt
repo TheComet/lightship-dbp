@@ -1,13 +1,13 @@
 option (CROSS_COMPILE_i486-pc-mingw32 "cross compile for windows i486" OFF)
 option (CROSS_COMPILE_i586-pc-mingw32 "cross compile for windows i586" OFF)
+option (CROSS_COMPILE_i686-pc-mingw32 "cross compile for windows i686" OFF)
 option (CROSS_COMPILE_x86_64-pc-mingw32 "cross compile for windows x86_64" OFF)
 set (BUILD_HOST "rainbowdash" CACHE STRING "The name of the computer doing the building")
 set (MAKE_ARGS -j5 CACHE STRING "Arguments to pass to make")
 
 file (WRITE "toolchains/.gitignore" "*")
 
-macro (generate_cross_arch ARCH_NAME ARCH C_COMPILER RC_COMPILER ROOT_PATH
-        ENABLE_WINDOWS_EX)
+macro (generate_cross_arch ARCH_NAME ARCH C_COMPILER RC_COMPILER ROOT_PATH)
 
     # create build directory for this architecture and make sure it gets
     # ignored by git
@@ -38,7 +38,6 @@ macro (generate_cross_arch ARCH_NAME ARCH C_COMPILER RC_COMPILER ROOT_PATH
                 -DCMAKE_TOOLCHAIN_FILE=${CMAKE_CURRENT_LIST_DIR}/toolchains/toolchain-${ARCH}.cmake
                 -DCMAKE_INSTALL_PREFIX=${${ARCH}_INSTALL_PREFIX}
                 -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-                -DENABLE_WINDOWS_EX=${ENABLE_WINDOWS_EX}
                 ${CMAKE_SOURCE_DIR}
         WORKING_DIRECTORY
             ${BUILD_DIR}
@@ -60,59 +59,50 @@ macro (generate_cross_arch ARCH_NAME ARCH C_COMPILER RC_COMPILER ROOT_PATH
 endmacro ()
 
 if (BUILD_HOST STREQUAL "rainbowdash")
-    if (CROSS_COMPILE_i486-pc-mingw32)
-        generate_cross_arch ("Windows"
-                            "i486-pc-mingw32"
-                            "/usr/bin/i486-pc-mingw32-gcc"
-                            "/usr/bin/i486-pc-mingw32-windres"
-                            "/usr/bin/i486-pc-mingw32"
-                            OFF)
+    if (CROSS_COMPILE_i686-pc-mingw32)
+        generate_cross_arch("Windows"
+                            "i686-pc-mingw32"
+                            "/usr/bin/i686-pc-mingw32-gcc"
+                            "/usr/bin/i686-pc-mingw32-windres"
+                            "/usr/bin/i686-pc-mingw32")
     endif ()
     if (CROSS_COMPILE_x86_64-pc-mingw32)
         generate_cross_arch ("Windows"
                             "x86_64-pc-mingw32"
                             "/usr/bin/x86_64-pc-mingw32-gcc"
                             "/usr/bin/x86_64-pc-mingw32-windres"
-                            "/usr/bin/x86_64-pc-mingw32"
-                            ON)
+                            "/usr/bin/x86_64-pc-mingw32")
     endif ()
 endif ()
 if (BUILD_HOST STREQUAL "twilight")
-    if (CROSS_COMPILE_i486-pc-mingw32)
+    if (CROSS_COMPILE_i686-pc-mingw32)
         generate_cross_arch("Windows"
-                            "i486-pc-mingw32"
-                            "/usr/bin/i486-pc-mingw32-gcc"
-                            "/usr/bin/i486-pc-mingw32-windres"
-                            "/usr/bin/i486-pc-mingw32"
-                            OFF)
+                            "i686-pc-mingw32"
+                            "/usr/bin/i686-pc-mingw32-gcc"
+                            "/usr/bin/i686-pc-mingw32-windres"
+                            "/usr/bin/i686-pc-mingw32")
     endif ()
     if (CROSS_COMPILE_x86_64-pc-mingw32)
         generate_cross_arch ("Windows"
                             "x86_64-pc-mingw32"
                             "/usr/bin/x86_64-pc-mingw32-gcc"
                             "/usr/bin/x86_64-pc-mingw32-windres"
-                            "/usr/bin/x86_64-pc-mingw32"
-                            ON)
+                            "/usr/bin/x86_64-pc-mingw32")
     endif ()
 endif ()
 if (BUILD_HOST STREQUAL "game.pixelcloud.ch")
-    if (CROSS_COMPILE_i486-pc-mingw32)
-        message (FATAL_ERROR "Compiling for i486-pc-mingw32 is not supported on this computer")
-    endif ()
     if (CROSS_COMPILE_i586-pc-mingw32)
         generate_cross_arch ("Windows"
                             "i586-pc-mingw32"
                             "/usr/bin/i586-mingw32msvc-gcc"
                             "/usr/bin/i586-mingw32msvc-windres"
-                            "/usr/bin/i586-mingw32msvc"
-                            ON)
+                            "/usr/bin/i586-mingw32msvc")
     endif ()
     if (CROSS_COMPILE_x86_64-pc-mingw32)
         generate_cross_arch ("Windows"
                             "x86_64-pc-mingw32"
                             "/usr/bin/x86_64-w64-mingw32-gcc"
                             "/usr/bin/x86_64-w64-mingw32-windres"
-                            "/usr/bin/x86_64-w64-mingw32"
-                            ON)
+                            "/usr/bin/x86_64-w64-mingw32")
     endif ()
 endif ()

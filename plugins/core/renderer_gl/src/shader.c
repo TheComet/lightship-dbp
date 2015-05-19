@@ -43,8 +43,6 @@ load_and_compile_shader(struct glob_t* g, GLuint shader_ID, const char* file_nam
         return NULL;
     }
 
-    mutated_string_and_hex_dump(code, bytes);
-
     /* compile */
     llog(LOG_INFO, g->game, PLUGIN_NAME, 3, "compiling shader: \"", file_name, "\"");
     glShaderSource(shader_ID, 1, (const GLchar**)&code, NULL);
