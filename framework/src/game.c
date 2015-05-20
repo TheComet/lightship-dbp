@@ -158,7 +158,7 @@ game_disconnect(struct game_t* game)
 void
 game_start(struct game_t* game)
 {
-    EVENT_FIRE_FROM_TEMP0(evt_start, game->event.start);
+    EVENT_FIRE0(game->event.start);
     game->state = GAME_STATE_RUNNING;
 }
 
@@ -166,7 +166,7 @@ game_start(struct game_t* game)
 void
 game_pause(struct game_t* game)
 {
-    EVENT_FIRE_FROM_TEMP0(evt_pause, game->event.pause);
+    EVENT_FIRE0(game->event.pause);
     game->state = GAME_STATE_PAUSED;
 }
 
@@ -174,7 +174,7 @@ game_pause(struct game_t* game)
 void
 game_exit(struct game_t* game)
 {
-    EVENT_FIRE_FROM_TEMP0(evt_exit, game->event.exit);
+    EVENT_FIRE0(game->event.exit);
     game->state = GAME_STATE_TERMINATED;
 }
 
@@ -205,8 +205,7 @@ game_dispatch_stats(uint32_t render_fps, uint32_t tick_fps)
 {
     MAP_FOR_EACH(&g_games, struct game_t, key, game)
     {
-        EVENT_FIRE_FROM_TEMP2(evt_loop_stats, game->event.stats,
-                              render_fps, tick_fps);
+        EVENT_FIRE2(game->event.stats, render_fps, tick_fps);
     }
 }
 
@@ -216,7 +215,7 @@ game_dispatch_render(void)
 {
     MAP_FOR_EACH(&g_games, struct game_t, key, game)
     {
-        EVENT_FIRE_FROM_TEMP0(evt_render, game->event.render);
+        EVENT_FIRE0(game->event.render);
     }
 }
 
@@ -226,7 +225,7 @@ game_dispatch_tick(void)
 {
     MAP_FOR_EACH(&g_games, struct game_t, key, game)
     {
-        EVENT_FIRE_FROM_TEMP0(evt_tick, game->event.tick);
+        EVENT_FIRE0(game->event.tick);
     }
 }
 

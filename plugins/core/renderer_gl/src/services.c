@@ -9,7 +9,7 @@
 #include "framework/services.h"
 
 void
-register_services(struct game_t* game, struct plugin_t* plugin)
+register_services(struct plugin_t* plugin)
 {
     struct service_t* s;
     SERVICE_CREATE0(plugin, s, PLUGIN_NAME ".window_width",                   window_width_wrapper, uint32_t);

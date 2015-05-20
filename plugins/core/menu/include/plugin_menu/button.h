@@ -1,7 +1,6 @@
 #include "plugin_menu/element.h"
 #include "util/pstdint.h"
-#include "framework/event_api.h"
-#include "framework/se_api.h"
+#include "framework/events.h"
 
 #define BUTTON_COLOUR_NORMAL 0xFFFFFFFF
 
@@ -78,4 +77,4 @@ SERVICE(button_destroy_wrapper);
 SERVICE(button_get_text_wrapper);
 SERVICE(menu_load_wrapper);
 
-EVENT_LISTENER3(on_mouse_clicked, char mouse_btn, double x, double y);
+EVENT_LISTENER(on_mouse_clicked);

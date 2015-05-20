@@ -10,10 +10,6 @@ struct net_connection_t;
 struct glob_t;
 struct plugin_t;
 
-EVENT_H0(evt_start)
-EVENT_H0(evt_pause)
-EVENT_H0(evt_exit)
-
 SERVICE(game_start_wrapper);
 SERVICE(game_pause_wrapper);
 SERVICE(game_exit_wrapper);

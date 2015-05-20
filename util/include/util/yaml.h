@@ -2,6 +2,7 @@
  * @file yaml.h
  */
 
+#include <stdio.h>
 #include "util/pstdint.h"
 #include "util/config.h"
 #include "util/map.h"

@@ -1,4 +1,3 @@
-#include "framework/event_api.h"
 #include "framework/se_api.h"
 #include "util/pstdint.h"
 
@@ -27,4 +26,4 @@ window_height(void);
 SERVICE(window_width_wrapper);
 SERVICE(window_height_wrapper);
 
-EVENT_LISTENER0(on_render);
+EVENT_LISTENER(on_render);

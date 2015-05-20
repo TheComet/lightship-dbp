@@ -129,7 +129,9 @@ event_deinit(struct game_t* game);
  * @return Returns a new event object which should be stored by the plugin.
  */
 FRAMEWORK_PUBLIC_API struct event_t*
-event_create(struct plugin_t* plugin, const char* directory);
+event_create(struct plugin_t* plugin,
+             const char* directory,
+             struct type_info_t* type_info);
 
 /*!
  * @brief Destroys an event object.

@@ -62,7 +62,7 @@ llog_indent(struct game_t* game, const char* indent_name)
         return;
     }
 
-    EVENT_FIRE_FROM_TEMP1(evt_log_indent, game->event.log_indent, indent_name);
+    EVENT_FIRE1(game->event.log_indent, indent_name);
     on_llog_indent(game, indent_name);
 
     ++game->log.indent_level;
@@ -80,7 +80,7 @@ llog_unindent(struct game_t* game)
         return;
     }
 
-    EVENT_FIRE_FROM_TEMP0(evt_log_unindent, game->event.log_unindent);
+    EVENT_FIRE0(game->event.log_unindent);
     on_llog_unindent(game);
 
     if(game->log.indent_level)
@@ -202,7 +202,7 @@ llog(log_level_e level, const struct game_t* game, const char* plugin, uint32_t 
 
     /* fire event and output message */
     if(game)
-        EVENT_FIRE_FROM_TEMP2(evt_log, game->event.log, level, (const char*)buffer);
+        EVENT_FIRE2(game->event.log, level, buffer);
     on_llog(game, level, buffer);
 
     FREE(buffer);

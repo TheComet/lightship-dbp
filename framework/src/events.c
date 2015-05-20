@@ -48,23 +48,24 @@ event_init(struct game_t* game)
 #define STR_(x) #x
 #define STR(x) STR_(x)
 #define REGISTER_BUILT_IN_EVENT(name) {                                     \
-            if(!(game->event.name = event_create(game->core, STR(name))))   \
+            if(!(game->event.name = EVENT_CREATE0(game->core, STR(name))))   \
                 break; }
 
         /* game core commands */
-        REGISTER_BUILT_IN_EVENT(start)
-        REGISTER_BUILT_IN_EVENT(pause)
-        REGISTER_BUILT_IN_EVENT(exit)
+        EVENT_CREATE0(game->core, game->event.start,    "start");
+        EVENT_CREATE0(game->core, game->event.pause,    "pause");
+        EVENT_CREATE0(game->core, game->event.exit,     "exit");
+
 
         /* main loop events (game update and render updates) */
-        REGISTER_BUILT_IN_EVENT(tick)
-        REGISTER_BUILT_IN_EVENT(render)
-        REGISTER_BUILT_IN_EVENT(stats)
+        EVENT_CREATE0(game->core, game->event.tick,     "tick");
+        EVENT_CREATE0(game->core, game->event.render,   "render");
+        EVENT_CREATE2(game->core, game->event.stats,     "stats", uint32_t, uint32_t);
 
         /* The log will fire these events appropriately whenever something is logged */
-        REGISTER_BUILT_IN_EVENT(log)
-        REGISTER_BUILT_IN_EVENT(log_indent)
-        REGISTER_BUILT_IN_EVENT(log_unindent)
+        EVENT_CREATE2(game->core, game->event.log,      "log", uint32_t, const char*);
+        EVENT_CREATE1(game->core, game->event.log_indent, "log_indent", const char*);
+        EVENT_CREATE0(game->core, game->event.log_unindent, "log_unindent");
 
         return 1;
     }
@@ -85,7 +86,9 @@ event_deinit(struct game_t* game)
 
 /* ------------------------------------------------------------------------- */
 struct event_t*
-event_create(struct plugin_t* plugin, const char* directory)
+event_create(struct plugin_t* plugin,
+             const char* directory,
+             struct type_info_t* type_info)
 {
     struct ptree_t* node;
     struct event_t* event;
@@ -101,7 +104,8 @@ event_create(struct plugin_t* plugin, const char* directory)
 
     for(;;)
     {
-        event->game = plugin->game;
+        event->plugin = plugin;
+        event->type_info = type_info;
         unordered_vector_init_vector(&event->listeners, sizeof(struct event_listener_t));
 
         /* copy directory */
@@ -141,14 +145,15 @@ event_destroy(struct event_t* event)
     struct ptree_t* node;
 
     assert(event);
-    assert(event->game);
+    assert(event->plugin);
+    assert(event->plugin->game);
     assert(event->directory);
 
-    if(!(node = ptree_get_node(&event->game->events, event->directory)))
+    if(!(node = ptree_get_node(&event->plugin->game->events, event->directory)))
     {
-        llog(LOG_ERROR, event->game, NULL, 5, "Attempted to destroy the event"
+        llog(LOG_ERROR, event->plugin->game, NULL, 5, "Attempted to destroy the event"
             " \"", event->directory, "\", but the associated game object with"
-            " name \"", event->game->name, "\" doesn't own it! The event will"
+            " name \"", event->plugin->game->name, "\" doesn't own it! The event will"
             " not be destroyed.");
         return;
     }

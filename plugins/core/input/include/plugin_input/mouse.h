@@ -13,6 +13,6 @@ struct mouse_t
     char state;
 };
 
-EVENT_LISTENER2(on_mouse_move, double x, double y);
-EVENT_LISTENER1(on_mouse_button_press, uint32_t btn);
-EVENT_LISTENER1(on_mouse_button_release, uint32_t btn);
+EVENT_LISTENER(on_mouse_move);
+EVENT_LISTENER(on_mouse_button_press);
+EVENT_LISTENER(on_mouse_button_release);

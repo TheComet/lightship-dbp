@@ -3,7 +3,7 @@
 #include "plugin_menu/events.h"
 #include "plugin_menu/glob.h"
 #include "framework/plugin.h"
-#include "framework/services.h"
+#include "framework/se_api.h"
 #include "framework/log.h"
 #include "util/map.h"
 #include "util/memory.h"
@@ -190,15 +190,19 @@ button_collision(struct glob_t* g, struct button_t* button, float x, float y)
 }
 
 /* ------------------------------------------------------------------------- */
-EVENT_LISTENER3(on_mouse_clicked, char mouse_btn, double x, double y)
+EVENT_LISTENER(on_mouse_clicked)
 {
-    struct glob_t* g = get_global(event->game);
+    EXTRACT_ARGUMENT(0, mouse_btn, char, char);
+    EXTRACT_ARGUMENT(1, x, double, double);
+    EXTRACT_ARGUMENT(2, y, double, double);
+
+    struct glob_t* g = get_global(event->plugin->game);
     struct button_t* button = button_collision(g, NULL, (float)x, (float)y);
 
     if(button)
     {
         /* let everything know it was clicked */
-        EVENT_FIRE_FROM_TEMP1(evt_button_clicked, g->events.button_clicked, button->base.element.id);
+        EVENT_FIRE1(g->events.button_clicked, button->base.element.id);
 
         /* if button has an action, execute it */
         if(button->base.element.action.service)

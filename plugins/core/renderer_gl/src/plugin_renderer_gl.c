@@ -41,8 +41,8 @@ PLUGIN_RENDERER_GL_PUBLIC_API PLUGIN_INIT()
             PLUGIN_VERSION_PATCH
     );
 
-    register_services(game, plugin);
-    register_events(game, plugin);
+    register_services(plugin);
+    register_events(plugin);
 
     return plugin;
 }
@@ -79,7 +79,7 @@ PLUGIN_RENDERER_GL_PUBLIC_API PLUGIN_START()
     if(!sprite_init(g))
         return PLUGIN_FAILURE;
 
-    register_event_listeners(game, get_global(game)->plugin);
+    register_event_listeners(g->plugin);
 
     {
         uint32_t id;

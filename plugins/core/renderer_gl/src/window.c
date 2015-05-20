@@ -21,7 +21,7 @@ char
 window_init(struct glob_t* g)
 {
     GLFWwindow* glfw_window;
-    
+
     memset(&g_window, 0, sizeof(struct window_t));
 
     /* configure preferences */
@@ -31,11 +31,11 @@ window_init(struct glob_t* g)
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); /* to make macOS happy */
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); /* don't want the old OpenGL */
     glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
-    
+
     /* window dimensions */
     g_window.width = 800;
     g_window.height = 600;
-    
+
     /* open window and create OpenGL context */
     glfw_window = glfwCreateWindow(g_window.width, g_window.height, "Light Ship", NULL, NULL);
     if(glfw_window == NULL)
@@ -51,19 +51,19 @@ window_init(struct glob_t* g)
         return 0;
     }
     glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
-    
+
     /* ensure the escape key can be captured */
     glfwSetInputMode(glfw_window, GLFW_STICKY_KEYS, GL_TRUE);
-    
+
     /* register input callbacks */
     glfwSetKeyCallback(glfw_window, key_callback);
     glfwSetCursorPosCallback(glfw_window, mouse_position_callback);
     glfwSetMouseButtonCallback(glfw_window, mouse_button_callback);
     glfwSetScrollCallback(glfw_window, scroll_callback);
-    
+
     /* create window object */
     g_window.window = glfw_window;
-    
+
     return 1;
 }
 
@@ -95,7 +95,7 @@ SERVICE(window_height_wrapper)
     RETURN(g_window.height, uint32_t);
 }
 
-EVENT_LISTENER0(on_render)
+EVENT_LISTENER(on_render)
 {
     /* render everything */
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

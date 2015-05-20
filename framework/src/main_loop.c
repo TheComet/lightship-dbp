@@ -56,22 +56,22 @@ is_time_to_update(void)
         g_loop.statistics.tick_frame_rate = g_loop.statistics.tick_counter_rel;
         g_loop.statistics.render_counter_rel = 0;
         g_loop.statistics.tick_counter_rel = 0;
-        
+
         /* reset timer */
         g_loop.statistics.last_tick = elapsed_time;
         game_dispatch_stats(g_loop.statistics.render_frame_rate, g_loop.statistics.tick_frame_rate);
     }
 
     /* calling this function means a render update occurred */
-    
-    
+
+
     /*
      * If time that has passed is smaller than the time that should have passed,
      * it's not time to update yet.
      */
     if(elapsed_time < g_loop.tick_counter * g_loop.time_between_ticks)
         return 0;
-    
+
     /* game loop needs to be updated, increment counter and return non-zero */
     ++g_loop.tick_counter;
     ++g_loop.statistics.tick_counter_rel;
@@ -99,11 +99,11 @@ void
 main_loop_do_loop(void)
 {
     int updates = 0;
-    
+
     /* dispatch render events */
     game_dispatch_render();
     ++g_loop.statistics.render_counter_rel;
-    
+
     /* dispatch game loop event */
     while(is_time_to_update())
     {
@@ -116,8 +116,10 @@ main_loop_do_loop(void)
 
 /* ------------------------------------------------------------------------- */
 #ifdef _DEBUG
-EVENT_LISTENER2(on_stats, uint32_t render_frame_rate, uint32_t tick_frame_rate)
+EVENT_LISTENER(on_stats)
 {
+    EXTRACT_ARGUMENT(0, render_frame_rate, uint32_t, uint32_t);
+    EXTRACT_ARGUMENT(1, tick_frame_rate, uint32_t, uint32_t);
     printf("render fps: %u, update fps: %u\n", render_frame_rate, tick_frame_rate);
 }
 #endif

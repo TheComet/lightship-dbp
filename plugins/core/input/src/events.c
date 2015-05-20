@@ -5,34 +5,30 @@
 #include "plugin_input/mouse.h"
 #include "plugin_input/keyboard.h"
 
-/* -----------------------------------------------------
- * All events this plugin emits
- * ---------------------------------------------------*/
-
-EVENT_C3(evt_mouse_clicked, char, double, double)
-EVENT_C0(evt_mouse_press)
-EVENT_C0(evt_mouse_release)
-EVENT_C0(evt_mouse_move)
-EVENT_C0(evt_up)
-EVENT_C0(evt_down)
-EVENT_C0(evt_left)
-EVENT_C0(evt_right)
-EVENT_C0(evt_action)
-EVENT_C0(evt_cancel)
+struct event_t* evt_mouse_clicked;
+struct event_t* evt_mouse_press;
+struct event_t* evt_mouse_release;
+struct event_t* evt_mouse_move;
+struct event_t* evt_up;
+struct event_t* evt_down;
+struct event_t* evt_left;
+struct event_t* evt_right;
+struct event_t* evt_action;
+struct event_t* evt_cancel;
 
 void
 register_events(struct plugin_t* plugin)
 {
-    evt_mouse_clicked   = event_create(plugin, PLUGIN_NAME ".mouse_clicked");
-    evt_mouse_press     = event_create(plugin, PLUGIN_NAME ".mouse_press");
-    evt_mouse_release   = event_create(plugin, PLUGIN_NAME ".mouse_release");
-    evt_mouse_move      = event_create(plugin, PLUGIN_NAME ".mouse_move");
-    evt_up              = event_create(plugin, PLUGIN_NAME ".up");
-    evt_down            = event_create(plugin, PLUGIN_NAME ".down");
-    evt_left            = event_create(plugin, PLUGIN_NAME ".left");
-    evt_right           = event_create(plugin, PLUGIN_NAME ".right");
-    evt_action          = event_create(plugin, PLUGIN_NAME ".action");
-    evt_cancel          = event_create(plugin, PLUGIN_NAME ".cancel");
+    EVENT_CREATE3(plugin, evt_mouse_clicked, PLUGIN_NAME ".mouse_clicked", char, double, double);
+    EVENT_CREATE0(plugin, evt_mouse_press  , PLUGIN_NAME ".mouse_press");
+    EVENT_CREATE0(plugin, evt_mouse_release, PLUGIN_NAME ".mouse_release");
+    EVENT_CREATE0(plugin, evt_mouse_move   , PLUGIN_NAME ".mouse_move");
+    EVENT_CREATE0(plugin, evt_up           , PLUGIN_NAME ".up");
+    EVENT_CREATE0(plugin, evt_down         , PLUGIN_NAME ".down");
+    EVENT_CREATE0(plugin, evt_left         , PLUGIN_NAME ".left");
+    EVENT_CREATE0(plugin, evt_right        , PLUGIN_NAME ".right");
+    EVENT_CREATE0(plugin, evt_action       , PLUGIN_NAME ".action");
+    EVENT_CREATE0(plugin, evt_cancel       , PLUGIN_NAME ".cancel");
 }
 
 void
@@ -44,5 +40,4 @@ register_event_listeners(struct plugin_t* plugin)
     event_register_listener(game, "renderer_gl.mouse_button_release", on_mouse_button_release);
     event_register_listener(game, "renderer_gl.key_press", on_key_press);
     event_register_listener(game, "renderer_gl.key_release", on_key_release);
-
 }

@@ -31,7 +31,8 @@ public:
 
 TEST_F(NAME, create_event_inits_correctly)
 {
-    struct event_t* event = event_create(plugin, "test.event");
+    struct event_t* event;
+    EVENT_CREATE0(plugin, event, "test.event");
 
     ASSERT_THAT(strcmp("test.event", event->directory), Eq(0));
     ASSERT_THAT(event->listeners.capacity, Eq(0));
@@ -40,40 +41,4 @@ TEST_F(NAME, create_event_inits_correctly)
     ASSERT_THAT(event->listeners.data, IsNull());
 
     event_destroy(event);
-}
-
-static char g_listener_triggered_1 = 0;
-static char g_listener_triggered_2 = 0;
-EVENT_C0(evt_1);
-EVENT_C0(evt_2);
-EVENT_LISTENER0(listener1) { g_listener_triggered_1 = 1; }
-EVENT_LISTENER0(listener2) { g_listener_triggered_2 = 1; }
-
-TEST_F(NAME, listeners_can_be_registered_froplugin_obj)
-{
-    struct event_t* event = event_create(plugin, "test.event");
-
-    event_register_listener(game, "test.event", (event_callback_func)listener1);
-    ASSERT_EQ(1, event->listeners.count);
-    event_register_listener(game, "test.event", (event_callback_func)listener2);
-    ASSERT_EQ(2, event->listeners.count);
-
-    struct event_listener_t* listeners = (struct event_listener_t*)event->listeners.data;
-
-    event_destroy(event);
-}
-
-TEST_F(NAME, listeners_receive_events_when_fired)
-{
-    evt_1 = event_create(plugin, "event");
-    event_register_listener(game, "test.event", (event_callback_func)listener1);
-    event_register_listener(game, "test.event", (event_callback_func)listener2);
-
-    g_listener_triggered_1 = 0; g_listener_triggered_2 = 0;
-    EVENT_FIRE0(evt_1);
-
-    ASSERT_EQ(1, g_listener_triggered_1);
-    ASSERT_EQ(1, g_listener_triggered_2);
-
-    event_destroy(evt_1);
 }

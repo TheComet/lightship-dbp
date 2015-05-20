@@ -1,10 +1,5 @@
 #include "util/pstdint.h"
-#include "framework/event_api.h"
 #include "framework/se_api.h"
-
-EVENT_H0(evt_tick)
-EVENT_H0(evt_render)
-EVENT_H2(evt_loop_stats, uint32_t, uint32_t)
 
 void
 main_loop_init(void);
@@ -19,6 +14,5 @@ void
 main_loop_do_loop(void);
 
 #ifdef _DEBUG
-#   include "framework/event_api.h"
-    EVENT_LISTENER2(on_stats, uint32_t render_frame_rate, uint32_t update_frame_rate);
+    EVENT_LISTENER(on_stats);
 #endif

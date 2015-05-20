@@ -2,11 +2,13 @@
 #include <stdio.h>
 
 /* ------------------------------------------------------------------------- */
-EVENT_LISTENER1(on_key_press, uint32_t key)
+EVENT_LISTENER(on_key_press)
 {
+    EXTRACT_ARGUMENT(0, key, uint32_t, uint32_t);
 }
 
 /* ------------------------------------------------------------------------- */
-EVENT_LISTENER1(on_key_release, uint32_t key)
+EVENT_LISTENER(on_key_release)
 {
+    EXTRACT_ARGUMENT(0, key, uint32_t, uint32_t);
 }

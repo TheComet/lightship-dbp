@@ -1,15 +1,10 @@
+#include "plugin_menu/config.h"
 #include "plugin_menu/events.h"
 #include "plugin_menu/button.h"
 #include "plugin_menu/glob.h"
 #include "framework/events.h"
 #include "framework/plugin.h"
 #include <string.h>
-
-/* -----------------------------------------------------
- * All events this plugin emits
- * ---------------------------------------------------*/
-
-EVENT_C1(evt_button_clicked, uint32_t)
 
 void
 register_events(struct plugin_t* plugin)
@@ -18,7 +13,7 @@ register_events(struct plugin_t* plugin)
     struct glob_events_t* g = &get_global(plugin->game)->events;
     memset(g, 0, sizeof(struct glob_events_t));
 
-    g->button_clicked = event_create(plugin, "button_clicked");
+    EVENT_CREATE0(plugin, g->button_clicked, PLUGIN_NAME ".button_clicked");
 }
 
 void

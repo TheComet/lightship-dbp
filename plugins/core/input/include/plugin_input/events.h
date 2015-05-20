@@ -1,21 +1,21 @@
-#include "framework/event_api.h"
+#include "framework/events.h"
+
+struct plugin_t;
 
 /* -----------------------------------------------------
  * All events this plugin emits
  * ---------------------------------------------------*/
 
-EVENT_H0(evt_mouse_press)
-EVENT_H0(evt_mouse_release)
-EVENT_H0(evt_mouse_move)
-EVENT_H3(evt_mouse_clicked, char, double, double)
-EVENT_H0(evt_up)
-EVENT_H0(evt_down)
-EVENT_H0(evt_left)
-EVENT_H0(evt_right)
-EVENT_H0(evt_action)
-EVENT_H0(evt_cancel)
-
-struct plugin_t;
+extern struct event_t* evt_mouse_clicked;
+extern struct event_t* evt_mouse_press;
+extern struct event_t* evt_mouse_release;
+extern struct event_t* evt_mouse_move;
+extern struct event_t* evt_up;
+extern struct event_t* evt_down;
+extern struct event_t* evt_left;
+extern struct event_t* evt_right;
+extern struct event_t* evt_action;
+extern struct event_t* evt_cancel;
 
 void
 register_events(struct plugin_t* plugin);

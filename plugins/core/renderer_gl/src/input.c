@@ -1,6 +1,5 @@
 #include "plugin_renderer_gl/events.h"
 #include "plugin_renderer_gl/window.h"
-#include "framework/event_api.h"
 #include "framework/log.h"
 #include "util/pstdint.h"
 #include "glfw3.h"
@@ -12,11 +11,11 @@ key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
     uint32_t k = (uint32_t)key;
     if(action == GLFW_PRESS)
     {
-        EVENT_FIRE1(evt_key_press, (uint32_t)k);
+        EVENT_FIRE1(evt_key_press, k);
     }
     if(action == GLFW_RELEASE)
     {
-        EVENT_FIRE1(evt_key_release, (uint32_t)k);
+        EVENT_FIRE1(evt_key_release, k);
     }
 }
 
@@ -35,13 +34,14 @@ mouse_position_callback(GLFWwindow* window, double xpos, double ypos)
 void
 mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 {
+    uint32_t button_cast = (uint32_t)button;
     if(action == GLFW_PRESS)
     {
-        EVENT_FIRE1(evt_mouse_button_press, (uint32_t)button);
+        EVENT_FIRE1(evt_mouse_button_press, button_cast);
     }
     if(action == GLFW_RELEASE)
     {
-        EVENT_FIRE1(evt_mouse_button_release, (uint32_t)button);
+        EVENT_FIRE1(evt_mouse_button_release, button_cast);
     }
 }
 
@@ -49,5 +49,7 @@ mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 void
 scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
-    EVENT_FIRE2(evt_mouse_scroll, (uint32_t)xoffset, (uint32_t)yoffset);
+    uint32_t xoffset_cast = (uint32_t)xoffset;
+    uint32_t yoffset_cast = (uint32_t)yoffset;
+    EVENT_FIRE2(evt_mouse_scroll, xoffset_cast, yoffset_cast);
 }

@@ -3,7 +3,6 @@
 
 #include "util/pstdint.h"
 #include "framework/config.h"
-#include "framework/se_api.h"
 
 C_HEADER_BEGIN
 
@@ -20,6 +19,7 @@ C_HEADER_BEGIN
 
 struct log_t;
 struct game_t;
+struct event_t;
 
 typedef enum log_level_e
 {
@@ -30,11 +30,6 @@ typedef enum log_level_e
     LOG_USER = 4,
     LOG_NONE = 5
 } log_level_e;
-
-/* built in events */
-EVENT_H2(evt_log, log_level_e, const char*)
-EVENT_H1(evt_log_indent, const char*)
-EVENT_H0(evt_log_unindent)
 
 /*!
  * @brief Initialises the log for the specified game object. Must be called
