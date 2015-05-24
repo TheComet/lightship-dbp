@@ -300,7 +300,7 @@ dynamic_call_create_argument_vector_from_varargs(const struct type_info_t* type_
 
 void**
 vdynamic_call_create_argument_vector_from_varargs(const struct type_info_t* type_info,
-                                                   va_list ap)
+                                                  va_list ap)
 {
     void** ret;
 

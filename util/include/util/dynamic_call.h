@@ -65,7 +65,9 @@ struct ordered_vector_t;
  */
 #define PTR(arg) *(char*)arg
 
-
+/*!
+ * @brief Declare or define a dynamic function.
+ */
 #define DYNAMIC_FUNCTION(func_name)                                         \
         void func_name(void* ret, void** argv)
 
