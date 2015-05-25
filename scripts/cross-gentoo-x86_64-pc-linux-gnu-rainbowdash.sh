@@ -10,7 +10,7 @@ VERSION=$(cat lightship_version)
     --compiler-root /usr/bin/x86_64-pc-mingw32 \
     --set-version $VERSION \
     --make "make -j5" \
-    --install "make install"
+    --install "make install" || exit 1;
 
 ./scripts/cross-compile.py \
     --target Windows \
@@ -21,13 +21,13 @@ VERSION=$(cat lightship_version)
     --set-version $VERSION \
     --make "make -j5" \
     --install "make install" \
-    --cmake "ENABLE_WINDOWS_EX=OFF"
+    --cmake "ENABLE_WINDOWS_EX=OFF" || exit 1;
 
 ./scripts/cross-compile.py \
     --set-version $VERSION \
     --triplet x86_64-pc-linux-gnu \
     --make "make -j5" \
-    --install "make install"
+    --install "make install" || exit 1;
 
 echo "================================================"
 echo "Done!"

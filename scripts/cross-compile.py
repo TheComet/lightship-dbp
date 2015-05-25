@@ -73,7 +73,7 @@ def generate_target(target):
     # There are two template files to parse. The toolchains file is placed in
     # scripts/cmake/toolchains and is .gitignored
     # The install-arch script needs to land in the binary directory of the target
-    target['toolchain_file'] = os.path.abspath(os.path.join('scripts/cmake/toolchains', 'toolchian-' + target['triplet'] + '.cmake'))
+    target['toolchain_file'] = os.path.abspath(os.path.join('scripts/cmake/toolchains', 'toolchain-' + target['triplet'] + '.cmake'))
     t.add_template('install-arch.cmake.in', os.path.join(target['binary_path'], 'install-arch.cmake'))
     t.add_template('toolchain-arch.cmake.in', target['toolchain_file'])
 
