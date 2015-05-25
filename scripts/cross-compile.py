@@ -17,24 +17,15 @@ def parse_args():
     parser.add_argument('--c-compiler', help='Full path to the C compiler to use for the last target', type=str)
     parser.add_argument('--rc-compiler', help='Full path to the Windows resource compiler if compiling for Windows', type=str)
     parser.add_argument('--compiler-root', help='The root path of the compiler', type=str)
-    parser.add_argument('--cmake', help='Additional options to pass to CMake', type=str, action='append')
+    parser.add_argument('--cmake', help='Additional options to pass to CMake. Note that "-D" is prepended automatically', type=str, action='append')
     parser.add_argument('--make', help='The command to use to "make" the target (Windows will use nmake, e.g.', type=str)
     parser.add_argument('--install', help='The command to use to install the target', type=str)
     parser.add_argument('--compress', help='The command to use to compress the target', type=str)
     args = parser.parse_args()
     
     # verify targets
-    if args.target is None:
-        print('Please specify at least one platform')
-        sys.exit(1)
-    if args.triplet is None:
-        print('Please specifiy a target triplet')
-        sys.exit(1)
-    if args.c_compiler is None:
-        print('Please specify a C compiler')
-        sys.exit(1)
-    if args.compiler_root is None:
-        print('Please specify the compiler root')
+    if args.set_version is None:
+        print('Please specify a version string')
         sys.exit(1)
     if args.make is None:
         print('Please specify a command to make')
@@ -42,6 +33,8 @@ def parse_args():
     if args.install is None:
         print('Please specify a command to install')
         sys.exit(1)
+    if args.rc_compiler is None:
+        args.rc_compiler = ''
 
     # build dictionary
     return {
@@ -68,6 +61,10 @@ def generate_target(target):
     t.ensure_path(target['binary_path'])
     t.ensure_path(target['install_prefix'])
 
+    # if not cross compiling, no need to generate templates
+    if target['target'] is None:
+        return
+
     # destination path is the source directory so we have access to every folder
     # we are sourcing our template files from scripts/cmake
     t.set_destination_path('.')
@@ -91,13 +88,21 @@ def generate_target(target):
 
 
 def configure(target):
+
     cmake_call = list()
     cmake_call.append('cmake')
-    cmake_call.append('-DCMAKE_TOOLCHAIN_FILE=' + target['toolchain_file'])
+
+    # cross compiling?
+    if not target['target'] is None:
+        cmake_call.append('-DCMAKE_TOOLCHAIN_FILE=' + target['toolchain_file'])
+    else:
+        print('Not cross compiling...')
+
     cmake_call.append('-DCMAKE_BUILD_TYPE=Release')
     cmake_call.append('-DCMAKE_INSTALL_PREFIX=' + target['install_prefix'])
     if not target['additional_cmake_args'] is None:
-        cmake_call.append(target['additional_cmake_args'].split(' '))
+        for arg in target['additional_cmake_args']:
+            cmake_call.append('-D' + arg)
 
     # source CMakeLists.txt from project's source directory
     cmake_call.append(os.path.abspath('.'))
@@ -130,8 +135,6 @@ def compress(target):
     call.append('-cf')
     call.append(target['dest_folder_name'] + '.tar.xz')
     call.append(target['dest_folder_name'])
-    print(call)
-    print(os.path.abspath(os.path.join(target['install_prefix'], '..')))
     process = subprocess.Popen(call, cwd=os.path.abspath(os.path.join(target['install_prefix'], '..')))
     process.wait()
     if not process.returncode == 0:

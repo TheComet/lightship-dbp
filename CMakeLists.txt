@@ -160,6 +160,7 @@ option (BUILD_TESTS "Whether or not to build unit tests (note: requires C++)" OF
 
 message (STATUS "------------------------------------------------------------")
 message (STATUS "Global settings")
+message (STATUS " + Platform is: ${PLATFORM}")
 message (STATUS " + D-language based plugins: ${ENABLE_DLANG}")
 message (STATUS " + Unit Tests: ${BUILD_TESTS}")
 message (STATUS "------------------------------------------------------------")
