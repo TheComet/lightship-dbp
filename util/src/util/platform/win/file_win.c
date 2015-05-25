@@ -10,11 +10,8 @@ uint32_t
 file_load_into_memory(const char* file_name, void** buffer, file_opts_e opts)
 {
     HANDLE hFile;
-    DWORD buffer_size;
+    LARGE_INTEGER buffer_size;
     DWORD bytes_read;
-#ifdef ENABLE_WINDOWS_EX
-    LARGE_INTEGER buffer_size_ex;
-#endif
 
     /* open file */
     hFile = CreateFile(TEXT(file_name), GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
@@ -28,9 +25,9 @@ file_load_into_memory(const char* file_name, void** buffer, file_opts_e opts)
     {
         /* get file size in bytes */
 #ifdef ENABLE_WINDOWS_EX
-        if(!GetFileSizeEx(hFile, &buffer_size_ex))
+        if(!GetFileSizeEx(hFile, &buffer_size))
 #else
-        if(!GetFileSize(hFile, &buffer_size))
+        if((buffer_size.LowPart = GetFileSize(hFile, &buffer_size.HighPart)) == INVALID_FILE_SIZE)
 #endif
         {
             char* error = get_last_error_string();
@@ -40,16 +37,18 @@ file_load_into_memory(const char* file_name, void** buffer, file_opts_e opts)
             break;
         }
 
-        /* reading the lower 32-bits should be enough */
-#ifdef ENABLE_WINDOWS_EX
-        buffer_size = buffer_size_ex.LowPart;
-#endif
+        /* unlikely to happen */
+        if(buffer_size.HighPart != 0)
+        {
+            fprintf(stderr, "GetFileSize() returned a file larger than a 32-bit integer, file \"%s\"\n", file_name);
+            break;
+        }
 
         /* allocate buffer to copy file into */
         if(opts & FILE_BINARY)
-            *buffer = MALLOC(buffer_size);
+            *buffer = MALLOC(buffer_size.LowPart);
         else
-            *buffer = MALLOC(buffer_size + sizeof(char));
+            *buffer = MALLOC(buffer_size.LowPart + sizeof(char));
         if(*buffer == NULL)
         {
             fprintf(stderr, "malloc() failed in function file_load_into_memory()\n");
@@ -57,8 +56,8 @@ file_load_into_memory(const char* file_name, void** buffer, file_opts_e opts)
         }
 
         /* copy file into buffer */
-        ReadFile(hFile, *buffer, buffer_size, &bytes_read, NULL);
-        if(buffer_size != bytes_read)
+        ReadFile(hFile, *buffer, buffer_size.LowPart, &bytes_read, NULL);
+        if(buffer_size.LowPart != bytes_read)
         {
             fprintf(stderr, "ReadFile() failed for file \"%s\"\n", file_name);
             break;
@@ -68,9 +67,9 @@ file_load_into_memory(const char* file_name, void** buffer, file_opts_e opts)
 
         /* append null terminator if not in binary mode */
         if((opts & FILE_BINARY) == 0)
-            ((char*)(*buffer))[buffer_size] = '\0';
+            ((char*)(*buffer))[buffer_size.LowPart] = '\0';
 
-        return (uint32_t)buffer_size;
+        return (uint32_t)buffer_size.LowPart;
     }
 
     CloseHandle(hFile);
