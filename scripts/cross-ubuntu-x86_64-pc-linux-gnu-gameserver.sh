@@ -1,36 +1,27 @@
 #!/bin/bash
 
-# clean build and dist tree from last build
-./clean.sh
+VERSION=$(cat lightship_version)
 
-WIN64=lightship-$1-$2-x86_64-pc-mingw32
-LINUX64=lightship-$1-$2-x86_64-pc-linux-gnu
+./scripts/cross-compile.py \
+    --target Windows \
+    --compiler-root /usr/bin/x86_64-w64-mingw32 \
+    --set-version $VERSION \
+    --make "make -j9" \
+    --install "make install" || exit 1;
 
-# build everything
-mkdir build && cd build
-cmake -DCMAKE_BUILD_TYPE=Release \
-	-DBUILD_HOST="game.pixelcloud.ch" \
-	-DMAKE_ARGS=-j9 \
-	-DCROSS_COMPILE_x86_64-pc-mingw32=ON \
-	-Dx86_64-pc-mingw32_INSTALL_PREFIX=$(pwd)/../dist/$WIN64 \
-	-DCMAKE_INSTALL_PREFIX=$(pwd)/../dist/$LINUX64 \
-	../.. || exit 1;
-make -j9 || exit 1;
-make install || exit 1;
-cd ..
+./scripts/cross-compile.py \
+    --target Windows \
+    --compiler-root /usr/bin/i686-w64-mingw32 \
+    --set-version $VERSION \
+    --make "make -j9" \
+    --install "make install" \
+    --cmake "ENABLE_WINDOWS_EX=OFF" || exit 1;
 
-# generate run scripts for each platform
-echo -e "@ECHO OFF\ncd bin\nlightship.exe\nPAUSE\ncd .." > dist/$WIN64/run.bat || exit 1;
-echo -e "export LD_LIBRARY_PATH=\$(pwd)/lib\ncd bin\n./lightship\ncd .." > dist/$LINUX64/run.sh || exit 1;
-
-# compress
-7za a -t7z -m0=lzma -mx=9 -mfb=64 -md=32m -ms=on dist/archive/$WIN64\.7z ./dist/$WIN64/ || exit 1;
-tar --xz -cvf dist/archive/$LINUX64\.tar.xz -C dist/ $LINUX64/ || exit 1;
-
-# move to distribution folder
-echo "moving archives to /www/game/lightship/"
-mv dist/archive/$WIN64\.7z /www/game/lightship/
-mv dist/archive/$LINUX64\.tar.xz /www/game/lightship/
+./scripts/cross-compile.py \
+    --set-version $VERSION \
+    --compiler-root /usr/bin/x86_64-pc-linux-gnu \
+    --make "make -j9" \
+    --install "make install" || exit 1;
 
 echo "================================================"
 echo "Done!"

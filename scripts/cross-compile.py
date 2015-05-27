@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2.7
 
 import sys
 import os
@@ -11,21 +11,25 @@ def parse_args():
 
     # set up argument parser
     parser = argparse.ArgumentParser(description='Assists in cross compiling')
-    parser.add_argument('--target', help='The name of the platform to compile for. This ends up being written to CMAKE_SYSTEM_NAME', type=str)
+    parser.add_argument('--target', help='The name of the platform to compile for. If this argument is not provided, CHOST will be used. This ends up being written to CMAKE_SYSTEM_NAME', type=str)
     parser.add_argument('--triplet', help='Target triplet to cross compile for, e.g. "x86_64-pc-linux-gnu"', type=str)
     parser.add_argument('--set-version', help='Sets the version string, e.g. "0.5.2-beta"', type=str)
-    parser.add_argument('--c-compiler', help='Full path to the C compiler to use for the last target', type=str)
-    parser.add_argument('--rc-compiler', help='Full path to the Windows resource compiler if compiling for Windows', type=str)
     parser.add_argument('--compiler-root', help='The root path of the compiler', type=str)
+    parser.add_argument('--c-compiler', help='Full path to the C compiler to use', type=str)
+    parser.add_argument('--cxx-compiler', help='Full path to the C++ compiler to use', type=str)
+    parser.add_argument('--rc-compiler', help='Full path to the Windows resource compiler if compiling for Windows', type=str)
     parser.add_argument('--cmake', help='Additional options to pass to CMake. Note that "-D" is prepended automatically', type=str, action='append')
     parser.add_argument('--make', help='The command to use to "make" the target (Windows will use nmake, e.g.', type=str)
     parser.add_argument('--install', help='The command to use to install the target', type=str)
     parser.add_argument('--compress', help='The command to use to compress the target', type=str)
     args = parser.parse_args()
-    
+   
     # verify targets
     if args.set_version is None:
         print('Please specify a version string')
+        sys.exit(1)
+    if args.compiler_root is None:
+        print('Please specify the compiler root, e.g. "/usr/bin/x86_64-pc-linux-gnu"')
         sys.exit(1)
     if args.make is None:
         print('Please specify a command to make')
@@ -33,16 +37,28 @@ def parse_args():
     if args.install is None:
         print('Please specify a command to install')
         sys.exit(1)
+
+    # determine triplet
+    triplet = args.compiler_root.split('/')[-1]
+    print('triplet: {0}'.format(triplet))
+
+    # determine compilers
+    if args.c_compiler is None:
+        args.c_compiler = args.compiler_root + '-gcc'
+    if args.cxx_compiler is None:
+        args.cxx_compiler = args.compiler_root + '-g++'
     if args.rc_compiler is None:
-        args.rc_compiler = ''
+        args.rc_compiler = args.compiler_root + '-windres'
+    print('C compiler: {0}\nC++ compiler: {1}\nRC compiler (if applicable): {2}'.format(args.c_compiler, args.cxx_compiler, args.rc_compiler))
 
     # build dictionary
     return {
         'target': args.target,
-        'triplet': args.triplet,
+        'triplet': triplet,
         'version': args.set_version,
-        'c_compiler': args.c_compiler,
         'compiler_root': args.compiler_root,
+        'c_compiler': args.c_compiler,
+        'cxx_compiler': args.cxx_compiler,
         'rc_compiler': args.rc_compiler,
         'additional_cmake_args': args.cmake,
         'make': args.make,
@@ -129,6 +145,7 @@ def install(target):
 
 
 def compress(target):
+    # 7za a -t7z -m0=lzma -mx=9 -mfb=64 -md=32m -ms=on dist/archive/$WIN64\.7z ./dist/$WIN64/
     call = list()
     call.append('tar')
     call.append('--xz')
