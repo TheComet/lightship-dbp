@@ -1,4 +1,4 @@
 #!/bin/bash
 
-whoami
+echo "wtf $(whoami)"
 rm -rf cross-build/dist
