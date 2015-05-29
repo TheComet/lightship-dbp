@@ -25,6 +25,9 @@ Click this to watch a video:
 " target="_blank"><img src="http://img.youtube.com/vi/M-5yaHqDP8o/0.jpg" 
 alt="IMAGE ALT TEXT HERE" width="240" height="180" border="10" /></a>
 
+Screenshots
+-----------
+
 ![slow down power up](http://i.imgur.com/euHzZuR.png)
 
 ![force field power up](http://i.imgur.com/VI9zm9F.png)
