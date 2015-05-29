@@ -29,14 +29,6 @@ VERSION=$(cat lightship_version)
     --install "make install" \
     --compress xz || exit 1;
 
-./scripts/cross-compile.py \
-    --set-version $VERSION \
-    --output-name "tests" \
-    --compiler-root /usr/bin/x86_64-pc-linux-gnu \
-    --cmake "BUILD_TESTS=ON" \
-    --make "make -j7" || exit 1;
-    
-
 echo "================================================"
 echo "Done!"
 echo "================================================"
