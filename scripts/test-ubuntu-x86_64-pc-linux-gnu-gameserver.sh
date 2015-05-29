@@ -9,7 +9,7 @@ HOST_TEST_DIR="cross-build/build/test-$CHOST/bin"
     --output-name "test-$CHOST" \
     --compiler-root /usr/bin/$CHOST \
     --cmake "BUILD_TESTS=ON" \
-    --make "make -j9" || exit 1;
+    --make "make -j4" || exit 1;
 
 (cd $HOST_TEST_DIR && exec ./lightship_tests) || exit 1;
     
