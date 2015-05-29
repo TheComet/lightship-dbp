@@ -50,7 +50,7 @@ class Target(object):
             if len(args.build) > 0:
                 args.build = "-" + args.build
             args.output_name = 'lightship-' + args.set_version + args.build + '-' + self.triplet
-        else
+        else:
             build_folder_name = args.output_name
 
         # determine compilers
