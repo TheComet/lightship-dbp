@@ -163,7 +163,7 @@ class Target(object):
             raise Exception('ERROR: Don`t know how to compress')
 
         # 7z and tar all have the output folder name in this order
-        cmd.append(os.path.abspath(os.path.join(self.archive_path, self.output_name + ext)))
+        cmd.append(os.path.abspath(os.path.join(self.archive_path, self.output_name + '.' + ext)))
         cmd.append(self.output_name)
 
         # compress installed targets
