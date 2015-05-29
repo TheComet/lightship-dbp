@@ -5,7 +5,7 @@ VERSION=$(cat lightship_version)
 ./scripts/cross-compile.py \
     --platform Windows \
     --set-version $VERSION \
-    --compiler-root /usr/bin/x86_64-pc-mingw32 \
+    --compiler-root /usr/bin/x86_64-w64-mingw32 \
     --cmake "CMAKE_BUILD_TYPE=Release" \
     --make "make -j9" \
     --install "make install" \
@@ -14,7 +14,7 @@ VERSION=$(cat lightship_version)
 ./scripts/cross-compile.py \
     --platform Windows \
     --set-version $VERSION \
-    --compiler-root /usr/bin/i686-pc-mingw32 \
+    --compiler-root /usr/bin/i686-w64-mingw32 \
     --cmake "CMAKE_BUILD_TYPE=Release" \
     --cmake "ENABLE_WINDOWS_EX=OFF" \
     --make "make -j9" \
