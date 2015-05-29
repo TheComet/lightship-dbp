@@ -13,7 +13,7 @@ TEST_DIR="cross-build/build/test-$CROOT/bin"
     --cmake "BUILD_TESTS=ON" \
     --make "make -j4" || exit 1;
 
-(cd $TEST_DIR && wine lightship_tests.exe) || exit 1;
+(cd $TEST_DIR && wineconsole lightship_tests.exe) || exit 1;
     
 
 echo "================================================"
