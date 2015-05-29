@@ -8,7 +8,7 @@ VERSION=$(cat lightship_version)
     --build "$1" \
     --compiler-root /usr/bin/x86_64-w64-mingw32 \
     --cmake "CMAKE_BUILD_TYPE=Release" \
-    --make "make -j9" \
+    --make "make -j4" \
     --install "make install" \
     --compress 7z || exit 1;
 
@@ -19,7 +19,7 @@ VERSION=$(cat lightship_version)
     --compiler-root /usr/bin/i686-w64-mingw32 \
     --cmake "CMAKE_BUILD_TYPE=Release" \
     --cmake "ENABLE_WINDOWS_EX=OFF" \
-    --make "make -j9" \
+    --make "make -j4" \
     --install "make install" \
     --compress 7z || exit 1;
 
@@ -28,7 +28,7 @@ VERSION=$(cat lightship_version)
     --build "$1" \
     --compiler-root /usr/bin/x86_64-pc-linux-gnu \
     --cmake "CMAKE_BUILD_TYPE=Release" \
-    --make "make -j9" \
+    --make "make -j4" \
     --install "make install" \
     --compress xz || exit 1;
 
