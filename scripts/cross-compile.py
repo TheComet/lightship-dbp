@@ -16,6 +16,7 @@ class Target(object):
         parser.add_argument('--platform', help='The name of the platform to compile for. If this argument is not provided, the system platform is used. This ends up being written to CMAKE_SYSTEM_NAME', type=str)
         parser.add_argument('--output-name', help='The output folder name. By default the name will be "lightship-<version>-<triplet>', type=str)
         parser.add_argument('--set-version', help='Sets the version string, e.g. "0.5.2-beta"', type=str)
+        parser.add_argument('--build', help='The build number. This will be part of the archive file name if --output-name is not specified', type=str)
         parser.add_argument('--compiler-root', help='The root path of the compiler', type=str)
         parser.add_argument('--c-compiler', help='Full path to the C compiler to use', type=str)
         parser.add_argument('--cxx-compiler', help='Full path to the C++ compiler to use', type=str)
@@ -43,7 +44,11 @@ class Target(object):
 
         # determine output folder name
         if args.output_name is None:
-            args.output_name = 'lightship-' + args.set_version + '-' + self.triplet
+            if args.build is None:
+                args.build = ""
+            if len(args.build) > 0:
+                args.build = "-" + args.build
+            args.output_name = 'lightship-' + args.set_version + args.build + '-' + self.triplet
 
         # determine compilers
         if args.c_compiler is None:
@@ -57,6 +62,7 @@ class Target(object):
         # build target object
         self.platform                 = args.platform
         self.version                  = args.set_version
+        self.build                    = args.build
         self.compiler_root            = args.compiler_root
         self.c_compiler               = args.c_compiler
         self.cxx_compiler             = args.cxx_compiler
@@ -66,8 +72,9 @@ class Target(object):
         self.install_cmd              = args.install
         self.compress_type            = args.compress
         self.output_name              = args.output_name
-        self.binary_path              = os.path.abspath(os.path.join('cross-build/build', self.output_name))
-        self.install_prefix           = os.path.abspath(os.path.join('cross-build/install', self.output_name))
+        self.build_folder_name        = 'lightship-' + self.triplet
+        self.binary_path              = os.path.abspath(os.path.join('cross-build/build', self.build_folder_name))
+        self.install_prefix           = os.path.abspath(os.path.join('cross-build/install', self.build_folder_name))
         self.archive_path             = os.path.abspath('cross-build/dist')
         self.toolchain_file = os.path.abspath(os.path.join('scripts/cmake/toolchains', 'toolchain-' + self.triplet + '.cmake'))
 
@@ -164,7 +171,7 @@ class Target(object):
 
         # 7z and tar all have the output folder name in this order
         cmd.append(os.path.abspath(os.path.join(self.archive_path, self.output_name + '.' + ext)))
-        cmd.append(self.output_name)
+        cmd.append(self.build_folder_name)
 
         # compress installed targets
         process = subprocess.Popen(cmd, cwd=os.path.abspath(os.path.join(self.install_prefix, '..')))
