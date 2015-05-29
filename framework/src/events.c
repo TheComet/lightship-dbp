@@ -158,11 +158,8 @@ event_destroy(struct event_t* event)
         return;
     }
 
-    /* unlink value and destroy node */
-    node->value = NULL;
+    /* destroying the node will call event_free() automatically */    
     ptree_destroy(node);
-
-    event_free(event);
 }
 
 /* ------------------------------------------------------------------------- */
@@ -266,5 +263,6 @@ event_free(struct event_t* event)
     event_unregister_all_listeners(event);
     free_string(event->directory);
     unordered_vector_clear_free(&event->listeners);
+    dynamic_call_destroy_type_info(event->type_info);
     FREE(event);
 }
