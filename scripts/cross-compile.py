@@ -42,7 +42,10 @@ class Target(object):
         self.triplet = args.compiler_root.split('/')[-1]
         print('triplet: {0}'.format(self.triplet))
 
-        # determine output folder name
+        # determine output folder names
+        # build folder will by default be lightship + triplet
+        # if the output name was specified, then the build folder
+        # should also be set to be the output name
         build_folder_name = 'lightship-' + self.triplet
         if args.output_name is None:
             if args.build is None:
