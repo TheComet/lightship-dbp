@@ -43,12 +43,15 @@ class Target(object):
         print('triplet: {0}'.format(self.triplet))
 
         # determine output folder name
+        build_folder_name = 'lightship-' + self.triplet
         if args.output_name is None:
             if args.build is None:
                 args.build = ""
             if len(args.build) > 0:
                 args.build = "-" + args.build
             args.output_name = 'lightship-' + args.set_version + args.build + '-' + self.triplet
+        else
+            build_folder_name = args.output_name
 
         # determine compilers
         if args.c_compiler is None:
@@ -72,7 +75,7 @@ class Target(object):
         self.install_cmd              = args.install
         self.compress_type            = args.compress
         self.output_name              = args.output_name
-        self.build_folder_name        = 'lightship-' + self.triplet
+        self.build_folder_name        = build_folder_name
         self.binary_path              = os.path.abspath(os.path.join('cross-build/build', self.build_folder_name))
         self.install_prefix           = os.path.abspath(os.path.join('cross-build/install', self.build_folder_name))
         self.archive_path             = os.path.abspath('cross-build/dist')
