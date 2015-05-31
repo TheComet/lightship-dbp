@@ -3,7 +3,7 @@
 VERSION=$(cat lightship_version)
 
 ./scripts/cross-compile.py \
-    --platform Windows \
+    --platform=Windows \
     --set-version $VERSION \
     --build "$1" \
     --compiler-root /usr/bin/x86_64-w64-mingw32 \

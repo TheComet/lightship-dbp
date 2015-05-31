@@ -1,10 +1,7 @@
 #!/bin/bash
 
-VERSION=$(cat lightship_version)
-
 ./scripts/cross-compile.py \
     --platform Windows \
-    --set-version $VERSION \
     --build "$1" \
     --compiler-root /usr/bin/x86_64-pc-mingw32 \
     --cmake "CMAKE_BUILD_TYPE=Release" \
@@ -14,7 +11,6 @@ VERSION=$(cat lightship_version)
 
 ./scripts/cross-compile.py \
     --platform Windows \
-    --set-version $VERSION \
     --build "$1" \
     --compiler-root /usr/bin/i686-pc-mingw32 \
     --cmake "CMAKE_BUILD_TYPE=Release" \
@@ -24,7 +20,6 @@ VERSION=$(cat lightship_version)
     --compress 7z || exit 1;
 
 ./scripts/cross-compile.py \
-    --set-version $VERSION \
     --build "$1" \
     --compiler-root /usr/bin/x86_64-pc-linux-gnu \
     --cmake "CMAKE_BUILD_TYPE=Release" \

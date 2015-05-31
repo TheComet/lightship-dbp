@@ -15,7 +15,6 @@ class Target(object):
         parser = argparse.ArgumentParser(description='Assists in cross compiling')
         parser.add_argument('--platform', help='The name of the platform to compile for. If this argument is not provided, the system platform is used. This ends up being written to CMAKE_SYSTEM_NAME', type=str)
         parser.add_argument('--output-name', help='The output folder name. By default the name will be "lightship-<version>-<triplet>', type=str)
-        parser.add_argument('--set-version', help='Sets the version string, e.g. "0.5.2-beta"', type=str)
         parser.add_argument('--build', help='The build number. This will be part of the archive file name if --output-name is not specified', type=str)
         parser.add_argument('--compiler-root', help='The root path of the compiler', type=str)
         parser.add_argument('--c-compiler', help='Full path to the C compiler to use', type=str)
@@ -28,9 +27,6 @@ class Target(object):
         args = parser.parse_args()
    
         # verify arguments
-        if args.set_version is None:
-            print('Please specify a version string')
-            sys.exit(1)
         if args.compiler_root is None:
             print('Please specify the compiler root, e.g. "/usr/bin/x86_64-pc-linux-gnu"')
             sys.exit(1)
@@ -42,6 +38,9 @@ class Target(object):
         self.triplet = args.compiler_root.split('/')[-1]
         print('triplet: {0}'.format(self.triplet))
 
+        # load version from config file
+        version = str(open('lightship_version', 'rb').read().strip())
+
         # determine output folder names
         # build folder will by default be lightship + triplet
         # if the output name was specified, then the build folder
@@ -52,7 +51,7 @@ class Target(object):
                 args.build = ""
             if len(args.build) > 0:
                 args.build = "-" + args.build
-            args.output_name = 'lightship-' + args.set_version + args.build + '-' + self.triplet
+            args.output_name = 'lightship-' + version + args.build + '-' + self.triplet
         else:
             build_folder_name = args.output_name
 
@@ -67,7 +66,7 @@ class Target(object):
 
         # build target object
         self.platform                 = args.platform
-        self.version                  = args.set_version
+        self.version                  = version
         self.build                    = args.build
         self.compiler_root            = args.compiler_root
         self.c_compiler               = args.c_compiler
