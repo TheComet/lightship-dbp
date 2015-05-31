@@ -3,6 +3,7 @@
 #include "framework/log.h"
 #include <fcntl.h>
 #include <sys/stat.h>
+#include <stdio.h>
 
 /* ------------------------------------------------------------------------- */
 uint32_t
