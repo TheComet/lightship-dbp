@@ -178,6 +178,8 @@ class Target(object):
         cmd.append(os.path.abspath(os.path.join(self.archive_path, self.output_name + '.' + ext)))
         cmd.append(self.build_folder_name)
 
+        print('compress command is "{}"'.format(cmd))
+
         # compress installed targets
         process = subprocess.Popen(cmd, cwd=os.path.abspath(os.path.join(self.install_prefix, '..')))
         process.wait()
