@@ -89,6 +89,7 @@ class Target(object):
 
         t.ensure_path(self.binary_path)
         t.ensure_path(self.install_prefix)
+        t.ensure_path(self.archive_path)
 
         # if not cross compiling, no need to generate templates
         if self.platform is None:
