@@ -263,7 +263,11 @@ crlf2lf(char* src)
 void
 string_reverse(char* str)
 {
-    char* end = str + strlen(str);
+    char* end;
+
+    assert(str);
+
+    end = str + strlen(str) - 1;
     for(; str < end; ++str, --end)
     {
         char tmp = *str;

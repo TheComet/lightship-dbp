@@ -31,3 +31,8 @@ TEST(NAME, crlf2lf_with_null_ptr)
 {
     ASSERT_DEATH(crlf2lf(NULL), ASSERTION_REGEX);
 }
+
+TEST(NAME, reverse_with_null_ptr)
+{
+    ASSERT_DEATH(string_reverse(NULL), ASSERTION_REGEX);
+}

@@ -185,3 +185,19 @@ TEST(NAME, crlf2lf_empty_string)
 
     free_string(s);
 }
+
+TEST(NAME, reverse)
+{
+    char* s = malloc_string("this is a test");
+    string_reverse(s);
+    EXPECT_THAT(s, StrEq("tset a si siht"));
+    free_string(s);
+}
+
+TEST(NAME, reverse_empty_string)
+{
+    char* s = malloc_string("");
+    string_reverse(s);
+    EXPECT_THAT(s, StrEq(""));
+    free_string(s);
+}
