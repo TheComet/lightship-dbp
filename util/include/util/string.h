@@ -79,6 +79,15 @@ wcstostr(const wchar_t* wcs);
 LIGHTSHIP_UTIL_PUBLIC_API void
 crlf2lf(char* src);
 
+/*!
+ * @brief Reverses the order of a null terminated character array.
+ * @note The data is modified in-place. If you wish to keep the original
+ * string, make a copy with malloc_string().
+ * @param str The string to reverse the order of.
+ */
+void
+string_reverse(char* str);
+
 C_HEADER_END
 
 #endif /* LIGHTSHIP_UTIL_STRING_H */

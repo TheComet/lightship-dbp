@@ -258,3 +258,16 @@ crlf2lf(char* src)
     if(target != src)
         *target = '\0';
 }
+
+/* ------------------------------------------------------------------------- */
+void
+string_reverse(char* str)
+{
+    char* end = str + strlen(str);
+    for(; str < end; ++str, --end)
+    {
+        char tmp = *str;
+        *str = *end;
+        *end = tmp;
+    }
+}
