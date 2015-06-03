@@ -109,6 +109,19 @@ struct plugin_t;
 struct log_t;
 struct game_t;
 
+struct event_t
+{
+    struct plugin_t* plugin;    /* reference to the plugin object that owns this event */
+    char* directory;
+    struct type_info_t* type_info;
+    struct unordered_vector_t listeners; /* holds event_listener_t objects */
+};
+
+struct event_listener_t
+{
+    event_callback_func exec;
+};
+
 /*!
  * @brief Initialises the event system.
  * @note Must be called before calling any other event related functions.

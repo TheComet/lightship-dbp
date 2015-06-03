@@ -9,6 +9,14 @@ struct game_t;
 struct ordered_vector_t;
 struct plugin_t;
 
+struct service_t
+{
+    struct plugin_t* plugin;    /* reference to the plugin that owns this service */
+    char* directory;
+    service_func exec;
+    struct type_info_t* type_info;
+};
+
 /*!
  * @brief Initialises the service system. This must be called before calling any
  * other service related functions.

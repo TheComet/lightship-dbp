@@ -143,7 +143,9 @@ struct type_info_t
  *
  */
 LIGHTSHIP_UTIL_PUBLIC_API struct type_info_t*
-dynamic_call_create_type_info(const char* ret_type, int argc, const char** argv);
+dynamic_call_create_type_info(const char* ret_type,
+                              int argc,
+                              const char** argv);
 
 /*!
  *
@@ -155,18 +157,20 @@ dynamic_call_destroy_type_info(struct type_info_t* type_info);
  *
  */
 LIGHTSHIP_UTIL_PUBLIC_API void**
-dynamic_call_create_argument_vector_from_varargs(const struct type_info_t* type_info,
-                                                  ...);
+dynamic_call_create_argument_vector_from_varargs(
+        const struct type_info_t* type_info, ...);
+
 LIGHTSHIP_UTIL_PUBLIC_API void**
-vdynamic_call_create_argument_vector_from_varargs(const struct type_info_t* type_info,
-                                                  va_list ap);
+vdynamic_call_create_argument_vector_from_varargs(
+        const struct type_info_t* type_info, va_list ap);
 
 /*!
  *
  */
 LIGHTSHIP_UTIL_PUBLIC_API void**
-dynamic_call_create_argument_vector_from_strings(const struct type_info_t* type_info,
-                                                 const struct ordered_vector_t* argv);
+dynamic_call_create_argument_vector_from_strings(
+        const struct type_info_t* type_info,
+        const struct ordered_vector_t* argv);
 
 /*!
  *
