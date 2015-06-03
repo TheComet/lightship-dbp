@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include "framework/log.h"
 #include "framework/game.h"
+#include "framework/events.h"
 #include "util/memory.h"
 
 #ifdef ENABLE_LOG_TIMESTAMPS

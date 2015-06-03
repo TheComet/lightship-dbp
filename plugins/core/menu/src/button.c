@@ -3,7 +3,7 @@
 #include "plugin_menu/events.h"
 #include "plugin_menu/glob.h"
 #include "framework/plugin.h"
-#include "framework/se_api.h"
+#include "framework/services.h"
 #include "framework/log.h"
 #include "util/map.h"
 #include "util/memory.h"

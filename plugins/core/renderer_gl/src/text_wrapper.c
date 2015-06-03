@@ -4,6 +4,7 @@
 #include "plugin_renderer_gl/text_manager.h"
 #include "framework/game.h"
 #include "framework/plugin.h"
+#include "framework/services.h"
 #include "util/map.h"
 
 static struct map_t g_text_groups;

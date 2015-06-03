@@ -1,3 +1,8 @@
+/*!
+ * @file dynamic_call.h
+ * @brief Allows the construction of
+ */
+
 #ifndef LIGHTSHIP_UTIL_DYNAMIC_CALL_H
 #define LIGHTSHIP_UTIL_DYNAMIC_CALL_H
 
@@ -160,9 +165,26 @@ LIGHTSHIP_UTIL_PUBLIC_API void**
 dynamic_call_create_argument_vector_from_varargs(
         const struct type_info_t* type_info, ...);
 
+/*!
+ *
+ */
 LIGHTSHIP_UTIL_PUBLIC_API void**
 vdynamic_call_create_argument_vector_from_varargs(
         const struct type_info_t* type_info, va_list ap);
+
+/*!
+ *
+ */
+LIGHTSHIP_UTIL_PUBLIC_API char
+dynamic_call_set_argument_vector_from_varargs(
+        const struct type_info_t* type_info, void** argv,  ...);
+
+/*!
+ *
+ */
+LIGHTSHIP_UTIL_PUBLIC_API char
+vdynamic_call_set_argument_vector_from_varargs(
+        const struct type_info_t* type_info, void** argv, va_list ap);
 
 /*!
  *
@@ -171,6 +193,15 @@ LIGHTSHIP_UTIL_PUBLIC_API void**
 dynamic_call_create_argument_vector_from_strings(
         const struct type_info_t* type_info,
         const struct ordered_vector_t* argv);
+
+/*!
+ *
+ */
+LIGHTSHIP_UTIL_PUBLIC_API char
+dynamic_call_set_argument_vector_from_strings(
+    const struct type_info_t* type_info,
+    void** argv,
+    const struct ordered_vector_t* strings);
 
 /*!
  *

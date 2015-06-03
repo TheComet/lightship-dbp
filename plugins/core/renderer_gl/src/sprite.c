@@ -4,6 +4,7 @@
 #include "plugin_renderer_gl/glob.h"
 #include "framework/plugin.h"
 #include "framework/game.h"
+#include "framework/services.h"
 #include "framework/log.h"
 #include "util/map.h"
 #include "util/memory.h"
