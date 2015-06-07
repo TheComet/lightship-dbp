@@ -17,6 +17,7 @@ class Target(object):
         parser.add_argument('--output-name', help='The output folder name. By default the name will be "lightship-<version>-<triplet>', type=str)
         parser.add_argument('--build', help='The build number. This will be part of the archive file name if --output-name is not specified', type=str)
         parser.add_argument('--compiler-root', help='The root path of the compiler', type=str)
+        parser.add_argument('--triplet', help='If the triplet isn`t part of the compiler root, you have to specify it here', type=str)
         parser.add_argument('--c-compiler', help='Full path to the C compiler to use', type=str)
         parser.add_argument('--cxx-compiler', help='Full path to the C++ compiler to use', type=str)
         parser.add_argument('--rc-compiler', help='Full path to the Windows resource compiler if compiling for Windows', type=str)
@@ -28,7 +29,7 @@ class Target(object):
    
         # verify arguments
         if args.compiler_root is None:
-            print('Please specify the compiler root, e.g. "/usr/bin/x86_64-pc-linux-gnu"')
+            print('Please specify the compiler root, e.g. "/usr/bin/x86_64-pc-linux-gnu" (or /usr/bin/ if the triplet is unknown)')
             sys.exit(1)
         if args.make is None:
             print('Please specify a command to make')
@@ -36,6 +37,11 @@ class Target(object):
 
         # determine triplet
         self.triplet = args.compiler_root.split('/')[-1]
+        if len(self.triplet) < 2:
+            if args.triplet is None:
+                print('Your compiler isn`t prefixed by a triplet. Please specify a triplet with --triplet')
+                sys.exit(1)
+            self.triplet = args.triplet
         print('triplet: {0}'.format(self.triplet))
 
         # load version from config file
