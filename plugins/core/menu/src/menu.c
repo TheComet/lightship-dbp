@@ -51,7 +51,7 @@ menu_load(struct glob_t* g, const char* file_name)
     struct ptree_t* doc;
     const char* menu_name;
 
-    llog(LOG_INFO, g->game, PLUGIN_NAME, 3, "Loading menu from file \"", file_name, "\"");
+    llog(LOG_INFO, g->game, PLUGIN_NAME, "Loading menu from file \"%s\"", file_name);
 
     /* load and parse yaml file, get DOM */
     doc = yaml_load(file_name);
@@ -61,7 +61,7 @@ menu_load(struct glob_t* g, const char* file_name)
     /* get ptree for screens */
     if(!yaml_get_node(doc, "screens"))
     {
-        llog(LOG_ERROR, g->game, PLUGIN_NAME, 1, "Failed to find \"screens\" node");
+        llog(LOG_ERROR, g->game, PLUGIN_NAME, "Failed to find \"screens\" node");
         yaml_destroy(doc);
         return NULL;
     }
@@ -70,7 +70,7 @@ menu_load(struct glob_t* g, const char* file_name)
     menu_name = yaml_get_value(doc, "name");
     if(!menu_name)
     {
-        llog(LOG_ERROR, g->game, PLUGIN_NAME, 1, "Failed to find \"name\" node");
+        llog(LOG_ERROR, g->game, PLUGIN_NAME, "Failed to find \"name\" node");
         yaml_destroy(doc);
         return NULL;
     }
@@ -98,7 +98,7 @@ menu_load(struct glob_t* g, const char* file_name)
         if((start_screen = yaml_get_value(doc, "start_screen")))
             menu_set_active_screen(menu, start_screen);
         else
-            llog(LOG_WARNING, g->game, PLUGIN_NAME, 1, "You didn't specify start_screen: \"name\" in your YAML file. Don't know which screen to begin with.");
+            llog(LOG_WARNING, g->game, PLUGIN_NAME, "You didn't specify start_screen: \"name\" in your YAML file. Don't know which screen to begin with.");
     }
 
     /* insert into global list of menus */
@@ -139,8 +139,8 @@ menu_set_active_screen(struct menu_t* menu, const char* screen_name)
     struct screen_t* screen = map_find(&menu->screens, screen_id);
     if(!screen)
     {
-        llog(LOG_ERROR, menu->glob->game, PLUGIN_NAME, 3, "Failed to set the "
-            "active screen to \"", screen_name, "\": Screen name not found");
+        llog(LOG_ERROR, menu->glob->game, PLUGIN_NAME, "Failed to set the "
+            "active screen to \"%s\": Screen name not found", screen_name);
         return;
     }
 
@@ -169,7 +169,7 @@ menu_load_screens(struct menu_t* menu, const struct ptree_t* doc)
         /* get screen name */
         if(!screen_name)
         {
-            llog(LOG_WARNING, menu->glob->game, PLUGIN_NAME, 1, "Screen missing the \"name\" property. Skipping.");
+            llog(LOG_WARNING, menu->glob->game, PLUGIN_NAME, "Screen missing the \"name\" property. Skipping.");
             continue;
         }
 
@@ -179,8 +179,8 @@ menu_load_screens(struct menu_t* menu, const struct ptree_t* doc)
         */
         if(map_key_exists(&created_screen_names, hash_jenkins_oaat(screen_name, strlen(screen_name))))
         {
-            llog(LOG_WARNING, menu->glob->game, PLUGIN_NAME, 2, "Screen with duplicate name found: ", screen_name);
-            llog(LOG_WARNING, menu->glob->game, PLUGIN_NAME, 1, "Screen will not be created");
+            llog(LOG_WARNING, menu->glob->game, PLUGIN_NAME, "Screen with duplicate name found: %s", screen_name);
+            llog(LOG_WARNING, menu->glob->game, PLUGIN_NAME, "Screen will not be created");
             continue;
         }
         map_insert(&created_screen_names, hash_jenkins_oaat(screen_name, strlen(screen_name)), NULL);
@@ -219,7 +219,7 @@ menu_load_button(struct glob_t* g, struct screen_t* screen, const struct ptree_t
     const struct ptree_t* action_node = yaml_get_node(button_node, "action");
     if(!x_str || !y_str || !width_str || !height_str)
     {
-        llog(LOG_WARNING, g->game, PLUGIN_NAME, 1, "Not enough data to create "
+        llog(LOG_WARNING, g->game, PLUGIN_NAME, "Not enough data to create "
             "button. Need at least position and size.");
         return;
     }
@@ -248,9 +248,8 @@ menu_load_button_action(struct glob_t* g, struct button_t* button, const struct 
         struct service_t* action_service;
         if(!(action_service = service_get(button->base.element.glob->game, service_str)))
         {
-            llog(LOG_WARNING, g->game, PLUGIN_NAME, 3, "Tried to bind button "
-                "to service \"", service_str, "\", but the service was not "
-                "found.");
+            llog(LOG_WARNING, g->game, PLUGIN_NAME, "Tried to bind button "
+                "to service \"%s\", but the service was not found.", service_str);
         }
         else
         {
@@ -335,8 +334,8 @@ SERVICE(menu_set_active_screen_wrapper)
         }
     }}
 
-    llog(LOG_WARNING, service->plugin->game, PLUGIN_NAME, 5, "Failed to "
-        "set the active screen to \"", screen_name, "\" in menu \"", menu_name,
-         "\" -- menu was not found."
+    llog(LOG_WARNING, service->plugin->game, PLUGIN_NAME, "Failed to "
+        "set the active screen to \"%s\" in menu \"%s\" - menu was not found.",
+         screen_name, menu_name
     );
 }

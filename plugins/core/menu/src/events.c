@@ -13,7 +13,7 @@ register_events(struct plugin_t* plugin)
     struct glob_events_t* g = &get_global(plugin->game)->events;
     memset(g, 0, sizeof(struct glob_events_t));
 
-    EVENT_CREATE0(plugin, g->button_clicked, PLUGIN_NAME ".button_clicked");
+    EVENT_CREATE1(plugin, g->button_clicked, PLUGIN_NAME ".button_clicked", uint32_t);
 }
 
 void

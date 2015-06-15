@@ -31,7 +31,7 @@ register_services(struct plugin_t* plugin)
     SERVICE_CREATE2(plugin, s, PLUGIN_NAME ".text_group_load_character_set",  text_group_load_character_set_wrapper, void, uint32_t, const wchar_t*);
 
     SERVICE_CREATE5(plugin, s, PLUGIN_NAME ".text_create",                    text_create_wrapper, uint32_t, char, uint32_t, float, float, const wchar_t*);
-    SERVICE_CREATE4(plugin, s, PLUGIN_NAME ".text_destroy",                   text_destroy_wrapper, uint32_t, uint32_t, float, float, const wchar_t*);
+    SERVICE_CREATE1(plugin, s, PLUGIN_NAME ".text_destroy",                   text_destroy_wrapper, void, uint32_t);
     SERVICE_CREATE2(plugin, s, PLUGIN_NAME ".text_set_centered",              text_set_centered_wrapper, void, uint32_t, char);
     SERVICE_CREATE3(plugin, s, PLUGIN_NAME ".text_set_position",              text_set_position_wrapper, void, uint32_t, float, float);
     SERVICE_CREATE1(plugin, s, PLUGIN_NAME ".text_set_string",                text_set_string_wrapper, void, const wchar_t*);

@@ -77,11 +77,11 @@ text_manager_init(struct glob_t* g)
     g_text_shader_id = shader_load(g, text_shader_file);printOpenGLError();
 
     /* init freetype */
-    llog(LOG_INFO, g->game, PLUGIN_NAME, 1, "Initialising freetype");
+    llog(LOG_INFO, g->game, PLUGIN_NAME, "Initialising freetype");
     error = FT_Init_FreeType(&g_lib);
     if(error)
     {
-        llog(LOG_ERROR, g->game, PLUGIN_NAME, 1, "Failed to initialise freetype");
+        llog(LOG_ERROR, g->game, PLUGIN_NAME, "Failed to initialise freetype");
         return 0;
     }
 
@@ -298,7 +298,7 @@ text_group_remove_text_object(struct text_group_t* text_group, struct text_t* te
     {
         if(*pregistered_text == text)
         {
-            unordered_vector_erase_element(&text_group->texts, *pregistered_text);
+            unordered_vector_erase_element(&text_group->texts, pregistered_text);
             return;
         }
     }
@@ -351,12 +351,15 @@ text_group_load_font(struct glob_t* g,
     error = FT_New_Face(g_lib, filename, 0, &group->face);
     if(error == FT_Err_Unknown_File_Format)
     {
-        llog(LOG_ERROR, g->game, PLUGIN_NAME, 3, "The font file \"", filename, "\" could be opened and read, but it appears that its font format is unsupported");
+        llog(LOG_ERROR, g->game, PLUGIN_NAME, "The font file \"%s\" could be "
+            "opened and read, but it appears that its font format is unsupported",
+            filename
+        );
         return 0;
     }
     else if(error)
     {
-        llog(LOG_ERROR, g->game, PLUGIN_NAME, 3, "Failed to open font file \"", filename, "\"");
+        llog(LOG_ERROR, g->game, PLUGIN_NAME, "Failed to open font file \"%s\"", filename);
         return 0;
     }
 
@@ -364,7 +367,7 @@ text_group_load_font(struct glob_t* g,
     error = FT_Set_Char_Size(group->face, TO_26DOT6(char_size), 0, 300, 300);
     if(error)
     {
-        llog(LOG_ERROR, g->game, PLUGIN_NAME, 1, "Failed to set the character size");
+        llog(LOG_ERROR, g->game, PLUGIN_NAME, "Failed to set the character size");
         return 0;
     }
 
@@ -412,7 +415,7 @@ text_group_load_atlass(struct glob_t* g,
             char* buffer[sizeof(wchar_t)+1];
             memcpy(buffer, iterator, sizeof(wchar_t));
             buffer[sizeof(wchar_t)] = '\0';
-            llog(LOG_ERROR, g->game, PLUGIN_NAME, 3, "Failed to load glyph \"", buffer, "\"");
+            llog(LOG_ERROR, g->game, PLUGIN_NAME, "Failed to load glyph \"%s\"", buffer);
             continue;
         }
 
@@ -484,7 +487,7 @@ text_group_load_atlass(struct glob_t* g,
 
             /* other pixel modes */
             default:
-                llog(LOG_ERROR, g->game, PLUGIN_NAME, 1, "Glyph bitmap has unsupported format (conversion to RGBA needs implementing)");
+                llog(LOG_ERROR, g->game, PLUGIN_NAME, "Glyph bitmap has unsupported format (conversion to RGBA needs implementing)");
                 break;
         }
 

@@ -54,26 +54,32 @@ typedef void (*event_callback_func)(struct event_t* event, const void** argv);
 #   include <stdlib.h>
 
 /* this is the check for whether the event or service object is NULL or not */
-#   define IF_OBJECT_VALID(obj)                                             \
-        if((obj)) {
+#   define IF_OBJECT_VALID_AND_HAS_ARGC(obj, argcount)                      \
+        if((obj) && (obj)->type_info->argc == argcount) {
 
 /*
- * This is the closure of the IF_OBJECT_VALID condition, which will print
+ * This is the closure of the IF_OBJECT_VALID_AND_HAS_ARGC condition, which will print
  * the stacktrace if it enters the else condition.
  */
-#   define ELSE_REPORT_FAILURE(msg)                                         \
+#   define ELSE_REPORT_FAILURE(obj, argcount)                               \
         } else {                                                            \
             int size, i;                                                    \
             char** backtrace = get_backtrace(&size);                        \
-            llog(LOG_ERROR, NULL, NULL, 1, msg);                            \
+            llog(LOG_ERROR, NULL, NULL, "Failed to call service or event"); \
+            if((obj)) { llog(LOG_ERROR, NULL, NULL,                         \
+                "argument count mismatch: Expected: %d, Actual: %d",        \
+                (obj)->type_info->argc, argcount);                          \
+            } else {                                                        \
+                llog(LOG_ERROR, NULL, NULL, "service or event is null");    \
+            }                                                               \
             for(i = 0; i != size; ++i)                                      \
-                llog(LOG_ERROR, NULL, NULL, 1, backtrace[i]);               \
+                llog(LOG_ERROR, NULL, NULL, backtrace[i]);                  \
             if(backtrace) free(backtrace);                                  \
         }
 
 #else  /* _DEBUG */
 #   define ELSE_REPORT_FAILURE(msg)
-#   define IF_OBJECT_VALID(event)
+#   define IF_OBJECT_VALID_AND_HAS_ARGC(event)
 #endif /* _DEBUG */
 
 /* used to iterate over the listeners of an event */
@@ -119,122 +125,120 @@ typedef void (*event_callback_func)(struct event_t* event, const void** argv);
         argv[4] = &arg5;                                                    \
         argv[5] = &arg6;
 
-#define EVENT_FAIL_MSG "Cannot fire event for it is NULL"
 
 #define EVENT_FIRE0(event) do {                                             \
-            IF_OBJECT_VALID(event)                                          \
+            IF_OBJECT_VALID_AND_HAS_ARGC(event, 0)                          \
                 EVENT_ITERATE_LISTENERS_BEGIN(event)                        \
                     listener->exec(event, NULL);                            \
                 EVENT_ITERATE_LISTENERS_END                                 \
-            ELSE_REPORT_FAILURE(EVENT_FAIL_MSG)                             \
+            ELSE_REPORT_FAILURE(event, 0)                                   \
         } while(0)
 #define EVENT_FIRE1(event, arg1) do {                                       \
-            IF_OBJECT_VALID(event)                                          \
+            IF_OBJECT_VALID_AND_HAS_ARGC(event, 1)                          \
                 GEN_ARGV_ON_STACK1(event_internal_argv, arg1)               \
                 EVENT_ITERATE_LISTENERS_BEGIN(event)                        \
                     listener->exec(event, event_internal_argv);             \
                 EVENT_ITERATE_LISTENERS_END                                 \
-            ELSE_REPORT_FAILURE(EVENT_FAIL_MSG)                             \
+            ELSE_REPORT_FAILURE(event, 1)                                   \
         } while(0)
 #define EVENT_FIRE2(event, arg1, arg2) do {                                 \
-            IF_OBJECT_VALID(event)                                          \
+            IF_OBJECT_VALID_AND_HAS_ARGC(event, 2)                          \
                 GEN_ARGV_ON_STACK2(event_internal_argv, arg1, arg2)         \
                 EVENT_ITERATE_LISTENERS_BEGIN(event)                        \
                     listener->exec(event, event_internal_argv);             \
                 EVENT_ITERATE_LISTENERS_END                                 \
-            ELSE_REPORT_FAILURE(EVENT_FAIL_MSG)                             \
+            ELSE_REPORT_FAILURE(event, 2)                                   \
         } while(0)
 #define EVENT_FIRE3(event, arg1, arg2, arg3) do {                           \
-            IF_OBJECT_VALID(event)                                          \
+            IF_OBJECT_VALID_AND_HAS_ARGC(event, 3)                          \
                 GEN_ARGV_ON_STACK3(event_internal_argv, arg1, arg2, arg3)   \
                 EVENT_ITERATE_LISTENERS_BEGIN(event)                        \
                     listener->exec(event, event_internal_argv);             \
                 EVENT_ITERATE_LISTENERS_END                                 \
-            ELSE_REPORT_FAILURE(EVENT_FAIL_MSG)                             \
+            ELSE_REPORT_FAILURE(event, 3)                                   \
         } while(0)
 #define EVENT_FIRE4(event, arg1, arg2, arg3, arg4) do {                     \
-            IF_OBJECT_VALID(event)                                          \
+            IF_OBJECT_VALID_AND_HAS_ARGC(event, 4)                          \
                 GEN_ARGV_ON_STACK4(event_internal_argv, arg1, arg2, arg3,   \
                                    arg4)                                    \
                 EVENT_ITERATE_LISTENERS_BEGIN(event)                        \
                     listener->exec(event, event_internal_argv);             \
                 EVENT_ITERATE_LISTENERS_END                                 \
-            ELSE_REPORT_FAILURE(EVENT_FAIL_MSG)                             \
+            ELSE_REPORT_FAILURE(event, 4)                                   \
         } while(0)
 #define EVENT_FIRE5(event, arg1, arg2, arg3, arg4, arg5) do {               \
-            IF_OBJECT_VALID(event)                                          \
+            IF_OBJECT_VALID_AND_HAS_ARGC(event, 5)                          \
                 GEN_ARGV_ON_STACK5(event_internal_argv, arg1, arg2, arg3,   \
                                    arg4, arg5)                              \
                 EVENT_ITERATE_LISTENERS_BEGIN(event)                        \
                     listener->exec(event, event_internal_argv);             \
                 EVENT_ITERATE_LISTENERS_END                                 \
-            ELSE_REPORT_FAILURE(EVENT_FAIL_MSG)                             \
+            ELSE_REPORT_FAILURE(event, 5)                                   \
         } while(0)
 #define EVENT_FIRE6(event, arg1, arg2, arg3, arg4, arg5, arg6) do {         \
-            IF_OBJECT_VALID(event)                                          \
+            IF_OBJECT_VALID_AND_HAS_ARGC(event, 6)                          \
                 GEN_ARGV_ON_STACK6(event_internal_argv, arg1, arg2, arg3,   \
                                    arg4, arg5, arg6)                        \
                 EVENT_ITERATE_LISTENERS_BEGIN(event)                        \
                     listener->exec(event, event_internal_argv);             \
                 EVENT_ITERATE_LISTENERS_END                                 \
-            ELSE_REPORT_FAILURE(EVENT_FAIL_MSG)                             \
+            ELSE_REPORT_FAILURE(event, 6)                                   \
         } while(0)
 
-#define SERVICE_FAIL_MSG "Cannot call service for it is NULL"
 
 #define SERVICE_CALL0(service, ret_value) do {                              \
-            IF_OBJECT_VALID(service)                                        \
+            IF_OBJECT_VALID_AND_HAS_ARGC(service, 0)                        \
                 (service)->exec(service, ret_value, NULL);                  \
-            ELSE_REPORT_FAILURE(service)                                    \
+            ELSE_REPORT_FAILURE(service, 0)                                 \
             } while(0)
 #define SERVICE_CALL1(service, ret_value, arg1) do {                        \
-            IF_OBJECT_VALID(service)                                        \
+            IF_OBJECT_VALID_AND_HAS_ARGC(service, 1)                        \
                 GEN_ARGV_ON_STACK1(service_internal_argv, arg1)             \
                 (service)->exec(service, ret_value, service_internal_argv); \
-            ELSE_REPORT_FAILURE(service)                                    \
+            ELSE_REPORT_FAILURE(service, 1)                                 \
         } while(0)
 #define SERVICE_CALL2(service, ret_value, arg1, arg2) do {                  \
-            IF_OBJECT_VALID(service)                                        \
+            IF_OBJECT_VALID_AND_HAS_ARGC(service, 2)                        \
                 GEN_ARGV_ON_STACK2(service_internal_argv, arg1, arg2)       \
                 (service)->exec(service, ret_value, service_internal_argv); \
-            ELSE_REPORT_FAILURE(service)                                    \
+            ELSE_REPORT_FAILURE(service, 2)                                 \
         } while(0)
 #define SERVICE_CALL3(service, ret_value, arg1, arg2, arg3) do {            \
-            IF_OBJECT_VALID(service)                                        \
+            IF_OBJECT_VALID_AND_HAS_ARGC(service, 3)                        \
                 GEN_ARGV_ON_STACK3(service_internal_argv, arg1, arg2, arg3) \
                 (service)->exec(service, ret_value, service_internal_argv); \
-            ELSE_REPORT_FAILURE(service)                                    \
+            ELSE_REPORT_FAILURE(service, 3)                                 \
         } while(0)
 #define SERVICE_CALL4(service, ret_value, arg1, arg2, arg3, arg4) do {      \
-            IF_OBJECT_VALID(service)                                        \
+            IF_OBJECT_VALID_AND_HAS_ARGC(service, 4)                        \
                 GEN_ARGV_ON_STACK4(service_internal_argv, arg1, arg2, arg3, \
                                    arg4)                                    \
                 (service)->exec(service, ret_value, service_internal_argv); \
-            ELSE_REPORT_FAILURE(service)                                    \
+            ELSE_REPORT_FAILURE(service, 4)                                 \
         } while(0)
 #define SERVICE_CALL5(service, ret_value, arg1, arg2, arg3, arg4, arg5)     \
         do {                                                                \
-            IF_OBJECT_VALID(service)                                        \
+            IF_OBJECT_VALID_AND_HAS_ARGC(service, 5)                        \
                 GEN_ARGV_ON_STACK5(service_internal_argv, arg1, arg2, arg3, \
                                    arg4, arg5)                              \
                 (service)->exec(service, ret_value, service_internal_argv); \
-            ELSE_REPORT_FAILURE(service)                                    \
+            ELSE_REPORT_FAILURE(service, 5)                                 \
         } while(0)
 #define SERVICE_CALL6(service, ret_value, arg1, arg2, arg3, arg4, arg5,     \
                       arg6) do {                                            \
-            IF_OBJECT_VALID(service)                                        \
+            IF_OBJECT_VALID_AND_HAS_ARGC(service, 6)                        \
                 GEN_ARGV_ON_STACK6(service_internal_argv, arg1, arg2, arg3, \
                                    arg4, arg5, arg6)                        \
                 (service)->exec(service, ret_value, service_internal_argv); \
-            ELSE_REPORT_FAILURE(service)                                    \
+            ELSE_REPORT_FAILURE(service, 6)                                 \
         } while(0)
 
 #define SERVICE_INTERNAL_GET_AND_CHECK(game, directory)                     \
         struct service_t* service_internal_service = service_get(game,      \
                                                         directory);         \
         if(!service_internal_service)                                       \
-            llog(LOG_WARNING, game, NULL, 3, "Service \"", directory,       \
-                        "\" does not exist");                               \
+            llog(LOG_WARNING, game, NULL, "Service \"%s\" does not exist",  \
+                directory);                                                 \
         else
 
 #define SERVICE_CALL_NAME0(game, directory, ret_value) do {                 \

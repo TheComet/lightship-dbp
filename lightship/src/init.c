@@ -30,20 +30,20 @@ load_core_plugins(struct game_t* game)
     g_settings_doc = yaml_load(yml_settings);
     if(!g_settings_doc)
     {
-        llog(LOG_WARNING, game, NULL, 3, "Config file \"", yml_settings, "\" was not found. No core plugins will be loaded");
+        llog(LOG_WARNING, game, NULL, "Config file \"%s\" was not found. No core plugins will be loaded", yml_settings);
         return 1;
     }
 
     plugins_node = yaml_get_node(g_settings_doc, "plugins");
     if(!plugins_node)
     {
-        llog(LOG_WARNING, game, NULL, 1, "Config file \"", yml_settings, "\" doesn't contain any plugins to load");
+        llog(LOG_WARNING, game, NULL, "Config file \"%s\" doesn't contain any plugins to load", yml_settings);
         return 1;
     }
 
     if(!load_plugins_from_yaml(game, plugins_node))
     {
-        llog(LOG_FATAL, game, NULL, 1, "Couldn't start all core plugins");
+        llog(LOG_FATAL, game, NULL, "Couldn't start all core plugins");
         return 0;
     }
 
@@ -81,7 +81,7 @@ init_game(char is_server)
     localhost = game_create("localhost", GAME_HOST);
     if(!localhost)
     {
-        llog(LOG_FATAL, NULL, NULL, 1, "Failed to create game");
+        llog(LOG_FATAL, NULL, NULL, "Failed to create game");
         return 0;
     }
 

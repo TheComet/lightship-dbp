@@ -58,7 +58,7 @@ PLUGIN_RENDERER_GL_PUBLIC_API PLUGIN_START()
     /* initialise GLFW */
     if(!glfwInit())
     {
-        llog(LOG_ERROR, game, PLUGIN_NAME, 1, "Failed to initialise glfw");
+        llog(LOG_ERROR, game, PLUGIN_NAME, "Failed to initialise glfw");
         return PLUGIN_FAILURE;
     }
 

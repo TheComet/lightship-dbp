@@ -72,7 +72,11 @@ llog_unindent(struct game_t* game);
  * @param[in] strs... The strings to concatenate and send to the log.
  */
 FRAMEWORK_PUBLIC_API void
-llog(log_level_e level, const struct game_t* game, const char* plugin, uint32_t num_strs, ...);
+llog(log_level_e level,
+     const struct game_t* game,
+     const char* plugin_name,
+     const char* fmt,
+     ...);
 
 FRAMEWORK_PUBLIC_API void
 llog_critical_use_no_memory(const char* message);

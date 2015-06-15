@@ -23,7 +23,7 @@ check_shader(struct glob_t* g, GLuint shader_ID)
     message = (char*)MALLOC(info_log_length);
     glGetShaderInfoLog(shader_ID, info_log_length, NULL, message);
     if(result == GL_FALSE)
-        llog(LOG_ERROR, g->game, PLUGIN_NAME, 1, message);
+        llog(LOG_ERROR, g->game, PLUGIN_NAME, message);
     FREE(message);
 
     return (result != GL_FALSE);
@@ -39,12 +39,12 @@ load_and_compile_shader(struct glob_t* g, GLuint shader_ID, const char* file_nam
     file_load_into_memory(file_name, (void**)&code, 0);
     if(!code)
     {
-        llog(LOG_ERROR, g->game, PLUGIN_NAME, 3, "failed to load file \"", file_name, "\"");
+        llog(LOG_ERROR, g->game, PLUGIN_NAME, "failed to load file \"%s\"", file_name);
         return NULL;
     }
 
     /* compile */
-    llog(LOG_INFO, g->game, PLUGIN_NAME, 3, "compiling shader: \"", file_name, "\"");
+    llog(LOG_INFO, g->game, PLUGIN_NAME, "compiling shader: \"%s\"", file_name);
     glShaderSource(shader_ID, 1, (const GLchar**)&code, NULL);
     glCompileShader(shader_ID);
 
@@ -64,7 +64,7 @@ check_program(struct glob_t* g, GLuint program_ID)
     message = (char*)MALLOC(info_log_length);
     glGetProgramInfoLog(program_ID, info_log_length, NULL, message);
     if(result == GL_FALSE)
-        llog(LOG_ERROR, g->game, PLUGIN_NAME, 1, message);
+        llog(LOG_ERROR, g->game, PLUGIN_NAME, message);
     FREE(message);
 
     return (result != GL_FALSE);
@@ -108,7 +108,7 @@ load_shader_pair(struct glob_t* g,
     check_shader(g, fsh_ID);
 
     /* link program */
-    llog(LOG_INFO, g->game, PLUGIN_NAME, 1, "linking program");
+    llog(LOG_INFO, g->game, PLUGIN_NAME, "linking program");
     program_ID = glCreateProgram();
     glAttachShader(program_ID, vsh_ID);
     glAttachShader(program_ID, fsh_ID);
@@ -116,13 +116,13 @@ load_shader_pair(struct glob_t* g,
     if(!check_program(g, program_ID))
     {
         if(vsh_code)
-            llog(LOG_ERROR, g->game, NULL, 2,
-                "================= Vertex Shader Dump =================\n",
+            llog(LOG_ERROR, g->game, NULL,
+                "================= Vertex Shader Dump =================\n%s",
                 vsh_code
             );
         if(fsh_code)
-            llog(LOG_ERROR, g->game, NULL, 2,
-                "================= Fragment Shader Dump =================\n",
+            llog(LOG_ERROR, g->game, NULL,
+                "================= Fragment Shader Dump =================\n%s",
                 fsh_code
             );
     }

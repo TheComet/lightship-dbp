@@ -151,14 +151,14 @@ event_destroy(struct event_t* event)
 
     if(!(node = ptree_get_node(&event->plugin->game->events, event->directory)))
     {
-        llog(LOG_ERROR, event->plugin->game, NULL, 5, "Attempted to destroy the event"
-            " \"", event->directory, "\", but the associated game object with"
-            " name \"", event->plugin->game->name, "\" doesn't own it! The event will"
-            " not be destroyed.");
+        llog(LOG_ERROR, event->plugin->game, NULL, "Attempted to destroy the event"
+            " \"%s\", but the associated game object with name \"%s\" doesn't "
+            "own it! The event will not be destroyed.",
+             event->directory, event->plugin->game->name);
         return;
     }
 
-    /* destroying the node will call event_free() automatically */    
+    /* destroying the node will call event_free() automatically */
     ptree_destroy(node);
 }
 
@@ -194,8 +194,8 @@ event_register_listener(const struct game_t* game,
     /* make sure event exists */
     if(!(event = event_get(game, event_directory)))
     {
-        llog(LOG_WARNING, game, NULL, 3, "Tried to register as a listener to "
-            "event \"", event_directory, "\", but the event does not exist.");
+        llog(LOG_WARNING, game, NULL, "Tried to register as a listener to "
+            "event \"%s\", but the event does not exist.", event_directory);
         return 0;
     }
 
@@ -204,8 +204,8 @@ event_register_listener(const struct game_t* game,
     {
         if(listener->exec == callback)
         {
-            llog(LOG_WARNING, game, NULL, 3, "Already registered as a listener"
-                " to event \"", event->directory, "\"");
+            llog(LOG_WARNING, game, NULL, "Already registered as a listener"
+                " to event \"%s\"", event->directory);
             return 0;
         }
     }}
@@ -227,8 +227,8 @@ event_unregister_listener(const struct game_t* game,
 
     if(!(event = event_get(game, event_directory)))
     {
-        llog(LOG_WARNING, game, NULL, 3, "Tried to unregister from event \"",
-            event_directory, "\", but the event does not exist.");
+        llog(LOG_WARNING, game, NULL, "Tried to unregister from event \"%s\", "
+            "but the event does not exist.", event_directory);
         return 0;
     }
 
@@ -241,8 +241,8 @@ event_unregister_listener(const struct game_t* game,
         }
     }}
 
-    llog(LOG_WARNING, game, NULL, 3, "Tried to unregister from event \"",
-        event_directory, "\", but the listener was not found.");
+    llog(LOG_WARNING, game, NULL, "Tried to unregister from event \"%s\", but "
+        "the listener was not found.", event_directory);
 
     return 0;
 }

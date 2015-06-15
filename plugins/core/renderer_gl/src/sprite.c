@@ -101,7 +101,7 @@ sprite_create(struct glob_t* g,
     pixel_buffer = stbi_load(file_name, &x, &y, &n, 4);
     if(!pixel_buffer)
     {
-        llog(LOG_ERROR, g->game, PLUGIN_NAME, 3, "Failed to load image: \"", file_name, "\"");
+        llog(LOG_ERROR, g->game, PLUGIN_NAME, "Failed to load image: \"%s\"", file_name);
         return NULL;
     }
 

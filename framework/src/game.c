@@ -46,7 +46,7 @@ game_create(const char* name, game_network_role_e net_role)
             game_mode_str = "server";
         else
             game_mode_str = "client";
-        llog(LOG_INFO, NULL, NULL, 5, "Creating game \"", name, "\" with mode \"", game_mode_str, "\"");
+        llog(LOG_INFO, NULL, NULL, "Creating game \"%s\" with mode \"%s\"", name, game_mode_str);
     }
 
     /* allocate game object */
@@ -76,7 +76,7 @@ game_create(const char* name, game_network_role_e net_role)
             game->connection = net_host_udp("3190", 20);
             if(!game->connection)
             {
-                llog(LOG_ERROR, NULL, NULL, 1, "Failed to host connection");
+                llog(LOG_ERROR, NULL, NULL, "Failed to host connection");
                 break;
             }
         }

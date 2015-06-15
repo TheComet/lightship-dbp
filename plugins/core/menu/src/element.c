@@ -44,7 +44,7 @@ element_destructor(struct element_t* element)
     }}
     { UNORDERED_VECTOR_FOR_EACH(&element->base.element.gl.text, struct element_font_text_id_pair_t, pair)
     {
-        SERVICE_CALL2(g->services.text_destroy, NULL, pair->font_id,pair->text_id);
+        SERVICE_CALL1(g->services.text_destroy, NULL, pair->text_id);
     }}
     unordered_vector_clear_free(&element->base.element.gl.shapes);
     unordered_vector_clear_free(&element->base.element.gl.text);

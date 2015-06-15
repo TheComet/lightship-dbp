@@ -148,7 +148,7 @@ button_free_contents(struct button_t* button)
 
     if(button->base.button.text)
     {
-        SERVICE_CALL2(g->services.text_destroy, NULL, g->button.font_id, button->base.button.text_id);
+        SERVICE_CALL1(g->services.text_destroy, NULL, button->base.button.text_id);
         free_string(button->base.button.text);
         if(button->base.element.action.service)
             dynamic_call_destroy_argument_vector(button->base.element.action.service->type_info,
