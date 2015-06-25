@@ -12,37 +12,37 @@
 char
 get_directory_listing(struct list_t* list, const char* dir)
 {
-    DIR* dirp = NULL;
-    struct dirent* fp;
+	DIR* dirp = NULL;
+	struct dirent* fp;
 
-    assert(list);
-    assert(dir);
+	assert(list);
+	assert(dir);
 
-    /* open directory */
-    dirp = opendir(dir);
-    if(dirp == NULL)
-    {
-        fprintf(stderr, "Error searching directory \"%s\": ", dir);
-        perror("");
-        return 0;
-    }
+	/* open directory */
+	dirp = opendir(dir);
+	if(dirp == NULL)
+	{
+		fprintf(stderr, "Error searching directory \"%s\": ", dir);
+		perror("");
+		return 0;
+	}
 
-    /* copy contents of directory into linked list */
-    errno = 0;
-    while((fp = readdir(dirp)) != NULL)
-    {
-        if(!list_push(list, cat_strings(2, dir, fp->d_name)))
-        {
-            closedir(dirp);
-            return 0;
-        }
-    }
+	/* copy contents of directory into linked list */
+	errno = 0;
+	while((fp = readdir(dirp)) != NULL)
+	{
+		if(!list_push(list, cat_strings(2, dir, fp->d_name)))
+		{
+			closedir(dirp);
+			return 0;
+		}
+	}
 
-    /* catch any errors */
-    if(errno != 0)
-        perror("Error reading directory");
+	/* catch any errors */
+	if(errno != 0)
+		perror("Error reading directory");
 
-    closedir(dirp);
+	closedir(dirp);
 
-    return (errno == 0);
+	return (errno == 0);
 }

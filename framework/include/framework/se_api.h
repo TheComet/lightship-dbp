@@ -37,16 +37,15 @@ typedef void (*event_callback_func)(struct event_t* event, const void** argv);
  * @param func_name The name of the service function.
  */
 #define SERVICE(func_name) \
-        void func_name(struct service_t* service, void* ret, const void** argv)
+		void func_name(struct service_t* service, void* ret, const void** argv)
 
 #define EVENT_LISTENER(evt_name) \
-        void evt_name(struct event_t* event, const void** argv)
+		void evt_name(struct event_t* event, const void** argv)
 
 /* ------------------------------------------------------------------------- */
 /*
  * In debug mode, we want to print the stack trace if an event object
- * is NULL. In release mode, we can skip the stack trace and skip the check
- * for event being NULL.
+ * is NULL. In release mode, we can skip the stack trace.
  */
 /* ------------------------------------------------------------------------- */
 #ifdef _DEBUG
@@ -55,373 +54,374 @@ typedef void (*event_callback_func)(struct event_t* event, const void** argv);
 
 /* this is the check for whether the event or service object is NULL or not */
 #   define IF_OBJECT_VALID_AND_HAS_ARGC(obj, argcount)                      \
-        if((obj) && (obj)->type_info->argc == argcount) {
+		if((obj) && (obj)->type_info->argc == argcount) {
 
 /*
  * This is the closure of the IF_OBJECT_VALID_AND_HAS_ARGC condition, which will print
  * the stacktrace if it enters the else condition.
  */
 #   define ELSE_REPORT_FAILURE(obj, argcount)                               \
-        } else {                                                            \
-            int size, i;                                                    \
-            char** backtrace = get_backtrace(&size);                        \
-            llog(LOG_ERROR, NULL, NULL, "Failed to call service or event"); \
-            if((obj)) { llog(LOG_ERROR, NULL, NULL,                         \
-                "argument count mismatch: Expected: %d, Actual: %d",        \
-                (obj)->type_info->argc, argcount);                          \
-            } else {                                                        \
-                llog(LOG_ERROR, NULL, NULL, "service or event is null");    \
-            }                                                               \
-            for(i = 0; i != size; ++i)                                      \
-                llog(LOG_ERROR, NULL, NULL, backtrace[i]);                  \
-            if(backtrace) free(backtrace);                                  \
-        }
+		} else {                                                            \
+			int size, i;                                                    \
+			char** backtrace = get_backtrace(&size);                        \
+			llog(LOG_ERROR, NULL, NULL, "Failed to call service or event"); \
+			if((obj)) { llog(LOG_ERROR, NULL, NULL,                         \
+				"argument count mismatch: Expected: %d, Actual: %d",        \
+				(obj)->type_info->argc, argcount);                          \
+			} else {                                                        \
+				llog(LOG_ERROR, NULL, NULL, "service or event is null");    \
+			}                                                               \
+			for(i = 0; i != size; ++i)                                      \
+				llog(LOG_ERROR, NULL, NULL, backtrace[i]);                  \
+			if(backtrace) free(backtrace);                                  \
+		}
 
 #else  /* _DEBUG */
-#   define ELSE_REPORT_FAILURE(msg)
-#   define IF_OBJECT_VALID_AND_HAS_ARGC(event)
+#   define IF_OBJECT_VALID_AND_HAS_ARGC(obj, argcount)                      \
+		if((obj) && (obj)->type_info->argc == argcount) {
+#   define ELSE_REPORT_FAILURE(msg) }
 #endif /* _DEBUG */
 
 /* used to iterate over the listeners of an event */
 #define EVENT_ITERATE_LISTENERS_BEGIN(event)                                \
-            { UNORDERED_VECTOR_FOR_EACH(&(event)->listeners,                \
-                                        struct event_listener_t,            \
-                                        listener)                           \
-            {
+			{ UNORDERED_VECTOR_FOR_EACH(&(event)->listeners,                \
+										struct event_listener_t,            \
+										listener)                           \
+			{
 #define EVENT_ITERATE_LISTENERS_END                                         \
-            }}
+			}}
 
 #define GEN_ARGV_ON_STACK1(argv, arg1)                                      \
-        const void* argv[1];                                                \
-        argv[0] = &arg1;
+		const void* argv[1];                                                \
+		argv[0] = &arg1;
 #define GEN_ARGV_ON_STACK2(argv, arg1, arg2)                                \
-        const void* argv[2];                                                \
-        argv[0] = &arg1;                                                    \
-        argv[1] = &arg2;
+		const void* argv[2];                                                \
+		argv[0] = &arg1;                                                    \
+		argv[1] = &arg2;
 #define GEN_ARGV_ON_STACK3(argv, arg1, arg2, arg3)                          \
-        const void* argv[3];                                                \
-        argv[0] = &arg1;                                                    \
-        argv[1] = &arg2;                                                    \
-        argv[2] = &arg3;
+		const void* argv[3];                                                \
+		argv[0] = &arg1;                                                    \
+		argv[1] = &arg2;                                                    \
+		argv[2] = &arg3;
 #define GEN_ARGV_ON_STACK4(argv, arg1, arg2, arg3, arg4)                    \
-        const void* argv[4];                                                \
-        argv[0] = &arg1;                                                    \
-        argv[1] = &arg2;                                                    \
-        argv[2] = &arg3;                                                    \
-        argv[3] = &arg4;
+		const void* argv[4];                                                \
+		argv[0] = &arg1;                                                    \
+		argv[1] = &arg2;                                                    \
+		argv[2] = &arg3;                                                    \
+		argv[3] = &arg4;
 #define GEN_ARGV_ON_STACK5(argv, arg1, arg2, arg3, arg4, arg5)              \
-        const void* argv[5];                                                \
-        argv[0] = &arg1;                                                    \
-        argv[1] = &arg2;                                                    \
-        argv[2] = &arg3;                                                    \
-        argv[3] = &arg4;                                                    \
-        argv[4] = &arg5;
+		const void* argv[5];                                                \
+		argv[0] = &arg1;                                                    \
+		argv[1] = &arg2;                                                    \
+		argv[2] = &arg3;                                                    \
+		argv[3] = &arg4;                                                    \
+		argv[4] = &arg5;
 #define GEN_ARGV_ON_STACK6(argv, arg1, arg2, arg3, arg4, arg5, arg6)        \
-        const void* argv[6];                                                \
-        argv[0] = &arg1;                                                    \
-        argv[1] = &arg2;                                                    \
-        argv[2] = &arg3;                                                    \
-        argv[3] = &arg4;                                                    \
-        argv[4] = &arg5;                                                    \
-        argv[5] = &arg6;
+		const void* argv[6];                                                \
+		argv[0] = &arg1;                                                    \
+		argv[1] = &arg2;                                                    \
+		argv[2] = &arg3;                                                    \
+		argv[3] = &arg4;                                                    \
+		argv[4] = &arg5;                                                    \
+		argv[5] = &arg6;
 
 
 #define EVENT_FIRE0(event) do {                                             \
-            IF_OBJECT_VALID_AND_HAS_ARGC(event, 0)                          \
-                EVENT_ITERATE_LISTENERS_BEGIN(event)                        \
-                    listener->exec(event, NULL);                            \
-                EVENT_ITERATE_LISTENERS_END                                 \
-            ELSE_REPORT_FAILURE(event, 0)                                   \
-        } while(0)
+			IF_OBJECT_VALID_AND_HAS_ARGC(event, 0)                          \
+				EVENT_ITERATE_LISTENERS_BEGIN(event)                        \
+					listener->exec(event, NULL);                            \
+				EVENT_ITERATE_LISTENERS_END                                 \
+			ELSE_REPORT_FAILURE(event, 0)                                   \
+		} while(0)
 #define EVENT_FIRE1(event, arg1) do {                                       \
-            IF_OBJECT_VALID_AND_HAS_ARGC(event, 1)                          \
-                GEN_ARGV_ON_STACK1(event_internal_argv, arg1)               \
-                EVENT_ITERATE_LISTENERS_BEGIN(event)                        \
-                    listener->exec(event, event_internal_argv);             \
-                EVENT_ITERATE_LISTENERS_END                                 \
-            ELSE_REPORT_FAILURE(event, 1)                                   \
-        } while(0)
+			IF_OBJECT_VALID_AND_HAS_ARGC(event, 1)                          \
+				GEN_ARGV_ON_STACK1(event_internal_argv, arg1)               \
+				EVENT_ITERATE_LISTENERS_BEGIN(event)                        \
+					listener->exec(event, event_internal_argv);             \
+				EVENT_ITERATE_LISTENERS_END                                 \
+			ELSE_REPORT_FAILURE(event, 1)                                   \
+		} while(0)
 #define EVENT_FIRE2(event, arg1, arg2) do {                                 \
-            IF_OBJECT_VALID_AND_HAS_ARGC(event, 2)                          \
-                GEN_ARGV_ON_STACK2(event_internal_argv, arg1, arg2)         \
-                EVENT_ITERATE_LISTENERS_BEGIN(event)                        \
-                    listener->exec(event, event_internal_argv);             \
-                EVENT_ITERATE_LISTENERS_END                                 \
-            ELSE_REPORT_FAILURE(event, 2)                                   \
-        } while(0)
+			IF_OBJECT_VALID_AND_HAS_ARGC(event, 2)                          \
+				GEN_ARGV_ON_STACK2(event_internal_argv, arg1, arg2)         \
+				EVENT_ITERATE_LISTENERS_BEGIN(event)                        \
+					listener->exec(event, event_internal_argv);             \
+				EVENT_ITERATE_LISTENERS_END                                 \
+			ELSE_REPORT_FAILURE(event, 2)                                   \
+		} while(0)
 #define EVENT_FIRE3(event, arg1, arg2, arg3) do {                           \
-            IF_OBJECT_VALID_AND_HAS_ARGC(event, 3)                          \
-                GEN_ARGV_ON_STACK3(event_internal_argv, arg1, arg2, arg3)   \
-                EVENT_ITERATE_LISTENERS_BEGIN(event)                        \
-                    listener->exec(event, event_internal_argv);             \
-                EVENT_ITERATE_LISTENERS_END                                 \
-            ELSE_REPORT_FAILURE(event, 3)                                   \
-        } while(0)
+			IF_OBJECT_VALID_AND_HAS_ARGC(event, 3)                          \
+				GEN_ARGV_ON_STACK3(event_internal_argv, arg1, arg2, arg3)   \
+				EVENT_ITERATE_LISTENERS_BEGIN(event)                        \
+					listener->exec(event, event_internal_argv);             \
+				EVENT_ITERATE_LISTENERS_END                                 \
+			ELSE_REPORT_FAILURE(event, 3)                                   \
+		} while(0)
 #define EVENT_FIRE4(event, arg1, arg2, arg3, arg4) do {                     \
-            IF_OBJECT_VALID_AND_HAS_ARGC(event, 4)                          \
-                GEN_ARGV_ON_STACK4(event_internal_argv, arg1, arg2, arg3,   \
-                                   arg4)                                    \
-                EVENT_ITERATE_LISTENERS_BEGIN(event)                        \
-                    listener->exec(event, event_internal_argv);             \
-                EVENT_ITERATE_LISTENERS_END                                 \
-            ELSE_REPORT_FAILURE(event, 4)                                   \
-        } while(0)
+			IF_OBJECT_VALID_AND_HAS_ARGC(event, 4)                          \
+				GEN_ARGV_ON_STACK4(event_internal_argv, arg1, arg2, arg3,   \
+								   arg4)                                    \
+				EVENT_ITERATE_LISTENERS_BEGIN(event)                        \
+					listener->exec(event, event_internal_argv);             \
+				EVENT_ITERATE_LISTENERS_END                                 \
+			ELSE_REPORT_FAILURE(event, 4)                                   \
+		} while(0)
 #define EVENT_FIRE5(event, arg1, arg2, arg3, arg4, arg5) do {               \
-            IF_OBJECT_VALID_AND_HAS_ARGC(event, 5)                          \
-                GEN_ARGV_ON_STACK5(event_internal_argv, arg1, arg2, arg3,   \
-                                   arg4, arg5)                              \
-                EVENT_ITERATE_LISTENERS_BEGIN(event)                        \
-                    listener->exec(event, event_internal_argv);             \
-                EVENT_ITERATE_LISTENERS_END                                 \
-            ELSE_REPORT_FAILURE(event, 5)                                   \
-        } while(0)
+			IF_OBJECT_VALID_AND_HAS_ARGC(event, 5)                          \
+				GEN_ARGV_ON_STACK5(event_internal_argv, arg1, arg2, arg3,   \
+								   arg4, arg5)                              \
+				EVENT_ITERATE_LISTENERS_BEGIN(event)                        \
+					listener->exec(event, event_internal_argv);             \
+				EVENT_ITERATE_LISTENERS_END                                 \
+			ELSE_REPORT_FAILURE(event, 5)                                   \
+		} while(0)
 #define EVENT_FIRE6(event, arg1, arg2, arg3, arg4, arg5, arg6) do {         \
-            IF_OBJECT_VALID_AND_HAS_ARGC(event, 6)                          \
-                GEN_ARGV_ON_STACK6(event_internal_argv, arg1, arg2, arg3,   \
-                                   arg4, arg5, arg6)                        \
-                EVENT_ITERATE_LISTENERS_BEGIN(event)                        \
-                    listener->exec(event, event_internal_argv);             \
-                EVENT_ITERATE_LISTENERS_END                                 \
-            ELSE_REPORT_FAILURE(event, 6)                                   \
-        } while(0)
+			IF_OBJECT_VALID_AND_HAS_ARGC(event, 6)                          \
+				GEN_ARGV_ON_STACK6(event_internal_argv, arg1, arg2, arg3,   \
+								   arg4, arg5, arg6)                        \
+				EVENT_ITERATE_LISTENERS_BEGIN(event)                        \
+					listener->exec(event, event_internal_argv);             \
+				EVENT_ITERATE_LISTENERS_END                                 \
+			ELSE_REPORT_FAILURE(event, 6)                                   \
+		} while(0)
 
 
 #define SERVICE_CALL0(service, ret_value) do {                              \
-            IF_OBJECT_VALID_AND_HAS_ARGC(service, 0)                        \
-                (service)->exec(service, ret_value, NULL);                  \
-            ELSE_REPORT_FAILURE(service, 0)                                 \
-            } while(0)
+			IF_OBJECT_VALID_AND_HAS_ARGC(service, 0)                        \
+				(service)->exec(service, ret_value, NULL);                  \
+			ELSE_REPORT_FAILURE(service, 0)                                 \
+			} while(0)
 #define SERVICE_CALL1(service, ret_value, arg1) do {                        \
-            IF_OBJECT_VALID_AND_HAS_ARGC(service, 1)                        \
-                GEN_ARGV_ON_STACK1(service_internal_argv, arg1)             \
-                (service)->exec(service, ret_value, service_internal_argv); \
-            ELSE_REPORT_FAILURE(service, 1)                                 \
-        } while(0)
+			IF_OBJECT_VALID_AND_HAS_ARGC(service, 1)                        \
+				GEN_ARGV_ON_STACK1(service_internal_argv, arg1)             \
+				(service)->exec(service, ret_value, service_internal_argv); \
+			ELSE_REPORT_FAILURE(service, 1)                                 \
+		} while(0)
 #define SERVICE_CALL2(service, ret_value, arg1, arg2) do {                  \
-            IF_OBJECT_VALID_AND_HAS_ARGC(service, 2)                        \
-                GEN_ARGV_ON_STACK2(service_internal_argv, arg1, arg2)       \
-                (service)->exec(service, ret_value, service_internal_argv); \
-            ELSE_REPORT_FAILURE(service, 2)                                 \
-        } while(0)
+			IF_OBJECT_VALID_AND_HAS_ARGC(service, 2)                        \
+				GEN_ARGV_ON_STACK2(service_internal_argv, arg1, arg2)       \
+				(service)->exec(service, ret_value, service_internal_argv); \
+			ELSE_REPORT_FAILURE(service, 2)                                 \
+		} while(0)
 #define SERVICE_CALL3(service, ret_value, arg1, arg2, arg3) do {            \
-            IF_OBJECT_VALID_AND_HAS_ARGC(service, 3)                        \
-                GEN_ARGV_ON_STACK3(service_internal_argv, arg1, arg2, arg3) \
-                (service)->exec(service, ret_value, service_internal_argv); \
-            ELSE_REPORT_FAILURE(service, 3)                                 \
-        } while(0)
+			IF_OBJECT_VALID_AND_HAS_ARGC(service, 3)                        \
+				GEN_ARGV_ON_STACK3(service_internal_argv, arg1, arg2, arg3) \
+				(service)->exec(service, ret_value, service_internal_argv); \
+			ELSE_REPORT_FAILURE(service, 3)                                 \
+		} while(0)
 #define SERVICE_CALL4(service, ret_value, arg1, arg2, arg3, arg4) do {      \
-            IF_OBJECT_VALID_AND_HAS_ARGC(service, 4)                        \
-                GEN_ARGV_ON_STACK4(service_internal_argv, arg1, arg2, arg3, \
-                                   arg4)                                    \
-                (service)->exec(service, ret_value, service_internal_argv); \
-            ELSE_REPORT_FAILURE(service, 4)                                 \
-        } while(0)
+			IF_OBJECT_VALID_AND_HAS_ARGC(service, 4)                        \
+				GEN_ARGV_ON_STACK4(service_internal_argv, arg1, arg2, arg3, \
+								   arg4)                                    \
+				(service)->exec(service, ret_value, service_internal_argv); \
+			ELSE_REPORT_FAILURE(service, 4)                                 \
+		} while(0)
 #define SERVICE_CALL5(service, ret_value, arg1, arg2, arg3, arg4, arg5)     \
-        do {                                                                \
-            IF_OBJECT_VALID_AND_HAS_ARGC(service, 5)                        \
-                GEN_ARGV_ON_STACK5(service_internal_argv, arg1, arg2, arg3, \
-                                   arg4, arg5)                              \
-                (service)->exec(service, ret_value, service_internal_argv); \
-            ELSE_REPORT_FAILURE(service, 5)                                 \
-        } while(0)
+		do {                                                                \
+			IF_OBJECT_VALID_AND_HAS_ARGC(service, 5)                        \
+				GEN_ARGV_ON_STACK5(service_internal_argv, arg1, arg2, arg3, \
+								   arg4, arg5)                              \
+				(service)->exec(service, ret_value, service_internal_argv); \
+			ELSE_REPORT_FAILURE(service, 5)                                 \
+		} while(0)
 #define SERVICE_CALL6(service, ret_value, arg1, arg2, arg3, arg4, arg5,     \
-                      arg6) do {                                            \
-            IF_OBJECT_VALID_AND_HAS_ARGC(service, 6)                        \
-                GEN_ARGV_ON_STACK6(service_internal_argv, arg1, arg2, arg3, \
-                                   arg4, arg5, arg6)                        \
-                (service)->exec(service, ret_value, service_internal_argv); \
-            ELSE_REPORT_FAILURE(service, 6)                                 \
-        } while(0)
+					  arg6) do {                                            \
+			IF_OBJECT_VALID_AND_HAS_ARGC(service, 6)                        \
+				GEN_ARGV_ON_STACK6(service_internal_argv, arg1, arg2, arg3, \
+								   arg4, arg5, arg6)                        \
+				(service)->exec(service, ret_value, service_internal_argv); \
+			ELSE_REPORT_FAILURE(service, 6)                                 \
+		} while(0)
 
 #define SERVICE_INTERNAL_GET_AND_CHECK(game, directory)                     \
-        struct service_t* service_internal_service = service_get(game,      \
-                                                        directory);         \
-        if(!service_internal_service)                                       \
-            llog(LOG_WARNING, game, NULL, "Service \"%s\" does not exist",  \
-                directory);                                                 \
-        else
+		struct service_t* service_internal_service = service_get(game,      \
+														directory);         \
+		if(!service_internal_service)                                       \
+			llog(LOG_WARNING, game, NULL, "Service \"%s\" does not exist",  \
+				directory);                                                 \
+		else
 
 #define SERVICE_CALL_NAME0(game, directory, ret_value) do {                 \
-            SERVICE_INTERNAL_GET_AND_CHECK(game, directory)                 \
-            SERVICE_CALL0(service_internal_service, ret_value);             \
-        } while(0)
+			SERVICE_INTERNAL_GET_AND_CHECK(game, directory)                 \
+			SERVICE_CALL0(service_internal_service, ret_value);             \
+		} while(0)
 #define SERVICE_CALL_NAME1(game, directory, ret_value, arg1) do {           \
-            SERVICE_INTERNAL_GET_AND_CHECK(game, directory)                 \
-            SERVICE_CALL1(service_internal_service, ret_value, arg1);       \
-        } while(0)
+			SERVICE_INTERNAL_GET_AND_CHECK(game, directory)                 \
+			SERVICE_CALL1(service_internal_service, ret_value, arg1);       \
+		} while(0)
 #define SERVICE_CALL_NAME2(game, directory, ret_value, arg1, arg2) do {     \
-            SERVICE_INTERNAL_GET_AND_CHECK(game, directory)                 \
-            SERVICE_CALL2(service_internal_service, ret_value, arg1, arg2); \
-        } while(0)
+			SERVICE_INTERNAL_GET_AND_CHECK(game, directory)                 \
+			SERVICE_CALL2(service_internal_service, ret_value, arg1, arg2); \
+		} while(0)
 #define SERVICE_CALL_NAME3(game, directory, ret_value, arg1, arg2, arg3)    \
-        do {                                                                \
-            SERVICE_INTERNAL_GET_AND_CHECK(game, directory)                 \
-            SERVICE_CALL3(service_internal_service, ret_value, arg1, arg2,  \
-                          arg3);                                            \
-        } while(0)
+		do {                                                                \
+			SERVICE_INTERNAL_GET_AND_CHECK(game, directory)                 \
+			SERVICE_CALL3(service_internal_service, ret_value, arg1, arg2,  \
+						  arg3);                                            \
+		} while(0)
 #define SERVICE_CALL_NAME4(game, directory, ret_value, arg1, arg2, arg3,    \
-                           arg4) do {                                       \
-            SERVICE_INTERNAL_GET_AND_CHECK(game, directory)                 \
-            SERVICE_CALL4(service_internal_service, ret_value, arg1, arg2,  \
-                          arg3, arg4);                                      \
-        } while(0)
+						   arg4) do {                                       \
+			SERVICE_INTERNAL_GET_AND_CHECK(game, directory)                 \
+			SERVICE_CALL4(service_internal_service, ret_value, arg1, arg2,  \
+						  arg3, arg4);                                      \
+		} while(0)
 #define SERVICE_CALL_NAME5(game, directory, ret_value, arg1, arg2, arg3,    \
-                           arg4, arg5) do {                                 \
-            SERVICE_INTERNAL_GET_AND_CHECK(game, directory)                 \
-            SERVICE_CALL5(service_internal_service, ret_value, arg1, arg2,  \
-                          arg3, arg4, arg5);                                \
-        } while(0)
+						   arg4, arg5) do {                                 \
+			SERVICE_INTERNAL_GET_AND_CHECK(game, directory)                 \
+			SERVICE_CALL5(service_internal_service, ret_value, arg1, arg2,  \
+						  arg3, arg4, arg5);                                \
+		} while(0)
 #define SERVICE_CALL_NAME6(game, directory, ret_value, arg1, arg2, arg3,    \
-                           arg4, arg5, arg6) do {                           \
-            SERVICE_INTERNAL_GET_AND_CHECK(game, directory)                 \
-            SERVICE_CALL6(service_internal_service, ret_value, arg1, arg2,  \
-                          arg3, arg4, arg5, arg6);                          \
-        } while(0)
+						   arg4, arg5, arg6) do {                           \
+			SERVICE_INTERNAL_GET_AND_CHECK(game, directory)                 \
+			SERVICE_CALL6(service_internal_service, ret_value, arg1, arg2,  \
+						  arg3, arg4, arg5, arg6);                          \
+		} while(0)
 
 #define STRINGIFY_(x) #x
 #define STRINGIFY(x) STRINGIFY_(x)
 
 #define EVENT_CREATE0(plugin, evt, directory) do {                          \
-            struct type_info_t* t;                                          \
-            t = dynamic_call_create_type_info("void", 0, NULL);             \
-            if(!t) { evt = NULL; break; }                                   \
-            if(!(evt = event_create(plugin, directory, t)))                 \
-                dynamic_call_destroy_type_info(t);                          \
-        } while(0)
+			struct type_info_t* t;                                          \
+			t = dynamic_call_create_type_info("void", 0, NULL);             \
+			if(!t) { evt = NULL; break; }                                   \
+			if(!(evt = event_create(plugin, directory, t)))                 \
+				dynamic_call_destroy_type_info(t);                          \
+		} while(0)
 #define EVENT_CREATE1(plugin, evt, directory, arg1) do {                    \
-            struct type_info_t* t;                                          \
-            const char* argv[] = {STRINGIFY(arg1)};                         \
-            t = dynamic_call_create_type_info("void", 1, argv);             \
-            if(!t) { evt = NULL; break; }                                   \
-            if(!(evt = event_create(plugin, directory, t)))                 \
-                dynamic_call_destroy_type_info(t);                          \
-        } while(0)
+			struct type_info_t* t;                                          \
+			const char* argv[] = {STRINGIFY(arg1)};                         \
+			t = dynamic_call_create_type_info("void", 1, argv);             \
+			if(!t) { evt = NULL; break; }                                   \
+			if(!(evt = event_create(plugin, directory, t)))                 \
+				dynamic_call_destroy_type_info(t);                          \
+		} while(0)
 #define EVENT_CREATE2(plugin, evt, directory, arg1, arg2) do {              \
-            struct type_info_t* t;                                          \
-            const char* argv[] = {STRINGIFY(arg1), STRINGIFY(arg2)};        \
-            t = dynamic_call_create_type_info("void", 2, argv);             \
-            if(!t) { evt = NULL; break; }                                   \
-            if(!(evt = event_create(plugin, directory, t)))                 \
-                dynamic_call_destroy_type_info(t);                          \
-        } while(0)
+			struct type_info_t* t;                                          \
+			const char* argv[] = {STRINGIFY(arg1), STRINGIFY(arg2)};        \
+			t = dynamic_call_create_type_info("void", 2, argv);             \
+			if(!t) { evt = NULL; break; }                                   \
+			if(!(evt = event_create(plugin, directory, t)))                 \
+				dynamic_call_destroy_type_info(t);                          \
+		} while(0)
 #define EVENT_CREATE3(plugin, evt, directory, arg1, arg2, arg3) do {        \
-            struct type_info_t* t;                                          \
-            const char* argv[] = {STRINGIFY(arg1), STRINGIFY(arg2),         \
-                                  STRINGIFY(arg3)};                         \
-            t = dynamic_call_create_type_info("void", 3, argv);             \
-            if(!t) { evt = NULL; break; }                                   \
-            if(!(evt = event_create(plugin, directory, t)))                 \
-                dynamic_call_destroy_type_info(t);                          \
-        } while(0)
+			struct type_info_t* t;                                          \
+			const char* argv[] = {STRINGIFY(arg1), STRINGIFY(arg2),         \
+								  STRINGIFY(arg3)};                         \
+			t = dynamic_call_create_type_info("void", 3, argv);             \
+			if(!t) { evt = NULL; break; }                                   \
+			if(!(evt = event_create(plugin, directory, t)))                 \
+				dynamic_call_destroy_type_info(t);                          \
+		} while(0)
 #define EVENT_CREATE4(plugin, evt, directory, arg1, arg2, arg3, arg4) do {  \
-            struct type_info_t* t;                                          \
-            const char* argv[] = {STRINGIFY(arg1), STRINGIFY(arg2),         \
-                                  STRINGIFY(arg3), STRINGIFY(arg4)};        \
-            t = dynamic_call_create_type_info("void", 4, argv);             \
-            if(!t) { evt = NULL; break; }                                   \
-            if(!(evt = event_create(plugin, directory, t)))                 \
-                dynamic_call_destroy_type_info(t);                          \
-        } while(0)
+			struct type_info_t* t;                                          \
+			const char* argv[] = {STRINGIFY(arg1), STRINGIFY(arg2),         \
+								  STRINGIFY(arg3), STRINGIFY(arg4)};        \
+			t = dynamic_call_create_type_info("void", 4, argv);             \
+			if(!t) { evt = NULL; break; }                                   \
+			if(!(evt = event_create(plugin, directory, t)))                 \
+				dynamic_call_destroy_type_info(t);                          \
+		} while(0)
 #define EVENT_CREATE5(plugin, evt, directory, arg1, arg2, arg3, arg4, arg5) \
-        do {                                                                \
-            struct type_info_t* t;                                          \
-            const char* argv[] = {STRINGIFY(arg1), STRINGIFY(arg2),         \
-                                  STRINGIFY(arg3), STRINGIFY(arg4),         \
-                                  STRINGIFY(arg5)};                         \
-            t = dynamic_call_create_type_info("void", 5, argv);             \
-            if(!t) { evt = NULL; break; }                                   \
-            if(!(evt = event_create(plugin, directory, t)))                 \
-                dynamic_call_destroy_type_info(t);                          \
-        } while(0)
+		do {                                                                \
+			struct type_info_t* t;                                          \
+			const char* argv[] = {STRINGIFY(arg1), STRINGIFY(arg2),         \
+								  STRINGIFY(arg3), STRINGIFY(arg4),         \
+								  STRINGIFY(arg5)};                         \
+			t = dynamic_call_create_type_info("void", 5, argv);             \
+			if(!t) { evt = NULL; break; }                                   \
+			if(!(evt = event_create(plugin, directory, t)))                 \
+				dynamic_call_destroy_type_info(t);                          \
+		} while(0)
 #define EVENT_CREATE6(plugin, evt, directory, arg1, arg2, arg3, arg4, arg5, \
-        arg6) do {                                                          \
-            struct type_info_t* t;                                          \
-            const char* argv[] = {STRINGIFY(arg1), STRINGIFY(arg2),         \
-                                  STRINGIFY(arg3), STRINGIFY(arg4),         \
-                                  STRINGIFY(arg5), STRINGIFY(arg6)};        \
-            t = dynamic_call_create_type_info("void", 6, argv);             \
-            if(!t) { evt = NULL; break; }                                   \
-            if(!(evt = event_create(plugin, directory, t)))                 \
-                dynamic_call_destroy_type_info(t);                          \
-        } while(0)
+		arg6) do {                                                          \
+			struct type_info_t* t;                                          \
+			const char* argv[] = {STRINGIFY(arg1), STRINGIFY(arg2),         \
+								  STRINGIFY(arg3), STRINGIFY(arg4),         \
+								  STRINGIFY(arg5), STRINGIFY(arg6)};        \
+			t = dynamic_call_create_type_info("void", 6, argv);             \
+			if(!t) { evt = NULL; break; }                                   \
+			if(!(evt = event_create(plugin, directory, t)))                 \
+				dynamic_call_destroy_type_info(t);                          \
+		} while(0)
 
 
 #define SERVICE_CREATE0(plugin, serv, directory, callback, ret_type)        \
-        do {                                                                \
-            struct type_info_t* t;                                          \
-            t = dynamic_call_create_type_info(STRINGIFY(ret_type),          \
-                                              0,                            \
-                                              NULL);                        \
-            if(!t) { serv = NULL; break; }                                  \
-            if(!(serv = service_create(plugin, directory, callback, t)))    \
-                dynamic_call_destroy_type_info(t);                          \
-        } while(0)
+		do {                                                                \
+			struct type_info_t* t;                                          \
+			t = dynamic_call_create_type_info(STRINGIFY(ret_type),          \
+											  0,                            \
+											  NULL);                        \
+			if(!t) { serv = NULL; break; }                                  \
+			if(!(serv = service_create(plugin, directory, callback, t)))    \
+				dynamic_call_destroy_type_info(t);                          \
+		} while(0)
 #define SERVICE_CREATE1(plugin, serv, directory, callback, ret_type,        \
-                        arg1) do {                                          \
-            struct type_info_t* t;                                          \
-            const char* ret = STRINGIFY(ret_type);                          \
-            const char* argv[] = {STRINGIFY(arg1)};                         \
-            t = dynamic_call_create_type_info(ret, 1, argv);                \
-            if(!t) { serv = NULL; break; }                                  \
-            if(!(serv = service_create(plugin, directory, callback, t)))    \
-                dynamic_call_destroy_type_info(t);                          \
-        } while(0)
+						arg1) do {                                          \
+			struct type_info_t* t;                                          \
+			const char* ret = STRINGIFY(ret_type);                          \
+			const char* argv[] = {STRINGIFY(arg1)};                         \
+			t = dynamic_call_create_type_info(ret, 1, argv);                \
+			if(!t) { serv = NULL; break; }                                  \
+			if(!(serv = service_create(plugin, directory, callback, t)))    \
+				dynamic_call_destroy_type_info(t);                          \
+		} while(0)
 #define SERVICE_CREATE2(plugin, serv, directory, callback, ret_type,        \
-                        arg1, arg2) do {                                    \
-            struct type_info_t* t;                                          \
-            const char* ret = STRINGIFY(ret_type);                          \
-            const char* argv[] = {STRINGIFY(arg1), STRINGIFY(arg2)};        \
-            t = dynamic_call_create_type_info(ret, 2, argv);                \
-            if(!t) { ret = NULL; break; }                                   \
-            if(!(serv = service_create(plugin, directory, callback, t)))    \
-                dynamic_call_destroy_type_info(t);                          \
-        } while(0)
+						arg1, arg2) do {                                    \
+			struct type_info_t* t;                                          \
+			const char* ret = STRINGIFY(ret_type);                          \
+			const char* argv[] = {STRINGIFY(arg1), STRINGIFY(arg2)};        \
+			t = dynamic_call_create_type_info(ret, 2, argv);                \
+			if(!t) { ret = NULL; break; }                                   \
+			if(!(serv = service_create(plugin, directory, callback, t)))    \
+				dynamic_call_destroy_type_info(t);                          \
+		} while(0)
 #define SERVICE_CREATE3(plugin, serv, directory, callback, ret_type,        \
-                        arg1, arg2, arg3) do {                              \
-            struct type_info_t* t;                                          \
-            const char* ret = STRINGIFY(ret_type);                          \
-            const char* argv[] = {STRINGIFY(arg1), STRINGIFY(arg2),         \
-                                  STRINGIFY(arg3)};                         \
-            t = dynamic_call_create_type_info(ret, 3, argv);                \
-            if(!t) { serv = NULL; break; }                                  \
-            if(!(serv = service_create(plugin, directory, callback, t)))    \
-                dynamic_call_destroy_type_info(t);                          \
-        } while(0)
+						arg1, arg2, arg3) do {                              \
+			struct type_info_t* t;                                          \
+			const char* ret = STRINGIFY(ret_type);                          \
+			const char* argv[] = {STRINGIFY(arg1), STRINGIFY(arg2),         \
+								  STRINGIFY(arg3)};                         \
+			t = dynamic_call_create_type_info(ret, 3, argv);                \
+			if(!t) { serv = NULL; break; }                                  \
+			if(!(serv = service_create(plugin, directory, callback, t)))    \
+				dynamic_call_destroy_type_info(t);                          \
+		} while(0)
 #define SERVICE_CREATE4(plugin, serv, directory, callback, ret_type,        \
-                        arg1, arg2, arg3, arg4) do {                        \
-            struct type_info_t* t;                                          \
-            const char* ret = STRINGIFY(ret_type);                          \
-            const char* argv[] = {STRINGIFY(arg1), STRINGIFY(arg2),         \
-                                  STRINGIFY(arg3), STRINGIFY(arg4)};        \
-            t = dynamic_call_create_type_info(ret, 4, argv);                \
-            if(!t) { serv = NULL; break; }                                  \
-            if(!(serv = service_create(plugin, directory, callback, t)))    \
-                dynamic_call_destroy_type_info(t);                          \
-        } while(0)
+						arg1, arg2, arg3, arg4) do {                        \
+			struct type_info_t* t;                                          \
+			const char* ret = STRINGIFY(ret_type);                          \
+			const char* argv[] = {STRINGIFY(arg1), STRINGIFY(arg2),         \
+								  STRINGIFY(arg3), STRINGIFY(arg4)};        \
+			t = dynamic_call_create_type_info(ret, 4, argv);                \
+			if(!t) { serv = NULL; break; }                                  \
+			if(!(serv = service_create(plugin, directory, callback, t)))    \
+				dynamic_call_destroy_type_info(t);                          \
+		} while(0)
 #define SERVICE_CREATE5(plugin, serv, directory, callback, ret_type,        \
-                        arg1, arg2, arg3, arg4, arg5) do {                  \
-            struct type_info_t* t;                                          \
-            const char* ret = STRINGIFY(ret_type);                          \
-            const char* argv[] = {STRINGIFY(arg1), STRINGIFY(arg2),         \
-                                  STRINGIFY(arg3), STRINGIFY(arg4),         \
-                                  STRINGIFY(arg5)};                         \
-            t = dynamic_call_create_type_info(ret, 5, argv);                \
-            if(!t) { serv = NULL; break; }                                  \
-            if(!(serv = service_create(plugin, directory, callback, t)))    \
-                dynamic_call_destroy_type_info(t);                          \
-        } while(0)
+						arg1, arg2, arg3, arg4, arg5) do {                  \
+			struct type_info_t* t;                                          \
+			const char* ret = STRINGIFY(ret_type);                          \
+			const char* argv[] = {STRINGIFY(arg1), STRINGIFY(arg2),         \
+								  STRINGIFY(arg3), STRINGIFY(arg4),         \
+								  STRINGIFY(arg5)};                         \
+			t = dynamic_call_create_type_info(ret, 5, argv);                \
+			if(!t) { serv = NULL; break; }                                  \
+			if(!(serv = service_create(plugin, directory, callback, t)))    \
+				dynamic_call_destroy_type_info(t);                          \
+		} while(0)
 #define SERVICE_CREATE6(plugin, serv, directory, callback, ret_type,        \
-                        arg1, arg2, arg3, arg4, arg5, arg6) do {            \
-            struct type_info_t* t;                                          \
-            const char* ret = STRINGIFY(ret_type);                          \
-            const char* argv[] = {STRINGIFY(arg1), STRINGIFY(arg2),         \
-                                  STRINGIFY(arg3), STRINGIFY(arg4),         \
-                                  STRINGIFY(arg5), STRINGIFY(arg6)};        \
-            t = dynamic_call_create_type_info(ret, 6, argv);                \
-            if(!t) { serv = NULL; break; }                                  \
-            if(!(serv = service_create(plugin, directory, callback, t)))    \
-                dynamic_call_destroy_type_info(t);                          \
-        } while(0)
+						arg1, arg2, arg3, arg4, arg5, arg6) do {            \
+			struct type_info_t* t;                                          \
+			const char* ret = STRINGIFY(ret_type);                          \
+			const char* argv[] = {STRINGIFY(arg1), STRINGIFY(arg2),         \
+								  STRINGIFY(arg3), STRINGIFY(arg4),         \
+								  STRINGIFY(arg5), STRINGIFY(arg6)};        \
+			t = dynamic_call_create_type_info(ret, 6, argv);                \
+			if(!t) { serv = NULL; break; }                                  \
+			if(!(serv = service_create(plugin, directory, callback, t)))    \
+				dynamic_call_destroy_type_info(t);                          \
+		} while(0)
 
 /* ------------------------------------------------------------------------- *
  * The following is the event listener and dispatch system implemented       *
@@ -450,28 +450,28 @@ typedef void (*event_callback_func)(struct event_t* event, const void** argv);
  * @note The event listener must have the same signature as the fired event.
  */
 #define EVENT_LISTENER0(name)                                               \
-    void name(const struct event_t* event)
+	void name(const struct event_t* event)
 #define EVENT_LISTENER1(name, arg)                                          \
-    void name(const struct event_t* event, arg)
+	void name(const struct event_t* event, arg)
 #define EVENT_LISTENER2(name, arg1, arg2)                                   \
-    void name(const struct event_t* event, arg1, arg2)
+	void name(const struct event_t* event, arg1, arg2)
 #define EVENT_LISTENER3(name, arg1, arg2, arg3)                             \
-    void name(const struct event_t* event, arg1, arg2, arg3)
+	void name(const struct event_t* event, arg1, arg2, arg3)
 #define EVENT_LISTENER4(name, arg1, arg2, arg3, arg4)                       \
-    void name(const struct event_t* event, arg1, arg2, arg3, arg4)
+	void name(const struct event_t* event, arg1, arg2, arg3, arg4)
 
 /*!
  * @brief Generates an event listener function signature typedef.
  */
 #define EVENT_LISTENER_TYPEDEF0(name)                                       \
-    typedef void (*name)(const struct event_t*);
+	typedef void (*name)(const struct event_t*);
 #define EVENT_LISTENER_TYPEDEF1(name, arg)                                  \
-    typedef void (*name)(const struct event_t*, arg);
+	typedef void (*name)(const struct event_t*, arg);
 #define EVENT_LISTENER_TYPEDEF2(name, arg1, arg2)                           \
-    typedef void (*name)(const struct event_t*, arg1, arg2);
+	typedef void (*name)(const struct event_t*, arg1, arg2);
 #define EVENT_LISTENER_TYPEDEF3(name, arg1, arg2, arg3)                     \
-    typedef void (*name)(const struct event_t*, arg1, arg2, arg3);
+	typedef void (*name)(const struct event_t*, arg1, arg2, arg3);
 #define EVENT_LISTENER_TYPEDEF4(name, arg1, arg2, arg3, arg4)               \
-    typedef void (*name)(const struct event_t*, arg1, arg2, arg3, arg4);
+	typedef void (*name)(const struct event_t*, arg1, arg2, arg3, arg4);
 
 #endif /* FRAMEWORK_SERVICE_EVENT_API_H */

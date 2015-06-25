@@ -11,10 +11,10 @@ struct plugin_t;
 
 struct service_t
 {
-    struct plugin_t* plugin;    /* reference to the plugin that owns this service */
-    char* directory;
-    service_func exec;
-    struct type_info_t* type_info;
+	struct plugin_t* plugin;    /* reference to the plugin that owns this service */
+	char* directory;
+	service_func exec;
+	struct type_info_t* type_info;
 };
 
 /*!
@@ -45,9 +45,9 @@ service_deinit(struct game_t* game);
  */
 FRAMEWORK_PUBLIC_API struct service_t*
 service_create(struct plugin_t* plugin,
-               const char* directory,
-               const service_func exec,
-               struct type_info_t* type_info);
+			   const char* directory,
+			   const service_func exec,
+			   struct type_info_t* type_info);
 
 /*!
  * @brief Unregisters a service from the global service directory and

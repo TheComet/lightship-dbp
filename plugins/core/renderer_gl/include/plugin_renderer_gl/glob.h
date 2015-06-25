@@ -8,8 +8,8 @@ struct game_t;
 
 struct glob_t
 {
-    struct plugin_t* plugin;
-    struct game_t* game;
+	struct plugin_t* plugin;
+	struct game_t* game;
 };
 
 void

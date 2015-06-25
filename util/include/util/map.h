@@ -11,13 +11,13 @@ extern const uint32_t MAP_INVALID_KEY;
 
 struct map_key_value_t
 {
-    void* value;
-    uint32_t hash;
+	void* value;
+	uint32_t hash;
 };
 
 struct map_t
 {
-    struct ordered_vector_t vector;
+	struct ordered_vector_t vector;
 };
 
 /*!
@@ -175,18 +175,18 @@ map_print(struct map_t* map);
  * element.
  */
 #define MAP_FOR_EACH(map, var_type, hash_n, var) \
-    uint32_t map_internal_##var_i; \
-    uint32_t hash_n; \
-    var_type* var; \
-    for(map_internal_##var_i = 0; \
-        map_internal_##var_i != (map)->vector.count && \
-            ((hash_n = ((struct map_key_value_t*)(map)->vector.data)[map_internal_##var_i].hash) || 1) && \
-            ((var  = (var_type*)((struct map_key_value_t*)(map)->vector.data)[map_internal_##var_i].value) || 1); \
-        ++map_internal_##var_i)
+	uint32_t map_internal_##var_i; \
+	uint32_t hash_n; \
+	var_type* var; \
+	for(map_internal_##var_i = 0; \
+		map_internal_##var_i != (map)->vector.count && \
+			((hash_n = ((struct map_key_value_t*)(map)->vector.data)[map_internal_##var_i].hash) || 1) && \
+			((var  = (var_type*)((struct map_key_value_t*)(map)->vector.data)[map_internal_##var_i].value) || 1); \
+		++map_internal_##var_i)
 
 #define MAP_ERASE_CURRENT_ITEM_IN_FOR_LOOP(map) \
-    ordered_vector_erase_element(&(map)->vector, &((struct map_key_value_t*)(map)->vector.data)[map_internal_##var_i]); \
-    --map_internal_##var_i;
+	ordered_vector_erase_element(&(map)->vector, &((struct map_key_value_t*)(map)->vector.data)[map_internal_##var_i]); \
+	--map_internal_##var_i;
 
 C_HEADER_END
 

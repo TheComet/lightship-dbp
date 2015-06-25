@@ -32,22 +32,22 @@ LIGHTSHIP_UTIL_PUBLIC_API void
 thread_pool_wait_for_jobs(struct thread_pool_t* pool);
 
 #else /* ENABLE_THREAD_POOL */
-    /* return 1 for single threaded */
+	/* return 1 for single threaded */
 #   define get_number_of_cores() 1
-    /* nop */
+	/* nop */
 #   define thread_pool_set_max_buffer_size(maximum_buffer_size)
-    /* must return a non-zero value for success */
+	/* must return a non-zero value for success */
 #   define thread_pool_create(num_threads, buffer_size_in_bytes) (struct thread_pool_t*) 1;
-    /* nop */
+	/* nop */
 #   define thread_pool_destroy(pool)
-    /* directly call the job being queued */
+	/* directly call the job being queued */
 #   define thread_pool_queue(pool, func, data) do { \
-                        thread_pool_job_func f = func; \
-                        f(data); } while(0)
-    /* nop */
+						thread_pool_job_func f = func; \
+						f(data); } while(0)
+	/* nop */
 #   define thread_pool_suspend(pool)
-    /* nop */
+	/* nop */
 #   define thread_pool_resume(pool)
-    /* no need to wait for jobs, nop */
+	/* no need to wait for jobs, nop */
 #   define thread_pool_wait_for_jobs(pool)
 #endif /* ENABLE_THREAD_POOL */

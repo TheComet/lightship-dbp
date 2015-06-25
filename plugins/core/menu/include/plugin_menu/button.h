@@ -8,22 +8,22 @@ struct glob_t;
 
 struct button_data_t
 {
-    union
-    {
-        struct element_data_t element;
-    } base;
-    wchar_t* text;
-    uint32_t text_id;
-    uint32_t shapes_normal_id;
+	union
+	{
+		struct element_data_t element;
+	} base;
+	wchar_t* text;
+	uint32_t text_id;
+	uint32_t shapes_normal_id;
 };
 
 struct button_t
 {
-    union
-    {
-        struct button_data_t button;
-        struct element_data_t element;
-    } base;
+	union
+	{
+		struct button_data_t button;
+		struct element_data_t element;
+	} base;
 };
 
 #define GET_BUTTON(self) (&(self)->base.button)

@@ -317,7 +317,7 @@
 #endif
 #if !defined(uint8_t) && !defined(_UINT8_T)
 # if (UCHAR_MAX == UINT8_MAX) || defined (S_SPLINT_S)
-    typedef unsigned char uint8_t;
+	typedef unsigned char uint8_t;
 #   define UINT8_C(v) ((uint8_t) v)
 # else
 #   error "Platform not supported"
@@ -332,7 +332,7 @@
 #endif
 #if !defined(int8_t) && !defined(_INT8_T)
 # if (SCHAR_MAX == INT8_MAX) || defined (S_SPLINT_S)
-    typedef signed char int8_t;
+	typedef signed char int8_t;
 #   define INT8_C(v) ((int8_t) v)
 # else
 #   error "Platform not supported"
@@ -607,8 +607,8 @@
 # define  INT_LEAST16_MIN  INT16_MIN
 # define  INT_LEAST32_MIN  INT32_MIN
 # ifdef stdint_int64_defined
-    typedef  int64_t  int_least64_t;
-    typedef uint64_t uint_least64_t;
+	typedef  int64_t  int_least64_t;
+	typedef uint64_t uint_least64_t;
 #   define PRINTF_LEAST64_MODIFIER PRINTF_INT64_MODIFIER
 #   define UINT_LEAST64_MAX UINT64_MAX
 #   define  INT_LEAST64_MAX  INT64_MAX
@@ -763,51 +763,51 @@ typedef uint_least32_t uint_fast32_t;
 #define TESTUMAX(bits) glue3(u,bits,) = ~glue3(u,bits,); if (glue3(UINT,bits,_MAX) != glue3(u,bits,)) printf ("Something wrong with UINT%d_MAX\n", bits)
 
 int main () {
-    DECL(I,8)
-    DECL(U,8)
-    DECL(I,16)
-    DECL(U,16)
-    DECL(I,32)
-    DECL(U,32)
+	DECL(I,8)
+	DECL(U,8)
+	DECL(I,16)
+	DECL(U,16)
+	DECL(I,32)
+	DECL(U,32)
 #ifdef INT64_MAX
-    DECL(I,64)
-    DECL(U,64)
+	DECL(I,64)
+	DECL(U,64)
 #endif
-    intmax_t imax = INTMAX_C(0);
-    uintmax_t umax = UINTMAX_C(0);
-    char str0[256], str1[256];
+	intmax_t imax = INTMAX_C(0);
+	uintmax_t umax = UINTMAX_C(0);
+	char str0[256], str1[256];
 
-    sprintf (str0, "%d %x\n", 0, ~0);
+	sprintf (str0, "%d %x\n", 0, ~0);
 
-    sprintf (str1, "%d %x\n",  i8, ~0);
-    if (0 != strcmp (str0, str1)) printf ("Something wrong with i8 : %s\n", str1);
-    sprintf (str1, "%u %x\n",  u8, ~0);
-    if (0 != strcmp (str0, str1)) printf ("Something wrong with u8 : %s\n", str1);
-    sprintf (str1, "%d %x\n",  i16, ~0);
-    if (0 != strcmp (str0, str1)) printf ("Something wrong with i16 : %s\n", str1);
-    sprintf (str1, "%u %x\n",  u16, ~0);
-    if (0 != strcmp (str0, str1)) printf ("Something wrong with u16 : %s\n", str1);
-    sprintf (str1, "%" PRINTF_INT32_MODIFIER "d %x\n",  i32, ~0);
-    if (0 != strcmp (str0, str1)) printf ("Something wrong with i32 : %s\n", str1);
-    sprintf (str1, "%" PRINTF_INT32_MODIFIER "u %x\n",  u32, ~0);
-    if (0 != strcmp (str0, str1)) printf ("Something wrong with u32 : %s\n", str1);
+	sprintf (str1, "%d %x\n",  i8, ~0);
+	if (0 != strcmp (str0, str1)) printf ("Something wrong with i8 : %s\n", str1);
+	sprintf (str1, "%u %x\n",  u8, ~0);
+	if (0 != strcmp (str0, str1)) printf ("Something wrong with u8 : %s\n", str1);
+	sprintf (str1, "%d %x\n",  i16, ~0);
+	if (0 != strcmp (str0, str1)) printf ("Something wrong with i16 : %s\n", str1);
+	sprintf (str1, "%u %x\n",  u16, ~0);
+	if (0 != strcmp (str0, str1)) printf ("Something wrong with u16 : %s\n", str1);
+	sprintf (str1, "%" PRINTF_INT32_MODIFIER "d %x\n",  i32, ~0);
+	if (0 != strcmp (str0, str1)) printf ("Something wrong with i32 : %s\n", str1);
+	sprintf (str1, "%" PRINTF_INT32_MODIFIER "u %x\n",  u32, ~0);
+	if (0 != strcmp (str0, str1)) printf ("Something wrong with u32 : %s\n", str1);
 #ifdef INT64_MAX
-    sprintf (str1, "%" PRINTF_INT64_MODIFIER "d %x\n",  i64, ~0);
-    if (0 != strcmp (str0, str1)) printf ("Something wrong with i64 : %s\n", str1);
+	sprintf (str1, "%" PRINTF_INT64_MODIFIER "d %x\n",  i64, ~0);
+	if (0 != strcmp (str0, str1)) printf ("Something wrong with i64 : %s\n", str1);
 #endif
-    sprintf (str1, "%" PRINTF_INTMAX_MODIFIER "d %x\n",  imax, ~0);
-    if (0 != strcmp (str0, str1)) printf ("Something wrong with imax : %s\n", str1);
-    sprintf (str1, "%" PRINTF_INTMAX_MODIFIER "u %x\n",  umax, ~0);
-    if (0 != strcmp (str0, str1)) printf ("Something wrong with umax : %s\n", str1);
+	sprintf (str1, "%" PRINTF_INTMAX_MODIFIER "d %x\n",  imax, ~0);
+	if (0 != strcmp (str0, str1)) printf ("Something wrong with imax : %s\n", str1);
+	sprintf (str1, "%" PRINTF_INTMAX_MODIFIER "u %x\n",  umax, ~0);
+	if (0 != strcmp (str0, str1)) printf ("Something wrong with umax : %s\n", str1);
 
-    TESTUMAX(8);
-    TESTUMAX(16);
-    TESTUMAX(32);
+	TESTUMAX(8);
+	TESTUMAX(16);
+	TESTUMAX(32);
 #ifdef INT64_MAX
-    TESTUMAX(64);
+	TESTUMAX(64);
 #endif
 
-    return EXIT_SUCCESS;
+	return EXIT_SUCCESS;
 }
 
 #endif

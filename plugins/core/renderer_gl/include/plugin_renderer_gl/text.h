@@ -9,15 +9,15 @@ struct glob_t;
 
 struct text_t
 {
-    /* reference to group this text object belongs to */
-    struct text_group_t* group;
-    /* mesh data of this text instance */
-    struct ordered_vector_t vertex_buffer;
-    struct ordered_vector_t index_buffer;
-    struct vec2_t pos;
-    wchar_t* string;
-    char is_centered;
-    char visible;
+	/* reference to group this text object belongs to */
+	struct text_group_t* group;
+	/* mesh data of this text instance */
+	struct ordered_vector_t vertex_buffer;
+	struct ordered_vector_t index_buffer;
+	struct vec2_t pos;
+	wchar_t* string;
+	char is_centered;
+	char visible;
 };
 
 /*!
@@ -35,12 +35,12 @@ struct text_t
  */
 struct text_t*
 text_create(struct glob_t* g,
-            struct text_group_t*
-            text_group,
-            char centered,
-            GLfloat x,
-            GLfloat y,
-            const wchar_t* str);
+			struct text_group_t*
+			text_group,
+			char centered,
+			GLfloat x,
+			GLfloat y,
+			const wchar_t* str);
 
 /*!
  * @brief Destroys a text string from the static vertex buffer.

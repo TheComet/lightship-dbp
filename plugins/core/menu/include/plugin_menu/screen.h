@@ -4,7 +4,7 @@ struct element_t;
 
 struct screen_t
 {
-    struct map_t elements;
+	struct map_t elements;
 };
 
 /*!

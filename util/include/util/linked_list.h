@@ -10,9 +10,9 @@ C_HEADER_BEGIN
  */
 struct list_node_t
 {
-    struct list_node_t* prev;
-    struct list_node_t* next;
-    void* data;
+	struct list_node_t* prev;
+	struct list_node_t* next;
+	void* data;
 };
 
 /*!
@@ -20,9 +20,9 @@ struct list_node_t
  */
 struct list_t
 {
-    int count;
-    struct list_node_t* head;
-    struct list_node_t* tail;
+	int count;
+	struct list_node_t* head;
+	struct list_node_t* tail;
 };
 
 /*!
@@ -148,9 +148,9 @@ list_erase_element(struct list_t* list, void* data);
  * for-loop to reference the current element.
  */
 #define LIST_FOR_EACH(list, var_type, var) \
-    var_type* var; \
-    struct list_node_t* node_##var; \
-    for(node_##var = (list)->tail; node_##var != NULL && (var = (var_type*)node_##var->data); node_##var = node_##var->next)
+	var_type* var; \
+	struct list_node_t* node_##var; \
+	for(node_##var = (list)->tail; node_##var != NULL && (var = (var_type*)node_##var->data); node_##var = node_##var->next)
 
 /*!
  * @brief Convenient macro for iterating a list's elements in reverse order.
@@ -170,9 +170,9 @@ list_erase_element(struct list_t* list, void* data);
  * for-loop to reference the current element.
  */
 #define LIST_FOR_EACH_R(list, var_type, var) \
-    var_type* var; \
-    struct list_node_t* node_##var; \
-    for(node_##var = (list)->head; node_##var != NULL && (var = (var_type*)node_##var->data); node_##var = node_##var->prev)
+	var_type* var; \
+	struct list_node_t* node_##var; \
+	for(node_##var = (list)->head; node_##var != NULL && (var = (var_type*)node_##var->data); node_##var = node_##var->prev)
 
 /*!
  * @brief Convenient macro for iterating a list's elements in forward order.
@@ -193,16 +193,16 @@ list_erase_element(struct list_t* list, void* data);
  * for-loop to reference the current element.
  */
 #define LIST_FOR_EACH_ERASE(list, var_type, var) \
-    var_type* var; \
-    struct list_node_t* node_##var; \
-    struct list_node_t* next_node_##var; \
-    for(node_##var = (list)->tail; node_##var && ((var = (var_type*)node_##var->data, next_node_##var = node_##var->next) || 1); node_##var = next_node_##var)
-    /*
-     * Why ||1 ? -> It is possible that the expression after && evaluates to be
-     * false (such is the case when node->data = NULL, or node->prev = NULL).
-     * In order to not exit the for-loop in this situation, I've added a ||1 to
-     * prevent short circuiting of the expression.
-     */
+	var_type* var; \
+	struct list_node_t* node_##var; \
+	struct list_node_t* next_node_##var; \
+	for(node_##var = (list)->tail; node_##var && ((var = (var_type*)node_##var->data, next_node_##var = node_##var->next) || 1); node_##var = next_node_##var)
+	/*
+	 * Why ||1 ? -> It is possible that the expression after && evaluates to be
+	 * false (such is the case when node->data = NULL, or node->prev = NULL).
+	 * In order to not exit the for-loop in this situation, I've added a ||1 to
+	 * prevent short circuiting of the expression.
+	 */
 
 /*!
  * @brief Convenient macro for iterating a list's elements in reverse order.
@@ -223,16 +223,16 @@ list_erase_element(struct list_t* list, void* data);
  * for-loop to reference the current element.
  */
 #define LIST_FOR_EACH_ERASE_R(list, var_type, var) \
-    var_type* var; \
-    struct list_node_t* node_##var; \
-    struct list_node_t* prev_node_##var; \
-    for(node_##var = (list)->head; node_##var && ((var = (var_type*)node_##var->data, prev_node_##var = node_##var->prev) || 1); node_##var = prev_node_##var)
-    /*
-     * Why ||1 ? -> It is possible that the expression after && evaluates to be
-     * false (such is the case when node->data = NULL, or node->prev = NULL).
-     * In order to not exit the for-loop in this situation, I've added a ||1 to
-     * prevent short circuiting of the expression.
-     */
+	var_type* var; \
+	struct list_node_t* node_##var; \
+	struct list_node_t* prev_node_##var; \
+	for(node_##var = (list)->head; node_##var && ((var = (var_type*)node_##var->data, prev_node_##var = node_##var->prev) || 1); node_##var = prev_node_##var)
+	/*
+	 * Why ||1 ? -> It is possible that the expression after && evaluates to be
+	 * false (such is the case when node->data = NULL, or node->prev = NULL).
+	 * In order to not exit the for-loop in this situation, I've added a ||1 to
+	 * prevent short circuiting of the expression.
+	 */
 
 C_HEADER_END
 

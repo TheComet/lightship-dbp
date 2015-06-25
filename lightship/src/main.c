@@ -8,28 +8,28 @@
 int
 main(int argc, char** argv)
 {
-    struct arg_obj_t* args;
+	struct arg_obj_t* args;
 
-    /* init global things */
-    init();
+	/* init global things */
+	init();
 
-    /* parse command line arguments */
-    args = argv_parse(argc, argv);
+	/* parse command line arguments */
+	args = argv_parse(argc, argv);
 
-    /* if the game is set to run, init and run game */
-    while(args->run_game)
-    {
-        if(!init_game(args->is_server))
-            break;
+	/* if the game is set to run, init and run game */
+	while(args->run_game)
+	{
+		if(!init_game(args->is_server))
+			break;
 
-        games_run_all();
+		games_run_all();
 
-        break;
-    }
+		break;
+	}
 
-    /* clean up */
-    argv_free(args);
-    deinit();
+	/* clean up */
+	argv_free(args);
+	deinit();
 
-    return 0;
+	return 0;
 }

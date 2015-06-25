@@ -20,227 +20,227 @@ static struct map_t g_games;
 void
 game_init(void)
 {
-    map_init_map(&g_games);
+	map_init_map(&g_games);
 }
 
 /* ------------------------------------------------------------------------- */
 void
 game_deinit(void)
 {
-    /* TODO free any left over games */
-    map_clear_free(&g_games);
+	/* TODO free any left over games */
+	map_clear_free(&g_games);
 }
 
 /* ------------------------------------------------------------------------- */
 struct game_t*
 game_create(const char* name, game_network_role_e net_role)
 {
-    struct game_t* game;
+	struct game_t* game;
 
-    assert(name);
+	assert(name);
 
-    /* inform log about game name and game mode */
-    {
-        char* game_mode_str;
-        if(net_role == GAME_HOST)
-            game_mode_str = "server";
-        else
-            game_mode_str = "client";
-        llog(LOG_INFO, NULL, NULL, "Creating game \"%s\" with mode \"%s\"", name, game_mode_str);
-    }
+	/* inform log about game name and game mode */
+	{
+		char* game_mode_str;
+		if(net_role == GAME_HOST)
+			game_mode_str = "server";
+		else
+			game_mode_str = "client";
+		llog(LOG_INFO, NULL, NULL, "Creating game \"%s\" with mode \"%s\"", name, game_mode_str);
+	}
 
-    /* allocate game object */
-    game = (struct game_t*)MALLOC(sizeof(struct game_t));
-    if(!game)
-        OUT_OF_MEMORY("game_create()", NULL);
-    memset(game, 0, sizeof(struct game_t));
+	/* allocate game object */
+	game = (struct game_t*)MALLOC(sizeof(struct game_t));
+	if(!game)
+		OUT_OF_MEMORY("game_create()", NULL);
+	memset(game, 0, sizeof(struct game_t));
 
-    for(;;)
-    {
-        game->network_role = net_role;
+	for(;;)
+	{
+		game->network_role = net_role;
 
-        /* initialise the game's global data container */
-        map_init_map(&game->global_data);
+		/* initialise the game's global data container */
+		map_init_map(&game->global_data);
 
-        /* The initial state of the game is paused. The user must call
-         * game_start() to launch the game */
-        game->state = GAME_STATE_PAUSED;
+		/* The initial state of the game is paused. The user must call
+		 * game_start() to launch the game */
+		game->state = GAME_STATE_PAUSED;
 
-        /* copy game name */
-        if(!(game->name = malloc_string(name)))
-            break;
+		/* copy game name */
+		if(!(game->name = malloc_string(name)))
+			break;
 
-        /* if server, try to set up connection now */
-        if(net_role == GAME_HOST)
-        {
-            game->connection = net_host_udp("3190", 20);
-            if(!game->connection)
-            {
-                llog(LOG_ERROR, NULL, NULL, "Failed to host connection");
-                break;
-            }
-        }
+		/* if server, try to set up connection now */
+		if(net_role == GAME_HOST)
+		{
+			game->connection = net_host_udp("3190", 20);
+			if(!game->connection)
+			{
+				llog(LOG_ERROR, NULL, NULL, "Failed to host connection");
+				break;
+			}
+		}
 
-        /* initialise all services for this game */
-        if(!llog_init(game))
-            break;
-        if(!plugin_manager_init(game))
-            break;
-        if(!service_init(game))
-            break;
-        if(!event_init(game))
-            break;
+		/* initialise all services for this game */
+		if(!llog_init(game))
+			break;
+		if(!plugin_manager_init(game))
+			break;
+		if(!service_init(game))
+			break;
+		if(!event_init(game))
+			break;
 
-        /* add to global list of games */
-        {
-            uint32_t hash = hash_jenkins_oaat(name, strlen(name));
-            if(!map_insert(&g_games, hash, game))
-                break;
-        }
+		/* add to global list of games */
+		{
+			uint32_t hash = hash_jenkins_oaat(name, strlen(name));
+			if(!map_insert(&g_games, hash, game))
+				break;
+		}
 
-        /* success! */
-        return game;
-    }
+		/* success! */
+		return game;
+	}
 
-    game_destroy(game);
+	game_destroy(game);
 
-    return NULL;
+	return NULL;
 }
 
 /* ------------------------------------------------------------------------- */
 void
 game_destroy(struct game_t* game)
 {
-    uint32_t hash;
+	uint32_t hash;
 
-    assert(game);
-    assert(game->name);
+	assert(game);
+	assert(game->name);
 
-    /* remove game from global list */
-    hash = hash_jenkins_oaat(game->name, strlen(game->name));
-    map_erase(&g_games, hash);
+	/* remove game from global list */
+	hash = hash_jenkins_oaat(game->name, strlen(game->name));
+	map_erase(&g_games, hash);
 
-    /* disconnect the game */
-    game_disconnect(game);
+	/* disconnect the game */
+	game_disconnect(game);
 
-    /* deinit plugin manager, services, and events (in reverse order) */
-    plugin_manager_deinit(game);
-    event_deinit(game);
-    service_deinit(game);
+	/* deinit plugin manager, services, and events (in reverse order) */
+	plugin_manager_deinit(game);
+	event_deinit(game);
+	service_deinit(game);
 
-    /* clean up data held by game object */
-    map_clear_free(&game->global_data);
-    free_string(game->name);
+	/* clean up data held by game object */
+	map_clear_free(&game->global_data);
+	free_string(game->name);
 
-    FREE(game);
+	FREE(game);
 }
 
 /* ------------------------------------------------------------------------- */
 char
 game_connect(struct game_t* game, const char* address)
 {
-    game->connection = net_join_udp(address, "3190");
-    if(!game->connection)
-        return 0;
-    return 1;
+	game->connection = net_join_udp(address, "3190");
+	if(!game->connection)
+		return 0;
+	return 1;
 }
 
 /* ------------------------------------------------------------------------- */
 void
 game_disconnect(struct game_t* game)
 {
-    if(game->connection)
-        net_disconnect(game->connection);
-    game->connection = NULL;
+	if(game->connection)
+		net_disconnect(game->connection);
+	game->connection = NULL;
 }
 
 /* ------------------------------------------------------------------------- */
 void
 game_start(struct game_t* game)
 {
-    EVENT_FIRE0(game->event.start);
-    game->state = GAME_STATE_RUNNING;
+	EVENT_FIRE0(game->event.start);
+	game->state = GAME_STATE_RUNNING;
 }
 
 /* ------------------------------------------------------------------------- */
 void
 game_pause(struct game_t* game)
 {
-    EVENT_FIRE0(game->event.pause);
-    game->state = GAME_STATE_PAUSED;
+	EVENT_FIRE0(game->event.pause);
+	game->state = GAME_STATE_PAUSED;
 }
 
 /* ------------------------------------------------------------------------- */
 void
 game_exit(struct game_t* game)
 {
-    EVENT_FIRE0(game->event.exit);
-    game->state = GAME_STATE_TERMINATED;
+	EVENT_FIRE0(game->event.exit);
+	game->state = GAME_STATE_TERMINATED;
 }
 
 /* ------------------------------------------------------------------------- */
 void
 games_run_all(void)
 {
-    while(g_games.vector.count)
-    {
-        /* update indiviual game loops */
-        main_loop_do_loop();
+	while(g_games.vector.count)
+	{
+		/* update indiviual game loops */
+		main_loop_do_loop();
 
-        /* if the game wishes to terminate, destroy it */
-        { MAP_FOR_EACH(&g_games, struct game_t, key, game)
-        {
-            if(game->state == GAME_STATE_TERMINATED)
-            {
-                game_destroy(game);
-                break;
-            }
-        }}
-    }
+		/* if the game wishes to terminate, destroy it */
+		{ MAP_FOR_EACH(&g_games, struct game_t, key, game)
+		{
+			if(game->state == GAME_STATE_TERMINATED)
+			{
+				game_destroy(game);
+				break;
+			}
+		}}
+	}
 }
 
 /* ------------------------------------------------------------------------- */
 void
 game_dispatch_stats(uint32_t render_fps, uint32_t tick_fps)
 {
-    MAP_FOR_EACH(&g_games, struct game_t, key, game)
-    {
-        EVENT_FIRE2(game->event.stats, render_fps, tick_fps);
-    }
+	MAP_FOR_EACH(&g_games, struct game_t, key, game)
+	{
+		EVENT_FIRE2(game->event.stats, render_fps, tick_fps);
+	}
 }
 
 /* ------------------------------------------------------------------------- */
 void
 game_dispatch_render(void)
 {
-    MAP_FOR_EACH(&g_games, struct game_t, key, game)
-    {
-        EVENT_FIRE0(game->event.render);
-    }
+	MAP_FOR_EACH(&g_games, struct game_t, key, game)
+	{
+		EVENT_FIRE0(game->event.render);
+	}
 }
 
 /* ------------------------------------------------------------------------- */
 void
 game_dispatch_tick(void)
 {
-    MAP_FOR_EACH(&g_games, struct game_t, key, game)
-    {
-        EVENT_FIRE0(game->event.tick);
-    }
+	MAP_FOR_EACH(&g_games, struct game_t, key, game)
+	{
+		EVENT_FIRE0(game->event.tick);
+	}
 }
 
 /* ------------------------------------------------------------------------- */
 SERVICE(game_start_wrapper)
 {
-    game_start(service->plugin->game);
+	game_start(service->plugin->game);
 }
 
 SERVICE(game_pause_wrapper)
 {
-    game_pause(service->plugin->game);
+	game_pause(service->plugin->game);
 }
 
 SERVICE(game_exit_wrapper)
 {
-    game_exit(service->plugin->game);
+	game_exit(service->plugin->game);
 }

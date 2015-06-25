@@ -55,6 +55,7 @@ endif ()
 # type size checks
 include (CheckTypeSize)
 check_type_size (void* SIZEOF_VOID_PTR)
+check_type_size (int SIZEOF_INT)
 check_type_size (float SIZEOF_FLOAT)
 check_type_size (double SIZEOF_DOUBLE)
 
