@@ -8,6 +8,12 @@
 #include "util/unordered_vector.h"
 #include "util/pstdint.h"
 
+/* ------------------------------------------------------------------------- *
+ * The following is the event listener and dispatch system implemented       *
+ * partially in macros. We have no access to variadic macros so it may       *
+ * appear a little bloated.                                                  *
+ * ------------------------------------------------------------------------- */
+
 struct plugin_t;
 struct service_t;
 struct event_t;
@@ -18,29 +24,47 @@ typedef void (*event_callback_func)(struct event_t* event, const void** argv);
 /*!
  * @brief Helper macro for defining a service function.
  *
- * This can be used in the header file to create a function prototype as well
- * as in the source file to define the function body.
+ * This can be used in a header file to create a function prototype as well
+ * as in a source file to define the function body.
  *
  * The resulting function signature defines 3 arguments:
  *   - service: The service object that called the service function. This can
- *              be used to extract the game object (service->plugin->game), retrieve
- *              type information about the arguments, or otherwise help
- *              identify information about the service.
+ *              be used to extract the game object (service->plugin->game),
+ *              retrieve type information about the arguments, or otherwise
+ *              help identify information about the service.
  *   - ret    : A void* pointing to a location where a return value can be
  *              written to. See the helper macro RETURN() for more
  *              information on returning values from service functions.
- *   - argv   : An argument vector of void** pointing to the memory locations
- *              where argument types can be read from. See the helper macros
- *              EXTRACT_ARGUMENT() and EXTRACT_ARGUMENT_PTR()
+ *   - argv   : An argument vector of type void** pointing to the memory
+ *              locations where argument types can be read from. See the helper
+ *              macros EXTRACT_ARGUMENT() and EXTRACT_ARGUMENT_PTR()
  *              for more information on extracting arguments from service
  *              functions.
- * @param func_name The name of the service function.
+ * @param func_name The name to give the service function.
  */
 #define SERVICE(func_name) \
 		void func_name(struct service_t* service, void* ret, const void** argv)
 
-#define EVENT_LISTENER(evt_name) \
-		void evt_name(struct event_t* event, const void** argv)
+/*!
+ * @brief Helper marco for defining an event listener function.
+ *
+ * This can be used in a header file to create a function prototype as well
+ * as in a source file to define the function body.
+ *
+ * The resulting function signature defines 2 arguments:
+ *   - event: The event object that triggered the call to the listener. This
+ *            can be used to extract the game object (event->plugin->game),
+ *            retrieve type information about the arguments, or otherwise help
+ *            identify information about the event.
+ *   - argv : An argument vector of type void** pointing to the memory
+ *            locations where argument types can be read from. See the helper
+ *            macros EXTRACT_ARGUMENT() and EXTRACT_ARGUMENT_PTR()
+ *            for more information on extracting arguments from service
+ *            functions.
+ * @param func_name The name to give the event listener functionv
+ */
+#define EVENT_LISTENER(func_name) \
+		void func_name(struct event_t* event, const void** argv)
 
 /* ------------------------------------------------------------------------- */
 /*
@@ -79,7 +103,7 @@ typedef void (*event_callback_func)(struct event_t* event, const void** argv);
 #else  /* _DEBUG */
 #   define IF_OBJECT_VALID_AND_HAS_ARGC(obj, argcount)                      \
 		if((obj) && (obj)->type_info->argc == argcount) {
-#   define ELSE_REPORT_FAILURE(msg) }
+#   define ELSE_REPORT_FAILURE(obj, argcount) }
 #endif /* _DEBUG */
 
 /* used to iterate over the listeners of an event */
@@ -91,6 +115,7 @@ typedef void (*event_callback_func)(struct event_t* event, const void** argv);
 #define EVENT_ITERATE_LISTENERS_END                                         \
 			}}
 
+/* creates and fills out the void** argument vector on the stack */
 #define GEN_ARGV_ON_STACK1(argv, arg1)                                      \
 		const void* argv[1];                                                \
 		argv[0] = &arg1;
@@ -125,7 +150,21 @@ typedef void (*event_callback_func)(struct event_t* event, const void** argv);
 		argv[4] = &arg5;                                                    \
 		argv[5] = &arg6;
 
-
+/*!
+ * @brief Notifies all listeners of an event object with optional parameters.
+ * @param event The event object to fire. All listeners registered to this
+ * object will be notified.
+ * @param arg... Arguments to pass to all listeners.
+ * @note If the argument is a pointer type, wrap it in the macro PTR():
+ * ```
+ * char* arg = "this is a string and it is a pointer type. Time to use PTR()!";
+ * EVENT_CALL1(event, PTR(arg));
+ * ```
+ * @note The number of arguments being passed must be equal to what the event
+ * object's type info is expecting or firing will fail. This is also equal to
+ * the number of arguments that were used when defining the event object in
+ * the first place.
+ */
 #define EVENT_FIRE0(event) do {                                             \
 			IF_OBJECT_VALID_AND_HAS_ARGC(event, 0)                          \
 				EVENT_ITERATE_LISTENERS_BEGIN(event)                        \
@@ -185,7 +224,32 @@ typedef void (*event_callback_func)(struct event_t* event, const void** argv);
 			ELSE_REPORT_FAILURE(event, 6)                                   \
 		} while(0)
 
-
+/*!
+ * @brief Executes the service function tied to a specified service object.
+ * @param service The service object to call.
+ * @param ret_value If the service is supposed to return a value then it will
+ * dereference this value and write to it. This means you have to specify a
+ * pointer type. Example:
+ * ```
+ * struct thing_t return_value;
+ * SERVICE_CALL0(my_service, &return_value);
+ * ```
+ * If the service doesn't return anything (void) then NULL can be specified.
+ * @note The type of the return value must match the type being returned.
+ * There's no way to enforce this in C - the service will write however many
+ * bytes it was defined to write, which can lead to horrible memory bugs if
+ * the receiving type doesn't match.
+ * @param arg... Arguments to pass to the service.
+ * @note If the argument is a pointer type, wrap it in the macro PTR():
+ * ```
+ * char* arg = "this is a string and it is a pointer type. Time to use PTR()!";
+ * SERVICE_CALL1(service, NULL, PTR(arg));
+ * ```
+ * @note The number of arguments being passed must be equal to what the service
+ * object's type info is expecting or firing will fail. This is also equal to
+ * the number of arguments that were used when defining the service object in
+ * the first place.
+ */
 #define SERVICE_CALL0(service, ret_value) do {                              \
 			IF_OBJECT_VALID_AND_HAS_ARGC(service, 0)                        \
 				(service)->exec(service, ret_value, NULL);                  \
@@ -233,6 +297,7 @@ typedef void (*event_callback_func)(struct event_t* event, const void** argv);
 			ELSE_REPORT_FAILURE(service, 6)                                 \
 		} while(0)
 
+/* used to retrieve a registered service object by name */
 #define SERVICE_INTERNAL_GET_AND_CHECK(game, directory)                     \
 		struct service_t* service_internal_service = service_get(game,      \
 														directory);         \
@@ -241,6 +306,36 @@ typedef void (*event_callback_func)(struct event_t* event, const void** argv);
 				directory);                                                 \
 		else
 
+/*!
+ * @brief Retrieves a registered service object by name and executes the
+ * service function tied to it.
+ * @param game The game object (context) from which to retrieve the service
+ * object specified by "directory".
+ * @param directory The directory under which the service object has been
+ * registered.
+ * @param ret_value If the service is supposed to return a value then it will
+ * dereference this value and write to it. This means you have to specify a
+ * pointer type. Example:
+ * ```
+ * struct thing_t return_value;
+ * SERVICE_CALL0(my_service, &return_value);
+ * ```
+ * If the service doesn't return anything (void) then NULL can be specified.
+ * @note The type of the return value must match the type being returned.
+ * There's no way to enforce this in C - the service will write however many
+ * bytes it was defined to write, which can lead to horrible memory bugs if
+ * the receiving type doesn't match.
+ * @param arg... Arguments to pass to the service.
+ * @note If the argument is a pointer type, wrap it in the macro PTR():
+ * ```
+ * char* arg = "this is a string and it is a pointer type. Time to use PTR()!";
+ * SERVICE_CALL1(service, NULL, PTR(arg));
+ * ```
+ * @note The number of arguments being passed must be equal to what the service
+ * object's type info is expecting or firing will fail. This is also equal to
+ * the number of arguments that were used when defining the service object in
+ * the first place.
+ */
 #define SERVICE_CALL_NAME0(game, directory, ret_value) do {                 \
 			SERVICE_INTERNAL_GET_AND_CHECK(game, directory)                 \
 			SERVICE_CALL0(service_internal_service, ret_value);             \
@@ -281,6 +376,28 @@ typedef void (*event_callback_func)(struct event_t* event, const void** argv);
 #define STRINGIFY_(x) #x
 #define STRINGIFY(x) STRINGIFY_(x)
 
+/*!
+ * @brief Creates an event and registers it in the game's event directory.
+ * @param[in] plugin Events must be assigned to a plugin object. This is so the
+ * framework can clean up after careless plugin developers who don't unregister
+ * their events correctly and/or clean up when something goes wrong.
+ * @param[out] evt A pointer to the newly created event object is written to
+ * this parameter. Will be NULL if something goes wrong.
+ * @param[in] directory A string specifying the full path under which to
+ * register the event object in the game. Should be something along the lines
+ * of ```path.to.my.event```.
+ * @param[in] arg... Specify the type of each argument. In the following
+ * example an event is created that will accept an ```integer``` and a
+ * ```float``` as arguments when ```EVENT_FIRE2()``` is used to fire the event.
+ * ```
+ * struct event_t* event;
+ * EVENT_CREATE2(plugin, event, "example.event", int, float);
+ * if(!event)
+ *     error();
+ * ```
+ * These parameters are used to construct dynamic type information, which is
+ * used to perform some sanity checks during runtime.
+ */
 #define EVENT_CREATE0(plugin, evt, directory) do {                          \
 			struct type_info_t* t;                                          \
 			t = dynamic_call_create_type_info("void", 0, NULL);             \
@@ -345,7 +462,45 @@ typedef void (*event_callback_func)(struct event_t* event, const void** argv);
 				dynamic_call_destroy_type_info(t);                          \
 		} while(0)
 
-
+/*!
+ * @brief Creates a service and registers it in the game's service directory.
+ * @param[in] plugin Services must be assigned to a plugin object. This is so
+ * the framework can clean up after careless plugin developers who don't
+ * unregister their services correctly and/or clean up when something goes
+ * wrong.
+ * @param[out] serv A pointer to the newly created service object is written to
+ * this parameter. Will be NULL if something goes wrong.
+ * @param[in] directory A string specifying the full path under which to
+ * register the service object in the game. Should be something along the lines
+ * of ```path.to.my.service```.
+ * @param[in] callback Specify the name of a service function previously
+ * defined with ```SERVICE()``` here. When the user uses ```SERVICE_CALL()```
+ * this callback function is invoked.
+ * @param[in] ret_type Specify the type of the return type, such as ```void```
+ * or ```int```.
+ * @param[in] arg... Specify the type of each argument. In the following
+ * example a service is created that will accept an ```integer``` and a
+ * ```float``` as arguments and will return ```int``` when
+ * ```SERVICE_CALL2()``` is used to call the service.
+ * ```
+ * SERVICE(my_service)
+ * {
+ *     EXTRACT_ARGUMENT(0, value1, int, int);
+ *     EXTRACT_ARGUMENT(1, value2, float, float);
+ *     int addition = value1 + (int)value2;
+ *     RETURN(addition, int);
+ * }
+ *
+ * // elsewhere...
+ *
+ * struct event_t* service;
+ * SERVICE_CREATE2(plugin, service, "example.service", my_service, int, int, float);
+ * if(!service)
+ *     error();
+ * ```
+ * These parameters are used to construct dynamic type information, which is
+ * used to perform some sanity checks during runtime.
+ */
 #define SERVICE_CREATE0(plugin, serv, directory, callback, ret_type)        \
 		do {                                                                \
 			struct type_info_t* t;                                          \
@@ -422,12 +577,6 @@ typedef void (*event_callback_func)(struct event_t* event, const void** argv);
 			if(!(serv = service_create(plugin, directory, callback, t)))    \
 				dynamic_call_destroy_type_info(t);                          \
 		} while(0)
-
-/* ------------------------------------------------------------------------- *
- * The following is the event listener and dispatch system implemented       *
- * partially in macros. We have no access to variadic macros so it may       *
- * appear a little bloated.                                                  *
- * ------------------------------------------------------------------------- */
 
 /*!
  * @brief Helper macro for creating listener functions with up to 4 receiving
