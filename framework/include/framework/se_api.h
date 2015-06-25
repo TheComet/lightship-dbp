@@ -45,8 +45,7 @@ typedef void (*event_callback_func)(struct event_t* event, const void** argv);
 /* ------------------------------------------------------------------------- */
 /*
  * In debug mode, we want to print the stack trace if an event object
- * is NULL. In release mode, we can skip the stack trace and skip the check
- * for event being NULL.
+ * is NULL. In release mode, we can skip the stack trace.
  */
 /* ------------------------------------------------------------------------- */
 #ifdef _DEBUG
@@ -78,8 +77,9 @@ typedef void (*event_callback_func)(struct event_t* event, const void** argv);
         }
 
 #else  /* _DEBUG */
-#   define ELSE_REPORT_FAILURE(msg)
-#   define IF_OBJECT_VALID_AND_HAS_ARGC(event)
+#   define IF_OBJECT_VALID_AND_HAS_ARGC(obj, argcount)                      \
+        if((obj) && (obj)->type_info->argc == argcount) {
+#   define ELSE_REPORT_FAILURE(msg) }
 #endif /* _DEBUG */
 
 /* used to iterate over the listeners of an event */

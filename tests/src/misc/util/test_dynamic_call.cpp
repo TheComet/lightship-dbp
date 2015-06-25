@@ -53,22 +53,6 @@ TEST(NAME, create_type_info_for_callback)
     EXPECT_THAT(t->argv_type[13], Eq(TYPE_DOUBLE));
     EXPECT_THAT(t->ret_type, Eq(TYPE_INT32));
 
-    EXPECT_THAT(t->argv_type_str[0], StrEq("char*"));
-    EXPECT_THAT(t->argv_type_str[1], StrEq("wchar_t*"));
-    EXPECT_THAT(t->argv_type_str[2], StrEq("int8_t"));
-    EXPECT_THAT(t->argv_type_str[3], StrEq("uint8_t"));
-    EXPECT_THAT(t->argv_type_str[4], StrEq("int16_t"));
-    EXPECT_THAT(t->argv_type_str[5], StrEq("uint16_t"));
-    EXPECT_THAT(t->argv_type_str[6], StrEq("int32_t"));
-    EXPECT_THAT(t->argv_type_str[7], StrEq("uint32_t"));
-    EXPECT_THAT(t->argv_type_str[8], StrEq("int64_t"));
-    EXPECT_THAT(t->argv_type_str[9], StrEq("uint64_t"));
-    EXPECT_THAT(t->argv_type_str[10], StrEq("intptr_t"));
-    EXPECT_THAT(t->argv_type_str[11], StrEq("uintptr_t"));
-    EXPECT_THAT(t->argv_type_str[12], StrEq("float"));
-    EXPECT_THAT(t->argv_type_str[13], StrEq("double"));
-    EXPECT_THAT(t->ret_type_str, StrEq("int"));
-
     EXPECT_THAT(t->has_unknown_types, Eq(0));
 
     dynamic_call_destroy_type_info(t);
@@ -80,7 +64,6 @@ TEST(NAME, create_type_info_void)
     ASSERT_THAT(t, NotNull());
     EXPECT_THAT(t->argc, Eq(0));
     EXPECT_THAT(t->ret_type, Eq(TYPE_NONE));
-    EXPECT_THAT(t->ret_type_str, StrEq("void"));
     EXPECT_THAT(t->has_unknown_types, Eq(0));
     dynamic_call_destroy_type_info(t);
 }
@@ -92,9 +75,7 @@ TEST(NAME, create_type_info_unknown_ret_type)
     ASSERT_THAT(t, NotNull());
     EXPECT_THAT(t->argc, Eq(1));
     EXPECT_THAT(t->ret_type, Eq(TYPE_UNKNOWN));
-    EXPECT_THAT(t->ret_type_str, StrEq("struct x*"));
     EXPECT_THAT(t->argv_type[0], Eq(TYPE_NONE));
-    EXPECT_THAT(t->argv_type_str[0], StrEq("void"));
     EXPECT_THAT(t->has_unknown_types, Eq(1));
     dynamic_call_destroy_type_info(t);
 }
@@ -106,9 +87,7 @@ TEST(NAME, create_type_info_unknown_argv_type)
     ASSERT_THAT(t, NotNull());
     EXPECT_THAT(t->argc, Eq(1));
     EXPECT_THAT(t->ret_type, Eq(TYPE_NONE));
-    EXPECT_THAT(t->ret_type_str, StrEq("void"));
     EXPECT_THAT(t->argv_type[0], Eq(TYPE_UNKNOWN));
-    EXPECT_THAT(t->argv_type_str[0], StrEq("struct x*"));
     EXPECT_THAT(t->has_unknown_types, Eq(1));
     dynamic_call_destroy_type_info(t);
 }

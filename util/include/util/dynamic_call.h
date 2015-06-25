@@ -116,7 +116,7 @@ typedef enum type_e
 
     TYPE_INT8,   /* NOTE: Interleaving signed and unsigned-ness so */
     TYPE_UINT8,  /*       a signed type can be set to an unsigned */
-    TYPE_INT16,  /*       type simply by adding 1. */
+    TYPE_INT16,  /*       type by incrementing by 1. */
     TYPE_UINT16,
     TYPE_INT32,
     TYPE_UINT32,
@@ -134,8 +134,6 @@ typedef enum type_e
 
 struct type_info_t
 {
-    char* ret_type_str;         /* return type as a plain string */
-    char** argv_type_str;       /* argument types as plain strings */
     type_e* argv_type;          /* argument types */
     type_e ret_type;            /* return type */
     uint32_t argc;              /* number of arguments */

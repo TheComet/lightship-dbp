@@ -7,6 +7,57 @@
 #include <stdlib.h>
 #include <string.h>
 
+/*
+ * If the type being inserted into the argument vector is equal or smaller
+ * than sizeof(void*), we can save some time by copying it directly into
+ * the extra space at the end of the vector instead of allocating space on
+ * the heap. The pointer to the argument's memory location is inserted
+ * into the beginning of the vector as normal. This way, when extracting
+ * the arguments, whether the argument is on the heap or on embedded into
+ * the argument vector itself will be transparent.
+ *
+ * The argument vector is guaranteed to have double the amount of slots
+ * than argc. The following example shows the memory layout of an
+ * argument vector with argc = 3:
+ *
+ *        pointers go here
+ *                 v-----v
+ *                |0|1|2|3|4|5|6|7|
+ *                         ^-----^
+ *                     Extra space at the end.
+ *                     args smaller than sizeof(void*) go here
+ *
+ * In the case of arguments being copied into the end of the vector, the
+ * slots in the beginning of the vector are set to point to the end of the
+ * vector, as illustrated here:
+ *                  _______
+ *                 |       v
+ *                |0|1|2|3|4|5|6|7|
+ *                   |_______^
+ *
+ * If the type being inserted into the argument vector is greater than
+ * sizeof(void*) then it is malloc'd and the slot at the end of the
+ * argument vector is unused.
+ */
+#define COPY_ARGUMENT_INTO_ARGV(value_t, extract_func)                      \
+        /* extract type can/will be different than the actual type */       \
+        value_t value = (value_t)extract_func                               \
+                                                                            \
+        /* point the beginning of the vector to the slot at the end */      \
+        argv[i] = argv + type_info->argc + i;                               \
+                                                                            \
+        /* now copy the argument into the end of the vector (argv[i] points \
+         * to the correct slot at the end) */                               \
+        memcpy(argv[i], &value, sizeof value);
+
+/*
+ * This macro is used in the case when the type of the argument is larger
+ * than sizeof(void*).
+ */
+#define MALLOC_ARGUMENT_INTO_ARGV(value_t, extract_t)                       \
+        argv[i] = MALLOC(sizeof(value_t));                                  \
+        *(value_t*)argv[i] = (value_t)va_arg(ap, extract_t);
+
 /* ------------------------------------------------------------------------- */
 struct type_info_t*
 dynamic_call_create_type_info(const char* ret_type, int argc, const char** argv)
@@ -25,40 +76,35 @@ dynamic_call_create_type_info(const char* ret_type, int argc, const char** argv)
     }
     memset(type_info, 0, sizeof(struct type_info_t));
 
-    for(;;)
+    for(;;) /* break from here if something goes wrong */
     {
         type_info->has_unknown_types = 0; /* will be set to 1 during parsing
                                            * if an unknown type is found */
 
-        /* copy return type info */
-        if(!(type_info->ret_type_str = malloc_string(ret_type)))
-            break;
+        /*
+         * The return type string is parsed to determine if the type is known
+         * or not and the result is stored.
+         */
         type_info->ret_type = dynamic_call_get_type_from_string(ret_type);
         if(type_info->ret_type == TYPE_UNKNOWN)
             type_info->has_unknown_types = 1;
 
-        /* create argument type vectors */
-        if(!(type_info->argv_type_str = (char**)MALLOC(argc * sizeof(char*))))
-            break;
-        memset(type_info->argv_type_str, 0, argc * sizeof(char*));
+        /*
+         * Each argument type string is parsed and it is determined if the type
+         * is known or not. The results are stored in an array.
+         */
         if(!(type_info->argv_type = (type_e*)MALLOC(argc * sizeof(type_e))))
             break;
         memset(type_info->argv_type, 0, argc * sizeof(type_e));
-
-        /* copy argument type strings */
         {   int i;
             for(i = 0; i != argc; ++i)
             {
-                if(!(type_info->argv_type_str[i] = malloc_string(argv[i])))
-                    break;
                 type_info->argv_type[i] = dynamic_call_get_type_from_string(argv[i]);
                 if(type_info->argv_type[i] == TYPE_UNKNOWN)
                     type_info->has_unknown_types = 1;
 
                 ++type_info->argc;
             }
-            if(i != argc)
-                break;
         }
 
         /* success! */
@@ -75,24 +121,9 @@ dynamic_call_create_type_info(const char* ret_type, int argc, const char** argv)
 void
 dynamic_call_destroy_type_info(struct type_info_t* type_info)
 {
-    /* free type info argument string vector */
-    if(type_info->argv_type_str)
-    {   uint32_t i;
-        for(i = 0; i != type_info->argc; ++i)
-        {
-            if(type_info->argv_type_str[i])
-                free_string(type_info->argv_type_str[i]);
-        }
-        FREE(type_info->argv_type_str);
-    }
-
-    /* free type info argument vectors */
+    /* free argument type info array */
     if(type_info->argv_type)
         FREE(type_info->argv_type);
-
-    /* free return type info */
-    if(type_info->ret_type_str)
-        free_string(type_info->ret_type_str);
 
     FREE(type_info);
 }
@@ -568,17 +599,29 @@ dynamic_call_do_typecheck(const struct type_info_t* type_info,
 
     /* verify argument count */
     if(argc != type_info->argc)
+    {
         return 0;
+    }
+
     /* verify return type */
-    if(!ret_type || strcmp(ret_type, type_info->ret_type_str))
+    if(!ret_type ||
+        dynamic_call_get_type_from_string(ret_type) != type_info->ret_type)
+    {
         return 0;
+    }
+
     /* verify argument types */
     for(i = 0; i != argc; ++i)
-        if(!argv[i] || strcmp(argv[i], type_info->argv_type_str[i]))
+    {
+        if(!argv[i] ||
+            dynamic_call_get_type_from_string(argv[i]) != type_info->argv_type[i])
+        {
             return 0;
+        }
+    }
 
-        /* valid! */
-        return 1;
+    /* valid! */
+    return 1;
 }
 
 /* ------------------------------------------------------------------------- */

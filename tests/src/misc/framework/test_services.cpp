@@ -53,11 +53,7 @@ TEST_F(NAME, create_verify_type_info)
     EXPECT_THAT(s->type_info->argv_type[0], Eq(TYPE_UINT32));
     EXPECT_THAT(s->type_info->argv_type[1], Eq(TYPE_DOUBLE));
     EXPECT_THAT(s->type_info->argv_type[2], Eq(TYPE_STRING));
-    EXPECT_THAT(s->type_info->argv_type_str[0], StrEq("unsigned int"));
-    EXPECT_THAT(s->type_info->argv_type_str[1], StrEq("double"));
-    EXPECT_THAT(s->type_info->argv_type_str[2], StrEq("char*"));
     EXPECT_THAT(s->type_info->ret_type, Eq(TYPE_INT32));
-    EXPECT_THAT(s->type_info->ret_type_str, StrEq("int"));
 
     service_destroy(s);
 }
