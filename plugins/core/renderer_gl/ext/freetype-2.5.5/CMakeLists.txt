@@ -104,6 +104,11 @@ set(PROJECT_VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
 
 # Compiler definitions for building the library
 add_definitions(-DFT2_BUILD_LIBRARY)
+if (${CMAKE_C_COMPILER_ID} STREQUAL "GNU")
+	add_definitions (-Wno-extended-offsetof)
+elseif (${CMAKE_C_COMPILER_ID} STREQUAL "Clang")
+	add_definitions (-Wno-extended-offsetof)
+endif ()
 
 # Specify library include directories
 include_directories("${PROJECT_SOURCE_DIR}/include")

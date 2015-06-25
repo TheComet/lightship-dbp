@@ -126,7 +126,7 @@ text_generate_mesh(struct glob_t* g, struct text_t* text)
 			info = (struct char_info_t*)map_find(&text->group->char_info, (uint32_t)*iterator);
 			if(!info)
 			{
-				char* buffer[sizeof(wchar_t)+1];
+				char buffer[sizeof(wchar_t)+1];
 				memcpy(buffer, iterator, sizeof(wchar_t));
 				buffer[sizeof(wchar_t)] = '\0';
 				llog(LOG_ERROR, g->game, PLUGIN_NAME, "Failed to look up character: \"%s\"", buffer);
@@ -164,7 +164,7 @@ text_generate_mesh(struct glob_t* g, struct text_t* text)
 		info = (struct char_info_t*)map_find(&text->group->char_info, (uint32_t)*iterator);
 		if(!info)
 		{
-			char* buffer[sizeof(wchar_t)+1];
+			char buffer[sizeof(wchar_t)+1];
 			memcpy(buffer, iterator, sizeof(wchar_t));
 			buffer[sizeof(wchar_t)] = '\0';
 			llog(LOG_ERROR, g->game, PLUGIN_NAME, "Failed to look up character: \"%s\"", buffer);

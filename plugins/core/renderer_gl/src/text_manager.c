@@ -228,7 +228,7 @@ text_group_load_character_set(struct glob_t* g,
 							  const wchar_t* characters)
 {
 	const wchar_t* iterator;
-	wchar_t* null_terminator = L'\0';
+	wchar_t null_terminator = L'\0';
 	struct unordered_vector_t sorted_chars;
 
 	struct text_group_t* group = map_find(&g_text_groups, id);
@@ -412,7 +412,7 @@ text_group_load_atlass(struct glob_t* g,
 		error = FT_Load_Char(group->face, *iterator, FT_LOAD_RENDER);
 		if(error)
 		{
-			char* buffer[sizeof(wchar_t)+1];
+			char buffer[sizeof(wchar_t)+1];
 			memcpy(buffer, iterator, sizeof(wchar_t));
 			buffer[sizeof(wchar_t)] = '\0';
 			llog(LOG_ERROR, g->game, PLUGIN_NAME, "Failed to load glyph \"%s\"", buffer);
