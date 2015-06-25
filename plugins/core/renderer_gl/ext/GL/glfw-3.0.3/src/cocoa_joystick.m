@@ -1,29 +1,29 @@
-//========================================================================
-// GLFW 3.0 OS X - www.glfw.org
-//------------------------------------------------------------------------
-// Copyright (c) 2009-2010 Camilla Berglund <elmindreda@elmindreda.org>
-// Copyright (c) 2012 Torsten Walluhn <tw@mad-cad.net>
-//
-// This software is provided 'as-is', without any express or implied
-// warranty. In no event will the authors be held liable for any damages
-// arising from the use of this software.
-//
-// Permission is granted to anyone to use this software for any purpose,
-// including commercial applications, and to alter it and redistribute it
-// freely, subject to the following restrictions:
-//
-// 1. The origin of this software must not be misrepresented; you must not
-//    claim that you wrote the original software. If you use this software
-//    in a product, an acknowledgment in the product documentation would
-//    be appreciated but is not required.
-//
-// 2. Altered source versions must be plainly marked as such, and must not
-//    be misrepresented as being the original software.
-//
-// 3. This notice may not be removed or altered from any source
-//    distribution.
-//
-//========================================================================
+/*======================================================================== */
+/* GLFW 3.0 OS X - www.glfw.org */
+/*------------------------------------------------------------------------ */
+/* Copyright (c) 2009-2010 Camilla Berglund <elmindreda@elmindreda.org> */
+/* Copyright (c) 2012 Torsten Walluhn <tw@mad-cad.net> */
+/* */
+/* This software is provided 'as-is', without any express or implied */
+/* warranty. In no event will the authors be held liable for any damages */
+/* arising from the use of this software. */
+/* */
+/* Permission is granted to anyone to use this software for any purpose, */
+/* including commercial applications, and to alter it and redistribute it */
+/* freely, subject to the following restrictions: */
+/* */
+/* 1. The origin of this software must not be misrepresented; you must not */
+/*    claim that you wrote the original software. If you use this software */
+/*    in a product, an acknowledgment in the product documentation would */
+/*    be appreciated but is not required. */
+/* */
+/* 2. Altered source versions must be plainly marked as such, and must not */
+/*    be misrepresented as being the original software. */
+/* */
+/* 3. This notice may not be removed or altered from any source */
+/*    distribution. */
+/* */
+/*======================================================================== */
 
 #include "internal.h"
 
@@ -37,9 +37,9 @@
 #include <Kernel/IOKit/hidsystem/IOHIDUsageTables.h>
 
 
-//------------------------------------------------------------------------
-// Joystick element information
-//------------------------------------------------------------------------
+/*------------------------------------------------------------------------ */
+/* Joystick element information */
+/*------------------------------------------------------------------------ */
 typedef struct
 {
     IOHIDElementCookie cookie;
@@ -56,8 +56,8 @@ typedef struct
 static void getElementsCFArrayHandler(const void* value, void* parameter);
 
 
-// Adds an element to the specified joystick
-//
+/* Adds an element to the specified joystick */
+/* */
 static void addJoystickElement(_GLFWjoy* joystick, CFTypeRef elementRef)
 {
     long elementType, usagePage, usage;
@@ -141,16 +141,16 @@ static void addJoystickElement(_GLFWjoy* joystick, CFTypeRef elementRef)
     }
 }
 
-// Adds an element to the specified joystick
-//
+/* Adds an element to the specified joystick */
+/* */
 static void getElementsCFArrayHandler(const void* value, void* parameter)
 {
     if (CFGetTypeID(value) == CFDictionaryGetTypeID())
         addJoystickElement((_GLFWjoy*) parameter, (CFTypeRef) value);
 }
 
-// Returns the value of the specified element of the specified joystick
-//
+/* Returns the value of the specified element of the specified joystick */
+/* */
 static long getElementValue(_GLFWjoy* joystick, _GLFWjoyelement* element)
 {
     IOReturn result = kIOReturnSuccess;
@@ -164,7 +164,7 @@ static long getElementValue(_GLFWjoy* joystick, _GLFWjoyelement* element)
                                                            &hidEvent);
         if (kIOReturnSuccess == result)
         {
-            // Record min and max for auto calibration
+            /* Record min and max for auto calibration */
             if (hidEvent.value < element->minReport)
                 element->minReport = hidEvent.value;
             if (hidEvent.value > element->maxReport)
@@ -172,12 +172,12 @@ static long getElementValue(_GLFWjoy* joystick, _GLFWjoyelement* element)
         }
     }
 
-    // Auto user scale
+    /* Auto user scale */
     return (long) hidEvent.value;
 }
 
-// Removes the specified joystick
-//
+/* Removes the specified joystick */
+/* */
 static void removeJoystick(_GLFWjoy* joystick)
 {
     int i;
@@ -206,15 +206,15 @@ static void removeJoystick(_GLFWjoy* joystick)
     memset(joystick, 0, sizeof(_GLFWjoy));
 }
 
-// Callback for user-initiated joystick removal
-//
+/* Callback for user-initiated joystick removal */
+/* */
 static void removalCallback(void* target, IOReturn result, void* refcon, void* sender)
 {
     removeJoystick((_GLFWjoy*) refcon);
 }
 
-// Polls for joystick events and updates GLFW state
-//
+/* Polls for joystick events and updates GLFW state */
+/* */
 static void pollJoystickEvents(void)
 {
     int joy;
@@ -261,7 +261,7 @@ static void pollJoystickEvents(void)
             _GLFWjoyelement* hat =
                 (_GLFWjoyelement*) CFArrayGetValueAtIndex(joystick->hatElements, i);
 
-            // Bit fields of button presses for each direction, including nil
+            /* Bit fields of button presses for each direction, including nil */
             const int directions[9] = { 1, 3, 2, 6, 4, 12, 8, 9, 0 };
 
             long j, value = getElementValue(joystick, hat);
@@ -280,12 +280,12 @@ static void pollJoystickEvents(void)
 }
 
 
-//////////////////////////////////////////////////////////////////////////
-//////                       GLFW internal API                      //////
-//////////////////////////////////////////////////////////////////////////
+/*//////////////////////////////////////////////////////////////////////// */
+/*////                       GLFW internal API                      ////// */
+/*//////////////////////////////////////////////////////////////////////// */
 
-// Initialize joystick interface
-//
+/* Initialize joystick interface */
+/* */
 void _glfwInitJoysticks(void)
 {
     int joy = 0;
@@ -313,7 +313,7 @@ void _glfwInitJoysticks(void)
 
     if (!objectIterator)
     {
-        // There are no joysticks
+        /* There are no joysticks */
         return;
     }
 
@@ -328,7 +328,7 @@ void _glfwInitJoysticks(void)
 
         long usagePage, usage;
 
-        // Check device type
+        /* Check device type */
         valueRef = IORegistryEntryCreateCFProperty(ioHIDDeviceObject,
                                                    CFSTR(kIOHIDPrimaryUsagePageKey),
                                                    kCFAllocatorDefault,
@@ -338,7 +338,7 @@ void _glfwInitJoysticks(void)
             CFNumberGetValue(valueRef, kCFNumberLongType, &usagePage);
             if (usagePage != kHIDPage_GenericDesktop)
             {
-                // This device is not relevant to GLFW
+                /* This device is not relevant to GLFW */
                 continue;
             }
 
@@ -357,7 +357,7 @@ void _glfwInitJoysticks(void)
                  usage != kHIDUsage_GD_GamePad &&
                  usage != kHIDUsage_GD_MultiAxisController))
             {
-                // This device is not relevant to GLFW
+                /* This device is not relevant to GLFW */
                 continue;
             }
 
@@ -392,7 +392,7 @@ void _glfwInitJoysticks(void)
                                                      joystick,
                                                      joystick);
 
-        // Get product string
+        /* Get product string */
         valueRef = IORegistryEntryCreateCFProperty(ioHIDDeviceObject,
                                                    CFSTR(kIOHIDProductKey),
                                                    kCFAllocatorDefault,
@@ -435,8 +435,8 @@ void _glfwInitJoysticks(void)
     }
 }
 
-// Close all opened joystick handles
-//
+/* Close all opened joystick handles */
+/* */
 void _glfwTerminateJoysticks(void)
 {
     int i;
@@ -449,9 +449,9 @@ void _glfwTerminateJoysticks(void)
 }
 
 
-//////////////////////////////////////////////////////////////////////////
-//////                       GLFW platform API                      //////
-//////////////////////////////////////////////////////////////////////////
+/*//////////////////////////////////////////////////////////////////////// */
+/*////                       GLFW platform API                      ////// */
+/*//////////////////////////////////////////////////////////////////////// */
 
 int _glfwPlatformJoystickPresent(int joy)
 {

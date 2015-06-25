@@ -1,40 +1,40 @@
-//========================================================================
-// GLFW 3.0 OS X - www.glfw.org
-//------------------------------------------------------------------------
-// Copyright (c) 2009-2010 Camilla Berglund <elmindreda@elmindreda.org>
-//
-// This software is provided 'as-is', without any express or implied
-// warranty. In no event will the authors be held liable for any damages
-// arising from the use of this software.
-//
-// Permission is granted to anyone to use this software for any purpose,
-// including commercial applications, and to alter it and redistribute it
-// freely, subject to the following restrictions:
-//
-// 1. The origin of this software must not be misrepresented; you must not
-//    claim that you wrote the original software. If you use this software
-//    in a product, an acknowledgment in the product documentation would
-//    be appreciated but is not required.
-//
-// 2. Altered source versions must be plainly marked as such, and must not
-//    be misrepresented as being the original software.
-//
-// 3. This notice may not be removed or altered from any source
-//    distribution.
-//
-//========================================================================
+/*======================================================================== */
+/* GLFW 3.0 OS X - www.glfw.org */
+/*------------------------------------------------------------------------ */
+/* Copyright (c) 2009-2010 Camilla Berglund <elmindreda@elmindreda.org> */
+/* */
+/* This software is provided 'as-is', without any express or implied */
+/* warranty. In no event will the authors be held liable for any damages */
+/* arising from the use of this software. */
+/* */
+/* Permission is granted to anyone to use this software for any purpose, */
+/* including commercial applications, and to alter it and redistribute it */
+/* freely, subject to the following restrictions: */
+/* */
+/* 1. The origin of this software must not be misrepresented; you must not */
+/*    claim that you wrote the original software. If you use this software */
+/*    in a product, an acknowledgment in the product documentation would */
+/*    be appreciated but is not required. */
+/* */
+/* 2. Altered source versions must be plainly marked as such, and must not */
+/*    be misrepresented as being the original software. */
+/* */
+/* 3. This notice may not be removed or altered from any source */
+/*    distribution. */
+/* */
+/*======================================================================== */
 
 #include "internal.h"
 
 #include <pthread.h>
 
 
-//////////////////////////////////////////////////////////////////////////
-//////                       GLFW internal API                      //////
-//////////////////////////////////////////////////////////////////////////
+/*//////////////////////////////////////////////////////////////////////// */
+/*////                       GLFW internal API                      ////// */
+/*//////////////////////////////////////////////////////////////////////// */
 
-// Initialize OpenGL support
-//
+/* Initialize OpenGL support */
+/* */
 int _glfwInitContextAPI(void)
 {
     if (pthread_key_create(&_glfw.nsgl.current, NULL) != 0)
@@ -56,22 +56,22 @@ int _glfwInitContextAPI(void)
     return GL_TRUE;
 }
 
-// Terminate OpenGL support
-//
+/* Terminate OpenGL support */
+/* */
 void _glfwTerminateContextAPI(void)
 {
     pthread_key_delete(_glfw.nsgl.current);
 }
 
-// Create the OpenGL context
-//
+/* Create the OpenGL context */
+/* */
 int _glfwCreateContext(_GLFWwindow* window,
                        const _GLFWwndconfig* wndconfig,
                        const _GLFWfbconfig* fbconfig)
 {
     unsigned int attributeCount = 0;
 
-    // OS X needs non-zero color size, so set resonable values
+    /* OS X needs non-zero color size, so set resonable values */
     int colorBits = fbconfig->redBits + fbconfig->greenBits + fbconfig->blueBits;
     if (colorBits == 0)
         colorBits = 24;
@@ -115,7 +115,7 @@ int _glfwCreateContext(_GLFWwindow* window,
         }
     }
 #else
-    // Fail if OpenGL 3.0 or above was requested
+    /* Fail if OpenGL 3.0 or above was requested */
     if (wndconfig->glMajor > 2)
     {
         _glfwInputError(GLFW_VERSION_UNAVAILABLE,
@@ -125,7 +125,7 @@ int _glfwCreateContext(_GLFWwindow* window,
     }
 #endif /*MAC_OS_X_VERSION_MAX_ALLOWED*/
 
-    // Fail if a robustness strategy was requested
+    /* Fail if a robustness strategy was requested */
     if (wndconfig->glRobustness)
     {
         _glfwInputError(GLFW_VERSION_UNAVAILABLE,
@@ -137,7 +137,7 @@ int _glfwCreateContext(_GLFWwindow* window,
 #define ADD_ATTR(x) { attributes[attributeCount++] = x; }
 #define ADD_ATTR2(x, y) { ADD_ATTR(x); ADD_ATTR(y); }
 
-    // Arbitrary array size here
+    /* Arbitrary array size here */
     NSOpenGLPixelFormatAttribute attributes[40];
 
     ADD_ATTR(NSOpenGLPFADoubleBuffer);
@@ -177,8 +177,8 @@ int _glfwCreateContext(_GLFWwindow* window,
         ADD_ATTR2(NSOpenGLPFASamples, fbconfig->samples);
     }
 
-    // NOTE: All NSOpenGLPixelFormats on the relevant cards support sRGB
-    // frambuffer, so there's no need (and no way) to request it
+    /* NOTE: All NSOpenGLPixelFormats on the relevant cards support sRGB */
+    /* frambuffer, so there's no need (and no way) to request it */
 
     ADD_ATTR(0);
 
@@ -212,8 +212,8 @@ int _glfwCreateContext(_GLFWwindow* window,
     return GL_TRUE;
 }
 
-// Destroy the OpenGL context
-//
+/* Destroy the OpenGL context */
+/* */
 void _glfwDestroyContext(_GLFWwindow* window)
 {
     [window->nsgl.pixelFormat release];
@@ -224,9 +224,9 @@ void _glfwDestroyContext(_GLFWwindow* window)
 }
 
 
-//////////////////////////////////////////////////////////////////////////
-//////                       GLFW platform API                      //////
-//////////////////////////////////////////////////////////////////////////
+/*//////////////////////////////////////////////////////////////////////// */
+/*////                       GLFW platform API                      ////// */
+/*//////////////////////////////////////////////////////////////////////// */
 
 void _glfwPlatformMakeContextCurrent(_GLFWwindow* window)
 {
@@ -245,7 +245,7 @@ _GLFWwindow* _glfwPlatformGetCurrentContext(void)
 
 void _glfwPlatformSwapBuffers(_GLFWwindow* window)
 {
-    // ARP appears to be unnecessary, but this is future-proof
+    /* ARP appears to be unnecessary, but this is future-proof */
     [window->nsgl.context flushBuffer];
 }
 
@@ -259,7 +259,7 @@ void _glfwPlatformSwapInterval(int interval)
 
 int _glfwPlatformExtensionSupported(const char* extension)
 {
-    // There are no NSGL extensions
+    /* There are no NSGL extensions */
     return GL_FALSE;
 }
 
@@ -278,9 +278,9 @@ GLFWglproc _glfwPlatformGetProcAddress(const char* procname)
 }
 
 
-//////////////////////////////////////////////////////////////////////////
-//////                        GLFW native API                       //////
-//////////////////////////////////////////////////////////////////////////
+/*//////////////////////////////////////////////////////////////////////// */
+/*////                        GLFW native API                       ////// */
+/*//////////////////////////////////////////////////////////////////////// */
 
 GLFWAPI id glfwGetNSGLContext(GLFWwindow* handle)
 {

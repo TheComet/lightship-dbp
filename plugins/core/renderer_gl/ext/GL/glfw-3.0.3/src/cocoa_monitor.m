@@ -1,29 +1,29 @@
-//========================================================================
-// GLFW 3.0 OS X - www.glfw.org
-//------------------------------------------------------------------------
-// Copyright (c) 2002-2006 Marcus Geelnard
-// Copyright (c) 2006-2010 Camilla Berglund <elmindreda@elmindreda.org>
-//
-// This software is provided 'as-is', without any express or implied
-// warranty. In no event will the authors be held liable for any damages
-// arising from the use of this software.
-//
-// Permission is granted to anyone to use this software for any purpose,
-// including commercial applications, and to alter it and redistribute it
-// freely, subject to the following restrictions:
-//
-// 1. The origin of this software must not be misrepresented; you must not
-//    claim that you wrote the original software. If you use this software
-//    in a product, an acknowledgment in the product documentation would
-//    be appreciated but is not required.
-//
-// 2. Altered source versions must be plainly marked as such, and must not
-//    be misrepresented as being the original software.
-//
-// 3. This notice may not be removed or altered from any source
-//    distribution.
-//
-//========================================================================
+/*======================================================================== */
+/* GLFW 3.0 OS X - www.glfw.org */
+/*------------------------------------------------------------------------ */
+/* Copyright (c) 2002-2006 Marcus Geelnard */
+/* Copyright (c) 2006-2010 Camilla Berglund <elmindreda@elmindreda.org> */
+/* */
+/* This software is provided 'as-is', without any express or implied */
+/* warranty. In no event will the authors be held liable for any damages */
+/* arising from the use of this software. */
+/* */
+/* Permission is granted to anyone to use this software for any purpose, */
+/* including commercial applications, and to alter it and redistribute it */
+/* freely, subject to the following restrictions: */
+/* */
+/* 1. The origin of this software must not be misrepresented; you must not */
+/*    claim that you wrote the original software. If you use this software */
+/*    in a product, an acknowledgment in the product documentation would */
+/*    be appreciated but is not required. */
+/* */
+/* 2. Altered source versions must be plainly marked as such, and must not */
+/*    be misrepresented as being the original software. */
+/* */
+/* 3. This notice may not be removed or altered from any source */
+/*    distribution. */
+/* */
+/*======================================================================== */
 
 #include "internal.h"
 
@@ -33,8 +33,8 @@
 #include <IOKit/graphics/IOGraphicsLib.h>
 
 
-// Get the name of the specified display
-//
+/* Get the name of the specified display */
+/* */
 static const char* getDisplayName(CGDirectDisplayID displayID)
 {
     char* name;
@@ -63,8 +63,8 @@ static const char* getDisplayName(CGDirectDisplayID displayID)
     return name;
 }
 
-// Check whether the display mode should be included in enumeration
-//
+/* Check whether the display mode should be included in enumeration */
+/* */
 static GLboolean modeIsGood(CGDisplayModeRef mode)
 {
     uint32_t flags = CGDisplayModeGetIOFlags(mode);
@@ -92,8 +92,8 @@ static GLboolean modeIsGood(CGDisplayModeRef mode)
     return GL_TRUE;
 }
 
-// Convert Core Graphics display mode to GLFW video mode
-//
+/* Convert Core Graphics display mode to GLFW video mode */
+/* */
 static GLFWvidmode vidmodeFromCGDisplayMode(CGDisplayModeRef mode)
 {
     GLFWvidmode result;
@@ -120,8 +120,8 @@ static GLFWvidmode vidmodeFromCGDisplayMode(CGDisplayModeRef mode)
     return result;
 }
 
-// Starts reservation for display fading
-//
+/* Starts reservation for display fading */
+/* */
 static CGDisplayFadeReservationToken beginFadeReservation(void)
 {
     CGDisplayFadeReservationToken token = kCGDisplayFadeReservationInvalidToken;
@@ -132,8 +132,8 @@ static CGDisplayFadeReservationToken beginFadeReservation(void)
     return token;
 }
 
-// Ends reservation for display fading
-//
+/* Ends reservation for display fading */
+/* */
 static void endFadeReservation(CGDisplayFadeReservationToken token)
 {
     if (token != kCGDisplayFadeReservationInvalidToken)
@@ -144,12 +144,12 @@ static void endFadeReservation(CGDisplayFadeReservationToken token)
 }
 
 
-//////////////////////////////////////////////////////////////////////////
-//////                       GLFW internal API                      //////
-//////////////////////////////////////////////////////////////////////////
+/*//////////////////////////////////////////////////////////////////////// */
+/*////                       GLFW internal API                      ////// */
+/*//////////////////////////////////////////////////////////////////////// */
 
-// Change the current video mode
-//
+/* Change the current video mode */
+/* */
 GLboolean _glfwSetVideoMode(_GLFWmonitor* monitor, const GLFWvidmode* desired)
 {
     CGDisplayModeRef bestMode = NULL;
@@ -170,7 +170,7 @@ GLboolean _glfwSetVideoMode(_GLFWmonitor* monitor, const GLFWvidmode* desired)
 
         int modeBPP;
 
-        // Identify display mode pixel encoding
+        /* Identify display mode pixel encoding */
         {
             CFStringRef format = CGDisplayModeCopyPixelEncoding(mode);
 
@@ -223,8 +223,8 @@ GLboolean _glfwSetVideoMode(_GLFWmonitor* monitor, const GLFWvidmode* desired)
     return GL_TRUE;
 }
 
-// Restore the previously saved (original) video mode
-//
+/* Restore the previously saved (original) video mode */
+/* */
 void _glfwRestoreVideoMode(_GLFWmonitor* monitor)
 {
     CGDisplayFadeReservationToken token = beginFadeReservation();
@@ -236,9 +236,9 @@ void _glfwRestoreVideoMode(_GLFWmonitor* monitor)
 }
 
 
-//////////////////////////////////////////////////////////////////////////
-//////                       GLFW platform API                      //////
-//////////////////////////////////////////////////////////////////////////
+/*//////////////////////////////////////////////////////////////////////// */
+/*////                       GLFW platform API                      ////// */
+/*//////////////////////////////////////////////////////////////////////// */
 
 _GLFWmonitor** _glfwPlatformGetMonitors(int* count)
 {

@@ -1,37 +1,37 @@
-//========================================================================
-// GLFW 3.0 OS X - www.glfw.org
-//------------------------------------------------------------------------
-// Copyright (c) 2009-2010 Camilla Berglund <elmindreda@elmindreda.org>
-//
-// This software is provided 'as-is', without any express or implied
-// warranty. In no event will the authors be held liable for any damages
-// arising from the use of this software.
-//
-// Permission is granted to anyone to use this software for any purpose,
-// including commercial applications, and to alter it and redistribute it
-// freely, subject to the following restrictions:
-//
-// 1. The origin of this software must not be misrepresented; you must not
-//    claim that you wrote the original software. If you use this software
-//    in a product, an acknowledgment in the product documentation would
-//    be appreciated but is not required.
-//
-// 2. Altered source versions must be plainly marked as such, and must not
-//    be misrepresented as being the original software.
-//
-// 3. This notice may not be removed or altered from any source
-//    distribution.
-//
-//========================================================================
+/*======================================================================== */
+/* GLFW 3.0 OS X - www.glfw.org */
+/*------------------------------------------------------------------------ */
+/* Copyright (c) 2009-2010 Camilla Berglund <elmindreda@elmindreda.org> */
+/* */
+/* This software is provided 'as-is', without any express or implied */
+/* warranty. In no event will the authors be held liable for any damages */
+/* arising from the use of this software. */
+/* */
+/* Permission is granted to anyone to use this software for any purpose, */
+/* including commercial applications, and to alter it and redistribute it */
+/* freely, subject to the following restrictions: */
+/* */
+/* 1. The origin of this software must not be misrepresented; you must not */
+/*    claim that you wrote the original software. If you use this software */
+/*    in a product, an acknowledgment in the product documentation would */
+/*    be appreciated but is not required. */
+/* */
+/* 2. Altered source versions must be plainly marked as such, and must not */
+/*    be misrepresented as being the original software. */
+/* */
+/* 3. This notice may not be removed or altered from any source */
+/*    distribution. */
+/* */
+/*======================================================================== */
 
 #include "internal.h"
 
-// Needed for _NSGetProgname
+/* Needed for _NSGetProgname */
 #include <crt_externs.h>
 
 
-// Center the cursor in the view of the window
-//
+/* Center the cursor in the view of the window */
+/* */
 static void centerCursor(_GLFWwindow *window)
 {
     int width, height;
@@ -39,8 +39,8 @@ static void centerCursor(_GLFWwindow *window)
     _glfwPlatformSetCursorPos(window, width / 2.0, height / 2.0);
 }
 
-// Update the cursor to match the specified cursor mode
-//
+/* Update the cursor to match the specified cursor mode */
+/* */
 static void setModeCursor(_GLFWwindow* window, int mode)
 {
     if (mode == GLFW_CURSOR_NORMAL)
@@ -49,8 +49,8 @@ static void setModeCursor(_GLFWwindow* window, int mode)
         [(NSCursor*) _glfw.ns.cursor set];
 }
 
-// Enter fullscreen mode
-//
+/* Enter fullscreen mode */
+/* */
 static void enterFullscreenMode(_GLFWwindow* window)
 {
     if ([window->ns.view isInFullScreenMode])
@@ -62,8 +62,8 @@ static void enterFullscreenMode(_GLFWwindow* window)
                              withOptions:nil];
 }
 
-// Leave fullscreen mode
-//
+/* Leave fullscreen mode */
+/* */
 static void leaveFullscreenMode(_GLFWwindow* window)
 {
     if (![window->ns.view isInFullScreenMode])
@@ -71,22 +71,22 @@ static void leaveFullscreenMode(_GLFWwindow* window)
 
     _glfwRestoreVideoMode(window->monitor);
 
-    // Exit full screen after the video restore to avoid a nasty display
-    // flickering during the fade
+    /* Exit full screen after the video restore to avoid a nasty display */
+    /* flickering during the fade */
     [window->ns.view exitFullScreenModeWithOptions:nil];
 }
 
-// Transforms the specified y-coordinate between the CG display and NS screen
-// coordinate systems
-//
+/* Transforms the specified y-coordinate between the CG display and NS screen */
+/* coordinate systems */
+/* */
 static float transformY(float y)
 {
     const float height = CGDisplayBounds(CGMainDisplayID()).size.height;
     return height - y;
 }
 
-// Returns the backing rect of the specified window
-//
+/* Returns the backing rect of the specified window */
+/* */
 static NSRect convertRectToBacking(_GLFWwindow* window, NSRect contentRect)
 {
 #if MAC_OS_X_VERSION_MAX_ALLOWED >= 1070
@@ -98,9 +98,9 @@ static NSRect convertRectToBacking(_GLFWwindow* window, NSRect contentRect)
 }
 
 
-//------------------------------------------------------------------------
-// Delegate for window related notifications
-//------------------------------------------------------------------------
+/*------------------------------------------------------------------------ */
+/* Delegate for window related notifications */
+/*------------------------------------------------------------------------ */
 
 @interface GLFWWindowDelegate : NSObject
 {
@@ -183,9 +183,9 @@ static NSRect convertRectToBacking(_GLFWwindow* window, NSRect contentRect)
 @end
 
 
-//------------------------------------------------------------------------
-// Delegate for application related notifications
-//------------------------------------------------------------------------
+/*------------------------------------------------------------------------ */
+/* Delegate for application related notifications */
+/*------------------------------------------------------------------------ */
 
 @interface GLFWApplicationDelegate : NSObject
 @end
@@ -228,8 +228,8 @@ static NSRect convertRectToBacking(_GLFWwindow* window, NSRect contentRect)
 
 @end
 
-// Translates OS X key modifiers into GLFW ones
-//
+/* Translates OS X key modifiers into GLFW ones */
+/* */
 static int translateFlags(NSUInteger flags)
 {
     int mods = 0;
@@ -246,12 +246,12 @@ static int translateFlags(NSUInteger flags)
     return mods;
 }
 
-// Translates a OS X keycode to a GLFW keycode
-//
+/* Translates a OS X keycode to a GLFW keycode */
+/* */
 static int translateKey(unsigned int key)
 {
-    // Keyboard symbol translation table
-    // TODO: Need to find mappings for F13-F15, volume down/up/mute, and eject.
+    /* Keyboard symbol translation table */
+    /* TODO: Need to find mappings for F13-F15, volume down/up/mute, and eject. */
     static const unsigned int table[128] =
     {
         /* 00 */ GLFW_KEY_A,
@@ -391,9 +391,9 @@ static int translateKey(unsigned int key)
 }
 
 
-//------------------------------------------------------------------------
-// Content view class for the GLFW window
-//------------------------------------------------------------------------
+/*------------------------------------------------------------------------ */
+/* Content view class for the GLFW window */
+/*------------------------------------------------------------------------ */
 
 @interface GLFWContentView : NSView
 {
@@ -645,9 +645,9 @@ static int translateKey(unsigned int key)
 @end
 
 
-//------------------------------------------------------------------------
-// GLFW window class
-//------------------------------------------------------------------------
+/*------------------------------------------------------------------------ */
+/* GLFW window class */
+/*------------------------------------------------------------------------ */
 
 @interface GLFWWindow : NSWindow {}
 @end
@@ -656,25 +656,25 @@ static int translateKey(unsigned int key)
 
 - (BOOL)canBecomeKeyWindow
 {
-    // Required for NSBorderlessWindowMask windows
+    /* Required for NSBorderlessWindowMask windows */
     return YES;
 }
 
 @end
 
 
-//------------------------------------------------------------------------
-// GLFW application class
-//------------------------------------------------------------------------
+/*------------------------------------------------------------------------ */
+/* GLFW application class */
+/*------------------------------------------------------------------------ */
 
 @interface GLFWApplication : NSApplication
 @end
 
 @implementation GLFWApplication
 
-// From http://cocoadev.com/index.pl?GameKeyboardHandlingAlmost
-// This works around an AppKit bug, where key up events while holding
-// down the command key don't get sent to the key window.
+/* From http://cocoadev.com/index.pl?GameKeyboardHandlingAlmost */
+/* This works around an AppKit bug, where key up events while holding */
+/* down the command key don't get sent to the key window. */
 - (void)sendEvent:(NSEvent *)event
 {
     if ([event type] == NSKeyUp && ([event modifierFlags] & NSCommandKeyMask))
@@ -687,14 +687,14 @@ static int translateKey(unsigned int key)
 
 #if defined(_GLFW_USE_MENUBAR)
 
-// Try to figure out what the calling application is called
-//
+/* Try to figure out what the calling application is called */
+/* */
 static NSString* findAppName(void)
 {
     size_t i;
     NSDictionary* infoDictionary = [[NSBundle mainBundle] infoDictionary];
 
-    // Keys to search for as potential application names
+    /* Keys to search for as potential application names */
     NSString* GLFWNameKeys[] =
     {
         @"CFBundleDisplayName",
@@ -717,16 +717,16 @@ static NSString* findAppName(void)
     if (progname && *progname)
         return [NSString stringWithUTF8String:*progname];
 
-    // Really shouldn't get here
+    /* Really shouldn't get here */
     return @"GLFW Application";
 }
 
-// Set up the menu bar (manually)
-// This is nasty, nasty stuff -- calls to undocumented semi-private APIs that
-// could go away at any moment, lots of stuff that really should be
-// localize(d|able), etc.  Loading a nib would save us this horror, but that
-// doesn't seem like a good thing to require of GLFW's clients.
-//
+/* Set up the menu bar (manually) */
+/* This is nasty, nasty stuff -- calls to undocumented semi-private APIs that */
+/* could go away at any moment, lots of stuff that really should be */
+/* localize(d|able), etc.  Loading a nib would save us this horror, but that */
+/* doesn't seem like a good thing to require of GLFW's clients. */
+/* */
 static void createMenuBar(void)
 {
     NSString* appName = findAppName();
@@ -781,35 +781,35 @@ static void createMenuBar(void)
                           action:@selector(arrangeInFront:)
                    keyEquivalent:@""];
 
-    // Prior to Snow Leopard, we need to use this oddly-named semi-private API
-    // to get the application menu working properly.
+    /* Prior to Snow Leopard, we need to use this oddly-named semi-private API */
+    /* to get the application menu working properly. */
     [NSApp performSelector:@selector(setAppleMenu:) withObject:appMenu];
 }
 
 #endif /* _GLFW_USE_MENUBAR */
 
-// Initialize the Cocoa Application Kit
-//
+/* Initialize the Cocoa Application Kit */
+/* */
 static GLboolean initializeAppKit(void)
 {
     if (NSApp)
         return GL_TRUE;
 
-    // Implicitly create shared NSApplication instance
+    /* Implicitly create shared NSApplication instance */
     [GLFWApplication sharedApplication];
 
-    // If we get here, the application is unbundled
+    /* If we get here, the application is unbundled */
     ProcessSerialNumber psn = { 0, kCurrentProcess };
     TransformProcessType(&psn, kProcessTransformToForegroundApplication);
 
-    // Having the app in front of the terminal window is also generally
-    // handy.  There is an NSApplication API to do this, but...
+    /* Having the app in front of the terminal window is also generally */
+    /* handy.  There is an NSApplication API to do this, but... */
     SetFrontProcess(&psn);
 
 #if defined(_GLFW_USE_MENUBAR)
-    // Menu bar setup must go between sharedApplication above and
-    // finishLaunching below, in order to properly emulate the behavior
-    // of NSApplicationMain
+    /* Menu bar setup must go between sharedApplication above and */
+    /* finishLaunching below, in order to properly emulate the behavior */
+    /* of NSApplicationMain */
     createMenuBar();
 #endif
 
@@ -818,8 +818,8 @@ static GLboolean initializeAppKit(void)
     return GL_TRUE;
 }
 
-// Create the Cocoa window
-//
+/* Create the Cocoa window */
+/* */
 static GLboolean createWindow(_GLFWwindow* window,
                               const _GLFWwndconfig* wndconfig)
 {
@@ -870,9 +870,9 @@ static GLboolean createWindow(_GLFWwindow* window,
 }
 
 
-//////////////////////////////////////////////////////////////////////////
-//////                       GLFW platform API                      //////
-//////////////////////////////////////////////////////////////////////////
+/*//////////////////////////////////////////////////////////////////////// */
+/*////                       GLFW platform API                      ////// */
+/*//////////////////////////////////////////////////////////////////////// */
 
 int _glfwPlatformCreateWindow(_GLFWwindow* window,
                               const _GLFWwndconfig* wndconfig,
@@ -881,8 +881,8 @@ int _glfwPlatformCreateWindow(_GLFWwindow* window,
     if (!initializeAppKit())
         return GL_FALSE;
 
-    // There can only be one application delegate, but we allocate it the
-    // first time a window is created to keep all window code in this file
+    /* There can only be one application delegate, but we allocate it the */
+    /* first time a window is created to keep all window code in this file */
     if (_glfw.ns.delegate == nil)
     {
         _glfw.ns.delegate = [[GLFWApplicationDelegate alloc] init];
@@ -904,8 +904,8 @@ int _glfwPlatformCreateWindow(_GLFWwindow* window,
         return GL_FALSE;
     }
 
-    // Don't use accumulation buffer support; it's not accelerated
-    // Aux buffers probably aren't accelerated either
+    /* Don't use accumulation buffer support; it's not accelerated */
+    /* Aux buffers probably aren't accelerated either */
 
     if (!createWindow(window, wndconfig))
         return GL_FALSE;
@@ -1036,9 +1036,9 @@ void _glfwPlatformPollEvents(void)
 
 void _glfwPlatformWaitEvents(void)
 {
-    // I wanted to pass NO to dequeue:, and rely on PollEvents to
-    // dequeue and send.  For reasons not at all clear to me, passing
-    // NO to dequeue: causes this method never to return.
+    /* I wanted to pass NO to dequeue:, and rely on PollEvents to */
+    /* dequeue and send.  For reasons not at all clear to me, passing */
+    /* NO to dequeue: causes this method never to return. */
     NSEvent *event = [NSApp nextEventMatchingMask:NSAnyEventMask
                                         untilDate:[NSDate distantFuture]
                                            inMode:NSDefaultRunLoopMode
@@ -1080,9 +1080,9 @@ void _glfwPlatformSetCursorMode(_GLFWwindow* window, int mode)
 }
 
 
-//////////////////////////////////////////////////////////////////////////
-//////                        GLFW native API                       //////
-//////////////////////////////////////////////////////////////////////////
+/*//////////////////////////////////////////////////////////////////////// */
+/*////                        GLFW native API                       ////// */
+/*//////////////////////////////////////////////////////////////////////// */
 
 GLFWAPI id glfwGetCocoaWindow(GLFWwindow* handle)
 {
