@@ -96,6 +96,7 @@ PLUGIN_RENDERER_GL_PUBLIC_API PLUGIN_START()
 /* ------------------------------------------------------------------------- */
 PLUGIN_RENDERER_GL_PUBLIC_API PLUGIN_STOP()
 {
+	REF(game);
 	sprite_deinit();
 	text_wrapper_deinit();
 	text_manager_deinit();
