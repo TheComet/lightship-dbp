@@ -10,8 +10,6 @@ elseif (${CMAKE_C_COMPILER_ID} STREQUAL "Intel")
 elseif (${CMAKE_C_COMPILER_ID} STREQUAL "MSVC")
 endif ()
 
-set (TT ${TT} "hah" PARENT_SCOPE)
-
 ###############################################################################
 # source files and runtime definition
 ###############################################################################
