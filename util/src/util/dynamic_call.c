@@ -511,13 +511,13 @@ dynamic_call_get_type_from_string(const char* type)
 		type_e ret = TYPE_INT32;
 
 		/* reject pointer types */
-		if(strstr(type, "*"))
+		if(strchr(type, '*'))
 			return TYPE_UNKNOWN;
 		/* intptr_t */
 		if(strstr(type, "intptr"))
 			ret = TYPE_INTPTR;
 		/* number of bits */
-		else if(strstr(type, "8"))
+		else if(strchr(type, '8'))
 			ret = TYPE_INT8;
 		else if(strstr(type, "16"))
 			ret = TYPE_INT16;
@@ -566,7 +566,7 @@ dynamic_call_get_type_from_string(const char* type)
 
 			/* it's only a char - determine if signed or unsigned, and return
 			 * either int8 or uint8 */
-			if(strstr(type, "u"))
+			if(strchr(type, 'u'))
 				return TYPE_UINT8;
 			return TYPE_INT8;
 		}
@@ -576,7 +576,7 @@ dynamic_call_get_type_from_string(const char* type)
 	if(strstr(type, "float"))
 	{
 		/* make sure it's not actually a float* */
-		if(strstr(type, "*"))
+		if(strchr(type, '*'))
 			return TYPE_UNKNOWN;
 		return TYPE_FLOAT;
 	}
@@ -585,7 +585,7 @@ dynamic_call_get_type_from_string(const char* type)
 	if(strstr(type, "double"))
 	{
 		/* make sure it's not actually a float* */
-		if(strstr(type, "*"))
+		if(strchr(type, '*'))
 			return TYPE_UNKNOWN;
 		return TYPE_DOUBLE;
 	}
@@ -594,7 +594,7 @@ dynamic_call_get_type_from_string(const char* type)
 	if(strstr(type, "void"))
 	{
 		/* reject pointer types */
-		if(strstr(type, "*"))
+		if(strchr(type, '*'))
 			return TYPE_UNKNOWN;
 		return TYPE_VOID;
 	}
