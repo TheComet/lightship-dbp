@@ -1,29 +1,29 @@
-//========================================================================
-// GLFW 3.0 X11 - www.glfw.org
-//------------------------------------------------------------------------
-// Copyright (c) 2002-2006 Marcus Geelnard
-// Copyright (c) 2006-2010 Camilla Berglund <elmindreda@elmindreda.org>
-//
-// This software is provided 'as-is', without any express or implied
-// warranty. In no event will the authors be held liable for any damages
-// arising from the use of this software.
-//
-// Permission is granted to anyone to use this software for any purpose,
-// including commercial applications, and to alter it and redistribute it
-// freely, subject to the following restrictions:
-//
-// 1. The origin of this software must not be misrepresented; you must not
-//    claim that you wrote the original software. If you use this software
-//    in a product, an acknowledgment in the product documentation would
-//    be appreciated but is not required.
-//
-// 2. Altered source versions must be plainly marked as such, and must not
-//    be misrepresented as being the original software.
-//
-// 3. This notice may not be removed or altered from any source
-//    distribution.
-//
-//========================================================================
+/*======================================================================== */
+/* GLFW 3.0 X11 - www.glfw.org */
+/*------------------------------------------------------------------------ */
+/* Copyright (c) 2002-2006 Marcus Geelnard */
+/* Copyright (c) 2006-2010 Camilla Berglund <elmindreda@elmindreda.org> */
+/* */
+/* This software is provided 'as-is', without any express or implied */
+/* warranty. In no event will the authors be held liable for any damages */
+/* arising from the use of this software. */
+/* */
+/* Permission is granted to anyone to use this software for any purpose, */
+/* including commercial applications, and to alter it and redistribute it */
+/* freely, subject to the following restrictions: */
+/* */
+/* 1. The origin of this software must not be misrepresented; you must not */
+/*    claim that you wrote the original software. If you use this software */
+/*    in a product, an acknowledgment in the product documentation would */
+/*    be appreciated but is not required. */
+/* */
+/* 2. Altered source versions must be plainly marked as such, and must not */
+/*    be misrepresented as being the original software. */
+/* */
+/* 3. This notice may not be removed or altered from any source */
+/*    distribution. */
+/* */
+/*======================================================================== */
 
 #ifndef _x11_platform_h_
 #define _x11_platform_h_
@@ -35,16 +35,16 @@
 #include <X11/keysym.h>
 #include <X11/Xatom.h>
 
-// The Xf86VidMode extension provides fallback gamma control
+/* The Xf86VidMode extension provides fallback gamma control */
 #include <X11/extensions/xf86vmode.h>
 
-// The XRandR extension provides mode setting and gamma control
+/* The XRandR extension provides mode setting and gamma control */
 #include <X11/extensions/Xrandr.h>
 
-// The XInput2 extension provides improved input events
+/* The XInput2 extension provides improved input events */
 #include <X11/extensions/XInput2.h>
 
-// The Xkb extension provides improved keyboard support
+/* The Xkb extension provides improved keyboard support */
 #include <X11/XKBlib.h>
 
 #if defined(_GLFW_GLX)
@@ -64,51 +64,51 @@
 #define _GLFW_PLATFORM_MONITOR_STATE        _GLFWmonitorX11 x11
 
 
-//========================================================================
-// GLFW platform specific types
-//========================================================================
+/*======================================================================== */
+/* GLFW platform specific types */
+/*======================================================================== */
 
 
-//------------------------------------------------------------------------
-// Platform-specific window structure
-//------------------------------------------------------------------------
+/*------------------------------------------------------------------------ */
+/* Platform-specific window structure */
+/*------------------------------------------------------------------------ */
 typedef struct _GLFWwindowX11
 {
-    // Platform specific window resources
-    Colormap        colormap;          // Window colormap
-    Window          handle;            // Window handle
+    /* Platform specific window resources */
+    Colormap        colormap;          /* Window colormap */
+    Window          handle;            /* Window handle */
 
-    // Various platform specific internal variables
-    GLboolean       overrideRedirect; // True if window is OverrideRedirect
-    GLboolean       cursorGrabbed;    // True if cursor is currently grabbed
-    GLboolean       cursorHidden;     // True if cursor is currently hidden
+    /* Various platform specific internal variables */
+    GLboolean       overrideRedirect; /* True if window is OverrideRedirect */
+    GLboolean       cursorGrabbed;    /* True if cursor is currently grabbed */
+    GLboolean       cursorHidden;     /* True if cursor is currently hidden */
 
-    // Cached position and size used to filter out duplicate events
+    /* Cached position and size used to filter out duplicate events */
     int             width, height;
     int             xpos, ypos;
 
-    // The last received cursor position, regardless of source
+    /* The last received cursor position, regardless of source */
     double          cursorPosX, cursorPosY;
-    // The last position the cursor was warped to by GLFW
+    /* The last position the cursor was warped to by GLFW */
     int             warpPosX, warpPosY;
 
 } _GLFWwindowX11;
 
 
-//------------------------------------------------------------------------
-// Platform-specific library global data for X11
-//------------------------------------------------------------------------
+/*------------------------------------------------------------------------ */
+/* Platform-specific library global data for X11 */
+/*------------------------------------------------------------------------ */
 typedef struct _GLFWlibraryX11
 {
     Display*        display;
     int             screen;
     Window          root;
 
-    // Invisible cursor for hidden cursor mode
+    /* Invisible cursor for hidden cursor mode */
     Cursor          cursor;
     XContext        context;
 
-    // Window manager atoms
+    /* Window manager atoms */
     Atom            WM_STATE;
     Atom            WM_DELETE_WINDOW;
     Atom            NET_WM_NAME;
@@ -120,7 +120,7 @@ typedef struct _GLFWlibraryX11
     Atom            NET_ACTIVE_WINDOW;
     Atom            MOTIF_WM_HINTS;
 
-    // Selection atoms
+    /* Selection atoms */
     Atom            TARGETS;
     Atom            MULTIPLE;
     Atom            CLIPBOARD;
@@ -131,10 +131,10 @@ typedef struct _GLFWlibraryX11
     Atom            ATOM_PAIR;
     Atom            GLFW_SELECTION;
 
-    // True if window manager supports EWMH
+    /* True if window manager supports EWMH */
     GLboolean       hasEWMH;
 
-    // Error code received by the X error handler
+    /* Error code received by the X error handler */
     int             errorCode;
 
     struct {
@@ -169,7 +169,7 @@ typedef struct _GLFWlibraryX11
         int         versionMinor;
     } xi;
 
-    // LUT for mapping X11 key codes to GLFW key codes
+    /* LUT for mapping X11 key codes to GLFW key codes */
     int             keyCodeLUT[256];
 
     struct {
@@ -203,9 +203,9 @@ typedef struct _GLFWlibraryX11
 } _GLFWlibraryX11;
 
 
-//------------------------------------------------------------------------
-// Platform-specific monitor structure
-//------------------------------------------------------------------------
+/*------------------------------------------------------------------------ */
+/* Platform-specific monitor structure */
+/*------------------------------------------------------------------------ */
 typedef struct _GLFWmonitorX11
 {
     RROutput        output;
@@ -215,17 +215,17 @@ typedef struct _GLFWmonitorX11
 } _GLFWmonitorX11;
 
 
-//========================================================================
-// Prototypes for platform specific internal functions
-//========================================================================
+/*======================================================================== */
+/* Prototypes for platform specific internal functions */
+/*======================================================================== */
 
-// Time
+/* Time */
 void _glfwInitTimer(void);
 
-// Gamma
+/* Gamma */
 void _glfwInitGammaRamp(void);
 
-// OpenGL support
+/* OpenGL support */
 int _glfwInitContextAPI(void);
 void _glfwTerminateContextAPI(void);
 int _glfwCreateContext(_GLFWwindow* window,
@@ -233,32 +233,32 @@ int _glfwCreateContext(_GLFWwindow* window,
                        const _GLFWfbconfig* fbconfig);
 void _glfwDestroyContext(_GLFWwindow* window);
 
-// Fullscreen support
+/* Fullscreen support */
 void _glfwSetVideoMode(_GLFWmonitor* monitor, const GLFWvidmode* desired);
 void _glfwRestoreVideoMode(_GLFWmonitor* monitor);
 
-// Joystick input
+/* Joystick input */
 void _glfwInitJoysticks(void);
 void _glfwTerminateJoysticks(void);
 
-// Unicode support
+/* Unicode support */
 long _glfwKeySym2Unicode(KeySym keysym);
 
-// Clipboard handling
+/* Clipboard handling */
 void _glfwHandleSelectionClear(XEvent* event);
 void _glfwHandleSelectionRequest(XEvent* event);
 void _glfwPushSelectionToManager(_GLFWwindow* window);
 
-// Window support
+/* Window support */
 _GLFWwindow* _glfwFindWindowByHandle(Window handle);
 unsigned long _glfwGetWindowProperty(Window window,
                                      Atom property,
                                      Atom type,
                                      unsigned char** value);
 
-// X11 error handler
+/* X11 error handler */
 void _glfwGrabXErrorHandler(void);
 void _glfwReleaseXErrorHandler(void);
 void _glfwInputXError(int error, const char* message);
 
-#endif // _x11_platform_h_
+#endif /* _x11_platform_h_ */

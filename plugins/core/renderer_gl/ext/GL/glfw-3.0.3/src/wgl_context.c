@@ -1,29 +1,29 @@
-//========================================================================
-// GLFW 3.0 WGL - www.glfw.org
-//------------------------------------------------------------------------
-// Copyright (c) 2002-2006 Marcus Geelnard
-// Copyright (c) 2006-2010 Camilla Berglund <elmindreda@elmindreda.org>
-//
-// This software is provided 'as-is', without any express or implied
-// warranty. In no event will the authors be held liable for any damages
-// arising from the use of this software.
-//
-// Permission is granted to anyone to use this software for any purpose,
-// including commercial applications, and to alter it and redistribute it
-// freely, subject to the following restrictions:
-//
-// 1. The origin of this software must not be misrepresented; you must not
-//    claim that you wrote the original software. If you use this software
-//    in a product, an acknowledgment in the product documentation would
-//    be appreciated but is not required.
-//
-// 2. Altered source versions must be plainly marked as such, and must not
-//    be misrepresented as being the original software.
-//
-// 3. This notice may not be removed or altered from any source
-//    distribution.
-//
-//========================================================================
+/*======================================================================== */
+/* GLFW 3.0 WGL - www.glfw.org */
+/*------------------------------------------------------------------------ */
+/* Copyright (c) 2002-2006 Marcus Geelnard */
+/* Copyright (c) 2006-2010 Camilla Berglund <elmindreda@elmindreda.org> */
+/* */
+/* This software is provided 'as-is', without any express or implied */
+/* warranty. In no event will the authors be held liable for any damages */
+/* arising from the use of this software. */
+/* */
+/* Permission is granted to anyone to use this software for any purpose, */
+/* including commercial applications, and to alter it and redistribute it */
+/* freely, subject to the following restrictions: */
+/* */
+/* 1. The origin of this software must not be misrepresented; you must not */
+/*    claim that you wrote the original software. If you use this software */
+/*    in a product, an acknowledgment in the product documentation would */
+/*    be appreciated but is not required. */
+/* */
+/* 2. Altered source versions must be plainly marked as such, and must not */
+/*    be misrepresented as being the original software. */
+/* */
+/* 3. This notice may not be removed or altered from any source */
+/*    distribution. */
+/* */
+/*======================================================================== */
 
 #include "internal.h"
 
@@ -32,23 +32,23 @@
 #include <assert.h>
 
 
-// Initialize WGL-specific extensions
-// This function is called once before initial context creation, i.e. before
-// any WGL extensions could be present.  This is done in order to have both
-// extension variable clearing and loading in the same place, hopefully
-// decreasing the possibility of forgetting to add one without the other.
-//
+/* Initialize WGL-specific extensions */
+/* This function is called once before initial context creation, i.e. before */
+/* any WGL extensions could be present.  This is done in order to have both */
+/* extension variable clearing and loading in the same place, hopefully */
+/* decreasing the possibility of forgetting to add one without the other. */
+/* */
 static void initWGLExtensions(_GLFWwindow* window)
 {
-    // This needs to include every function pointer loaded below
+    /* This needs to include every function pointer loaded below */
     window->wgl.SwapIntervalEXT = NULL;
     window->wgl.GetPixelFormatAttribivARB = NULL;
     window->wgl.GetExtensionsStringARB = NULL;
     window->wgl.GetExtensionsStringEXT = NULL;
     window->wgl.CreateContextAttribsARB = NULL;
 
-    // This needs to include every extension used below except for
-    // WGL_ARB_extensions_string and WGL_EXT_extensions_string
+    /* This needs to include every extension used below except for */
+    /* WGL_ARB_extensions_string and WGL_EXT_extensions_string */
     window->wgl.ARB_multisample = GL_FALSE;
     window->wgl.ARB_framebuffer_sRGB = GL_FALSE;
     window->wgl.ARB_create_context = GL_FALSE;
@@ -121,9 +121,9 @@ static void initWGLExtensions(_GLFWwindow* window)
     }
 }
 
-// Returns the specified attribute of the specified pixel format
-// NOTE: Do not call this unless we have found WGL_ARB_pixel_format
-//
+/* Returns the specified attribute of the specified pixel format */
+/* NOTE: Do not call this unless we have found WGL_ARB_pixel_format */
+/* */
 static int getPixelFormatAttrib(_GLFWwindow* window, int pixelFormat, int attrib)
 {
     int value = 0;
@@ -132,15 +132,15 @@ static int getPixelFormatAttrib(_GLFWwindow* window, int pixelFormat, int attrib
                                                pixelFormat,
                                                0, 1, &attrib, &value))
     {
-        // NOTE: We should probably handle this error somehow
+        /* NOTE: We should probably handle this error somehow */
         return 0;
     }
 
     return value;
 }
 
-// Return a list of available and usable framebuffer configs
-//
+/* Return a list of available and usable framebuffer configs */
+/* */
 static GLboolean choosePixelFormat(_GLFWwindow* window,
                                    const _GLFWfbconfig* desired,
                                    int* result)
@@ -179,7 +179,7 @@ static GLboolean choosePixelFormat(_GLFWwindow* window,
 
         if (window->wgl.ARB_pixel_format)
         {
-            // Get pixel format attributes through WGL_ARB_pixel_format
+            /* Get pixel format attributes through WGL_ARB_pixel_format */
             if (!getPixelFormatAttrib(window, n, WGL_SUPPORT_OPENGL_ARB) ||
                 !getPixelFormatAttrib(window, n, WGL_DRAW_TO_WINDOW_ARB) ||
                 !getPixelFormatAttrib(window, n, WGL_DOUBLE_BUFFER_ARB))
@@ -225,7 +225,7 @@ static GLboolean choosePixelFormat(_GLFWwindow* window,
         {
             PIXELFORMATDESCRIPTOR pfd;
 
-            // Get pixel format attributes through old-fashioned PFDs
+            /* Get pixel format attributes through old-fashioned PFDs */
 
             if (!DescribePixelFormat(window->wgl.dc,
                                      n,
@@ -286,12 +286,12 @@ static GLboolean choosePixelFormat(_GLFWwindow* window,
 }
 
 
-//////////////////////////////////////////////////////////////////////////
-//////                       GLFW internal API                      //////
-//////////////////////////////////////////////////////////////////////////
+/*//////////////////////////////////////////////////////////////////////// */
+/*////                       GLFW internal API                      ////// */
+/*//////////////////////////////////////////////////////////////////////// */
 
-// Initialize WGL
-//
+/* Initialize WGL */
+/* */
 int _glfwInitContextAPI(void)
 {
     _glfw.wgl.opengl32.instance = LoadLibrary(L"opengl32.dll");
@@ -314,8 +314,8 @@ int _glfwInitContextAPI(void)
     return GL_TRUE;
 }
 
-// Terminate WGL
-//
+/* Terminate WGL */
+/* */
 void _glfwTerminateContextAPI(void)
 {
     if (_glfw.wgl.hasTLS)
@@ -332,8 +332,8 @@ void _glfwTerminateContextAPI(void)
     assert((size_t) index < sizeof(attribs) / sizeof(attribs[0])); \
 }
 
-// Prepare for creation of the OpenGL context
-//
+/* Prepare for creation of the OpenGL context */
+/* */
 int _glfwCreateContext(_GLFWwindow* window,
                        const _GLFWwndconfig* wndconfig,
                        const _GLFWfbconfig* fbconfig)
@@ -469,8 +469,8 @@ int _glfwCreateContext(_GLFWwindow* window,
 
 #undef setWGLattrib
 
-// Destroy the OpenGL context
-//
+/* Destroy the OpenGL context */
+/* */
 void _glfwDestroyContext(_GLFWwindow* window)
 {
     if (window->wgl.context)
@@ -486,8 +486,8 @@ void _glfwDestroyContext(_GLFWwindow* window)
     }
 }
 
-// Analyzes the specified context for possible recreation
-//
+/* Analyzes the specified context for possible recreation */
+/* */
 int _glfwAnalyzeContext(const _GLFWwindow* window,
                         const _GLFWwndconfig* wndconfig,
                         const _GLFWfbconfig* fbconfig)
@@ -552,12 +552,12 @@ int _glfwAnalyzeContext(const _GLFWwindow* window,
 
     if (fbconfig->samples > 0)
     {
-        // We want FSAA, but can we get it?
-        // FSAA is not a hard constraint, so otherwise we just don't care
+        /* We want FSAA, but can we get it? */
+        /* FSAA is not a hard constraint, so otherwise we just don't care */
 
         if (window->wgl.ARB_multisample && window->wgl.ARB_pixel_format)
         {
-            // We appear to have both the extension and the means to ask for it
+            /* We appear to have both the extension and the means to ask for it */
             required = GL_TRUE;
         }
     }
@@ -569,9 +569,9 @@ int _glfwAnalyzeContext(const _GLFWwindow* window,
 }
 
 
-//////////////////////////////////////////////////////////////////////////
-//////                       GLFW platform API                      //////
-//////////////////////////////////////////////////////////////////////////
+/*//////////////////////////////////////////////////////////////////////// */
+/*////                       GLFW platform API                      ////// */
+/*//////////////////////////////////////////////////////////////////////// */
 
 void _glfwPlatformMakeContextCurrent(_GLFWwindow* window)
 {
@@ -600,8 +600,8 @@ void _glfwPlatformSwapInterval(int interval)
 #if !defined(_GLFW_USE_DWM_SWAP_INTERVAL)
     if (_glfwIsCompositionEnabled())
     {
-        // Don't enabled vsync when desktop compositing is enabled, as it leads
-        // to frame jitter
+        /* Don't enabled vsync when desktop compositing is enabled, as it leads */
+        /* to frame jitter */
         return;
     }
 #endif
@@ -649,9 +649,9 @@ GLFWglproc _glfwPlatformGetProcAddress(const char* procname)
 }
 
 
-//////////////////////////////////////////////////////////////////////////
-//////                        GLFW native API                       //////
-//////////////////////////////////////////////////////////////////////////
+/*//////////////////////////////////////////////////////////////////////// */
+/*////                        GLFW native API                       ////// */
+/*//////////////////////////////////////////////////////////////////////// */
 
 GLFWAPI HGLRC glfwGetWGLContext(GLFWwindow* handle)
 {

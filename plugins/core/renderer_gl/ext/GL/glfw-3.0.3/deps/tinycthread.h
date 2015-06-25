@@ -139,7 +139,7 @@ int _tthread_clock_gettime(clockid_t clk_id, struct timespec *ts);
 * value of the variable local to each thread (known as thread-local storage,
 * or TLS). Example usage:
 * @code
-* // This variable is local to each thread.
+* /* This variable is local to each thread. */
 * _Thread_local int variable;
 * @endcode
 * @note The @c _Thread_local keyword is a macro that maps to the corresponding

@@ -192,7 +192,7 @@ button_collision(struct glob_t* g, struct button_t* button, float x, float y)
 /* ------------------------------------------------------------------------- */
 EVENT_LISTENER(on_mouse_clicked)
 {
-	EXTRACT_ARGUMENT(0, mouse_btn, char, char);
+	/* EXTRACT_ARGUMENT(0, mouse_btn, char, char); */
 	EXTRACT_ARGUMENT(1, x, double, double);
 	EXTRACT_ARGUMENT(2, y, double, double);
 

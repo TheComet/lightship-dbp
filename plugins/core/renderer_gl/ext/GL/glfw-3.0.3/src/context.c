@@ -1,29 +1,29 @@
-//========================================================================
-// GLFW 3.0 - www.glfw.org
-//------------------------------------------------------------------------
-// Copyright (c) 2002-2006 Marcus Geelnard
-// Copyright (c) 2006-2010 Camilla Berglund <elmindreda@elmindreda.org>
-//
-// This software is provided 'as-is', without any express or implied
-// warranty. In no event will the authors be held liable for any damages
-// arising from the use of this software.
-//
-// Permission is granted to anyone to use this software for any purpose,
-// including commercial applications, and to alter it and redistribute it
-// freely, subject to the following restrictions:
-//
-// 1. The origin of this software must not be misrepresented; you must not
-//    claim that you wrote the original software. If you use this software
-//    in a product, an acknowledgment in the product documentation would
-//    be appreciated but is not required.
-//
-// 2. Altered source versions must be plainly marked as such, and must not
-//    be misrepresented as being the original software.
-//
-// 3. This notice may not be removed or altered from any source
-//    distribution.
-//
-//========================================================================
+/*======================================================================== */
+/* GLFW 3.0 - www.glfw.org */
+/*------------------------------------------------------------------------ */
+/* Copyright (c) 2002-2006 Marcus Geelnard */
+/* Copyright (c) 2006-2010 Camilla Berglund <elmindreda@elmindreda.org> */
+/* */
+/* This software is provided 'as-is', without any express or implied */
+/* warranty. In no event will the authors be held liable for any damages */
+/* arising from the use of this software. */
+/* */
+/* Permission is granted to anyone to use this software for any purpose, */
+/* including commercial applications, and to alter it and redistribute it */
+/* freely, subject to the following restrictions: */
+/* */
+/* 1. The origin of this software must not be misrepresented; you must not */
+/*    claim that you wrote the original software. If you use this software */
+/*    in a product, an acknowledgment in the product documentation would */
+/*    be appreciated but is not required. */
+/* */
+/* 2. Altered source versions must be plainly marked as such, and must not */
+/*    be misrepresented as being the original software. */
+/* */
+/* 3. This notice may not be removed or altered from any source */
+/*    distribution. */
+/* */
+/*======================================================================== */
 
 #include "internal.h"
 
@@ -33,8 +33,8 @@
 #include <stdio.h>
 
 
-// Parses the client API version string and extracts the version number
-//
+/* Parses the client API version string and extracts the version number */
+/* */
 static GLboolean parseGLVersion(int* api, int* major, int* minor, int* rev)
 {
     int i, _api = GLFW_OPENGL_API, _major, _minor = 0, _rev = 0;
@@ -83,9 +83,9 @@ static GLboolean parseGLVersion(int* api, int* major, int* minor, int* rev)
 }
 
 
-//////////////////////////////////////////////////////////////////////////
-//////                       GLFW internal API                      //////
-//////////////////////////////////////////////////////////////////////////
+/*//////////////////////////////////////////////////////////////////////// */
+/*////                       GLFW internal API                      ////// */
+/*//////////////////////////////////////////////////////////////////////// */
 
 GLboolean _glfwIsValidContextConfig(_GLFWwndconfig* wndconfig)
 {
@@ -103,10 +103,10 @@ GLboolean _glfwIsValidContextConfig(_GLFWwndconfig* wndconfig)
             (wndconfig->glMajor == 2 && wndconfig->glMinor > 1) ||
             (wndconfig->glMajor == 3 && wndconfig->glMinor > 3))
         {
-            // OpenGL 1.0 is the smallest valid version
-            // OpenGL 1.x series ended with version 1.5
-            // OpenGL 2.x series ended with version 2.1
-            // OpenGL 3.x series ended with version 3.3
+            /* OpenGL 1.0 is the smallest valid version */
+            /* OpenGL 1.x series ended with version 1.5 */
+            /* OpenGL 2.x series ended with version 2.1 */
+            /* OpenGL 3.x series ended with version 3.3 */
 
             _glfwInputError(GLFW_INVALID_VALUE,
                             "Invalid OpenGL version %i.%i requested",
@@ -115,7 +115,7 @@ GLboolean _glfwIsValidContextConfig(_GLFWwndconfig* wndconfig)
         }
         else
         {
-            // For now, let everything else through
+            /* For now, let everything else through */
         }
 
         if (wndconfig->glProfile)
@@ -131,8 +131,8 @@ GLboolean _glfwIsValidContextConfig(_GLFWwndconfig* wndconfig)
             if (wndconfig->glMajor < 3 ||
                 (wndconfig->glMajor == 3 && wndconfig->glMinor < 2))
             {
-                // Desktop OpenGL context profiles are only defined for version 3.2
-                // and above
+                /* Desktop OpenGL context profiles are only defined for version 3.2 */
+                /* and above */
 
                 _glfwInputError(GLFW_INVALID_VALUE,
                                 "Context profiles only exist for "
@@ -143,7 +143,7 @@ GLboolean _glfwIsValidContextConfig(_GLFWwndconfig* wndconfig)
 
         if (wndconfig->glForward && wndconfig->glMajor < 3)
         {
-            // Forward-compatible contexts are only defined for OpenGL version 3.0 and above
+            /* Forward-compatible contexts are only defined for OpenGL version 3.0 and above */
             _glfwInputError(GLFW_INVALID_VALUE,
                             "Forward compatibility only exist for OpenGL "
                             "version 3.0 and above");
@@ -156,9 +156,9 @@ GLboolean _glfwIsValidContextConfig(_GLFWwndconfig* wndconfig)
             (wndconfig->glMajor == 1 && wndconfig->glMinor > 1) ||
             (wndconfig->glMajor == 2 && wndconfig->glMinor > 0))
         {
-            // OpenGL ES 1.0 is the smallest valid version
-            // OpenGL ES 1.x series ended with version 1.1
-            // OpenGL ES 2.x series ended with version 2.0
+            /* OpenGL ES 1.0 is the smallest valid version */
+            /* OpenGL ES 1.x series ended with version 1.1 */
+            /* OpenGL ES 2.x series ended with version 2.0 */
 
             _glfwInputError(GLFW_INVALID_VALUE,
                             "Invalid OpenGL ES version %i.%i requested",
@@ -167,12 +167,12 @@ GLboolean _glfwIsValidContextConfig(_GLFWwndconfig* wndconfig)
         }
         else
         {
-            // For now, let everything else through
+            /* For now, let everything else through */
         }
 
         if (wndconfig->glProfile)
         {
-            // OpenGL ES does not support profiles
+            /* OpenGL ES does not support profiles */
             _glfwInputError(GLFW_INVALID_VALUE,
                             "Context profiles are not supported by OpenGL ES");
             return GL_FALSE;
@@ -180,7 +180,7 @@ GLboolean _glfwIsValidContextConfig(_GLFWwndconfig* wndconfig)
 
         if (wndconfig->glForward)
         {
-            // OpenGL ES does not support forward-compatibility
+            /* OpenGL ES does not support forward-compatibility */
             _glfwInputError(GLFW_INVALID_VALUE,
                             "Forward compatibility is not supported by OpenGL ES");
             return GL_FALSE;
@@ -218,11 +218,11 @@ const _GLFWfbconfig* _glfwChooseFBConfig(const _GLFWfbconfig* desired,
 
         if (desired->stereo > 0 && current->stereo == 0)
         {
-            // Stereo is a hard constraint
+            /* Stereo is a hard constraint */
             continue;
         }
 
-        // Count number of missing buffers
+        /* Count number of missing buffers */
         {
             missing = 0;
 
@@ -240,17 +240,17 @@ const _GLFWfbconfig* _glfwChooseFBConfig(const _GLFWfbconfig* desired,
 
             if (desired->samples > 0 && current->samples == 0)
             {
-                // Technically, several multisampling buffers could be
-                // involved, but that's a lower level implementation detail and
-                // not important to us here, so we count them as one
+                /* Technically, several multisampling buffers could be */
+                /* involved, but that's a lower level implementation detail and */
+                /* not important to us here, so we count them as one */
                 missing++;
             }
         }
 
-        // These polynomials make many small channel size differences matter
-        // less than one large channel size difference
+        /* These polynomials make many small channel size differences matter */
+        /* less than one large channel size difference */
 
-        // Calculate color channel size difference value
+        /* Calculate color channel size difference value */
         {
             colorDiff = 0;
 
@@ -273,7 +273,7 @@ const _GLFWfbconfig* _glfwChooseFBConfig(const _GLFWfbconfig* desired,
             }
         }
 
-        // Calculate non-color channel size difference value
+        /* Calculate non-color channel size difference value */
         {
             extraDiff = 0;
 
@@ -332,9 +332,9 @@ const _GLFWfbconfig* _glfwChooseFBConfig(const _GLFWfbconfig* desired,
             }
         }
 
-        // Figure out if the current one is better than the best one found so far
-        // Least number of missing buffers is the most important heuristic,
-        // then color buffer size match and lastly size match for other buffers
+        /* Figure out if the current one is better than the best one found so far */
+        /* Least number of missing buffers is the most important heuristic, */
+        /* then color buffer size match and lastly size match for other buffers */
 
         if (missing < leastMissing)
             closest = current;
@@ -373,9 +373,9 @@ GLboolean _glfwRefreshContextAttribs(void)
 #if defined(_GLFW_USE_OPENGL)
     if (window->glMajor > 2)
     {
-        // OpenGL 3.0+ uses a different function for extension string retrieval
-        // We cache it here instead of in glfwExtensionSupported mostly to alert
-        // users as early as possible that their build may be broken
+        /* OpenGL 3.0+ uses a different function for extension string retrieval */
+        /* We cache it here instead of in glfwExtensionSupported mostly to alert */
+        /* users as early as possible that their build may be broken */
 
         window->GetStringi = (PFNGLGETSTRINGIPROC) glfwGetProcAddress("glGetStringi");
         if (!window->GetStringi)
@@ -388,7 +388,7 @@ GLboolean _glfwRefreshContextAttribs(void)
 
     if (window->clientAPI == GLFW_OPENGL_API)
     {
-        // Read back context flags (OpenGL 3.0 and above)
+        /* Read back context flags (OpenGL 3.0 and above) */
         if (window->glMajor >= 3)
         {
             GLint flags;
@@ -401,14 +401,14 @@ GLboolean _glfwRefreshContextAttribs(void)
                 window->glDebug = GL_TRUE;
             else if (glfwExtensionSupported("GL_ARB_debug_output"))
             {
-                // HACK: This is a workaround for older drivers (pre KHR_debug)
-                // not setting the debug bit in the context flags for debug
-                // contexts
+                /* HACK: This is a workaround for older drivers (pre KHR_debug) */
+                /* not setting the debug bit in the context flags for debug */
+                /* contexts */
                 window->glDebug = GL_TRUE;
             }
         }
 
-        // Read back OpenGL context profile (OpenGL 3.2 and above)
+        /* Read back OpenGL context profile (OpenGL 3.2 and above) */
         if (window->glMajor > 3 ||
             (window->glMajor == 3 && window->glMinor >= 2))
         {
@@ -421,11 +421,11 @@ GLboolean _glfwRefreshContextAttribs(void)
                 window->glProfile = GLFW_OPENGL_CORE_PROFILE;
         }
 
-        // Read back robustness strategy
+        /* Read back robustness strategy */
         if (glfwExtensionSupported("GL_ARB_robustness"))
         {
-            // NOTE: We avoid using the context flags for detection, as they are
-            // only present from 3.0 while the extension applies from 1.1
+            /* NOTE: We avoid using the context flags for detection, as they are */
+            /* only present from 3.0 while the extension applies from 1.1 */
 
             GLint strategy;
             glGetIntegerv(GL_RESET_NOTIFICATION_STRATEGY_ARB, &strategy);
@@ -438,11 +438,11 @@ GLboolean _glfwRefreshContextAttribs(void)
     }
     else
     {
-        // Read back robustness strategy
+        /* Read back robustness strategy */
         if (glfwExtensionSupported("GL_EXT_robustness"))
         {
-            // NOTE: The values of these constants match those of the OpenGL ARB
-            // one, so we can reuse them here
+            /* NOTE: The values of these constants match those of the OpenGL ARB */
+            /* one, so we can reuse them here */
 
             GLint strategy;
             glGetIntegerv(GL_RESET_NOTIFICATION_STRATEGY_ARB, &strategy);
@@ -453,7 +453,7 @@ GLboolean _glfwRefreshContextAttribs(void)
                 window->glRobustness = GLFW_NO_RESET_NOTIFICATION;
         }
     }
-#endif // _GLFW_USE_OPENGL
+#endif /* _GLFW_USE_OPENGL */
 
     return GL_TRUE;
 }
@@ -466,12 +466,12 @@ GLboolean _glfwIsValidContext(_GLFWwndconfig* wndconfig)
         (window->glMajor == wndconfig->glMajor &&
          window->glMinor < wndconfig->glMinor))
     {
-        // The desired OpenGL version is greater than the actual version
-        // This only happens if the machine lacks {GLX|WGL}_ARB_create_context
-        // /and/ the user has requested an OpenGL version greater than 1.0
+        /* The desired OpenGL version is greater than the actual version */
+        /* This only happens if the machine lacks {GLX|WGL}_ARB_create_context */
+        /* /and/ the user has requested an OpenGL version greater than 1.0 */
 
-        // For API consistency, we emulate the behavior of the
-        // {GLX|WGL}_ARB_create_context extension and fail here
+        /* For API consistency, we emulate the behavior of the */
+        /* {GLX|WGL}_ARB_create_context extension and fail here */
 
         _glfwInputError(GLFW_VERSION_UNAVAILABLE, NULL);
         return GL_FALSE;
@@ -486,9 +486,9 @@ int _glfwStringInExtensionString(const char* string, const GLubyte* extensions)
     GLubyte* where;
     GLubyte* terminator;
 
-    // It takes a bit of care to be fool-proof about parsing the
-    // OpenGL extensions string. Don't be fooled by sub-strings,
-    // etc.
+    /* It takes a bit of care to be fool-proof about parsing the */
+    /* OpenGL extensions string. Don't be fooled by sub-strings, */
+    /* etc. */
     start = extensions;
     for (;;)
     {
@@ -510,9 +510,9 @@ int _glfwStringInExtensionString(const char* string, const GLubyte* extensions)
 }
 
 
-//////////////////////////////////////////////////////////////////////////
-//////                        GLFW public API                       //////
-//////////////////////////////////////////////////////////////////////////
+/*//////////////////////////////////////////////////////////////////////// */
+/*////                        GLFW public API                       ////// */
+/*//////////////////////////////////////////////////////////////////////// */
 
 GLFWAPI void glfwMakeContextCurrent(GLFWwindow* handle)
 {
@@ -574,7 +574,7 @@ GLFWAPI int glfwExtensionSupported(const char* extension)
 
     if (window->glMajor < 3)
     {
-        // Check if extension is in the old style OpenGL extensions string
+        /* Check if extension is in the old style OpenGL extensions string */
 
         extensions = glGetString(GL_EXTENSIONS);
         if (extensions != NULL)
@@ -589,7 +589,7 @@ GLFWAPI int glfwExtensionSupported(const char* extension)
         int i;
         GLint count;
 
-        // Check if extension is in the modern OpenGL extensions string list
+        /* Check if extension is in the modern OpenGL extensions string list */
 
         glGetIntegerv(GL_NUM_EXTENSIONS, &count);
 
@@ -602,9 +602,9 @@ GLFWAPI int glfwExtensionSupported(const char* extension)
              }
         }
     }
-#endif // _GLFW_USE_OPENGL
+#endif /* _GLFW_USE_OPENGL */
 
-    // Check if extension is in the platform-specific string
+    /* Check if extension is in the platform-specific string */
     return _glfwPlatformExtensionSupported(extension);
 }
 

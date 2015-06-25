@@ -1,29 +1,29 @@
-//========================================================================
-// GLFW 3.0 X11 - www.glfw.org
-//------------------------------------------------------------------------
-// Copyright (c) 2002-2006 Marcus Geelnard
-// Copyright (c) 2006-2010 Camilla Berglund <elmindreda@elmindreda.org>
-//
-// This software is provided 'as-is', without any express or implied
-// warranty. In no event will the authors be held liable for any damages
-// arising from the use of this software.
-//
-// Permission is granted to anyone to use this software for any purpose,
-// including commercial applications, and to alter it and redistribute it
-// freely, subject to the following restrictions:
-//
-// 1. The origin of this software must not be misrepresented; you must not
-//    claim that you wrote the original software. If you use this software
-//    in a product, an acknowledgment in the product documentation would
-//    be appreciated but is not required.
-//
-// 2. Altered source versions must be plainly marked as such, and must not
-//    be misrepresented as being the original software.
-//
-// 3. This notice may not be removed or altered from any source
-//    distribution.
-//
-//========================================================================
+/*======================================================================== */
+/* GLFW 3.0 X11 - www.glfw.org */
+/*------------------------------------------------------------------------ */
+/* Copyright (c) 2002-2006 Marcus Geelnard */
+/* Copyright (c) 2006-2010 Camilla Berglund <elmindreda@elmindreda.org> */
+/* */
+/* This software is provided 'as-is', without any express or implied */
+/* warranty. In no event will the authors be held liable for any damages */
+/* arising from the use of this software. */
+/* */
+/* Permission is granted to anyone to use this software for any purpose, */
+/* including commercial applications, and to alter it and redistribute it */
+/* freely, subject to the following restrictions: */
+/* */
+/* 1. The origin of this software must not be misrepresented; you must not */
+/*    claim that you wrote the original software. If you use this software */
+/*    in a product, an acknowledgment in the product documentation would */
+/*    be appreciated but is not required. */
+/* */
+/* 2. Altered source versions must be plainly marked as such, and must not */
+/*    be misrepresented as being the original software. */
+/* */
+/* 3. This notice may not be removed or altered from any source */
+/*    distribution. */
+/* */
+/*======================================================================== */
 
 #include "internal.h"
 
@@ -34,20 +34,20 @@
 #include <limits.h>
 
 
-// Translate an X11 key code to a GLFW key code.
-//
+/* Translate an X11 key code to a GLFW key code. */
+/* */
 static int translateKey(int keyCode)
 {
     int keySym;
 
-    // Valid key code range is  [8,255], according to the XLib manual
+    /* Valid key code range is  [8,255], according to the XLib manual */
     if (keyCode < 8 || keyCode > 255)
         return GLFW_KEY_UNKNOWN;
 
-    // Try secondary keysym, for numeric keypad keys
-    // Note: This way we always force "NumLock = ON", which is intentional
-    // since the returned key code should correspond to a physical
-    // location.
+    /* Try secondary keysym, for numeric keypad keys */
+    /* Note: This way we always force "NumLock = ON", which is intentional */
+    /* since the returned key code should correspond to a physical */
+    /* location. */
     keySym = XkbKeycodeToKeysym(_glfw.x11.display, keyCode, 0, 1);
     switch (keySym)
     {
@@ -68,9 +68,9 @@ static int translateKey(int keyCode)
         default:                break;
     }
 
-    // Now try pimary keysym for function keys (non-printable keys). These
-    // should not be layout dependent (i.e. US layout and international
-    // layouts should give the same result).
+    /* Now try pimary keysym for function keys (non-printable keys). These */
+    /* should not be layout dependent (i.e. US layout and international */
+    /* layouts should give the same result). */
     keySym = XkbKeycodeToKeysym(_glfw.x11.display, keyCode, 0, 0);
     switch (keySym)
     {
@@ -82,8 +82,8 @@ static int translateKey(int keyCode)
         case XK_Control_R:      return GLFW_KEY_RIGHT_CONTROL;
         case XK_Meta_L:
         case XK_Alt_L:          return GLFW_KEY_LEFT_ALT;
-        case XK_Mode_switch: // Mapped to Alt_R on many keyboards
-        case XK_ISO_Level3_Shift: // AltGr on at least some machines
+        case XK_Mode_switch: /* Mapped to Alt_R on many keyboards */
+        case XK_ISO_Level3_Shift: /* AltGr on at least some machines */
         case XK_Meta_R:
         case XK_Alt_R:          return GLFW_KEY_RIGHT_ALT;
         case XK_Super_L:        return GLFW_KEY_LEFT_SUPER;
@@ -132,13 +132,13 @@ static int translateKey(int keyCode)
         case XK_F24:            return GLFW_KEY_F24;
         case XK_F25:            return GLFW_KEY_F25;
 
-        // Numeric keypad
+        /* Numeric keypad */
         case XK_KP_Divide:      return GLFW_KEY_KP_DIVIDE;
         case XK_KP_Multiply:    return GLFW_KEY_KP_MULTIPLY;
         case XK_KP_Subtract:    return GLFW_KEY_KP_SUBTRACT;
         case XK_KP_Add:         return GLFW_KEY_KP_ADD;
 
-        // These should have been detected in secondary keysym test above!
+        /* These should have been detected in secondary keysym test above! */
         case XK_KP_Insert:      return GLFW_KEY_KP_0;
         case XK_KP_End:         return GLFW_KEY_KP_1;
         case XK_KP_Down:        return GLFW_KEY_KP_2;
@@ -152,10 +152,10 @@ static int translateKey(int keyCode)
         case XK_KP_Equal:       return GLFW_KEY_KP_EQUAL;
         case XK_KP_Enter:       return GLFW_KEY_KP_ENTER;
 
-        // Last resort: Check for printable keys (should not happen if the XKB
-        // extension is available). This will give a layout dependent mapping
-        // (which is wrong, and we may miss some keys, especially on non-US
-        // keyboards), but it's better than nothing...
+        /* Last resort: Check for printable keys (should not happen if the XKB */
+        /* extension is available). This will give a layout dependent mapping */
+        /* (which is wrong, and we may miss some keys, especially on non-US */
+        /* keyboards), but it's better than nothing... */
         case XK_a:              return GLFW_KEY_A;
         case XK_b:              return GLFW_KEY_B;
         case XK_c:              return GLFW_KEY_C;
@@ -204,47 +204,47 @@ static int translateKey(int keyCode)
         case XK_comma:          return GLFW_KEY_COMMA;
         case XK_period:         return GLFW_KEY_PERIOD;
         case XK_slash:          return GLFW_KEY_SLASH;
-        case XK_less:           return GLFW_KEY_WORLD_1; // At least in some layouts...
+        case XK_less:           return GLFW_KEY_WORLD_1; /* At least in some layouts... */
         default:                break;
     }
 
-    // No matching translation was found
+    /* No matching translation was found */
     return GLFW_KEY_UNKNOWN;
 }
 
-// Update the key code LUT
-//
+/* Update the key code LUT */
+/* */
 static void updateKeyCodeLUT(void)
 {
     int i, keyCode, keyCodeGLFW;
     char name[XkbKeyNameLength + 1];
     XkbDescPtr descr;
 
-    // Clear the LUT
+    /* Clear the LUT */
     for (keyCode = 0;  keyCode < 256;  keyCode++)
         _glfw.x11.keyCodeLUT[keyCode] = GLFW_KEY_UNKNOWN;
 
-    // Use XKB to determine physical key locations independently of the current
-    // keyboard layout
+    /* Use XKB to determine physical key locations independently of the current */
+    /* keyboard layout */
 
-    // Get keyboard description
+    /* Get keyboard description */
     descr = XkbGetKeyboard(_glfw.x11.display,
                             XkbAllComponentsMask,
                             XkbUseCoreKbd);
 
-    // Find the X11 key code -> GLFW key code mapping
+    /* Find the X11 key code -> GLFW key code mapping */
     for (keyCode = descr->min_key_code; keyCode <= descr->max_key_code; ++keyCode)
     {
-        // Get the key name
+        /* Get the key name */
         for (i = 0;  i < XkbKeyNameLength;  i++)
             name[i] = descr->names->keys[keyCode].name[i];
 
         name[XkbKeyNameLength] = 0;
 
-        // Map the key name to a GLFW key code. Note: We only map printable
-        // keys here, and we use the US keyboard layout. The rest of the
-        // keys (function keys) are mapped using traditional KeySym
-        // translations.
+        /* Map the key name to a GLFW key code. Note: We only map printable */
+        /* keys here, and we use the US keyboard layout. The rest of the */
+        /* keys (function keys) are mapped using traditional KeySym */
+        /* translations. */
         if (strcmp(name, "TLDE") == 0) keyCodeGLFW = GLFW_KEY_GRAVE_ACCENT;
         else if (strcmp(name, "AE01") == 0) keyCodeGLFW = GLFW_KEY_1;
         else if (strcmp(name, "AE02") == 0) keyCodeGLFW = GLFW_KEY_2;
@@ -295,16 +295,16 @@ static void updateKeyCodeLUT(void)
         else if (strcmp(name, "LSGT") == 0) keyCodeGLFW = GLFW_KEY_WORLD_1;
         else keyCodeGLFW = GLFW_KEY_UNKNOWN;
 
-        // Update the key code LUT
+        /* Update the key code LUT */
         if ((keyCode >= 0) && (keyCode < 256))
             _glfw.x11.keyCodeLUT[keyCode] = keyCodeGLFW;
     }
 
-    // Free the keyboard description
+    /* Free the keyboard description */
     XkbFreeKeyboard(descr, 0, True);
 
-    // Translate the un-translated key codes using traditional X11 KeySym
-    // lookups
+    /* Translate the un-translated key codes using traditional X11 KeySym */
+    /* lookups */
     for (keyCode = 0;  keyCode < 256;  keyCode++)
     {
         if (_glfw.x11.keyCodeLUT[keyCode] < 0)
@@ -312,8 +312,8 @@ static void updateKeyCodeLUT(void)
     }
 }
 
-// Check whether the specified atom is supported
-//
+/* Check whether the specified atom is supported */
+/* */
 static Atom getSupportedAtom(Atom* supportedAtoms,
                              unsigned long atomCount,
                              const char* atomName)
@@ -333,14 +333,14 @@ static Atom getSupportedAtom(Atom* supportedAtoms,
     return None;
 }
 
-// Check whether the running window manager is EWMH-compliant
-//
+/* Check whether the running window manager is EWMH-compliant */
+/* */
 static void detectEWMH(void)
 {
     Window* windowFromRoot = NULL;
     Window* windowFromChild = NULL;
 
-    // First we need a couple of atoms, which should already be there
+    /* First we need a couple of atoms, which should already be there */
     Atom supportingWmCheck =
         XInternAtom(_glfw.x11.display, "_NET_SUPPORTING_WM_CHECK", True);
     Atom wmSupported =
@@ -348,7 +348,7 @@ static void detectEWMH(void)
     if (supportingWmCheck == None || wmSupported == None)
         return;
 
-    // Then we look for the _NET_SUPPORTING_WM_CHECK property of the root window
+    /* Then we look for the _NET_SUPPORTING_WM_CHECK property of the root window */
     if (_glfwGetWindowProperty(_glfw.x11.root,
                                supportingWmCheck,
                                XA_WINDOW,
@@ -358,8 +358,8 @@ static void detectEWMH(void)
         return;
     }
 
-    // It should be the ID of a child window (of the root)
-    // Then we look for the same property on the child window
+    /* It should be the ID of a child window (of the root) */
+    /* Then we look for the same property on the child window */
     if (_glfwGetWindowProperty(*windowFromRoot,
                                supportingWmCheck,
                                XA_WINDOW,
@@ -370,7 +370,7 @@ static void detectEWMH(void)
         return;
     }
 
-    // It should be the ID of that same child window
+    /* It should be the ID of that same child window */
     if (*windowFromRoot != *windowFromChild)
     {
         XFree(windowFromRoot);
@@ -381,19 +381,19 @@ static void detectEWMH(void)
     XFree(windowFromRoot);
     XFree(windowFromChild);
 
-    // We are now fairly sure that an EWMH-compliant window manager is running
+    /* We are now fairly sure that an EWMH-compliant window manager is running */
 
     Atom* supportedAtoms;
     unsigned long atomCount;
 
-    // Now we need to check the _NET_SUPPORTED property of the root window
-    // It should be a list of supported WM protocol and state atoms
+    /* Now we need to check the _NET_SUPPORTED property of the root window */
+    /* It should be a list of supported WM protocol and state atoms */
     atomCount = _glfwGetWindowProperty(_glfw.x11.root,
                                        wmSupported,
                                        XA_ATOM,
                                        (unsigned char**) &supportedAtoms);
 
-    // See which of the atoms we support that are supported by the WM
+    /* See which of the atoms we support that are supported by the WM */
 
     _glfw.x11.NET_WM_STATE =
         getSupportedAtom(supportedAtoms, atomCount, "_NET_WM_STATE");
@@ -415,13 +415,13 @@ static void detectEWMH(void)
     _glfw.x11.hasEWMH = GL_TRUE;
 }
 
-// Initialize X11 display and look for supported X11 extensions
-//
+/* Initialize X11 display and look for supported X11 extensions */
+/* */
 static GLboolean initExtensions(void)
 {
     Bool supported;
 
-    // Find or create window manager atoms
+    /* Find or create window manager atoms */
     _glfw.x11.WM_STATE = XInternAtom(_glfw.x11.display, "WM_STATE", False);
     _glfw.x11.WM_DELETE_WINDOW = XInternAtom(_glfw.x11.display,
                                              "WM_DELETE_WINDOW",
@@ -430,13 +430,13 @@ static GLboolean initExtensions(void)
                                            "_MOTIF_WM_HINTS",
                                            False);
 
-    // Check for XF86VidMode extension
+    /* Check for XF86VidMode extension */
     _glfw.x11.vidmode.available =
         XF86VidModeQueryExtension(_glfw.x11.display,
                                   &_glfw.x11.vidmode.eventBase,
                                   &_glfw.x11.vidmode.errorBase);
 
-    // Check for RandR extension
+    /* Check for RandR extension */
     _glfw.x11.randr.available =
         XRRQueryExtension(_glfw.x11.display,
                           &_glfw.x11.randr.eventBase,
@@ -453,7 +453,7 @@ static GLboolean initExtensions(void)
             return GL_FALSE;
         }
 
-        // The GLFW RandR path requires at least version 1.3
+        /* The GLFW RandR path requires at least version 1.3 */
         if (_glfw.x11.randr.versionMajor == 1 &&
             _glfw.x11.randr.versionMinor < 3)
         {
@@ -478,7 +478,7 @@ static GLboolean initExtensions(void)
         }
     }
 
-    // Check if Xkb is supported on this display
+    /* Check if Xkb is supported on this display */
     _glfw.x11.xkb.versionMajor = 1;
     _glfw.x11.xkb.versionMinor = 0;
     if (!XkbQueryExtension(_glfw.x11.display,
@@ -507,31 +507,31 @@ static GLboolean initExtensions(void)
         return GL_FALSE;
     }
 
-    // Update the key code LUT
-    // FIXME: We should listen to XkbMapNotify events to track changes to
-    // the keyboard mapping.
+    /* Update the key code LUT */
+    /* FIXME: We should listen to XkbMapNotify events to track changes to */
+    /* the keyboard mapping. */
     updateKeyCodeLUT();
 
-    // Detect whether an EWMH-conformant window manager is running
+    /* Detect whether an EWMH-conformant window manager is running */
     detectEWMH();
 
-    // Find or create string format atoms
+    /* Find or create string format atoms */
     _glfw.x11.UTF8_STRING =
         XInternAtom(_glfw.x11.display, "UTF8_STRING", False);
     _glfw.x11.COMPOUND_STRING =
         XInternAtom(_glfw.x11.display, "COMPOUND_STRING", False);
     _glfw.x11.ATOM_PAIR = XInternAtom(_glfw.x11.display, "ATOM_PAIR", False);
 
-    // Find or create selection property atom
+    /* Find or create selection property atom */
     _glfw.x11.GLFW_SELECTION =
         XInternAtom(_glfw.x11.display, "GLFW_SELECTION", False);
 
-    // Find or create standard clipboard atoms
+    /* Find or create standard clipboard atoms */
     _glfw.x11.TARGETS = XInternAtom(_glfw.x11.display, "TARGETS", False);
     _glfw.x11.MULTIPLE = XInternAtom(_glfw.x11.display, "MULTIPLE", False);
     _glfw.x11.CLIPBOARD = XInternAtom(_glfw.x11.display, "CLIPBOARD", False);
 
-    // Find or create clipboard manager atoms
+    /* Find or create clipboard manager atoms */
     _glfw.x11.CLIPBOARD_MANAGER =
         XInternAtom(_glfw.x11.display, "CLIPBOARD_MANAGER", False);
     _glfw.x11.SAVE_TARGETS =
@@ -540,8 +540,8 @@ static GLboolean initExtensions(void)
     return GL_TRUE;
 }
 
-// Create a blank cursor (for locked mouse mode)
-//
+/* Create a blank cursor (for locked mouse mode) */
+/* */
 static Cursor createNULLCursor(void)
 {
     Pixmap cursormask;
@@ -576,8 +576,8 @@ static Cursor createNULLCursor(void)
     return cursor;
 }
 
-// Terminate X11 display
-//
+/* Terminate X11 display */
+/* */
 static void terminateDisplay(void)
 {
     if (_glfw.x11.display)
@@ -587,8 +587,8 @@ static void terminateDisplay(void)
     }
 }
 
-// X error handler
-//
+/* X error handler */
+/* */
 static int errorHandler(Display *display, XErrorEvent* event)
 {
     _glfw.x11.errorCode = event->error_code;
@@ -596,29 +596,29 @@ static int errorHandler(Display *display, XErrorEvent* event)
 }
 
 
-//////////////////////////////////////////////////////////////////////////
-//////                       GLFW internal API                      //////
-//////////////////////////////////////////////////////////////////////////
+/*//////////////////////////////////////////////////////////////////////// */
+/*////                       GLFW internal API                      ////// */
+/*//////////////////////////////////////////////////////////////////////// */
 
-// Install the X error handler
-//
+/* Install the X error handler */
+/* */
 void _glfwGrabXErrorHandler(void)
 {
     _glfw.x11.errorCode = Success;
     XSetErrorHandler(errorHandler);
 }
 
-// Remove the X error handler
-//
+/* Remove the X error handler */
+/* */
 void _glfwReleaseXErrorHandler(void)
 {
-    // Synchronize to make sure all commands are processed
+    /* Synchronize to make sure all commands are processed */
     XSync(_glfw.x11.display, False);
     XSetErrorHandler(NULL);
 }
 
-// Report X error
-//
+/* Report X error */
+/* */
 void _glfwInputXError(int error, const char* message)
 {
     char buffer[8192];
@@ -629,9 +629,9 @@ void _glfwInputXError(int error, const char* message)
 }
 
 
-//////////////////////////////////////////////////////////////////////////
-//////                       GLFW platform API                      //////
-//////////////////////////////////////////////////////////////////////////
+/*//////////////////////////////////////////////////////////////////////// */
+/*////                       GLFW platform API                      ////// */
+/*//////////////////////////////////////////////////////////////////////// */
 
 int _glfwPlatformInit(void)
 {

@@ -1,28 +1,28 @@
-//========================================================================
-// GLFW 3.0 X11 - www.glfw.org
-//------------------------------------------------------------------------
-// Copyright (c) 2010 Camilla Berglund <elmindreda@elmindreda.org>
-//
-// This software is provided 'as-is', without any express or implied
-// warranty. In no event will the authors be held liable for any damages
-// arising from the use of this software.
-//
-// Permission is granted to anyone to use this software for any purpose,
-// including commercial applications, and to alter it and redistribute it
-// freely, subject to the following restrictions:
-//
-// 1. The origin of this software must not be misrepresented; you must not
-//    claim that you wrote the original software. If you use this software
-//    in a product, an acknowledgment in the product documentation would
-//    be appreciated but is not required.
-//
-// 2. Altered source versions must be plainly marked as such, and must not
-//    be misrepresented as being the original software.
-//
-// 3. This notice may not be removed or altered from any source
-//    distribution.
-//
-//========================================================================
+/*======================================================================== */
+/* GLFW 3.0 X11 - www.glfw.org */
+/*------------------------------------------------------------------------ */
+/* Copyright (c) 2010 Camilla Berglund <elmindreda@elmindreda.org> */
+/* */
+/* This software is provided 'as-is', without any express or implied */
+/* warranty. In no event will the authors be held liable for any damages */
+/* arising from the use of this software. */
+/* */
+/* Permission is granted to anyone to use this software for any purpose, */
+/* including commercial applications, and to alter it and redistribute it */
+/* freely, subject to the following restrictions: */
+/* */
+/* 1. The origin of this software must not be misrepresented; you must not */
+/*    claim that you wrote the original software. If you use this software */
+/*    in a product, an acknowledgment in the product documentation would */
+/*    be appreciated but is not required. */
+/* */
+/* 2. Altered source versions must be plainly marked as such, and must not */
+/*    be misrepresented as being the original software. */
+/* */
+/* 3. This notice may not be removed or altered from any source */
+/*    distribution. */
+/* */
+/*======================================================================== */
 
 #include "internal.h"
 
@@ -30,31 +30,31 @@
 #include <string.h>
 
 
-//////////////////////////////////////////////////////////////////////////
-//////                       GLFW internal API                      //////
-//////////////////////////////////////////////////////////////////////////
+/*//////////////////////////////////////////////////////////////////////// */
+/*////                       GLFW internal API                      ////// */
+/*//////////////////////////////////////////////////////////////////////// */
 
-// Detect gamma ramp support
-//
+/* Detect gamma ramp support */
+/* */
 void _glfwInitGammaRamp(void)
 {
-    // RandR gamma support is only available with version 1.2 and above
+    /* RandR gamma support is only available with version 1.2 and above */
     if (_glfw.x11.randr.available &&
         (_glfw.x11.randr.versionMajor > 1 ||
          (_glfw.x11.randr.versionMajor == 1 &&
           _glfw.x11.randr.versionMinor >= 2)))
     {
-        // FIXME: Assumes that all monitors have the same size gamma tables
-        // This is reasonable as I suspect the that if they did differ, it
-        // would imply that setting the gamma size to an arbitary size is
-        // possible as well.
+        /* FIXME: Assumes that all monitors have the same size gamma tables */
+        /* This is reasonable as I suspect the that if they did differ, it */
+        /* would imply that setting the gamma size to an arbitary size is */
+        /* possible as well. */
         XRRScreenResources* rr = XRRGetScreenResources(_glfw.x11.display,
                                                        _glfw.x11.root);
 
         if (XRRGetCrtcGammaSize(_glfw.x11.display, rr->crtcs[0]) == 0)
         {
-            // This is probably older Nvidia RandR with broken gamma support
-            // Flag it as useless and try Xf86VidMode below, if available
+            /* This is probably older Nvidia RandR with broken gamma support */
+            /* Flag it as useless and try Xf86VidMode below, if available */
             _glfw.x11.randr.gammaBroken = GL_TRUE;
         }
 
@@ -63,9 +63,9 @@ void _glfwInitGammaRamp(void)
 }
 
 
-//////////////////////////////////////////////////////////////////////////
-//////                       GLFW platform API                      //////
-//////////////////////////////////////////////////////////////////////////
+/*//////////////////////////////////////////////////////////////////////// */
+/*////                       GLFW platform API                      ////// */
+/*//////////////////////////////////////////////////////////////////////// */
 
 void _glfwPlatformGetGammaRamp(_GLFWmonitor* monitor, GLFWgammaramp* ramp)
 {

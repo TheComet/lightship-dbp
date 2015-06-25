@@ -10,6 +10,7 @@
 #include "framework/game.h"
 #include "framework/plugin.h"
 #include "framework/log.h"
+#include "util/macros.h"
 #include "glfw3.h"
 #include <stdio.h>
 
@@ -84,6 +85,7 @@ PLUGIN_RENDERER_GL_PUBLIC_API PLUGIN_START()
 	{
 		uint32_t id;
 		struct sprite_t* sprite = sprite_create(g, "menu/join/join.png", 1, 1, 1, &id);
+		REF(sprite);
 		/*sprite_scale(sprite, 0.3);
 		sprite_set_position(sprite, 0.2, 0.7);*/
 	}

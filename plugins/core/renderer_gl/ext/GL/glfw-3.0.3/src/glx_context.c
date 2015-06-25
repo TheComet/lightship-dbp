@@ -1,29 +1,29 @@
-//========================================================================
-// GLFW 3.0 GLX - www.glfw.org
-//------------------------------------------------------------------------
-// Copyright (c) 2002-2006 Marcus Geelnard
-// Copyright (c) 2006-2010 Camilla Berglund <elmindreda@elmindreda.org>
-//
-// This software is provided 'as-is', without any express or implied
-// warranty. In no event will the authors be held liable for any damages
-// arising from the use of this software.
-//
-// Permission is granted to anyone to use this software for any purpose,
-// including commercial applications, and to alter it and redistribute it
-// freely, subject to the following restrictions:
-//
-// 1. The origin of this software must not be misrepresented; you must not
-//    claim that you wrote the original software. If you use this software
-//    in a product, an acknowledgment in the product documentation would
-//    be appreciated but is not required.
-//
-// 2. Altered source versions must be plainly marked as such, and must not
-//    be misrepresented as being the original software.
-//
-// 3. This notice may not be removed or altered from any source
-//    distribution.
-//
-//========================================================================
+/*======================================================================== */
+/* GLFW 3.0 GLX - www.glfw.org */
+/*------------------------------------------------------------------------ */
+/* Copyright (c) 2002-2006 Marcus Geelnard */
+/* Copyright (c) 2006-2010 Camilla Berglund <elmindreda@elmindreda.org> */
+/* */
+/* This software is provided 'as-is', without any express or implied */
+/* warranty. In no event will the authors be held liable for any damages */
+/* arising from the use of this software. */
+/* */
+/* Permission is granted to anyone to use this software for any purpose, */
+/* including commercial applications, and to alter it and redistribute it */
+/* freely, subject to the following restrictions: */
+/* */
+/* 1. The origin of this software must not be misrepresented; you must not */
+/*    claim that you wrote the original software. If you use this software */
+/*    in a product, an acknowledgment in the product documentation would */
+/*    be appreciated but is not required. */
+/* */
+/* 2. Altered source versions must be plainly marked as such, and must not */
+/*    be misrepresented as being the original software. */
+/* */
+/* 3. This notice may not be removed or altered from any source */
+/*    distribution. */
+/* */
+/*======================================================================== */
 
 #include "internal.h"
 
@@ -33,7 +33,7 @@
 #include <pthread.h>
 
 
-// This is the only glXGetProcAddress variant not declared by glxext.h
+/* This is the only glXGetProcAddress variant not declared by glxext.h */
 void (*glXGetProcAddressEXT(const GLubyte* procName))();
 
 
@@ -42,9 +42,9 @@ void (*glXGetProcAddressEXT(const GLubyte* procName))();
 #endif
 
 
-// Returns the specified attribute of the specified GLXFBConfig
-// NOTE: Do not call this unless we have found GLX 1.3+ or GLX_SGIX_fbconfig
-//
+/* Returns the specified attribute of the specified GLXFBConfig */
+/* NOTE: Do not call this unless we have found GLX 1.3+ or GLX_SGIX_fbconfig */
+/* */
 static int getFBConfigAttrib(GLXFBConfig fbconfig, int attrib)
 {
     int value;
@@ -60,8 +60,8 @@ static int getFBConfigAttrib(GLXFBConfig fbconfig, int attrib)
     return value;
 }
 
-// Return a list of available and usable framebuffer configs
-//
+/* Return a list of available and usable framebuffer configs */
+/* */
 static GLboolean chooseFBConfig(const _GLFWfbconfig* desired, GLXFBConfig* result)
 {
     GLXFBConfig* nativeConfigs;
@@ -74,8 +74,8 @@ static GLboolean chooseFBConfig(const _GLFWfbconfig* desired, GLXFBConfig* resul
     vendor = glXGetClientString(_glfw.x11.display, GLX_VENDOR);
     if (strcmp(vendor, "Chromium") == 0)
     {
-        // HACK: This is a (hopefully temporary) workaround for Chromium
-        // (VirtualBox GL) not setting the window bit on any GLXFBConfigs
+        /* HACK: This is a (hopefully temporary) workaround for Chromium */
+        /* (VirtualBox GL) not setting the window bit on any GLXFBConfigs */
         trustWindowBit = GL_FALSE;
     }
 
@@ -111,13 +111,13 @@ static GLboolean chooseFBConfig(const _GLFWfbconfig* desired, GLXFBConfig* resul
         if (!getFBConfigAttrib(n, GLX_DOUBLEBUFFER) ||
             !getFBConfigAttrib(n, GLX_VISUAL_ID))
         {
-            // Only consider double-buffered GLXFBConfigs with associated visuals
+            /* Only consider double-buffered GLXFBConfigs with associated visuals */
             continue;
         }
 
         if (!(getFBConfigAttrib(n, GLX_RENDER_TYPE) & GLX_RGBA_BIT))
         {
-            // Only consider RGBA GLXFBConfigs
+            /* Only consider RGBA GLXFBConfigs */
             continue;
         }
 
@@ -125,7 +125,7 @@ static GLboolean chooseFBConfig(const _GLFWfbconfig* desired, GLXFBConfig* resul
         {
             if (trustWindowBit)
             {
-                // Only consider window GLXFBConfigs
+                /* Only consider window GLXFBConfigs */
                 continue;
             }
         }
@@ -166,8 +166,8 @@ static GLboolean chooseFBConfig(const _GLFWfbconfig* desired, GLXFBConfig* resul
     return closest ? GL_TRUE : GL_FALSE;
 }
 
-// Create the OpenGL context using legacy API
-//
+/* Create the OpenGL context using legacy API */
+/* */
 static GLXContext createLegacyContext(_GLFWwindow* window,
                                       GLXFBConfig fbconfig,
                                       GLXContext share)
@@ -189,12 +189,12 @@ static GLXContext createLegacyContext(_GLFWwindow* window,
 }
 
 
-//////////////////////////////////////////////////////////////////////////
-//////                       GLFW internal API                      //////
-//////////////////////////////////////////////////////////////////////////
+/*//////////////////////////////////////////////////////////////////////// */
+/*////                       GLFW internal API                      ////// */
+/*//////////////////////////////////////////////////////////////////////// */
 
-// Initialize GLX
-//
+/* Initialize GLX */
+/* */
 int _glfwInitContextAPI(void)
 {
 #ifdef _GLFW_DLOPEN_LIBGL
@@ -229,7 +229,7 @@ int _glfwInitContextAPI(void)
         return GL_FALSE;
     }
 
-    // Check if GLX is supported on this display
+    /* Check if GLX is supported on this display */
     if (!glXQueryExtension(_glfw.x11.display,
                            &_glfw.glx.errorBase,
                            &_glfw.glx.eventBase))
@@ -321,11 +321,11 @@ int _glfwInitContextAPI(void)
     return GL_TRUE;
 }
 
-// Terminate GLX
-//
+/* Terminate GLX */
+/* */
 void _glfwTerminateContextAPI(void)
 {
-    // Unload libGL.so if necessary
+    /* Unload libGL.so if necessary */
 #ifdef _GLFW_DLOPEN_LIBGL
     if (_glfw.glx.libGL != NULL)
     {
@@ -344,8 +344,8 @@ void _glfwTerminateContextAPI(void)
     assert((size_t) index < sizeof(attribs) / sizeof(attribs[0])); \
 }
 
-// Prepare for creation of the OpenGL context
-//
+/* Prepare for creation of the OpenGL context */
+/* */
 int _glfwCreateContext(_GLFWwindow* window,
                        const _GLFWwndconfig* wndconfig,
                        const _GLFWfbconfig* fbconfig)
@@ -364,7 +364,7 @@ int _glfwCreateContext(_GLFWwindow* window,
         return GL_FALSE;
     }
 
-    // Retrieve the corresponding visual
+    /* Retrieve the corresponding visual */
     if (_glfw.glx.SGIX_fbconfig)
     {
         window->glx.visual =
@@ -456,9 +456,9 @@ int _glfwCreateContext(_GLFWwindow* window,
 
         if (wndconfig->glMajor != 1 || wndconfig->glMinor != 0)
         {
-            // NOTE: Only request an explicitly versioned context when
-            // necessary, as explicitly requesting version 1.0 does not always
-            // return the highest available version
+            /* NOTE: Only request an explicitly versioned context when */
+            /* necessary, as explicitly requesting version 1.0 does not always */
+            /* return the highest available version */
 
             setGLXattrib(GLX_CONTEXT_MAJOR_VERSION_ARB, wndconfig->glMajor);
             setGLXattrib(GLX_CONTEXT_MINOR_VERSION_ARB, wndconfig->glMinor);
@@ -484,9 +484,9 @@ int _glfwCreateContext(_GLFWwindow* window,
 
         if (window->glx.context == NULL)
         {
-            // HACK: This is a fallback for the broken Mesa implementation of
-            // GLX_ARB_create_context_profile, which fails default 1.0 context
-            // creation with a GLXBadProfileARB error in violation of the spec
+            /* HACK: This is a fallback for the broken Mesa implementation of */
+            /* GLX_ARB_create_context_profile, which fails default 1.0 context */
+            /* creation with a GLXBadProfileARB error in violation of the spec */
             if (_glfw.x11.errorCode == _glfw.glx.errorBase + GLXBadProfileARB &&
                 wndconfig->clientAPI == GLFW_OPENGL_API &&
                 wndconfig->glProfile == GLFW_OPENGL_ANY_PROFILE &&
@@ -512,8 +512,8 @@ int _glfwCreateContext(_GLFWwindow* window,
 
 #undef setGLXattrib
 
-// Destroy the OpenGL context
-//
+/* Destroy the OpenGL context */
+/* */
 void _glfwDestroyContext(_GLFWwindow* window)
 {
     if (window->glx.visual)
@@ -530,9 +530,9 @@ void _glfwDestroyContext(_GLFWwindow* window)
 }
 
 
-//////////////////////////////////////////////////////////////////////////
-//////                       GLFW platform API                      //////
-//////////////////////////////////////////////////////////////////////////
+/*//////////////////////////////////////////////////////////////////////// */
+/*////                       GLFW platform API                      ////// */
+/*//////////////////////////////////////////////////////////////////////// */
 
 void _glfwPlatformMakeContextCurrent(_GLFWwindow* window)
 {
@@ -581,7 +581,7 @@ int _glfwPlatformExtensionSupported(const char* extension)
 {
     const GLubyte* extensions;
 
-    // Get list of GLX extensions
+    /* Get list of GLX extensions */
     extensions = (const GLubyte*) glXQueryExtensionsString(_glfw.x11.display,
                                                            _glfw.x11.screen);
     if (extensions != NULL)
@@ -599,9 +599,9 @@ GLFWglproc _glfwPlatformGetProcAddress(const char* procname)
 }
 
 
-//////////////////////////////////////////////////////////////////////////
-//////                        GLFW native API                       //////
-//////////////////////////////////////////////////////////////////////////
+/*//////////////////////////////////////////////////////////////////////// */
+/*////                        GLFW native API                       ////// */
+/*//////////////////////////////////////////////////////////////////////// */
 
 GLFWAPI GLXContext glfwGetGLXContext(GLFWwindow* handle)
 {

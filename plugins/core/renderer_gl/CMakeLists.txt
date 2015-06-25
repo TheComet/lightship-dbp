@@ -2,10 +2,12 @@ if (${CMAKE_C_COMPILER_ID} STREQUAL "GNU")
     if (NOT MINGW) # MinGW always builds position independent code
         add_definitions (-fPIC)
     endif ()
+    add_definitions (-W -Wall -Wextra -pedantic -Wno-unused-parameter)
 elseif (${CMAKE_C_COMPILER_ID} STREQUAL "Clang")
     if (NOT MINGW) # MinGW always builds position independent code
         add_definitions (-fPIC)
     endif ()
+    add_definitions (-W -Wall -Wextra -pedantic -Wno-unused-parameter)
 elseif (${CMAKE_C_COMPILER_ID} STREQUAL "Intel")
 elseif (${CMAKE_C_COMPILER_ID} STREQUAL "MSVC")
 endif ()

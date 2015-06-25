@@ -336,7 +336,7 @@ int main(int argc, char *argv[])
         exit( EXIT_FAILURE );
     }
 
-    // Set callback functions
+    /* Set callback functions */
     glfwSetFramebufferSizeCallback(window, reshape);
     glfwSetKeyCallback(window, key);
 
@@ -346,27 +346,27 @@ int main(int argc, char *argv[])
     glfwGetFramebufferSize(window, &width, &height);
     reshape(window, width, height);
 
-    // Parse command-line options
+    /* Parse command-line options */
     init(argc, argv);
 
-    // Main loop
+    /* Main loop */
     while( !glfwWindowShouldClose(window) )
     {
-        // Draw gears
+        /* Draw gears */
         draw();
 
-        // Update animation
+        /* Update animation */
         animate();
 
-        // Swap buffers
+        /* Swap buffers */
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
 
-    // Terminate GLFW
+    /* Terminate GLFW */
     glfwTerminate();
 
-    // Exit program
+    /* Exit program */
     exit( EXIT_SUCCESS );
 }
 

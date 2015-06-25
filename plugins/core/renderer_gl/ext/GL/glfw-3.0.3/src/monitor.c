@@ -1,29 +1,29 @@
-//========================================================================
-// GLFW 3.0 - www.glfw.org
-//------------------------------------------------------------------------
-// Copyright (c) 2002-2006 Marcus Geelnard
-// Copyright (c) 2006-2010 Camilla Berglund <elmindreda@elmindreda.org>
-//
-// This software is provided 'as-is', without any express or implied
-// warranty. In no event will the authors be held liable for any damages
-// arising from the use of this software.
-//
-// Permission is granted to anyone to use this software for any purpose,
-// including commercial applications, and to alter it and redistribute it
-// freely, subject to the following restrictions:
-//
-// 1. The origin of this software must not be misrepresented; you must not
-//    claim that you wrote the original software. If you use this software
-//    in a product, an acknowledgment in the product documentation would
-//    be appreciated but is not required.
-//
-// 2. Altered source versions must be plainly marked as such, and must not
-//    be misrepresented as being the original software.
-//
-// 3. This notice may not be removed or altered from any source
-//    distribution.
-//
-//========================================================================
+/*======================================================================== */
+/* GLFW 3.0 - www.glfw.org */
+/*------------------------------------------------------------------------ */
+/* Copyright (c) 2002-2006 Marcus Geelnard */
+/* Copyright (c) 2006-2010 Camilla Berglund <elmindreda@elmindreda.org> */
+/* */
+/* This software is provided 'as-is', without any express or implied */
+/* warranty. In no event will the authors be held liable for any damages */
+/* arising from the use of this software. */
+/* */
+/* Permission is granted to anyone to use this software for any purpose, */
+/* including commercial applications, and to alter it and redistribute it */
+/* freely, subject to the following restrictions: */
+/* */
+/* 1. The origin of this software must not be misrepresented; you must not */
+/*    claim that you wrote the original software. If you use this software */
+/*    in a product, an acknowledgment in the product documentation would */
+/*    be appreciated but is not required. */
+/* */
+/* 2. Altered source versions must be plainly marked as such, and must not */
+/*    be misrepresented as being the original software. */
+/* */
+/* 3. This notice may not be removed or altered from any source */
+/*    distribution. */
+/* */
+/*======================================================================== */
 
 #include "internal.h"
 
@@ -37,15 +37,15 @@
 #endif
 
 
-// Lexical comparison function for GLFW video modes, used by qsort
-//
+/* Lexical comparison function for GLFW video modes, used by qsort */
+/* */
 static int compareVideoModes(const void* firstPtr, const void* secondPtr)
 {
     int firstBPP, secondBPP, firstSize, secondSize;
     GLFWvidmode* first = (GLFWvidmode*) firstPtr;
     GLFWvidmode* second = (GLFWvidmode*) secondPtr;
 
-    // First sort on color bits per pixel
+    /* First sort on color bits per pixel */
 
     firstBPP = first->redBits +
                first->greenBits +
@@ -57,7 +57,7 @@ static int compareVideoModes(const void* firstPtr, const void* secondPtr)
     if (firstBPP != secondBPP)
         return firstBPP - secondBPP;
 
-    // Then sort on screen area, in pixels
+    /* Then sort on screen area, in pixels */
 
     firstSize = first->width * first->height;
     secondSize = second->width * second->height;
@@ -65,13 +65,13 @@ static int compareVideoModes(const void* firstPtr, const void* secondPtr)
     if (firstSize != secondSize)
         return firstSize - secondSize;
 
-    // Lastly sort on refresh rate
+    /* Lastly sort on refresh rate */
 
     return first->refreshRate - second->refreshRate;
 }
 
-// Retrieves the available modes for the specified monitor
-//
+/* Retrieves the available modes for the specified monitor */
+/* */
 static int refreshVideoModes(_GLFWmonitor* monitor)
 {
     int modeCount;
@@ -94,9 +94,9 @@ static int refreshVideoModes(_GLFWmonitor* monitor)
 }
 
 
-//////////////////////////////////////////////////////////////////////////
-//////                         GLFW event API                       //////
-//////////////////////////////////////////////////////////////////////////
+/*//////////////////////////////////////////////////////////////////////// */
+/*////                         GLFW event API                       ////// */
+/*//////////////////////////////////////////////////////////////////////// */
 
 void _glfwInputMonitorChange(void)
 {
@@ -105,7 +105,7 @@ void _glfwInputMonitorChange(void)
 
     _glfw.monitors = _glfwPlatformGetMonitors(&_glfw.monitorCount);
 
-    // Re-use still connected monitor objects
+    /* Re-use still connected monitor objects */
 
     for (i = 0;  i < _glfw.monitorCount;  i++)
     {
@@ -120,7 +120,7 @@ void _glfwInputMonitorChange(void)
         }
     }
 
-    // Find and report disconnected monitors (not in the new list)
+    /* Find and report disconnected monitors (not in the new list) */
 
     for (i = 0;  i < monitorCount;  i++)
     {
@@ -145,9 +145,9 @@ void _glfwInputMonitorChange(void)
             _glfw.callbacks.monitor((GLFWmonitor*) monitors[i], GLFW_DISCONNECTED);
     }
 
-    // Find and report newly connected monitors (not in the old list)
-    // Re-used monitor objects are then removed from the old list to avoid
-    // having them destroyed at the end of this function
+    /* Find and report newly connected monitors (not in the old list) */
+    /* Re-used monitor objects are then removed from the old list to avoid */
+    /* having them destroyed at the end of this function */
 
     for (i = 0;  i < _glfw.monitorCount;  i++)
     {
@@ -171,9 +171,9 @@ void _glfwInputMonitorChange(void)
 }
 
 
-//////////////////////////////////////////////////////////////////////////
-//////                       GLFW internal API                      //////
-//////////////////////////////////////////////////////////////////////////
+/*//////////////////////////////////////////////////////////////////////// */
+/*////                       GLFW internal API                      ////// */
+/*//////////////////////////////////////////////////////////////////////// */
 
 _GLFWmonitor* _glfwCreateMonitor(const char* name, int widthMM, int heightMM)
 {
@@ -261,11 +261,11 @@ void _glfwSplitBPP(int bpp, int* red, int* green, int* blue)
 {
     int delta;
 
-    // We assume that by 32 the user really meant 24
+    /* We assume that by 32 the user really meant 24 */
     if (bpp == 32)
         bpp = 24;
 
-    // Convert "bits per pixel" to red, green & blue sizes
+    /* Convert "bits per pixel" to red, green & blue sizes */
 
     *red = *green = *blue = bpp / 3;
     delta = bpp - (*red * 3);
@@ -277,9 +277,9 @@ void _glfwSplitBPP(int bpp, int* red, int* green, int* blue)
 }
 
 
-//////////////////////////////////////////////////////////////////////////
-//////                        GLFW public API                       //////
-//////////////////////////////////////////////////////////////////////////
+/*//////////////////////////////////////////////////////////////////////// */
+/*////                        GLFW public API                       ////// */
+/*//////////////////////////////////////////////////////////////////////// */
 
 GLFWAPI GLFWmonitor** glfwGetMonitors(int* count)
 {

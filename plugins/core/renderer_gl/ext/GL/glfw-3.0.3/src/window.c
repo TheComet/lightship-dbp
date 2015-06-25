@@ -1,30 +1,30 @@
-//========================================================================
-// GLFW 3.0 - www.glfw.org
-//------------------------------------------------------------------------
-// Copyright (c) 2002-2006 Marcus Geelnard
-// Copyright (c) 2006-2010 Camilla Berglund <elmindreda@elmindreda.org>
-// Copyright (c) 2012 Torsten Walluhn <tw@mad-cad.net>
-//
-// This software is provided 'as-is', without any express or implied
-// warranty. In no event will the authors be held liable for any damages
-// arising from the use of this software.
-//
-// Permission is granted to anyone to use this software for any purpose,
-// including commercial applications, and to alter it and redistribute it
-// freely, subject to the following restrictions:
-//
-// 1. The origin of this software must not be misrepresented; you must not
-//    claim that you wrote the original software. If you use this software
-//    in a product, an acknowledgment in the product documentation would
-//    be appreciated but is not required.
-//
-// 2. Altered source versions must be plainly marked as such, and must not
-//    be misrepresented as being the original software.
-//
-// 3. This notice may not be removed or altered from any source
-//    distribution.
-//
-//========================================================================
+/*======================================================================== */
+/* GLFW 3.0 - www.glfw.org */
+/*------------------------------------------------------------------------ */
+/* Copyright (c) 2002-2006 Marcus Geelnard */
+/* Copyright (c) 2006-2010 Camilla Berglund <elmindreda@elmindreda.org> */
+/* Copyright (c) 2012 Torsten Walluhn <tw@mad-cad.net> */
+/* */
+/* This software is provided 'as-is', without any express or implied */
+/* warranty. In no event will the authors be held liable for any damages */
+/* arising from the use of this software. */
+/* */
+/* Permission is granted to anyone to use this software for any purpose, */
+/* including commercial applications, and to alter it and redistribute it */
+/* freely, subject to the following restrictions: */
+/* */
+/* 1. The origin of this software must not be misrepresented; you must not */
+/*    claim that you wrote the original software. If you use this software */
+/*    in a product, an acknowledgment in the product documentation would */
+/*    be appreciated but is not required. */
+/* */
+/* 2. Altered source versions must be plainly marked as such, and must not */
+/*    be misrepresented as being the original software. */
+/* */
+/* 3. This notice may not be removed or altered from any source */
+/*    distribution. */
+/* */
+/*======================================================================== */
 
 #include "internal.h"
 
@@ -35,17 +35,17 @@
 #endif
 
 
-// Return the maxiumum of the specified values
-//
+/* Return the maxiumum of the specified values */
+/* */
 static int Max(int a, int b)
 {
     return (a > b) ? a : b;
 }
 
 
-//////////////////////////////////////////////////////////////////////////
-//////                         GLFW event API                       //////
-//////////////////////////////////////////////////////////////////////////
+/*//////////////////////////////////////////////////////////////////////// */
+/*////                         GLFW event API                       ////// */
+/*//////////////////////////////////////////////////////////////////////// */
 
 void _glfwInputWindowFocus(_GLFWwindow* window, GLboolean focused)
 {
@@ -70,14 +70,14 @@ void _glfwInputWindowFocus(_GLFWwindow* window, GLboolean focused)
             if (window->callbacks.focus)
                 window->callbacks.focus((GLFWwindow*) window, focused);
 
-            // Release all pressed keyboard keys
+            /* Release all pressed keyboard keys */
             for (i = 0;  i <= GLFW_KEY_LAST;  i++)
             {
                 if (window->key[i] == GLFW_PRESS)
                     _glfwInputKey(window, i, 0, GLFW_RELEASE, 0);
             }
 
-            // Release all pressed mouse buttons
+            /* Release all pressed mouse buttons */
             for (i = 0;  i <= GLFW_MOUSE_BUTTON_LAST;  i++)
             {
                 if (window->mouseButton[i] == GLFW_PRESS)
@@ -136,9 +136,9 @@ void _glfwInputWindowCloseRequest(_GLFWwindow* window)
 }
 
 
-//////////////////////////////////////////////////////////////////////////
-//////                        GLFW public API                       //////
-//////////////////////////////////////////////////////////////////////////
+/*//////////////////////////////////////////////////////////////////////// */
+/*////                        GLFW public API                       ////// */
+/*//////////////////////////////////////////////////////////////////////// */
 
 GLFWAPI GLFWwindow* glfwCreateWindow(int width, int height,
                                      const char* title,
@@ -158,7 +158,7 @@ GLFWAPI GLFWwindow* glfwCreateWindow(int width, int height,
         return NULL;
     }
 
-    // Set up desired framebuffer config
+    /* Set up desired framebuffer config */
     fbconfig.redBits        = Max(_glfw.hints.redBits, 0);
     fbconfig.greenBits      = Max(_glfw.hints.greenBits, 0);
     fbconfig.blueBits       = Max(_glfw.hints.blueBits, 0);
@@ -174,7 +174,7 @@ GLFWAPI GLFWwindow* glfwCreateWindow(int width, int height,
     fbconfig.samples        = Max(_glfw.hints.samples, 0);
     fbconfig.sRGB           = _glfw.hints.sRGB ? GL_TRUE : GL_FALSE;
 
-    // Set up desired window config
+    /* Set up desired window config */
     wndconfig.width         = width;
     wndconfig.height        = height;
     wndconfig.title         = title;
@@ -191,7 +191,7 @@ GLFWAPI GLFWwindow* glfwCreateWindow(int width, int height,
     wndconfig.monitor       = (_GLFWmonitor*) monitor;
     wndconfig.share         = (_GLFWwindow*) share;
 
-    // Check the OpenGL bits of the window config
+    /* Check the OpenGL bits of the window config */
     if (!_glfwIsValidContextConfig(&wndconfig))
         return NULL;
 
@@ -204,7 +204,7 @@ GLFWAPI GLFWwindow* glfwCreateWindow(int width, int height,
         wndconfig.resizable = GL_TRUE;
         wndconfig.visible   = GL_TRUE;
 
-        // Set up desired video mode
+        /* Set up desired video mode */
         window->videoMode.width       = width;
         window->videoMode.height      = height;
         window->videoMode.redBits     = Max(_glfw.hints.redBits, 0);
@@ -218,10 +218,10 @@ GLFWAPI GLFWwindow* glfwCreateWindow(int width, int height,
     window->decorated   = wndconfig.decorated;
     window->cursorMode  = GLFW_CURSOR_NORMAL;
 
-    // Save the currently current context so it can be restored later
+    /* Save the currently current context so it can be restored later */
     previous = (_GLFWwindow*) glfwGetCurrentContext();
 
-    // Open the actual window and create its context
+    /* Open the actual window and create its context */
     if (!_glfwPlatformCreateWindow(window, &wndconfig, &fbconfig))
     {
         glfwDestroyWindow((GLFWwindow*) window);
@@ -231,7 +231,7 @@ GLFWAPI GLFWwindow* glfwCreateWindow(int width, int height,
 
     glfwMakeContextCurrent((GLFWwindow*) window);
 
-    // Retrieve the actual (as opposed to requested) context attributes
+    /* Retrieve the actual (as opposed to requested) context attributes */
     if (!_glfwRefreshContextAttribs())
     {
         glfwDestroyWindow((GLFWwindow*) window);
@@ -239,7 +239,7 @@ GLFWAPI GLFWwindow* glfwCreateWindow(int width, int height,
         return NULL;
     }
 
-    // Verify the context against the requested parameters
+    /* Verify the context against the requested parameters */
     if (!_glfwIsValidContext(&wndconfig))
     {
         glfwDestroyWindow((GLFWwindow*) window);
@@ -247,12 +247,12 @@ GLFWAPI GLFWwindow* glfwCreateWindow(int width, int height,
         return NULL;
     }
 
-    // Clearing the front buffer to black to avoid garbage pixels left over
-    // from previous uses of our bit of VRAM
+    /* Clearing the front buffer to black to avoid garbage pixels left over */
+    /* from previous uses of our bit of VRAM */
     glClear(GL_COLOR_BUFFER_BIT);
     _glfwPlatformSwapBuffers(window);
 
-    // Restore the previously current context (or NULL)
+    /* Restore the previously current context (or NULL) */
     glfwMakeContextCurrent((GLFWwindow*) previous);
 
     if (wndconfig.monitor == NULL && wndconfig.visible)
@@ -267,17 +267,17 @@ void glfwDefaultWindowHints(void)
 
     memset(&_glfw.hints, 0, sizeof(_glfw.hints));
 
-    // The default is OpenGL with minimum version 1.0
+    /* The default is OpenGL with minimum version 1.0 */
     _glfw.hints.clientAPI = GLFW_OPENGL_API;
     _glfw.hints.glMajor = 1;
     _glfw.hints.glMinor = 0;
 
-    // The default is a visible, resizable window with decorations
+    /* The default is a visible, resizable window with decorations */
     _glfw.hints.resizable = GL_TRUE;
     _glfw.hints.visible   = GL_TRUE;
     _glfw.hints.decorated = GL_TRUE;
 
-    // The default is 24 bits of color, 24 bits of depth and 8 bits of stencil
+    /* The default is 24 bits of color, 24 bits of depth and 8 bits of stencil */
     _glfw.hints.redBits     = 8;
     _glfw.hints.greenBits   = 8;
     _glfw.hints.blueBits    = 8;
@@ -379,25 +379,25 @@ GLFWAPI void glfwDestroyWindow(GLFWwindow* handle)
 
     _GLFW_REQUIRE_INIT();
 
-    // Allow closing of NULL (to match the behavior of free)
+    /* Allow closing of NULL (to match the behavior of free) */
     if (window == NULL)
         return;
 
-    // Clear all callbacks to avoid exposing a half torn-down window object
+    /* Clear all callbacks to avoid exposing a half torn-down window object */
     memset(&window->callbacks, 0, sizeof(window->callbacks));
 
-    // The window's context must not be current on another thread when the
-    // window is destroyed
+    /* The window's context must not be current on another thread when the */
+    /* window is destroyed */
     if (window == _glfwPlatformGetCurrentContext())
         _glfwPlatformMakeContextCurrent(NULL);
 
-    // Clear the focused window pointer if this is the focused window
+    /* Clear the focused window pointer if this is the focused window */
     if (window == _glfw.focusedWindow)
         _glfw.focusedWindow = NULL;
 
     _glfwPlatformDestroyWindow(window);
 
-    // Unlink window from global linked list
+    /* Unlink window from global linked list */
     {
         _GLFWwindow** prev = &_glfw.windowListHead;
 

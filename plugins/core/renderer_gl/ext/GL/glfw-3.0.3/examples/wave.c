@@ -1,7 +1,7 @@
 /*****************************************************************************
  * Wave Simulation in OpenGL
  * (C) 2002 Jakob Thomsen
- * http://home.in.tum.de/~thomsen
+ * http:/*home.in.tum.de/~thomsen */
  * Modified for GLFW by Sylvain Hellegouarch - sh@programmationworld.com
  * Modified for variable frame rate by Marcus Geelnard
  * 2003-Jan-31: Minor cleanups and speedups / MG
@@ -19,10 +19,10 @@
  #define M_PI 3.1415926535897932384626433832795
 #endif
 
-// Maximum delta T to allow for differential calculations
+/* Maximum delta T to allow for differential calculations */
 #define MAX_DELTA_T 0.01
 
-// Animation speed (10.0 looks good)
+/* Animation speed (10.0 looks good) */
 #define ANIMATION_SPEED 10.0
 
 GLfloat alpha = 210.f, beta = -70.f;
@@ -61,15 +61,15 @@ struct Vertex vertex[VERTEXNUM];
  *      0   1   2
  */
 
-//========================================================================
-// Initialize grid geometry
-//========================================================================
+/*======================================================================== */
+/* Initialize grid geometry */
+/*======================================================================== */
 
 void init_vertices(void)
 {
     int x, y, p;
 
-    // Place the vertices in a grid
+    /* Place the vertices in a grid */
     for (y = 0;  y < GRIDH;  y++)
     {
         for (x = 0;  x < GRIDW;  x++)
@@ -96,10 +96,10 @@ void init_vertices(void)
         {
             p = 4 * (y * QUADW + x);
 
-            quad[p + 0] = y       * GRIDW + x;     // Some point
-            quad[p + 1] = y       * GRIDW + x + 1; // Neighbor at the right side
-            quad[p + 2] = (y + 1) * GRIDW + x + 1; // Upper right neighbor
-            quad[p + 3] = (y + 1) * GRIDW + x;     // Upper neighbor
+            quad[p + 0] = y       * GRIDW + x;     /* Some point */
+            quad[p + 1] = y       * GRIDW + x + 1; /* Neighbor at the right side */
+            quad[p + 2] = (y + 1) * GRIDW + x + 1; /* Upper right neighbor */
+            quad[p + 3] = (y + 1) * GRIDW + x;     /* Upper neighbor */
         }
     }
 }
@@ -109,9 +109,9 @@ double p[GRIDW][GRIDH];
 double vx[GRIDW][GRIDH], vy[GRIDW][GRIDH];
 double ax[GRIDW][GRIDH], ay[GRIDW][GRIDH];
 
-//========================================================================
-// Initialize grid
-//========================================================================
+/*======================================================================== */
+/* Initialize grid */
+/*======================================================================== */
 
 void init_grid(void)
 {
@@ -140,22 +140,22 @@ void init_grid(void)
 }
 
 
-//========================================================================
-// Draw scene
-//========================================================================
+/*======================================================================== */
+/* Draw scene */
+/*======================================================================== */
 
 void draw_scene(GLFWwindow* window)
 {
-    // Clear the color and depth buffers
+    /* Clear the color and depth buffers */
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    // We don't want to modify the projection matrix
+    /* We don't want to modify the projection matrix */
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 
-    // Move back
+    /* Move back */
     glTranslatef(0.0, 0.0, -zoom);
-    // Rotate the view
+    /* Rotate the view */
     glRotatef(beta, 1.0, 0.0, 0.0);
     glRotatef(alpha, 0.0, 0.0, 1.0);
 
@@ -165,33 +165,33 @@ void draw_scene(GLFWwindow* window)
 }
 
 
-//========================================================================
-// Initialize Miscellaneous OpenGL state
-//========================================================================
+/*======================================================================== */
+/* Initialize Miscellaneous OpenGL state */
+/*======================================================================== */
 
 void init_opengl(void)
 {
-    // Use Gouraud (smooth) shading
+    /* Use Gouraud (smooth) shading */
     glShadeModel(GL_SMOOTH);
 
-    // Switch on the z-buffer
+    /* Switch on the z-buffer */
     glEnable(GL_DEPTH_TEST);
 
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_COLOR_ARRAY);
     glVertexPointer(3, GL_FLOAT, sizeof(struct Vertex), vertex);
-    glColorPointer(3, GL_FLOAT, sizeof(struct Vertex), &vertex[0].r); // Pointer to the first color
+    glColorPointer(3, GL_FLOAT, sizeof(struct Vertex), &vertex[0].r); /* Pointer to the first color */
 
     glPointSize(2.0);
 
-    // Background color is black
+    /* Background color is black */
     glClearColor(0, 0, 0, 0);
 }
 
 
-//========================================================================
-// Modify the height of each vertex according to the pressure
-//========================================================================
+/*======================================================================== */
+/* Modify the height of each vertex according to the pressure */
+/*======================================================================== */
 
 void adjust_grid(void)
 {
@@ -209,16 +209,16 @@ void adjust_grid(void)
 }
 
 
-//========================================================================
-// Calculate wave propagation
-//========================================================================
+/*======================================================================== */
+/* Calculate wave propagation */
+/*======================================================================== */
 
 void calc_grid(void)
 {
     int x, y, x2, y2;
     double time_step = dt * ANIMATION_SPEED;
 
-    // Compute accelerations
+    /* Compute accelerations */
     for (x = 0;  x < GRIDW;  x++)
     {
         x2 = (x + 1) % GRIDW;
@@ -233,7 +233,7 @@ void calc_grid(void)
             ay[x][y] = p[x][y] - p[x][y2];
     }
 
-    // Compute speeds
+    /* Compute speeds */
     for (x = 0;  x < GRIDW;  x++)
     {
         for (y = 0;  y < GRIDH;  y++)
@@ -243,7 +243,7 @@ void calc_grid(void)
         }
     }
 
-    // Compute pressure
+    /* Compute pressure */
     for (x = 1;  x < GRIDW;  x++)
     {
         x2 = x - 1;
@@ -256,9 +256,9 @@ void calc_grid(void)
 }
 
 
-//========================================================================
-// Print errors
-//========================================================================
+/*======================================================================== */
+/* Print errors */
+/*======================================================================== */
 
 static void error_callback(int error, const char* description)
 {
@@ -266,9 +266,9 @@ static void error_callback(int error, const char* description)
 }
 
 
-//========================================================================
-// Handle key strokes
-//========================================================================
+/*======================================================================== */
+/* Handle key strokes */
+/*======================================================================== */
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
@@ -309,9 +309,9 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 }
 
 
-//========================================================================
-// Callback function for mouse button events
-//========================================================================
+/*======================================================================== */
+/* Callback function for mouse button events */
+/*======================================================================== */
 
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 {
@@ -331,9 +331,9 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 }
 
 
-//========================================================================
-// Callback function for cursor motion events
-//========================================================================
+/*======================================================================== */
+/* Callback function for cursor motion events */
+/*======================================================================== */
 
 void cursor_position_callback(GLFWwindow* window, double x, double y)
 {
@@ -348,9 +348,9 @@ void cursor_position_callback(GLFWwindow* window, double x, double y)
 }
 
 
-//========================================================================
-// Callback function for scroll events
-//========================================================================
+/*======================================================================== */
+/* Callback function for scroll events */
+/*======================================================================== */
 
 void scroll_callback(GLFWwindow* window, double x, double y)
 {
@@ -360,9 +360,9 @@ void scroll_callback(GLFWwindow* window, double x, double y)
 }
 
 
-//========================================================================
-// Callback function for framebuffer resize events
-//========================================================================
+/*======================================================================== */
+/* Callback function for framebuffer resize events */
+/*======================================================================== */
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
@@ -371,19 +371,19 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
     if (height > 0)
         ratio = (float) width / (float) height;
 
-    // Setup viewport
+    /* Setup viewport */
     glViewport(0, 0, width, height);
 
-    // Change to the projection matrix and set our viewing volume
+    /* Change to the projection matrix and set our viewing volume */
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     gluPerspective(60.0, ratio, 1.0, 1024.0);
 }
 
 
-//========================================================================
-// main
-//========================================================================
+/*======================================================================== */
+/* main */
+/*======================================================================== */
 
 int main(int argc, char* argv[])
 {
@@ -415,15 +415,15 @@ int main(int argc, char* argv[])
     glfwGetFramebufferSize(window, &width, &height);
     framebuffer_size_callback(window, width, height);
 
-    // Initialize OpenGL
+    /* Initialize OpenGL */
     init_opengl();
 
-    // Initialize simulation
+    /* Initialize simulation */
     init_vertices();
     init_grid();
     adjust_grid();
 
-    // Initialize timer
+    /* Initialize timer */
     t_old = glfwGetTime() - 0.01;
 
     while (!glfwWindowShouldClose(window))
@@ -432,21 +432,21 @@ int main(int argc, char* argv[])
         dt_total = t - t_old;
         t_old = t;
 
-        // Safety - iterate if dt_total is too large
+        /* Safety - iterate if dt_total is too large */
         while (dt_total > 0.f)
         {
-            // Select iteration time step
+            /* Select iteration time step */
             dt = dt_total > MAX_DELTA_T ? MAX_DELTA_T : dt_total;
             dt_total -= dt;
 
-            // Calculate wave propagation
+            /* Calculate wave propagation */
             calc_grid();
         }
 
-        // Compute height of each vertex
+        /* Compute height of each vertex */
         adjust_grid();
 
-        // Draw wave grid to OpenGL display
+        /* Draw wave grid to OpenGL display */
         draw_scene(window);
 
         glfwPollEvents();

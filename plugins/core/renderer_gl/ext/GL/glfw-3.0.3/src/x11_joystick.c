@@ -1,29 +1,29 @@
-//========================================================================
-// GLFW 3.0 X11 - www.glfw.org
-//------------------------------------------------------------------------
-// Copyright (c) 2002-2006 Marcus Geelnard
-// Copyright (c) 2006-2010 Camilla Berglund <elmindreda@elmindreda.org>
-//
-// This software is provided 'as-is', without any express or implied
-// warranty. In no event will the authors be held liable for any damages
-// arising from the use of this software.
-//
-// Permission is granted to anyone to use this software for any purpose,
-// including commercial applications, and to alter it and redistribute it
-// freely, subject to the following restrictions:
-//
-// 1. The origin of this software must not be misrepresented; you must not
-//    claim that you wrote the original software. If you use this software
-//    in a product, an acknowledgment in the product documentation would
-//    be appreciated but is not required.
-//
-// 2. Altered source versions must be plainly marked as such, and must not
-//    be misrepresented as being the original software.
-//
-// 3. This notice may not be removed or altered from any source
-//    distribution.
-//
-//========================================================================
+/*======================================================================== */
+/* GLFW 3.0 X11 - www.glfw.org */
+/*------------------------------------------------------------------------ */
+/* Copyright (c) 2002-2006 Marcus Geelnard */
+/* Copyright (c) 2006-2010 Camilla Berglund <elmindreda@elmindreda.org> */
+/* */
+/* This software is provided 'as-is', without any express or implied */
+/* warranty. In no event will the authors be held liable for any damages */
+/* arising from the use of this software. */
+/* */
+/* Permission is granted to anyone to use this software for any purpose, */
+/* including commercial applications, and to alter it and redistribute it */
+/* freely, subject to the following restrictions: */
+/* */
+/* 1. The origin of this software must not be misrepresented; you must not */
+/*    claim that you wrote the original software. If you use this software */
+/*    in a product, an acknowledgment in the product documentation would */
+/*    be appreciated but is not required. */
+/* */
+/* 2. Altered source versions must be plainly marked as such, and must not */
+/*    be misrepresented as being the original software. */
+/* */
+/* 3. This notice may not be removed or altered from any source */
+/*    distribution. */
+/* */
+/*======================================================================== */
 
 #include "internal.h"
 
@@ -39,11 +39,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#endif // __linux__
+#endif /* __linux__ */
 
 
-// Attempt to open the specified joystick device
-//
+/* Attempt to open the specified joystick device */
+/* */
 static int openJoystickDevice(int joy, const char* path)
 {
 #ifdef __linux__
@@ -57,11 +57,11 @@ static int openJoystickDevice(int joy, const char* path)
 
     _glfw.x11.joystick[joy].fd = fd;
 
-    // Verify that the joystick driver version is at least 1.0
+    /* Verify that the joystick driver version is at least 1.0 */
     ioctl(fd, JSIOCGVERSION, &version);
     if (version < 0x010000)
     {
-        // It's an old 0.x interface (we don't support it)
+        /* It's an old 0.x interface (we don't support it) */
         close(fd);
         return GL_FALSE;
     }
@@ -81,13 +81,13 @@ static int openJoystickDevice(int joy, const char* path)
     _glfw.x11.joystick[joy].buttons = calloc(buttonCount, 1);
 
     _glfw.x11.joystick[joy].present = GL_TRUE;
-#endif // __linux__
+#endif /* __linux__ */
 
     return GL_TRUE;
 }
 
-// Polls for and processes events for all present joysticks
-//
+/* Polls for and processes events for all present joysticks */
+/* */
 static void pollJoystickEvents(void)
 {
 #ifdef __linux__
@@ -100,7 +100,7 @@ static void pollJoystickEvents(void)
         if (!_glfw.x11.joystick[i].present)
             continue;
 
-        // Read all queued events (non-blocking)
+        /* Read all queued events (non-blocking) */
         for (;;)
         {
             errno = 0;
@@ -117,7 +117,7 @@ static void pollJoystickEvents(void)
             if (result == -1)
                 break;
 
-            // We don't care if it's an init event or not
+            /* We don't care if it's an init event or not */
             e.type &= ~JS_EVENT_INIT;
 
             switch (e.type)
@@ -126,8 +126,8 @@ static void pollJoystickEvents(void)
                     _glfw.x11.joystick[i].axes[e.number] =
                         (float) e.value / 32767.0f;
 
-                    // We need to change the sign for the Y axes, so that
-                    // positive = up/forward, according to the GLFW spec.
+                    /* We need to change the sign for the Y axes, so that */
+                    /* positive = up/forward, according to the GLFW spec. */
                     if (e.number & 1)
                     {
                         _glfw.x11.joystick[i].axes[e.number] =
@@ -146,16 +146,16 @@ static void pollJoystickEvents(void)
             }
         }
     }
-#endif // __linux__
+#endif /* __linux__ */
 }
 
 
-//////////////////////////////////////////////////////////////////////////
-//////                       GLFW internal API                      //////
-//////////////////////////////////////////////////////////////////////////
+/*//////////////////////////////////////////////////////////////////////// */
+/*////                       GLFW internal API                      ////// */
+/*//////////////////////////////////////////////////////////////////////// */
 
-// Initialize joystick interface
-//
+/* Initialize joystick interface */
+/* */
 void _glfwInitJoysticks(void)
 {
 #ifdef __linux__
@@ -200,11 +200,11 @@ void _glfwInitJoysticks(void)
     }
 
     regfree(&regex);
-#endif // __linux__
+#endif /* __linux__ */
 }
 
-// Close all opened joystick handles
-//
+/* Close all opened joystick handles */
+/* */
 void _glfwTerminateJoysticks(void)
 {
 #ifdef __linux__
@@ -222,13 +222,13 @@ void _glfwTerminateJoysticks(void)
             _glfw.x11.joystick[i].present = GL_FALSE;
         }
     }
-#endif // __linux__
+#endif /* __linux__ */
 }
 
 
-//////////////////////////////////////////////////////////////////////////
-//////                       GLFW platform API                      //////
-//////////////////////////////////////////////////////////////////////////
+/*//////////////////////////////////////////////////////////////////////// */
+/*////                       GLFW platform API                      ////// */
+/*//////////////////////////////////////////////////////////////////////// */
 
 int _glfwPlatformJoystickPresent(int joy)
 {

@@ -1,28 +1,28 @@
-//========================================================================
-// GLFW 3.0 X11 - www.glfw.org
-//------------------------------------------------------------------------
-// Copyright (c) 2010 Camilla Berglund <elmindreda@elmindreda.org>
-//
-// This software is provided 'as-is', without any express or implied
-// warranty. In no event will the authors be held liable for any damages
-// arising from the use of this software.
-//
-// Permission is granted to anyone to use this software for any purpose,
-// including commercial applications, and to alter it and redistribute it
-// freely, subject to the following restrictions:
-//
-// 1. The origin of this software must not be misrepresented; you must not
-//    claim that you wrote the original software. If you use this software
-//    in a product, an acknowledgment in the product documentation would
-//    be appreciated but is not required.
-//
-// 2. Altered source versions must be plainly marked as such, and must not
-//    be misrepresented as being the original software.
-//
-// 3. This notice may not be removed or altered from any source
-//    distribution.
-//
-//========================================================================
+/*======================================================================== */
+/* GLFW 3.0 X11 - www.glfw.org */
+/*------------------------------------------------------------------------ */
+/* Copyright (c) 2010 Camilla Berglund <elmindreda@elmindreda.org> */
+/* */
+/* This software is provided 'as-is', without any express or implied */
+/* warranty. In no event will the authors be held liable for any damages */
+/* arising from the use of this software. */
+/* */
+/* Permission is granted to anyone to use this software for any purpose, */
+/* including commercial applications, and to alter it and redistribute it */
+/* freely, subject to the following restrictions: */
+/* */
+/* 1. The origin of this software must not be misrepresented; you must not */
+/*    claim that you wrote the original software. If you use this software */
+/*    in a product, an acknowledgment in the product documentation would */
+/*    be appreciated but is not required. */
+/* */
+/* 2. Altered source versions must be plainly marked as such, and must not */
+/*    be misrepresented as being the original software. */
+/* */
+/* 3. This notice may not be removed or altered from any source */
+/*    distribution. */
+/* */
+/*======================================================================== */
 
 #include "internal.h"
 
@@ -32,8 +32,8 @@
 #include <stdlib.h>
 
 
-// Returns whether the event is a selection event
-//
+/* Returns whether the event is a selection event */
+/* */
 static Bool isSelectionMessage(Display* display, XEvent* event, XPointer pointer)
 {
     return event->type == SelectionRequest ||
@@ -41,8 +41,8 @@ static Bool isSelectionMessage(Display* display, XEvent* event, XPointer pointer
            event->type == SelectionClear;
 }
 
-// Set the specified property to the selection converted to the requested target
-//
+/* Set the specified property to the selection converted to the requested target */
+/* */
 static Atom writeTargetToProperty(const XSelectionRequestEvent* request)
 {
     int i;
@@ -53,14 +53,14 @@ static Atom writeTargetToProperty(const XSelectionRequestEvent* request)
 
     if (request->property == None)
     {
-        // The requestor is a legacy client (ICCCM section 2.2)
-        // We don't support legacy clients, so fail here
+        /* The requestor is a legacy client (ICCCM section 2.2) */
+        /* We don't support legacy clients, so fail here */
         return None;
     }
 
     if (request->target == _glfw.x11.TARGETS)
     {
-        // The list of supported targets was requested
+        /* The list of supported targets was requested */
 
         const Atom targets[] = { _glfw.x11.TARGETS,
                                  _glfw.x11.MULTIPLE,
@@ -82,7 +82,7 @@ static Atom writeTargetToProperty(const XSelectionRequestEvent* request)
 
     if (request->target == _glfw.x11.MULTIPLE)
     {
-        // Multiple conversions were requested
+        /* Multiple conversions were requested */
 
         Atom* targets;
         unsigned long i, count;
@@ -133,8 +133,8 @@ static Atom writeTargetToProperty(const XSelectionRequestEvent* request)
 
     if (request->target == _glfw.x11.SAVE_TARGETS)
     {
-        // The request is a check whether we support SAVE_TARGETS
-        // It should be handled as a no-op side effect target
+        /* The request is a check whether we support SAVE_TARGETS */
+        /* It should be handled as a no-op side effect target */
 
         XChangeProperty(_glfw.x11.display,
                         request->requestor,
@@ -148,13 +148,13 @@ static Atom writeTargetToProperty(const XSelectionRequestEvent* request)
         return request->property;
     }
 
-    // Conversion to a data target was requested
+    /* Conversion to a data target was requested */
 
     for (i = 0;  i < formatCount;  i++)
     {
         if (request->target == formats[i])
         {
-            // The requested target is one we support
+            /* The requested target is one we support */
 
             XChangeProperty(_glfw.x11.display,
                             request->requestor,
@@ -169,15 +169,15 @@ static Atom writeTargetToProperty(const XSelectionRequestEvent* request)
         }
     }
 
-    // The requested target is not supported
+    /* The requested target is not supported */
 
     return None;
 }
 
 
-//////////////////////////////////////////////////////////////////////////
-//////                       GLFW internal API                      //////
-//////////////////////////////////////////////////////////////////////////
+/*//////////////////////////////////////////////////////////////////////// */
+/*////                       GLFW internal API                      ////// */
+/*//////////////////////////////////////////////////////////////////////// */
 
 void _glfwHandleSelectionClear(XEvent* event)
 {
@@ -233,10 +233,10 @@ void _glfwPushSelectionToManager(_GLFWwindow* window)
             {
                 if (event.xselection.target == _glfw.x11.SAVE_TARGETS)
                 {
-                    // This means one of two things; either the selection was
-                    // not owned, which means there is no clipboard manager, or
-                    // the transfer to the clipboard manager has completed
-                    // In either case, it means we are done here
+                    /* This means one of two things; either the selection was */
+                    /* not owned, which means there is no clipboard manager, or */
+                    /* the transfer to the clipboard manager has completed */
+                    /* In either case, it means we are done here */
                     return;
                 }
 
@@ -247,9 +247,9 @@ void _glfwPushSelectionToManager(_GLFWwindow* window)
 }
 
 
-//////////////////////////////////////////////////////////////////////////
-//////                       GLFW platform API                      //////
-//////////////////////////////////////////////////////////////////////////
+/*//////////////////////////////////////////////////////////////////////// */
+/*////                       GLFW platform API                      ////// */
+/*//////////////////////////////////////////////////////////////////////// */
 
 void _glfwPlatformSetClipboardString(_GLFWwindow* window, const char* string)
 {
@@ -279,8 +279,8 @@ const char* _glfwPlatformGetClipboardString(_GLFWwindow* window)
     if (_glfwFindWindowByHandle(XGetSelectionOwner(_glfw.x11.display,
                                                    _glfw.x11.CLIPBOARD)))
     {
-        // Instead of doing a large number of X round-trips just to put this
-        // string into a window property and then read it back, just return it
+        /* Instead of doing a large number of X round-trips just to put this */
+        /* string into a window property and then read it back, just return it */
         return _glfw.x11.selection.string;
     }
 
@@ -298,8 +298,8 @@ const char* _glfwPlatformGetClipboardString(_GLFWwindow* window)
                           _glfw.x11.GLFW_SELECTION,
                           window->x11.handle, CurrentTime);
 
-        // XCheckTypedEvent is used instead of XIfEvent in order not to lock
-        // other threads out from the display during the entire wait period
+        /* XCheckTypedEvent is used instead of XIfEvent in order not to lock */
+        /* other threads out from the display during the entire wait period */
         while (!XCheckTypedEvent(_glfw.x11.display, SelectionNotify, &event))
             ;
 

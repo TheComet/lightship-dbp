@@ -1,29 +1,29 @@
-//========================================================================
-// GLFW 3.0 - www.glfw.org
-//------------------------------------------------------------------------
-// Copyright (c) 2002-2006 Marcus Geelnard
-// Copyright (c) 2006-2010 Camilla Berglund <elmindreda@elmindreda.org>
-//
-// This software is provided 'as-is', without any express or implied
-// warranty. In no event will the authors be held liable for any damages
-// arising from the use of this software.
-//
-// Permission is granted to anyone to use this software for any purpose,
-// including commercial applications, and to alter it and redistribute it
-// freely, subject to the following restrictions:
-//
-// 1. The origin of this software must not be misrepresented; you must not
-//    claim that you wrote the original software. If you use this software
-//    in a product, an acknowledgment in the product documentation would
-//    be appreciated but is not required.
-//
-// 2. Altered source versions must be plainly marked as such, and must not
-//    be misrepresented as being the original software.
-//
-// 3. This notice may not be removed or altered from any source
-//    distribution.
-//
-//========================================================================
+/*======================================================================== */
+/* GLFW 3.0 - www.glfw.org */
+/*------------------------------------------------------------------------ */
+/* Copyright (c) 2002-2006 Marcus Geelnard */
+/* Copyright (c) 2006-2010 Camilla Berglund <elmindreda@elmindreda.org> */
+/* */
+/* This software is provided 'as-is', without any express or implied */
+/* warranty. In no event will the authors be held liable for any damages */
+/* arising from the use of this software. */
+/* */
+/* Permission is granted to anyone to use this software for any purpose, */
+/* including commercial applications, and to alter it and redistribute it */
+/* freely, subject to the following restrictions: */
+/* */
+/* 1. The origin of this software must not be misrepresented; you must not */
+/*    claim that you wrote the original software. If you use this software */
+/*    in a product, an acknowledgment in the product documentation would */
+/*    be appreciated but is not required. */
+/* */
+/* 2. Altered source versions must be plainly marked as such, and must not */
+/*    be misrepresented as being the original software. */
+/* */
+/* 3. This notice may not be removed or altered from any source */
+/*    distribution. */
+/* */
+/*======================================================================== */
 
 #ifndef _internal_h_
 #define _internal_h_
@@ -32,7 +32,7 @@
 #include "config.h"
 
 #if defined(_GLFW_USE_OPENGL)
- // This is the default for glfw3.h
+ /* This is the default for glfw3.h */
 #elif defined(_GLFW_USE_GLESV1)
  #define GLFW_INCLUDE_ES1
 #elif defined(_GLFW_USE_GLESV2)
@@ -41,16 +41,16 @@
  #error "No supported client library selected"
 #endif
 
-// Disable the inclusion of the platform glext.h by gl.h to allow proper
-// inclusion of our own, newer glext.h below
+/* Disable the inclusion of the platform glext.h by gl.h to allow proper */
+/* inclusion of our own, newer glext.h below */
 #define GL_GLEXT_LEGACY
 
 #include "../include/GLFW/glfw3.h"
 
 #if defined(_GLFW_USE_OPENGL)
- // This path may need to be changed if you build GLFW using your own setup
- // GLFW comes with its own copy of glext.h since it uses fairly new extensions
- // and not all development environments come with an up-to-date version
+ /* This path may need to be changed if you build GLFW using your own setup */
+ /* GLFW comes with its own copy of glext.h since it uses fairly new extensions */
+ /* and not all development environments come with an up-to-date version */
  #include "../deps/GL/glext.h"
 #endif
 
@@ -72,9 +72,9 @@ typedef struct _GLFWmonitor     _GLFWmonitor;
 #endif
 
 
-//========================================================================
-// Doxygen group definitions
-//========================================================================
+/*======================================================================== */
+/* Doxygen group definitions */
+/*======================================================================== */
 
 /*! @defgroup platform Platform interface
  *  @brief The interface implemented by the platform-specific code.
@@ -99,11 +99,11 @@ typedef struct _GLFWmonitor     _GLFWmonitor;
  */
 
 
-//========================================================================
-// Helper macros
-//========================================================================
+/*======================================================================== */
+/* Helper macros */
+/*======================================================================== */
 
-// Checks for whether the library has been intitalized
+/* Checks for whether the library has been intitalized */
 #define _GLFW_REQUIRE_INIT()                         \
     if (!_glfwInitialized)                           \
     {                                                \
@@ -117,7 +117,7 @@ typedef struct _GLFWmonitor     _GLFWmonitor;
         return x;                                    \
     }
 
-// Swaps the provided pointers
+/* Swaps the provided pointers */
 #define _GLFW_SWAP_POINTERS(x, y) \
     {                             \
         void* t;                  \
@@ -127,9 +127,9 @@ typedef struct _GLFWmonitor     _GLFWmonitor;
     }
 
 
-//========================================================================
-// Internal types
-//========================================================================
+/*======================================================================== */
+/* Internal types */
+/*======================================================================== */
 
 /*! @brief Window and context configuration.
  *
@@ -182,7 +182,7 @@ struct _GLFWfbconfig
     int         samples;
     GLboolean   sRGB;
 
-    // This is defined in the context API's platform.h
+    /* This is defined in the context API's platform.h */
     _GLFW_PLATFORM_FBCONFIG;
 };
 
@@ -193,7 +193,7 @@ struct _GLFWwindow
 {
     struct _GLFWwindow* next;
 
-    // Window settings and state
+    /* Window settings and state */
     GLboolean           iconified;
     GLboolean           resizable;
     GLboolean           decorated;
@@ -203,7 +203,7 @@ struct _GLFWwindow
     GLFWvidmode         videoMode;
     _GLFWmonitor*       monitor;
 
-    // Window input state
+    /* Window input state */
     GLboolean           stickyKeys;
     GLboolean           stickyMouseButtons;
     double              cursorPosX, cursorPosY;
@@ -211,7 +211,7 @@ struct _GLFWwindow
     char                mouseButton[GLFW_MOUSE_BUTTON_LAST + 1];
     char                key[GLFW_KEY_LAST + 1];
 
-    // OpenGL extensions and context attributes
+    /* OpenGL extensions and context attributes */
     int                 clientAPI;
     int                 glMajor, glMinor, glRevision;
     GLboolean           glForward, glDebug;
@@ -237,9 +237,9 @@ struct _GLFWwindow
         GLFWcharfun             character;
     } callbacks;
 
-    // This is defined in the window API's platform.h
+    /* This is defined in the window API's platform.h */
     _GLFW_PLATFORM_WINDOW_STATE;
-    // This is defined in the context API's platform.h
+    /* This is defined in the context API's platform.h */
     _GLFW_PLATFORM_CONTEXT_STATE;
 };
 
@@ -250,7 +250,7 @@ struct _GLFWmonitor
 {
     char*           name;
 
-    // Physical dimensions in millimeters.
+    /* Physical dimensions in millimeters. */
     int             widthMM, heightMM;
 
     GLFWvidmode*    modes;
@@ -260,7 +260,7 @@ struct _GLFWmonitor
     GLFWgammaramp   originalRamp;
     GLFWgammaramp   currentRamp;
 
-    // This is defined in the window API's platform.h
+    /* This is defined in the window API's platform.h */
     _GLFW_PLATFORM_MONITOR_STATE;
 };
 
@@ -309,16 +309,16 @@ struct _GLFWlibrary
         GLFWmonitorfun  monitor;
     } callbacks;
 
-    // This is defined in the window API's platform.h
+    /* This is defined in the window API's platform.h */
     _GLFW_PLATFORM_LIBRARY_WINDOW_STATE;
-    // This is defined in the context API's platform.h
+    /* This is defined in the context API's platform.h */
     _GLFW_PLATFORM_LIBRARY_OPENGL_STATE;
 };
 
 
-//========================================================================
-// Global state shared between compilation units of GLFW
-//========================================================================
+/*======================================================================== */
+/* Global state shared between compilation units of GLFW */
+/*======================================================================== */
 
 /*! @brief Flag indicating whether GLFW has been successfully initialized.
  */
@@ -331,9 +331,9 @@ extern GLboolean _glfwInitialized;
 extern _GLFWlibrary _glfw;
 
 
-//========================================================================
-// Platform API functions
-//========================================================================
+/*======================================================================== */
+/* Platform API functions */
+/*======================================================================== */
 
 /*! @brief Initializes the platform-specific part of the library.
  *  @return `GL_TRUE` if successful, or `GL_FALSE` if an error occurred.
@@ -549,9 +549,9 @@ int _glfwPlatformExtensionSupported(const char* extension);
 GLFWglproc _glfwPlatformGetProcAddress(const char* procname);
 
 
-//========================================================================
-// Event API functions
-//========================================================================
+/*======================================================================== */
+/* Event API functions */
+/*======================================================================== */
 
 /*! @brief Notifies shared code of a window focus event.
  *  @param[in] window The window that received the event.
@@ -676,9 +676,9 @@ void _glfwInputMonitorChange(void);
 void _glfwInputError(int error, const char* format, ...);
 
 
-//========================================================================
-// Utility functions
-//========================================================================
+/*======================================================================== */
+/* Utility functions */
+/*======================================================================== */
 
 /*! @ingroup utility
  */
@@ -762,4 +762,4 @@ void _glfwDestroyMonitor(_GLFWmonitor* monitor);
   */
 void _glfwDestroyMonitors(_GLFWmonitor** monitors, int count);
 
-#endif // _internal_h_
+#endif /* _internal_h_ */

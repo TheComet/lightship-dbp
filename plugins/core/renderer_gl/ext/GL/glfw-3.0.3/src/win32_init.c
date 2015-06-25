@@ -1,29 +1,29 @@
-//========================================================================
-// GLFW 3.0 Win32 - www.glfw.org
-//------------------------------------------------------------------------
-// Copyright (c) 2002-2006 Marcus Geelnard
-// Copyright (c) 2006-2010 Camilla Berglund <elmindreda@elmindreda.org>
-//
-// This software is provided 'as-is', without any express or implied
-// warranty. In no event will the authors be held liable for any damages
-// arising from the use of this software.
-//
-// Permission is granted to anyone to use this software for any purpose,
-// including commercial applications, and to alter it and redistribute it
-// freely, subject to the following restrictions:
-//
-// 1. The origin of this software must not be misrepresented; you must not
-//    claim that you wrote the original software. If you use this software
-//    in a product, an acknowledgment in the product documentation would
-//    be appreciated but is not required.
-//
-// 2. Altered source versions must be plainly marked as such, and must not
-//    be misrepresented as being the original software.
-//
-// 3. This notice may not be removed or altered from any source
-//    distribution.
-//
-//========================================================================
+/*======================================================================== */
+/* GLFW 3.0 Win32 - www.glfw.org */
+/*------------------------------------------------------------------------ */
+/* Copyright (c) 2002-2006 Marcus Geelnard */
+/* Copyright (c) 2006-2010 Camilla Berglund <elmindreda@elmindreda.org> */
+/* */
+/* This software is provided 'as-is', without any express or implied */
+/* warranty. In no event will the authors be held liable for any damages */
+/* arising from the use of this software. */
+/* */
+/* Permission is granted to anyone to use this software for any purpose, */
+/* including commercial applications, and to alter it and redistribute it */
+/* freely, subject to the following restrictions: */
+/* */
+/* 1. The origin of this software must not be misrepresented; you must not */
+/*    claim that you wrote the original software. If you use this software */
+/*    in a product, an acknowledgment in the product documentation would */
+/*    be appreciated but is not required. */
+/* */
+/* 2. Altered source versions must be plainly marked as such, and must not */
+/*    be misrepresented as being the original software. */
+/* */
+/* 3. This notice may not be removed or altered from any source */
+/*    distribution. */
+/* */
+/*======================================================================== */
 
 #include "internal.h"
 
@@ -31,37 +31,37 @@
 #include <util/memory.h>
 
 #ifdef __BORLANDC__
-// With the Borland C++ compiler, we want to disable FPU exceptions
+/* With the Borland C++ compiler, we want to disable FPU exceptions */
 #include <float.h>
-#endif // __BORLANDC__
+#endif /* __BORLANDC__ */
 
 
 #if defined(_GLFW_USE_OPTIMUS_HPG)
 
-// Applications exporting this symbol with this value will be automatically
-// directed to the high-performance GPU on nVidia Optimus systems
-//
+/* Applications exporting this symbol with this value will be automatically */
+/* directed to the high-performance GPU on nVidia Optimus systems */
+/* */
 GLFWAPI DWORD NvOptimusEnablement = 0x00000001;
 
-#endif // _GLFW_USE_OPTIMUS_HPG
+#endif /* _GLFW_USE_OPTIMUS_HPG */
 
 #if defined(_GLFW_BUILD_DLL)
 
-// GLFW DLL entry point
-//
+/* GLFW DLL entry point */
+/* */
 BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved)
 {
     return TRUE;
 }
 
-#endif // _GLFW_BUILD_DLL
+#endif /* _GLFW_BUILD_DLL */
 
-// Load necessary libraries (DLLs)
-//
+/* Load necessary libraries (DLLs) */
+/* */
 static GLboolean initLibraries(void)
 {
 #ifndef _GLFW_NO_DLOAD_WINMM
-    // winmm.dll (for joystick and timer support)
+    /* winmm.dll (for joystick and timer support) */
 
     _glfw.win32.winmm.instance = LoadLibrary(L"winmm.dll");
     if (!_glfw.win32.winmm.instance)
@@ -83,7 +83,7 @@ static GLboolean initLibraries(void)
     {
         return GL_FALSE;
     }
-#endif // _GLFW_NO_DLOAD_WINMM
+#endif /* _GLFW_NO_DLOAD_WINMM */
 
     _glfw.win32.user32.instance = LoadLibrary(L"user32.dll");
     if (_glfw.win32.user32.instance)
@@ -102,8 +102,8 @@ static GLboolean initLibraries(void)
     return GL_TRUE;
 }
 
-// Unload used libraries (DLLs)
-//
+/* Unload used libraries (DLLs) */
+/* */
 static void terminateLibraries(void)
 {
 #ifndef _GLFW_NO_DLOAD_WINMM
@@ -112,7 +112,7 @@ static void terminateLibraries(void)
         FreeLibrary(_glfw.win32.winmm.instance);
         _glfw.win32.winmm.instance = NULL;
     }
-#endif // _GLFW_NO_DLOAD_WINMM
+#endif /* _GLFW_NO_DLOAD_WINMM */
 
     if (_glfw.win32.user32.instance)
         FreeLibrary(_glfw.win32.user32.instance);
@@ -122,12 +122,12 @@ static void terminateLibraries(void)
 }
 
 
-//////////////////////////////////////////////////////////////////////////
-//////                       GLFW internal API                      //////
-//////////////////////////////////////////////////////////////////////////
+/*//////////////////////////////////////////////////////////////////////// */
+/*////                       GLFW internal API                      ////// */
+/*//////////////////////////////////////////////////////////////////////// */
 
-// Returns whether desktop compositing is enabled
-//
+/* Returns whether desktop compositing is enabled */
+/* */
 BOOL _glfwIsCompositionEnabled(void)
 {
     BOOL enabled;
@@ -141,8 +141,8 @@ BOOL _glfwIsCompositionEnabled(void)
     return enabled;
 }
 
-// Returns a wide string version of the specified UTF-8 string
-//
+/* Returns a wide string version of the specified UTF-8 string */
+/* */
 WCHAR* _glfwCreateWideStringFromUTF8(const char* source)
 {
     WCHAR* target;
@@ -163,8 +163,8 @@ WCHAR* _glfwCreateWideStringFromUTF8(const char* source)
     return target;
 }
 
-// Returns a UTF-8 string version of the specified wide string
-//
+/* Returns a UTF-8 string version of the specified wide string */
+/* */
 char* _glfwCreateUTF8FromWideString(const WCHAR* source)
 {
     char* target;
@@ -186,15 +186,15 @@ char* _glfwCreateUTF8FromWideString(const WCHAR* source)
 }
 
 
-//////////////////////////////////////////////////////////////////////////
-//////                       GLFW platform API                      //////
-//////////////////////////////////////////////////////////////////////////
+/*//////////////////////////////////////////////////////////////////////// */
+/*////                       GLFW platform API                      ////// */
+/*//////////////////////////////////////////////////////////////////////// */
 
 int _glfwPlatformInit(void)
 {
-    // To make SetForegroundWindow work as we want, we need to fiddle
-    // with the FOREGROUNDLOCKTIMEOUT system setting (we do this as early
-    // as possible in the hope of still being the foreground process)
+    /* To make SetForegroundWindow work as we want, we need to fiddle */
+    /* with the FOREGROUNDLOCKTIMEOUT system setting (we do this as early */
+    /* as possible in the hope of still being the foreground process) */
     SystemParametersInfo(SPI_GETFOREGROUNDLOCKTIMEOUT, 0,
                          &_glfw.win32.foregroundLockTimeout, 0);
     SystemParametersInfo(SPI_SETFOREGROUNDLOCKTIMEOUT, 0, UIntToPtr(0),
@@ -207,8 +207,8 @@ int _glfwPlatformInit(void)
         _glfw_SetProcessDPIAware();
 
 #ifdef __BORLANDC__
-    // With the Borland C++ compiler, we want to disable FPU exceptions
-    // (this is recommended for OpenGL applications under Windows)
+    /* With the Borland C++ compiler, we want to disable FPU exceptions */
+    /* (this is recommended for OpenGL applications under Windows) */
     _control87(MCW_EM, MCW_EM);
 #endif
 
@@ -229,7 +229,7 @@ void _glfwPlatformTerminate(void)
         _glfw.win32.classAtom = 0;
     }
 
-    // Restore previous foreground lock timeout system setting
+    /* Restore previous foreground lock timeout system setting */
     SystemParametersInfo(SPI_SETFOREGROUNDLOCKTIMEOUT, 0,
                          UIntToPtr(_glfw.win32.foregroundLockTimeout),
                          SPIF_SENDCHANGE);

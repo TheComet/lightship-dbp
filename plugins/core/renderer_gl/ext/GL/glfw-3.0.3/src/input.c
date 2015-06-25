@@ -1,38 +1,38 @@
-//========================================================================
-// GLFW 3.0 - www.glfw.org
-//------------------------------------------------------------------------
-// Copyright (c) 2002-2006 Marcus Geelnard
-// Copyright (c) 2006-2010 Camilla Berglund <elmindreda@elmindreda.org>
-//
-// This software is provided 'as-is', without any express or implied
-// warranty. In no event will the authors be held liable for any damages
-// arising from the use of this software.
-//
-// Permission is granted to anyone to use this software for any purpose,
-// including commercial applications, and to alter it and redistribute it
-// freely, subject to the following restrictions:
-//
-// 1. The origin of this software must not be misrepresented; you must not
-//    claim that you wrote the original software. If you use this software
-//    in a product, an acknowledgment in the product documentation would
-//    be appreciated but is not required.
-//
-// 2. Altered source versions must be plainly marked as such, and must not
-//    be misrepresented as being the original software.
-//
-// 3. This notice may not be removed or altered from any source
-//    distribution.
-//
-//========================================================================
+/*======================================================================== */
+/* GLFW 3.0 - www.glfw.org */
+/*------------------------------------------------------------------------ */
+/* Copyright (c) 2002-2006 Marcus Geelnard */
+/* Copyright (c) 2006-2010 Camilla Berglund <elmindreda@elmindreda.org> */
+/* */
+/* This software is provided 'as-is', without any express or implied */
+/* warranty. In no event will the authors be held liable for any damages */
+/* arising from the use of this software. */
+/* */
+/* Permission is granted to anyone to use this software for any purpose, */
+/* including commercial applications, and to alter it and redistribute it */
+/* freely, subject to the following restrictions: */
+/* */
+/* 1. The origin of this software must not be misrepresented; you must not */
+/*    claim that you wrote the original software. If you use this software */
+/*    in a product, an acknowledgment in the product documentation would */
+/*    be appreciated but is not required. */
+/* */
+/* 2. Altered source versions must be plainly marked as such, and must not */
+/*    be misrepresented as being the original software. */
+/* */
+/* 3. This notice may not be removed or altered from any source */
+/*    distribution. */
+/* */
+/*======================================================================== */
 
 #include "internal.h"
 
-// Internal key state used for sticky keys
+/* Internal key state used for sticky keys */
 #define _GLFW_STICK 3
 
 
-// Sets the cursor mode for the specified window
-//
+/* Sets the cursor mode for the specified window */
+/* */
 static void setCursorMode(_GLFWwindow* window, int newMode)
 {
     int oldMode;
@@ -75,8 +75,8 @@ static void setCursorMode(_GLFWwindow* window, int newMode)
     window->cursorMode = newMode;
 }
 
-// Set sticky keys mode for the specified window
-//
+/* Set sticky keys mode for the specified window */
+/* */
 static void setStickyKeys(_GLFWwindow* window, int enabled)
 {
     if (window->stickyKeys == enabled)
@@ -86,7 +86,7 @@ static void setStickyKeys(_GLFWwindow* window, int enabled)
     {
         int i;
 
-        // Release all sticky keys
+        /* Release all sticky keys */
         for (i = 0;  i <= GLFW_KEY_LAST;  i++)
         {
             if (window->key[i] == _GLFW_STICK)
@@ -97,8 +97,8 @@ static void setStickyKeys(_GLFWwindow* window, int enabled)
     window->stickyKeys = enabled;
 }
 
-// Set sticky mouse buttons mode for the specified window
-//
+/* Set sticky mouse buttons mode for the specified window */
+/* */
 static void setStickyMouseButtons(_GLFWwindow* window, int enabled)
 {
     if (window->stickyMouseButtons == enabled)
@@ -108,7 +108,7 @@ static void setStickyMouseButtons(_GLFWwindow* window, int enabled)
     {
         int i;
 
-        // Release all sticky mouse buttons
+        /* Release all sticky mouse buttons */
         for (i = 0;  i <= GLFW_MOUSE_BUTTON_LAST;  i++)
         {
             if (window->mouseButton[i] == _GLFW_STICK)
@@ -120,9 +120,9 @@ static void setStickyMouseButtons(_GLFWwindow* window, int enabled)
 }
 
 
-//////////////////////////////////////////////////////////////////////////
-//////                         GLFW event API                       //////
-//////////////////////////////////////////////////////////////////////////
+/*//////////////////////////////////////////////////////////////////////// */
+/*////                         GLFW event API                       ////// */
+/*//////////////////////////////////////////////////////////////////////// */
 
 void _glfwInputKey(_GLFWwindow* window, int key, int scancode, int action, int mods)
 {
@@ -169,7 +169,7 @@ void _glfwInputMouseClick(_GLFWwindow* window, int button, int action, int mods)
     if (button < 0 || button > GLFW_MOUSE_BUTTON_LAST)
         return;
 
-    // Register mouse button action
+    /* Register mouse button action */
     if (action == GLFW_RELEASE && window->stickyMouseButtons)
         window->mouseButton[button] = _GLFW_STICK;
     else
@@ -213,9 +213,9 @@ void _glfwInputCursorEnter(_GLFWwindow* window, int entered)
 }
 
 
-//////////////////////////////////////////////////////////////////////////
-//////                        GLFW public API                       //////
-//////////////////////////////////////////////////////////////////////////
+/*//////////////////////////////////////////////////////////////////////// */
+/*////                        GLFW public API                       ////// */
+/*//////////////////////////////////////////////////////////////////////// */
 
 GLFWAPI int glfwGetInputMode(GLFWwindow* handle, int mode)
 {
@@ -274,7 +274,7 @@ GLFWAPI int glfwGetKey(GLFWwindow* handle, int key)
 
     if (window->key[key] == _GLFW_STICK)
     {
-        // Sticky mode: release key now
+        /* Sticky mode: release key now */
         window->key[key] = GLFW_RELEASE;
         return GLFW_PRESS;
     }
@@ -297,7 +297,7 @@ GLFWAPI int glfwGetMouseButton(GLFWwindow* handle, int button)
 
     if (window->mouseButton[button] == _GLFW_STICK)
     {
-        // Sticky mode: release mouse button now
+        /* Sticky mode: release mouse button now */
         window->mouseButton[button] = GLFW_RELEASE;
         return GLFW_PRESS;
     }
@@ -327,19 +327,19 @@ GLFWAPI void glfwSetCursorPos(GLFWwindow* handle, double xpos, double ypos)
     if (_glfw.focusedWindow != window)
         return;
 
-    // Don't do anything if the cursor position did not change
+    /* Don't do anything if the cursor position did not change */
     if (xpos == window->cursorPosX && ypos == window->cursorPosY)
         return;
 
-    // Set GLFW cursor position
+    /* Set GLFW cursor position */
     window->cursorPosX = xpos;
     window->cursorPosY = ypos;
 
-    // Do not move physical cursor if it is disabled
+    /* Do not move physical cursor if it is disabled */
     if (window->cursorMode == GLFW_CURSOR_DISABLED)
         return;
 
-    // Update physical cursor position
+    /* Update physical cursor position */
     _glfwPlatformSetCursorPos(window, xpos, ypos);
 }
 

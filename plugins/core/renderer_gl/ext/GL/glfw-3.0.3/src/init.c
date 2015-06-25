@@ -1,29 +1,29 @@
-//========================================================================
-// GLFW 3.0 - www.glfw.org
-//------------------------------------------------------------------------
-// Copyright (c) 2002-2006 Marcus Geelnard
-// Copyright (c) 2006-2010 Camilla Berglund <elmindreda@elmindreda.org>
-//
-// This software is provided 'as-is', without any express or implied
-// warranty. In no event will the authors be held liable for any damages
-// arising from the use of this software.
-//
-// Permission is granted to anyone to use this software for any purpose,
-// including commercial applications, and to alter it and redistribute it
-// freely, subject to the following restrictions:
-//
-// 1. The origin of this software must not be misrepresented; you must not
-//    claim that you wrote the original software. If you use this software
-//    in a product, an acknowledgment in the product documentation would
-//    be appreciated but is not required.
-//
-// 2. Altered source versions must be plainly marked as such, and must not
-//    be misrepresented as being the original software.
-//
-// 3. This notice may not be removed or altered from any source
-//    distribution.
-//
-//========================================================================
+/*======================================================================== */
+/* GLFW 3.0 - www.glfw.org */
+/*------------------------------------------------------------------------ */
+/* Copyright (c) 2002-2006 Marcus Geelnard */
+/* Copyright (c) 2006-2010 Camilla Berglund <elmindreda@elmindreda.org> */
+/* */
+/* This software is provided 'as-is', without any express or implied */
+/* warranty. In no event will the authors be held liable for any damages */
+/* arising from the use of this software. */
+/* */
+/* Permission is granted to anyone to use this software for any purpose, */
+/* including commercial applications, and to alter it and redistribute it */
+/* freely, subject to the following restrictions: */
+/* */
+/* 1. The origin of this software must not be misrepresented; you must not */
+/*    claim that you wrote the original software. If you use this software */
+/*    in a product, an acknowledgment in the product documentation would */
+/*    be appreciated but is not required. */
+/* */
+/* 2. Altered source versions must be plainly marked as such, and must not */
+/*    be misrepresented as being the original software. */
+/* */
+/* 3. This notice may not be removed or altered from any source */
+/*    distribution. */
+/* */
+/*======================================================================== */
 
 #include "internal.h"
 
@@ -33,22 +33,22 @@
 #include <stdarg.h>
 
 
-// Global state shared between compilation units of GLFW
-// These are documented in internal.h
-//
+/* Global state shared between compilation units of GLFW */
+/* These are documented in internal.h */
+/* */
 GLboolean _glfwInitialized = GL_FALSE;
 _GLFWlibrary _glfw;
 
 
-// The current error callback
-// This is outside of _glfw so it can be initialized and usable before
-// glfwInit is called, which lets that function report errors
-//
+/* The current error callback */
+/* This is outside of _glfw so it can be initialized and usable before */
+/* glfwInit is called, which lets that function report errors */
+/* */
 static GLFWerrorfun _glfwErrorCallback = NULL;
 
 
-// Returns a generic string representation of the specified error
-//
+/* Returns a generic string representation of the specified error */
+/* */
 static const char* getErrorString(int error)
 {
     switch (error)
@@ -77,9 +77,9 @@ static const char* getErrorString(int error)
 }
 
 
-//////////////////////////////////////////////////////////////////////////
-//////                         GLFW event API                       //////
-//////////////////////////////////////////////////////////////////////////
+/*//////////////////////////////////////////////////////////////////////// */
+/*////                         GLFW event API                       ////// */
+/*//////////////////////////////////////////////////////////////////////// */
 
 void _glfwInputError(int error, const char* format, ...)
 {
@@ -110,9 +110,9 @@ void _glfwInputError(int error, const char* format, ...)
 }
 
 
-//////////////////////////////////////////////////////////////////////////
-//////                        GLFW public API                       //////
-//////////////////////////////////////////////////////////////////////////
+/*//////////////////////////////////////////////////////////////////////// */
+/*////                        GLFW public API                       ////// */
+/*//////////////////////////////////////////////////////////////////////// */
 
 GLFWAPI int glfwInit(void)
 {
@@ -137,7 +137,7 @@ GLFWAPI int glfwInit(void)
 
     _glfwInitialized = GL_TRUE;
 
-    // Not all window hints have zero as their default value
+    /* Not all window hints have zero as their default value */
     glfwDefaultWindowHints();
 
     return GL_TRUE;
@@ -152,7 +152,7 @@ GLFWAPI void glfwTerminate(void)
 
     memset(&_glfw.callbacks, 0, sizeof(_glfw.callbacks));
 
-    // Close all remaining windows
+    /* Close all remaining windows */
     while (_glfw.windowListHead)
         glfwDestroyWindow((GLFWwindow*) _glfw.windowListHead);
 

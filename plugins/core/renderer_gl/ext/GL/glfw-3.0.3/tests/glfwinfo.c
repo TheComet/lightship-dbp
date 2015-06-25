@@ -1,33 +1,33 @@
-//========================================================================
-// Version information dumper
-// Copyright (c) Camilla Berglund <elmindreda@elmindreda.org>
-//
-// This software is provided 'as-is', without any express or implied
-// warranty. In no event will the authors be held liable for any damages
-// arising from the use of this software.
-//
-// Permission is granted to anyone to use this software for any purpose,
-// including commercial applications, and to alter it and redistribute it
-// freely, subject to the following restrictions:
-//
-// 1. The origin of this software must not be misrepresented; you must not
-//    claim that you wrote the original software. If you use this software
-//    in a product, an acknowledgment in the product documentation would
-//    be appreciated but is not required.
-//
-// 2. Altered source versions must be plainly marked as such, and must not
-//    be misrepresented as being the original software.
-//
-// 3. This notice may not be removed or altered from any source
-//    distribution.
-//
-//========================================================================
-//
-// This test is a pale imitation of glxinfo(1), except not really
-//
-// It dumps GLFW and OpenGL version information
-//
-//========================================================================
+/*======================================================================== */
+/* Version information dumper */
+/* Copyright (c) Camilla Berglund <elmindreda@elmindreda.org> */
+/* */
+/* This software is provided 'as-is', without any express or implied */
+/* warranty. In no event will the authors be held liable for any damages */
+/* arising from the use of this software. */
+/* */
+/* Permission is granted to anyone to use this software for any purpose, */
+/* including commercial applications, and to alter it and redistribute it */
+/* freely, subject to the following restrictions: */
+/* */
+/* 1. The origin of this software must not be misrepresented; you must not */
+/*    claim that you wrote the original software. If you use this software */
+/*    in a product, an acknowledgment in the product documentation would */
+/*    be appreciated but is not required. */
+/* */
+/* 2. Altered source versions must be plainly marked as such, and must not */
+/*    be misrepresented as being the original software. */
+/* */
+/* 3. This notice may not be removed or altered from any source */
+/*    distribution. */
+/* */
+/*======================================================================== */
+/* */
+/* This test is a pale imitation of glxinfo(1), except not really */
+/* */
+/* It dumps GLFW and OpenGL version information */
+/* */
+/*======================================================================== */
 
 #include <GLFW/glfw3.h>
 #include <GL/glext.h>
@@ -252,7 +252,7 @@ int main(int argc, char** argv)
     argc -= optind;
     argv += optind;
 
-    // Initialize GLFW and create window
+    /* Initialize GLFW and create window */
 
     glfwSetErrorCallback(error_callback);
 
@@ -291,7 +291,7 @@ int main(int argc, char** argv)
 
     glfwMakeContextCurrent(window);
 
-    // Report client API version
+    /* Report client API version */
 
     api = glfwGetWindowAttrib(window, GLFW_CLIENT_API);
     major = glfwGetWindowAttrib(window, GLFW_CONTEXT_VERSION_MAJOR);
@@ -306,7 +306,7 @@ int main(int argc, char** argv)
            get_client_api_name(api),
            major, minor, revision);
 
-    // Report client API context properties
+    /* Report client API context properties */
 
     if (api == GLFW_OPENGL_API)
     {
@@ -382,7 +382,7 @@ int main(int argc, char** argv)
                glGetString(GL_SHADING_LANGUAGE_VERSION));
     }
 
-    // Report client API extensions
+    /* Report client API extensions */
     if (list)
         list_extensions(api, major, minor);
 

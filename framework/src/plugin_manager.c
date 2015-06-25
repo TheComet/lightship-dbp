@@ -382,7 +382,6 @@ find_plugin(struct game_t* game,
 			const plugin_search_criteria_t criteria)
 {
 	/* local variables */
-	char version_str[sizeof(int)*27+1];
 	struct list_t* list;
 	const char* crit_info[] = {"minimum version ", "exact version "};
 	char* file_found = NULL;

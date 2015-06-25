@@ -93,7 +93,6 @@ SERVICE(text_create_wrapper)
 SERVICE(text_destroy_wrapper)
 {
 	EXTRACT_ARGUMENT(0, text_id, uint32_t, uint32_t);
-	struct glob_t* g = get_global(service->plugin->game);
 
 	struct text_t* text = map_erase(&g_texts, text_id);
 	if(text)

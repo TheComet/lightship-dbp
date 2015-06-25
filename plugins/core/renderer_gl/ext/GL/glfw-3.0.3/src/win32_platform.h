@@ -1,35 +1,35 @@
-//========================================================================
-// GLFW 3.0 Win32 - www.glfw.org
-//------------------------------------------------------------------------
-// Copyright (c) 2002-2006 Marcus Geelnard
-// Copyright (c) 2006-2010 Camilla Berglund <elmindreda@elmindreda.org>
-//
-// This software is provided 'as-is', without any express or implied
-// warranty. In no event will the authors be held liable for any damages
-// arising from the use of this software.
-//
-// Permission is granted to anyone to use this software for any purpose,
-// including commercial applications, and to alter it and redistribute it
-// freely, subject to the following restrictions:
-//
-// 1. The origin of this software must not be misrepresented; you must not
-//    claim that you wrote the original software. If you use this software
-//    in a product, an acknowledgment in the product documentation would
-//    be appreciated but is not required.
-//
-// 2. Altered source versions must be plainly marked as such, and must not
-//    be misrepresented as being the original software.
-//
-// 3. This notice may not be removed or altered from any source
-//    distribution.
-//
-//========================================================================
+/*======================================================================== */
+/* GLFW 3.0 Win32 - www.glfw.org */
+/*------------------------------------------------------------------------ */
+/* Copyright (c) 2002-2006 Marcus Geelnard */
+/* Copyright (c) 2006-2010 Camilla Berglund <elmindreda@elmindreda.org> */
+/* */
+/* This software is provided 'as-is', without any express or implied */
+/* warranty. In no event will the authors be held liable for any damages */
+/* arising from the use of this software. */
+/* */
+/* Permission is granted to anyone to use this software for any purpose, */
+/* including commercial applications, and to alter it and redistribute it */
+/* freely, subject to the following restrictions: */
+/* */
+/* 1. The origin of this software must not be misrepresented; you must not */
+/*    claim that you wrote the original software. If you use this software */
+/*    in a product, an acknowledgment in the product documentation would */
+/*    be appreciated but is not required. */
+/* */
+/* 2. Altered source versions must be plainly marked as such, and must not */
+/*    be misrepresented as being the original software. */
+/* */
+/* 3. This notice may not be removed or altered from any source */
+/*    distribution. */
+/* */
+/*======================================================================== */
 
 #ifndef _win32_platform_h_
 #define _win32_platform_h_
 
 
-// We don't need all the fancy stuff
+/* We don't need all the fancy stuff */
 #ifndef NOMINMAX
  #define NOMINMAX
 #endif
@@ -42,17 +42,17 @@
  #define WIN32_LEAN_AND_MEAN
 #endif
 
-// This is a workaround for the fact that glfw3.h needs to export APIENTRY (to
-// correctly declare a GL_ARB_debug_output callback, for example) but windows.h
-// thinks it is the only one that gets to do so
+/* This is a workaround for the fact that glfw3.h needs to export APIENTRY (to */
+/* correctly declare a GL_ARB_debug_output callback, for example) but windows.h */
+/* thinks it is the only one that gets to do so */
 #undef APIENTRY
 
-// GLFW on Windows is Unicode only and does not work in MBCS mode
+/* GLFW on Windows is Unicode only and does not work in MBCS mode */
 #ifndef UNICODE
  #define UNICODE
 #endif
 
-// GLFW requires Windows XP or later
+/* GLFW requires Windows XP or later */
 #if WINVER < 0x0501
  #undef WINVER
  #define WINVER 0x0501
@@ -67,9 +67,9 @@
 #include <dbt.h>
 
 
-//========================================================================
-// Hack: Define things that some windows.h variants don't
-//========================================================================
+/*======================================================================== */
+/* Hack: Define things that some windows.h variants don't */
+/*======================================================================== */
 
 #ifndef WM_MOUSEHWHEEL
  #define WM_MOUSEHWHEEL 0x020E
@@ -79,20 +79,20 @@
 #endif
 
 
-//========================================================================
-// DLLs that are loaded at glfwInit()
-//========================================================================
+/*======================================================================== */
+/* DLLs that are loaded at glfwInit() */
+/*======================================================================== */
 
-// winmm.dll function pointer typedefs
+/* winmm.dll function pointer typedefs */
 #ifndef _GLFW_NO_DLOAD_WINMM
 typedef MMRESULT (WINAPI * JOYGETDEVCAPS_T) (UINT,LPJOYCAPS,UINT);
 typedef MMRESULT (WINAPI * JOYGETPOS_T) (UINT,LPJOYINFO);
 typedef MMRESULT (WINAPI * JOYGETPOSEX_T) (UINT,LPJOYINFOEX);
 typedef DWORD (WINAPI * TIMEGETTIME_T) (void);
-#endif // _GLFW_NO_DLOAD_WINMM
+#endif /* _GLFW_NO_DLOAD_WINMM */
 
 
-// winmm.dll shortcuts
+/* winmm.dll shortcuts */
 #ifndef _GLFW_NO_DLOAD_WINMM
  #define _glfw_joyGetDevCaps _glfw.win32.winmm.joyGetDevCaps
  #define _glfw_joyGetPos     _glfw.win32.winmm.joyGetPos
@@ -103,19 +103,19 @@ typedef DWORD (WINAPI * TIMEGETTIME_T) (void);
  #define _glfw_joyGetPos     joyGetPos
  #define _glfw_joyGetPosEx   joyGetPosEx
  #define _glfw_timeGetTime   timeGetTime
-#endif // _GLFW_NO_DLOAD_WINMM
+#endif /* _GLFW_NO_DLOAD_WINMM */
 
-// user32.dll function pointer typedefs
+/* user32.dll function pointer typedefs */
 typedef BOOL (WINAPI * SETPROCESSDPIAWARE_T)(void);
 #define _glfw_SetProcessDPIAware _glfw.win32.user32.SetProcessDPIAware
 
-// dwmapi.dll function pointer typedefs
+/* dwmapi.dll function pointer typedefs */
 typedef HRESULT (WINAPI * DWMISCOMPOSITIONENABLED_T)(BOOL*);
 #define _glfw_DwmIsCompositionEnabled _glfw.win32.dwmapi.DwmIsCompositionEnabled
 
 
-// We use versioned window class names in order not to cause conflicts
-// between applications using different versions of GLFW
+/* We use versioned window class names in order not to cause conflicts */
+/* between applications using different versions of GLFW */
 #define _GLFW_WNDCLASSNAME L"GLFW30"
 
 #define _GLFW_RECREATION_NOT_NEEDED 0
@@ -138,22 +138,22 @@ typedef HRESULT (WINAPI * DWMISCOMPOSITIONENABLED_T)(BOOL*);
 #define _GLFW_PLATFORM_MONITOR_STATE        _GLFWmonitorWin32 win32
 
 
-//========================================================================
-// GLFW platform specific types
-//========================================================================
+/*======================================================================== */
+/* GLFW platform specific types */
+/*======================================================================== */
 
 
-//------------------------------------------------------------------------
-// Platform-specific window structure
-//------------------------------------------------------------------------
+/*------------------------------------------------------------------------ */
+/* Platform-specific window structure */
+/*------------------------------------------------------------------------ */
 typedef struct _GLFWwindowWin32
 {
-    // Platform specific window resources
-    HWND                handle;    // Window handle
-    DWORD               dwStyle;   // Window styles used for window creation
-    DWORD               dwExStyle; // --"--
+    /* Platform specific window resources */
+    HWND                handle;    /* Window handle */
+    DWORD               dwStyle;   /* Window styles used for window creation */
+    DWORD               dwExStyle; /* --"-- */
 
-    // Various platform specific internal variables
+    /* Various platform specific internal variables */
     GLboolean           cursorCentered;
     GLboolean           cursorInside;
     GLboolean           cursorHidden;
@@ -161,16 +161,16 @@ typedef struct _GLFWwindowWin32
 } _GLFWwindowWin32;
 
 
-//------------------------------------------------------------------------
-// Platform-specific library global data for Win32
-//------------------------------------------------------------------------
+/*------------------------------------------------------------------------ */
+/* Platform-specific library global data for Win32 */
+/*------------------------------------------------------------------------ */
 typedef struct _GLFWlibraryWin32
 {
     ATOM                classAtom;
     DWORD               foregroundLockTimeout;
     char*               clipboardString;
 
-    // Timer data
+    /* Timer data */
     struct {
         GLboolean       hasPC;
         double          resolution;
@@ -179,7 +179,7 @@ typedef struct _GLFWlibraryWin32
     } timer;
 
 #ifndef _GLFW_NO_DLOAD_WINMM
-    // winmm.dll
+    /* winmm.dll */
     struct {
         HINSTANCE       instance;
         JOYGETDEVCAPS_T joyGetDevCaps;
@@ -187,15 +187,15 @@ typedef struct _GLFWlibraryWin32
         JOYGETPOSEX_T   joyGetPosEx;
         TIMEGETTIME_T   timeGetTime;
     } winmm;
-#endif // _GLFW_NO_DLOAD_WINMM
+#endif /* _GLFW_NO_DLOAD_WINMM */
 
-    // user32.dll
+    /* user32.dll */
     struct {
         HINSTANCE       instance;
         SETPROCESSDPIAWARE_T SetProcessDPIAware;
     } user32;
 
-    // dwmapi.dll
+    /* dwmapi.dll */
     struct {
         HINSTANCE       instance;
         DWMISCOMPOSITIONENABLED_T DwmIsCompositionEnabled;
@@ -203,43 +203,43 @@ typedef struct _GLFWlibraryWin32
 
     struct {
         float           axes[6];
-        unsigned char   buttons[36]; // 32 buttons plus one hat
+        unsigned char   buttons[36]; /* 32 buttons plus one hat */
         char*           name;
     } joystick[GLFW_JOYSTICK_LAST + 1];
 
 } _GLFWlibraryWin32;
 
 
-//------------------------------------------------------------------------
-// Platform-specific monitor structure
-//------------------------------------------------------------------------
+/*------------------------------------------------------------------------ */
+/* Platform-specific monitor structure */
+/*------------------------------------------------------------------------ */
 typedef struct _GLFWmonitorWin32
 {
-    // This size matches the static size of DISPLAY_DEVICE.DeviceName
+    /* This size matches the static size of DISPLAY_DEVICE.DeviceName */
     WCHAR               name[32];
 
 } _GLFWmonitorWin32;
 
 
-//========================================================================
-// Prototypes for platform specific internal functions
-//========================================================================
+/*======================================================================== */
+/* Prototypes for platform specific internal functions */
+/*======================================================================== */
 
-// Desktop compositing
+/* Desktop compositing */
 BOOL _glfwIsCompositionEnabled(void);
 
-// Wide strings
+/* Wide strings */
 WCHAR* _glfwCreateWideStringFromUTF8(const char* source);
 char* _glfwCreateUTF8FromWideString(const WCHAR* source);
 
-// Time
+/* Time */
 void _glfwInitTimer(void);
 
-// Joystick input
+/* Joystick input */
 void _glfwInitJoysticks(void);
 void _glfwTerminateJoysticks(void);
 
-// OpenGL support
+/* OpenGL support */
 int _glfwInitContextAPI(void);
 void _glfwTerminateContextAPI(void);
 int _glfwCreateContext(_GLFWwindow* window,
@@ -250,9 +250,9 @@ int _glfwAnalyzeContext(const _GLFWwindow* window,
                         const _GLFWwndconfig* wndconfig,
                         const _GLFWfbconfig* fbconfig);
 
-// Fullscreen support
+/* Fullscreen support */
 GLboolean _glfwSetVideoMode(_GLFWmonitor* monitor, const GLFWvidmode* desired);
 void _glfwRestoreVideoMode(_GLFWmonitor* monitor);
 
 
-#endif // _win32_platform_h_
+#endif /* _win32_platform_h_ */

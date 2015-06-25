@@ -472,7 +472,7 @@ int thrd_sleep(const struct timespec *time_point, struct timespec *remaining)
 
   /* Get the current time */
   if (clock_gettime(TIME_UTC, &now) != 0)
-    return -2;  // FIXME: Some specific error code?
+    return -2;  /* FIXME: Some specific error code? */
 
 #if defined(_TTHREAD_WIN32_)
   /* Delta in milliseconds */
@@ -589,5 +589,5 @@ int _tthread_clock_gettime(clockid_t clk_id, struct timespec *ts)
 #endif
   return 0;
 }
-#endif // _TTHREAD_EMULATE_CLOCK_GETTIME_
+#endif /* _TTHREAD_EMULATE_CLOCK_GETTIME_ */
 

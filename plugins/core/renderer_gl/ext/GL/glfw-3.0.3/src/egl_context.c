@@ -1,29 +1,29 @@
-//========================================================================
-// GLFW 3.0 EGL - www.glfw.org
-//------------------------------------------------------------------------
-// Copyright (c) 2002-2006 Marcus Geelnard
-// Copyright (c) 2006-2010 Camilla Berglund <elmindreda@elmindreda.org>
-//
-// This software is provided 'as-is', without any express or implied
-// warranty. In no event will the authors be held liable for any damages
-// arising from the use of this software.
-//
-// Permission is granted to anyone to use this software for any purpose,
-// including commercial applications, and to alter it and redistribute it
-// freely, subject to the following restrictions:
-//
-// 1. The origin of this software must not be misrepresented; you must not
-//    claim that you wrote the original software. If you use this software
-//    in a product, an acknowledgment in the product documentation would
-//    be appreciated but is not required.
-//
-// 2. Altered source versions must be plainly marked as such, and must not
-//    be misrepresented as being the original software.
-//
-// 3. This notice may not be removed or altered from any source
-//    distribution.
-//
-//========================================================================
+/*======================================================================== */
+/* GLFW 3.0 EGL - www.glfw.org */
+/*------------------------------------------------------------------------ */
+/* Copyright (c) 2002-2006 Marcus Geelnard */
+/* Copyright (c) 2006-2010 Camilla Berglund <elmindreda@elmindreda.org> */
+/* */
+/* This software is provided 'as-is', without any express or implied */
+/* warranty. In no event will the authors be held liable for any damages */
+/* arising from the use of this software. */
+/* */
+/* Permission is granted to anyone to use this software for any purpose, */
+/* including commercial applications, and to alter it and redistribute it */
+/* freely, subject to the following restrictions: */
+/* */
+/* 1. The origin of this software must not be misrepresented; you must not */
+/*    claim that you wrote the original software. If you use this software */
+/*    in a product, an acknowledgment in the product documentation would */
+/*    be appreciated but is not required. */
+/* */
+/* 2. Altered source versions must be plainly marked as such, and must not */
+/*    be misrepresented as being the original software. */
+/* */
+/* 3. This notice may not be removed or altered from any source */
+/*    distribution. */
+/* */
+/*======================================================================== */
 
 #include "internal.h"
 
@@ -32,8 +32,8 @@
 #include <assert.h>
 
 
-// Thread local storage attribute macro
-//
+/* Thread local storage attribute macro */
+/* */
 #if defined(_MSC_VER)
  #define _GLFW_TLS __declspec(thread)
 #elif defined(__GNUC__)
@@ -43,13 +43,13 @@
 #endif
 
 
-// The per-thread current context/window pointer
-//
+/* The per-thread current context/window pointer */
+/* */
 static _GLFW_TLS _GLFWwindow* _glfwCurrentWindow = NULL;
 
 
-// Return a description of the specified EGL error
-//
+/* Return a description of the specified EGL error */
+/* */
 static const char* getErrorString(EGLint error)
 {
     switch (error)
@@ -97,8 +97,8 @@ static const char* getErrorString(EGLint error)
     return "UNKNOWN EGL ERROR";
 }
 
-// Returns the specified attribute of the specified EGLConfig
-//
+/* Returns the specified attribute of the specified EGLConfig */
+/* */
 static int getConfigAttrib(EGLConfig config, int attrib)
 {
     int value;
@@ -106,8 +106,8 @@ static int getConfigAttrib(EGLConfig config, int attrib)
     return value;
 }
 
-// Return a list of available and usable framebuffer configs
-//
+/* Return a list of available and usable framebuffer configs */
+/* */
 static GLboolean chooseFBConfigs(const _GLFWwndconfig* wndconfig,
                                  const _GLFWfbconfig* desired,
                                  EGLConfig* result)
@@ -138,20 +138,20 @@ static GLboolean chooseFBConfigs(const _GLFWwndconfig* wndconfig,
 #if defined(_GLFW_X11)
         if (!getConfigAttrib(n, EGL_NATIVE_VISUAL_ID))
         {
-            // Only consider EGLConfigs with associated visuals
+            /* Only consider EGLConfigs with associated visuals */
             continue;
         }
-#endif // _GLFW_X11
+#endif /* _GLFW_X11 */
 
         if (!(getConfigAttrib(n, EGL_COLOR_BUFFER_TYPE) & EGL_RGB_BUFFER))
         {
-            // Only consider RGB(A) EGLConfigs
+            /* Only consider RGB(A) EGLConfigs */
             continue;
         }
 
         if (!(getConfigAttrib(n, EGL_SURFACE_TYPE) & EGL_WINDOW_BIT))
         {
-            // Only consider window EGLConfigs
+            /* Only consider window EGLConfigs */
             continue;
         }
 
@@ -199,12 +199,12 @@ static GLboolean chooseFBConfigs(const _GLFWwndconfig* wndconfig,
 }
 
 
-//////////////////////////////////////////////////////////////////////////
-//////                       GLFW internal API                      //////
-//////////////////////////////////////////////////////////////////////////
+/*//////////////////////////////////////////////////////////////////////// */
+/*////                       GLFW internal API                      ////// */
+/*//////////////////////////////////////////////////////////////////////// */
 
-// Initialize EGL
-//
+/* Initialize EGL */
+/* */
 int _glfwInitContextAPI(void)
 {
     _glfw.egl.display = eglGetDisplay((EGLNativeDisplayType)_GLFW_EGL_NATIVE_DISPLAY);
@@ -232,8 +232,8 @@ int _glfwInitContextAPI(void)
     return GL_TRUE;
 }
 
-// Terminate EGL
-//
+/* Terminate EGL */
+/* */
 void _glfwTerminateContextAPI(void)
 {
     eglTerminate(_glfw.egl.display);
@@ -246,8 +246,8 @@ void _glfwTerminateContextAPI(void)
     assert((size_t) index < sizeof(attribs) / sizeof(attribs[0])); \
 }
 
-// Prepare for creation of the OpenGL context
-//
+/* Prepare for creation of the OpenGL context */
+/* */
 int _glfwCreateContext(_GLFWwindow* window,
                        const _GLFWwndconfig* wndconfig,
                        const _GLFWfbconfig* fbconfig)
@@ -268,7 +268,7 @@ int _glfwCreateContext(_GLFWwindow* window,
     }
 
 #if defined(_GLFW_X11)
-    // Retrieve the visual corresponding to the chosen EGL config
+    /* Retrieve the visual corresponding to the chosen EGL config */
     {
         int mask;
         EGLint redBits, greenBits, blueBits, alphaBits, visualID = 0;
@@ -282,14 +282,14 @@ int _glfwCreateContext(_GLFWwindow* window,
 
         if (visualID)
         {
-            // The X window visual must match the EGL config
+            /* The X window visual must match the EGL config */
             info.visualid = visualID;
             mask |= VisualIDMask;
         }
         else
         {
-            // some EGL drivers don't implement the EGL_NATIVE_VISUAL_ID
-            // attribute, so attempt to find the closest match.
+            /* some EGL drivers don't implement the EGL_NATIVE_VISUAL_ID */
+            /* attribute, so attempt to find the closest match. */
 
             eglGetConfigAttrib(_glfw.egl.display, config,
                                EGL_RED_SIZE, &redBits);
@@ -314,7 +314,7 @@ int _glfwCreateContext(_GLFWwindow* window,
             return GL_FALSE;
         }
     }
-#endif // _GLFW_X11
+#endif /* _GLFW_X11 */
 
     if (wndconfig->clientAPI == GLFW_OPENGL_ES_API)
     {
@@ -410,8 +410,8 @@ int _glfwCreateContext(_GLFWwindow* window,
 
 #undef setEGLattrib
 
-// Destroy the OpenGL context
-//
+/* Destroy the OpenGL context */
+/* */
 void _glfwDestroyContext(_GLFWwindow* window)
 {
 #if defined(_GLFW_X11)
@@ -420,7 +420,7 @@ void _glfwDestroyContext(_GLFWwindow* window)
        XFree(window->egl.visual);
        window->egl.visual = NULL;
     }
-#endif // _GLFW_X11
+#endif /* _GLFW_X11 */
 
     if (window->egl.surface)
     {
@@ -435,8 +435,8 @@ void _glfwDestroyContext(_GLFWwindow* window)
     }
 }
 
-// Analyzes the specified context for possible recreation
-//
+/* Analyzes the specified context for possible recreation */
+/* */
 int _glfwAnalyzeContext(const _GLFWwindow* window,
                         const _GLFWwndconfig* wndconfig,
                         const _GLFWfbconfig* fbconfig)
@@ -449,9 +449,9 @@ int _glfwAnalyzeContext(const _GLFWwindow* window,
 }
 
 
-//////////////////////////////////////////////////////////////////////////
-//////                       GLFW platform API                      //////
-//////////////////////////////////////////////////////////////////////////
+/*//////////////////////////////////////////////////////////////////////// */
+/*////                       GLFW platform API                      ////// */
+/*//////////////////////////////////////////////////////////////////////// */
 
 void _glfwPlatformMakeContextCurrent(_GLFWwindow* window)
 {
@@ -520,9 +520,9 @@ GLFWglproc _glfwPlatformGetProcAddress(const char* procname)
 }
 
 
-//////////////////////////////////////////////////////////////////////////
-//////                        GLFW native API                       //////
-//////////////////////////////////////////////////////////////////////////
+/*//////////////////////////////////////////////////////////////////////// */
+/*////                        GLFW native API                       ////// */
+/*//////////////////////////////////////////////////////////////////////// */
 
 GLFWAPI EGLDisplay glfwGetEGLDisplay(void)
 {

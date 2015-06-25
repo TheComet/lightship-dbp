@@ -1,29 +1,29 @@
-//========================================================================
-// GLFW 3.0 Win32 - www.glfw.org
-//------------------------------------------------------------------------
-// Copyright (c) 2002-2006 Marcus Geelnard
-// Copyright (c) 2006-2010 Camilla Berglund <elmindreda@elmindreda.org>
-//
-// This software is provided 'as-is', without any express or implied
-// warranty. In no event will the authors be held liable for any damages
-// arising from the use of this software.
-//
-// Permission is granted to anyone to use this software for any purpose,
-// including commercial applications, and to alter it and redistribute it
-// freely, subject to the following restrictions:
-//
-// 1. The origin of this software must not be misrepresented; you must not
-//    claim that you wrote the original software. If you use this software
-//    in a product, an acknowledgment in the product documentation would
-//    be appreciated but is not required.
-//
-// 2. Altered source versions must be plainly marked as such, and must not
-//    be misrepresented as being the original software.
-//
-// 3. This notice may not be removed or altered from any source
-//    distribution.
-//
-//========================================================================
+/*======================================================================== */
+/* GLFW 3.0 Win32 - www.glfw.org */
+/*------------------------------------------------------------------------ */
+/* Copyright (c) 2002-2006 Marcus Geelnard */
+/* Copyright (c) 2006-2010 Camilla Berglund <elmindreda@elmindreda.org> */
+/* */
+/* This software is provided 'as-is', without any express or implied */
+/* warranty. In no event will the authors be held liable for any damages */
+/* arising from the use of this software. */
+/* */
+/* Permission is granted to anyone to use this software for any purpose, */
+/* including commercial applications, and to alter it and redistribute it */
+/* freely, subject to the following restrictions: */
+/* */
+/* 1. The origin of this software must not be misrepresented; you must not */
+/*    claim that you wrote the original software. If you use this software */
+/*    in a product, an acknowledgment in the product documentation would */
+/*    be appreciated but is not required. */
+/* */
+/* 2. Altered source versions must be plainly marked as such, and must not */
+/*    be misrepresented as being the original software. */
+/* */
+/* 3. This notice may not be removed or altered from any source */
+/*    distribution. */
+/* */
+/*======================================================================== */
 
 #include "internal.h"
 
@@ -34,8 +34,8 @@
 #define _GLFW_KEY_INVALID -2
 
 
-// Updates the cursor clip rect
-//
+/* Updates the cursor clip rect */
+/* */
 static void updateClipRect(_GLFWwindow* window)
 {
     RECT clipRect;
@@ -45,8 +45,8 @@ static void updateClipRect(_GLFWwindow* window)
     ClipCursor(&clipRect);
 }
 
-// Hide mouse cursor
-//
+/* Hide mouse cursor */
+/* */
 static void hideCursor(_GLFWwindow* window)
 {
     POINT pos;
@@ -67,8 +67,8 @@ static void hideCursor(_GLFWwindow* window)
     }
 }
 
-// Capture mouse cursor
-//
+/* Capture mouse cursor */
+/* */
 static void captureCursor(_GLFWwindow* window)
 {
     if (!window->win32.cursorHidden)
@@ -81,8 +81,8 @@ static void captureCursor(_GLFWwindow* window)
     SetCapture(window->win32.handle);
 }
 
-// Show mouse cursor
-//
+/* Show mouse cursor */
+/* */
 static void showCursor(_GLFWwindow* window)
 {
     POINT pos;
@@ -103,8 +103,8 @@ static void showCursor(_GLFWwindow* window)
     }
 }
 
-// Retrieves and translates modifier keys
-//
+/* Retrieves and translates modifier keys */
+/* */
 static int getKeyMods(void)
 {
     int mods = 0;
@@ -121,8 +121,8 @@ static int getKeyMods(void)
     return mods;
 }
 
-// Retrieves and translates modifier keys
-//
+/* Retrieves and translates modifier keys */
+/* */
 static int getAsyncKeyMods(void)
 {
     int mods = 0;
@@ -139,13 +139,13 @@ static int getAsyncKeyMods(void)
     return mods;
 }
 
-// Translates a Windows key to the corresponding GLFW key
-//
+/* Translates a Windows key to the corresponding GLFW key */
+/* */
 static int translateKey(WPARAM wParam, LPARAM lParam)
 {
-    // Check for numeric keypad keys
-    // NOTE: This way we always force "NumLock = ON", which is intentional since
-    // the returned key code should correspond to a physical location.
+    /* Check for numeric keypad keys */
+    /* NOTE: This way we always force "NumLock = ON", which is intentional since */
+    /* the returned key code should correspond to a physical location. */
     if ((HIWORD(lParam) & 0x100) == 0)
     {
         switch (MapVirtualKey(HIWORD(lParam) & 0xFF, 1))
@@ -169,15 +169,15 @@ static int translateKey(WPARAM wParam, LPARAM lParam)
         }
     }
 
-    // Check which key was pressed or released
+    /* Check which key was pressed or released */
     switch (wParam)
     {
-        // The SHIFT keys require special handling
+        /* The SHIFT keys require special handling */
         case VK_SHIFT:
         {
-            // Compare scan code for this key with that of VK_RSHIFT in
-            // order to determine which shift key was pressed (left or
-            // right)
+            /* Compare scan code for this key with that of VK_RSHIFT in */
+            /* order to determine which shift key was pressed (left or */
+            /* right) */
             const DWORD scancode = MapVirtualKey(VK_RSHIFT, 0);
             if ((DWORD) ((lParam & 0x01ff0000) >> 16) == scancode)
                 return GLFW_KEY_RIGHT_SHIFT;
@@ -185,19 +185,19 @@ static int translateKey(WPARAM wParam, LPARAM lParam)
             return GLFW_KEY_LEFT_SHIFT;
         }
 
-        // The CTRL keys require special handling
+        /* The CTRL keys require special handling */
         case VK_CONTROL:
         {
             MSG next;
             DWORD time;
 
-            // Is this an extended key (i.e. right key)?
+            /* Is this an extended key (i.e. right key)? */
             if (lParam & 0x01000000)
                 return GLFW_KEY_RIGHT_CONTROL;
 
-            // Here is a trick: "Alt Gr" sends LCTRL, then RALT. We only
-            // want the RALT message, so we try to see if the next message
-            // is a RALT message. In that case, this is a false LCTRL!
+            /* Here is a trick: "Alt Gr" sends LCTRL, then RALT. We only */
+            /* want the RALT message, so we try to see if the next message */
+            /* is a RALT message. In that case, this is a false LCTRL! */
             time = GetMessageTime();
 
             if (PeekMessage(&next, NULL, 0, 0, PM_NOREMOVE))
@@ -211,8 +211,8 @@ static int translateKey(WPARAM wParam, LPARAM lParam)
                         (next.lParam & 0x01000000) &&
                         next.time == time)
                     {
-                        // Next message is a RALT down message, which
-                        // means that this is not a proper LCTRL message
+                        /* Next message is a RALT down message, which */
+                        /* means that this is not a proper LCTRL message */
                         return _GLFW_KEY_INVALID;
                     }
                 }
@@ -221,27 +221,27 @@ static int translateKey(WPARAM wParam, LPARAM lParam)
             return GLFW_KEY_LEFT_CONTROL;
         }
 
-        // The ALT keys require special handling
+        /* The ALT keys require special handling */
         case VK_MENU:
         {
-            // Is this an extended key (i.e. right key)?
+            /* Is this an extended key (i.e. right key)? */
             if (lParam & 0x01000000)
                 return GLFW_KEY_RIGHT_ALT;
 
             return GLFW_KEY_LEFT_ALT;
         }
 
-        // The ENTER keys require special handling
+        /* The ENTER keys require special handling */
         case VK_RETURN:
         {
-            // Is this an extended key (i.e. right key)?
+            /* Is this an extended key (i.e. right key)? */
             if (lParam & 0x01000000)
                 return GLFW_KEY_KP_ENTER;
 
             return GLFW_KEY_ENTER;
         }
 
-        // Funcion keys (non-printable keys)
+        /* Funcion keys (non-printable keys) */
         case VK_ESCAPE:        return GLFW_KEY_ESCAPE;
         case VK_TAB:           return GLFW_KEY_TAB;
         case VK_BACK:          return GLFW_KEY_BACKSPACE;
@@ -288,7 +288,7 @@ static int translateKey(WPARAM wParam, LPARAM lParam)
         case VK_RWIN:          return GLFW_KEY_RIGHT_SUPER;
         case VK_APPS:          return GLFW_KEY_MENU;
 
-        // Numeric keypad
+        /* Numeric keypad */
         case VK_NUMPAD0:       return GLFW_KEY_KP_0;
         case VK_NUMPAD1:       return GLFW_KEY_KP_1;
         case VK_NUMPAD2:       return GLFW_KEY_KP_2;
@@ -305,7 +305,7 @@ static int translateKey(WPARAM wParam, LPARAM lParam)
         case VK_ADD:           return GLFW_KEY_KP_ADD;
         case VK_DECIMAL:       return GLFW_KEY_KP_DECIMAL;
 
-        // Printable keys are mapped according to US layout
+        /* Printable keys are mapped according to US layout */
         case VK_SPACE:         return GLFW_KEY_SPACE;
         case 0x30:             return GLFW_KEY_0;
         case 0x31:             return GLFW_KEY_1;
@@ -359,12 +359,12 @@ static int translateKey(WPARAM wParam, LPARAM lParam)
         default:               break;
     }
 
-    // No matching translation was found
+    /* No matching translation was found */
     return GLFW_KEY_UNKNOWN;
 }
 
-// Window callback function (handles window events)
-//
+/* Window callback function (handles window events) */
+/* */
 static LRESULT CALLBACK windowProc(HWND hWnd, UINT uMsg,
                                    WPARAM wParam, LPARAM lParam)
 {
@@ -381,22 +381,22 @@ static LRESULT CALLBACK windowProc(HWND hWnd, UINT uMsg,
 
         case WM_ACTIVATE:
         {
-            // Window was (de)focused and/or (de)iconified
+            /* Window was (de)focused and/or (de)iconified */
 
             BOOL focused = LOWORD(wParam) != WA_INACTIVE;
             BOOL iconified = HIWORD(wParam) ? TRUE : FALSE;
 
             if (focused && iconified)
             {
-                // This is a workaround for window iconification using the
-                // taskbar leading to windows being told they're focused and
-                // iconified and then never told they're defocused
+                /* This is a workaround for window iconification using the */
+                /* taskbar leading to windows being told they're focused and */
+                /* iconified and then never told they're defocused */
                 focused = FALSE;
             }
 
             if (!focused && _glfw.focusedWindow == window)
             {
-                // The window was defocused (or iconified, see above)
+                /* The window was defocused (or iconified, see above) */
 
                 if (window->cursorMode != GLFW_CURSOR_NORMAL)
                     showCursor(window);
@@ -405,8 +405,8 @@ static LRESULT CALLBACK windowProc(HWND hWnd, UINT uMsg,
                 {
                     if (!iconified)
                     {
-                        // Iconify the (on top, borderless, oddly positioned)
-                        // window or the user will be annoyed
+                        /* Iconify the (on top, borderless, oddly positioned) */
+                        /* window or the user will be annoyed */
                         _glfwPlatformIconifyWindow(window);
                     }
 
@@ -415,7 +415,7 @@ static LRESULT CALLBACK windowProc(HWND hWnd, UINT uMsg,
             }
             else if (focused && _glfw.focusedWindow != window)
             {
-                // The window was focused
+                /* The window was focused */
 
                 if (window->cursorMode == GLFW_CURSOR_DISABLED)
                     captureCursor(window);
@@ -446,15 +446,15 @@ static LRESULT CALLBACK windowProc(HWND hWnd, UINT uMsg,
                 {
                     if (window->monitor)
                     {
-                        // We are running in fullscreen mode, so disallow
-                        // screen saver and screen blanking
+                        /* We are running in fullscreen mode, so disallow */
+                        /* screen saver and screen blanking */
                         return 0;
                     }
                     else
                         break;
                 }
 
-                // User trying to access application menu using ALT?
+                /* User trying to access application menu using ALT? */
                 case SC_KEYMENU:
                     return 0;
             }
@@ -488,12 +488,12 @@ static LRESULT CALLBACK windowProc(HWND hWnd, UINT uMsg,
 
         case WM_UNICHAR:
         {
-            // This message is not sent by Windows, but is sent by some
-            // third-party input method engines
+            /* This message is not sent by Windows, but is sent by some */
+            /* third-party input method engines */
 
             if (wParam == UNICODE_NOCHAR)
             {
-                // Returning TRUE here announces support for this message
+                /* Returning TRUE here announces support for this message */
                 return TRUE;
             }
 
@@ -512,14 +512,14 @@ static LRESULT CALLBACK windowProc(HWND hWnd, UINT uMsg,
 
             if (wParam == VK_SHIFT)
             {
-                // Release both Shift keys on Shift up event, as only one event
-                // is sent even if both keys are released
+                /* Release both Shift keys on Shift up event, as only one event */
+                /* is sent even if both keys are released */
                 _glfwInputKey(window, GLFW_KEY_LEFT_SHIFT, scancode, GLFW_RELEASE, mods);
                 _glfwInputKey(window, GLFW_KEY_RIGHT_SHIFT, scancode, GLFW_RELEASE, mods);
             }
             else if (wParam == VK_SNAPSHOT)
             {
-                // Key down is not reported for the print screen key
+                /* Key down is not reported for the print screen key */
                 _glfwInputKey(window, key, scancode, GLFW_PRESS, mods);
                 _glfwInputKey(window, key, scancode, GLFW_RELEASE, mods);
             }
@@ -647,7 +647,7 @@ static LRESULT CALLBACK windowProc(HWND hWnd, UINT uMsg,
 
         case WM_MOUSEHWHEEL:
         {
-            // This message is only sent on Windows Vista and later
+            /* This message is only sent on Windows Vista and later */
             _glfwInputScroll(window, (SHORT) HIWORD(wParam) / (double) WHEEL_DELTA, 0.0);
             return 0;
         }
@@ -710,7 +710,7 @@ static LRESULT CALLBACK windowProc(HWND hWnd, UINT uMsg,
                 _glfwPlatformMakeContextCurrent(previous);
             }
 
-            // TODO: Restore vsync if compositing was disabled
+            /* TODO: Restore vsync if compositing was disabled */
             break;
         }
     }
@@ -718,8 +718,8 @@ static LRESULT CALLBACK windowProc(HWND hWnd, UINT uMsg,
     return DefWindowProc(hWnd, uMsg, wParam, lParam);
 }
 
-// Translate client window size to full window size (including window borders)
-//
+/* Translate client window size to full window size (including window borders) */
+/* */
 static void getFullWindowSize(_GLFWwindow* window,
                               int clientWidth, int clientHeight,
                               int* fullWidth, int* fullHeight)
@@ -731,29 +731,29 @@ static void getFullWindowSize(_GLFWwindow* window,
     *fullHeight = rect.bottom - rect.top;
 }
 
-// Registers the GLFW window class
-//
+/* Registers the GLFW window class */
+/* */
 static ATOM registerWindowClass(void)
 {
     WNDCLASS wc;
     ATOM classAtom;
 
-    // Set window class parameters
+    /* Set window class parameters */
     wc.style         = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
     wc.lpfnWndProc   = (WNDPROC) windowProc;
-    wc.cbClsExtra    = 0;                           // No extra class data
-    wc.cbWndExtra    = sizeof(void*) + sizeof(int); // Make room for one pointer
+    wc.cbClsExtra    = 0;                           /* No extra class data */
+    wc.cbWndExtra    = sizeof(void*) + sizeof(int); /* Make room for one pointer */
     wc.hInstance     = GetModuleHandle(NULL);
     wc.hCursor       = LoadCursor(NULL, IDC_ARROW);
-    wc.hbrBackground = NULL;                        // No background
-    wc.lpszMenuName  = NULL;                        // No menu
+    wc.hbrBackground = NULL;                        /* No background */
+    wc.lpszMenuName  = NULL;                        /* No menu */
     wc.lpszClassName = _GLFW_WNDCLASSNAME;
 
-    // Load user-provided icon if available
+    /* Load user-provided icon if available */
     wc.hIcon = LoadIcon(GetModuleHandle(NULL), L"GLFW_ICON");
     if (!wc.hIcon)
     {
-        // No user-provided icon found, load default icon
+        /* No user-provided icon found, load default icon */
         wc.hIcon = LoadIcon(NULL, IDI_WINLOGO);
     }
 
@@ -768,8 +768,8 @@ static ATOM registerWindowClass(void)
     return classAtom;
 }
 
-// Creates the GLFW window and rendering context
-//
+/* Creates the GLFW window and rendering context */
+/* */
 static int createWindow(_GLFWwindow* window,
                         const _GLFWwndconfig* wndconfig,
                         const _GLFWfbconfig* fbconfig)
@@ -825,10 +825,10 @@ static int createWindow(_GLFWwindow* window,
                                           window->win32.dwStyle,
                                           xpos, ypos,
                                           fullWidth, fullHeight,
-                                          NULL, // No parent window
-                                          NULL, // No window menu
+                                          NULL, /* No parent window */
+                                          NULL, /* No window menu */
                                           GetModuleHandle(NULL),
-                                          window); // Pass object to WM_CREATE
+                                          window); /* Pass object to WM_CREATE */
 
     free(wideTitle);
 
@@ -844,8 +844,8 @@ static int createWindow(_GLFWwindow* window,
     return GL_TRUE;
 }
 
-// Destroys the GLFW window and rendering context
-//
+/* Destroys the GLFW window and rendering context */
+/* */
 static void destroyWindow(_GLFWwindow* window)
 {
     _glfwDestroyContext(window);
@@ -858,9 +858,9 @@ static void destroyWindow(_GLFWwindow* window)
 }
 
 
-//////////////////////////////////////////////////////////////////////////
-//////                       GLFW platform API                      //////
-//////////////////////////////////////////////////////////////////////////
+/*//////////////////////////////////////////////////////////////////////// */
+/*////                       GLFW platform API                      ////// */
+/*//////////////////////////////////////////////////////////////////////// */
 
 int _glfwPlatformCreateWindow(_GLFWwindow* window,
                               const _GLFWwndconfig* wndconfig,
@@ -885,31 +885,31 @@ int _glfwPlatformCreateWindow(_GLFWwindow* window,
 
     if (status == _GLFW_RECREATION_REQUIRED)
     {
-        // Some window hints require us to re-create the context using WGL
-        // extensions retrieved through the current context, as we cannot check
-        // for WGL extensions or retrieve WGL entry points before we have a
-        // current context (actually until we have implicitly loaded the ICD)
+        /* Some window hints require us to re-create the context using WGL */
+        /* extensions retrieved through the current context, as we cannot check */
+        /* for WGL extensions or retrieve WGL entry points before we have a */
+        /* current context (actually until we have implicitly loaded the ICD) */
 
-        // Yes, this is strange, and yes, this is the proper way on Win32
+        /* Yes, this is strange, and yes, this is the proper way on Win32 */
 
-        // As Windows only allows you to set the pixel format once for a
-        // window, we need to destroy the current window and create a new one
-        // to be able to use the new pixel format
+        /* As Windows only allows you to set the pixel format once for a */
+        /* window, we need to destroy the current window and create a new one */
+        /* to be able to use the new pixel format */
 
-        // Technically, it may be possible to keep the old window around if
-        // we're just creating an OpenGL 3.0+ context with the same pixel
-        // format, but it's not worth the added code complexity
+        /* Technically, it may be possible to keep the old window around if */
+        /* we're just creating an OpenGL 3.0+ context with the same pixel */
+        /* format, but it's not worth the added code complexity */
 
-        // First we clear the current context (the one we just created)
-        // This is usually done by glfwDestroyWindow, but as we're not doing
-        // full window destruction, it's duplicated here
+        /* First we clear the current context (the one we just created) */
+        /* This is usually done by glfwDestroyWindow, but as we're not doing */
+        /* full window destruction, it's duplicated here */
         _glfwPlatformMakeContextCurrent(NULL);
 
-        // Next destroy the Win32 window and WGL context (without resetting or
-        // destroying the GLFW window object)
+        /* Next destroy the Win32 window and WGL context (without resetting or */
+        /* destroying the GLFW window object) */
         destroyWindow(window);
 
-        // ...and then create them again, this time with better APIs
+        /* ...and then create them again, this time with better APIs */
         if (!createWindow(window, wndconfig, fbconfig))
             return GL_FALSE;
     }
@@ -919,7 +919,7 @@ int _glfwPlatformCreateWindow(_GLFWwindow* window,
         if (!_glfwSetVideoMode(window->monitor, &window->videoMode))
             return GL_FALSE;
 
-        // Place the window above all topmost windows
+        /* Place the window above all topmost windows */
         _glfwPlatformShowWindow(window);
         SetWindowPos(window->win32.handle, HWND_TOPMOST, 0,0,0,0,
                      SWP_NOMOVE | SWP_NOSIZE);
@@ -1041,7 +1041,7 @@ void _glfwPlatformPollEvents(void)
     {
         if (msg.message == WM_QUIT)
         {
-            // Treat WM_QUIT as a close on all windows
+            /* Treat WM_QUIT as a close on all windows */
 
             window = _glfw.windowListHead;
             while (window)
@@ -1060,18 +1060,18 @@ void _glfwPlatformPollEvents(void)
     window = _glfw.focusedWindow;
     if (window)
     {
-        // LSHIFT/RSHIFT fixup (keys tend to "stick" without this fix)
-        // This is the only async event handling in GLFW, but it solves some
-        // nasty problems
+        /* LSHIFT/RSHIFT fixup (keys tend to "stick" without this fix) */
+        /* This is the only async event handling in GLFW, but it solves some */
+        /* nasty problems */
         {
             const int mods = getAsyncKeyMods();
 
-            // Get current state of left and right shift keys
+            /* Get current state of left and right shift keys */
             const int lshiftDown = (GetAsyncKeyState(VK_LSHIFT) >> 15) & 1;
             const int rshiftDown = (GetAsyncKeyState(VK_RSHIFT) >> 15) & 1;
 
-            // See if this differs from our belief of what has happened
-            // (we only have to check for lost key up events)
+            /* See if this differs from our belief of what has happened */
+            /* (we only have to check for lost key up events) */
             if (!lshiftDown && window->key[GLFW_KEY_LEFT_SHIFT] == 1)
                 _glfwInputKey(window, GLFW_KEY_LEFT_SHIFT, 0, GLFW_RELEASE, mods);
 
@@ -1079,7 +1079,7 @@ void _glfwPlatformPollEvents(void)
                 _glfwInputKey(window, GLFW_KEY_RIGHT_SHIFT, 0, GLFW_RELEASE, mods);
         }
 
-        // Did the cursor move in an focused window that has captured the cursor
+        /* Did the cursor move in an focused window that has captured the cursor */
         if (window->cursorMode == GLFW_CURSOR_DISABLED &&
             !window->win32.cursorCentered)
         {
@@ -1125,9 +1125,9 @@ void _glfwPlatformSetCursorMode(_GLFWwindow* window, int mode)
 }
 
 
-//////////////////////////////////////////////////////////////////////////
-//////                        GLFW native API                       //////
-//////////////////////////////////////////////////////////////////////////
+/*//////////////////////////////////////////////////////////////////////// */
+/*////                        GLFW native API                       ////// */
+/*//////////////////////////////////////////////////////////////////////// */
 
 GLFWAPI HWND glfwGetWin32Window(GLFWwindow* handle)
 {

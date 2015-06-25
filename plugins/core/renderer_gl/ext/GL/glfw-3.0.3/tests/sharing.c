@@ -1,31 +1,31 @@
-//========================================================================
-// Context sharing test program
-// Copyright (c) Camilla Berglund <elmindreda@elmindreda.org>
-//
-// This software is provided 'as-is', without any express or implied
-// warranty. In no event will the authors be held liable for any damages
-// arising from the use of this software.
-//
-// Permission is granted to anyone to use this software for any purpose,
-// including commercial applications, and to alter it and redistribute it
-// freely, subject to the following restrictions:
-//
-// 1. The origin of this software must not be misrepresented; you must not
-//    claim that you wrote the original software. If you use this software
-//    in a product, an acknowledgment in the product documentation would
-//    be appreciated but is not required.
-//
-// 2. Altered source versions must be plainly marked as such, and must not
-//    be misrepresented as being the original software.
-//
-// 3. This notice may not be removed or altered from any source
-//    distribution.
-//
-//========================================================================
-//
-// This program is used to test sharing of objects between contexts
-//
-//========================================================================
+/*======================================================================== */
+/* Context sharing test program */
+/* Copyright (c) Camilla Berglund <elmindreda@elmindreda.org> */
+/* */
+/* This software is provided 'as-is', without any express or implied */
+/* warranty. In no event will the authors be held liable for any damages */
+/* arising from the use of this software. */
+/* */
+/* Permission is granted to anyone to use this software for any purpose, */
+/* including commercial applications, and to alter it and redistribute it */
+/* freely, subject to the following restrictions: */
+/* */
+/* 1. The origin of this software must not be misrepresented; you must not */
+/*    claim that you wrote the original software. If you use this software */
+/*    in a product, an acknowledgment in the product documentation would */
+/*    be appreciated but is not required. */
+/* */
+/* 2. Altered source versions must be plainly marked as such, and must not */
+/*    be misrepresented as being the original software. */
+/* */
+/* 3. This notice may not be removed or altered from any source */
+/*    distribution. */
+/* */
+/*======================================================================== */
+/* */
+/* This program is used to test sharing of objects between contexts */
+/* */
+/*======================================================================== */
 
 #define GLFW_INCLUDE_GLU
 #include <GLFW/glfw3.h>
@@ -140,15 +140,15 @@ int main(int argc, char** argv)
         exit(EXIT_FAILURE);
     }
 
-    // This is the one and only time we create a texture
-    // It is created inside the first context, created above
-    // It will then be shared with the second context, created below
+    /* This is the one and only time we create a texture */
+    /* It is created inside the first context, created above */
+    /* It will then be shared with the second context, created below */
     texture = create_texture();
 
     glfwGetWindowPos(windows[0], &x, &y);
     glfwGetWindowSize(windows[0], &width, NULL);
 
-    // Put the second window to the right of the first one
+    /* Put the second window to the right of the first one */
     windows[1] = open_window("Second", windows[0], x + width + OFFSET, y);
     if (!windows[1])
     {
@@ -156,7 +156,7 @@ int main(int argc, char** argv)
         exit(EXIT_FAILURE);
     }
 
-    // Set drawing color for both contexts
+    /* Set drawing color for both contexts */
     glfwMakeContextCurrent(windows[0]);
     glColor3f(0.6f, 0.f, 0.6f);
     glfwMakeContextCurrent(windows[1]);
