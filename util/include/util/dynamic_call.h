@@ -1,6 +1,24 @@
 /*!
  * @file dynamic_call.h
- * @brief Allows the construction of
+ * @brief Manages things to do with dynamic type information.
+ *
+ * In order to be able to call functions with arbitrary amount of arguments
+ * and arguments who's types aren't known at compile time, a common calling
+ * convention must first be established and a method for passing around
+ * these arguments as well as being able to assert their correct types during
+ * runtime must be implemented.
+ *
+ * The benefit of this approach is that scripting layers can easily be
+ * implemented without the need to wrap all existing functions in order to
+ * expose them to scripts.
+ *
+ * The solution used here is to insert the arguments to be passed into a
+ * void** type and pass along a type_info_t object with it. The receiving end
+ * can use the type_info_t object to recover the types from the void** type.
+ *
+ * This can also work the other way around. A void** type can be constructed
+ * from varargs or even strings before the function call by using the
+ * type_info_t object.
  */
 
 #ifndef LIGHTSHIP_UTIL_DYNAMIC_CALL_H
@@ -23,7 +41,7 @@ struct ordered_vector_t;
  * @param cast_to The type to cast the extracted argument to. This is also the
  * type of *var*.
  * @note If the argument being extracted is a pointer type, use
- * EXTRACT_ARGUMENT_PTR() instead.
+ * ```EXTRACT_ARGUMENT_PTR()``^ instead.
  * @note *cast_from* and *cast_to* are necessary because there are two
  * dereferences. You can think of it as the extracted value being stored into
  * an intermediate before being casted to its final type. The type it has in
@@ -47,7 +65,7 @@ struct ordered_vector_t;
  * @param cast_to The pointer type to cast the extracted argument to. This is
  * also the type of *var*.
  * @note If the argument being extracted is not a pointer, use
- * EXTRACT_ARGUMENT().
+ * ```EXTRACT_ARGUMENT()```.
  */
 #define EXTRACT_ARGUMENT_PTR(index, var, cast_to) \
 		cast_to var = (cast_to)argv[index]
@@ -143,7 +161,23 @@ struct type_info_t
 };
 
 /*!
+ * @brief Creates a type info object based on stringified types.
  *
+ * If any of the types are unknown - that is it's not one of the built in C
+ * types - then the field ```has_unknown_types``` will be non-zero and the
+ * appropriate type will be set to ```TYPE_UNKNOWN```.
+ *
+ * The following example will create a type info object specifying
+ * ```TYPE_VOID``` as the return type and ```TYPE_INT32``` and ```TYPE_FLOAT```
+ * as the two argument types:
+ * ```
+ * struct type_info_t* type_info =
+ *         dynamic_call_create_type_info("void", 2, "int", "float");
+ * ```
+ * @param ret_type A stringified version of the return type.
+ * @param argc The number of argument types.
+ * @param argv An array of stringified argument types.
+ * @note The number of strings in argv must equal ```argc```.
  */
 LIGHTSHIP_UTIL_PUBLIC_API struct type_info_t*
 dynamic_call_create_type_info(const char* ret_type,
@@ -151,41 +185,93 @@ dynamic_call_create_type_info(const char* ret_type,
 							  const char** argv);
 
 /*!
- *
+ * @brief Destroys a previously created type info object.
+ * @param type_info The type info object to destroy.
  */
 LIGHTSHIP_UTIL_PUBLIC_API void
 dynamic_call_destroy_type_info(struct type_info_t* type_info);
 
 /*!
+ * @brief Allocates and initialises a new argument vector from varargs, which
+ * can be used in a dynamic call.
+ * @param type_info The type information to use in order to deduce the types of
+ * the variadic arguments.
  *
+ * The types of the arguments passed to this variadic function are deduced
+ * according to what the type_info object specifies. The arguments are inserted
+ * into the returned argument vector accordingly.
+ *
+ * Example:
+ * ```
+ * int a = 8;
+ * void** argv = dynamic_call_create_argument_vector_from_varargs(type_info, a);
+ * ```
+ * @warning Please understand that the type of each variadic argument passed
+ * **must be precisely equal to the expected type specified by the type info
+ * object**. It is **dangerous** to use immediate values directly as arguments
+ * because of type promotion.
  */
 LIGHTSHIP_UTIL_PUBLIC_API void**
 dynamic_call_create_argument_vector_from_varargs(
 		const struct type_info_t* type_info, ...);
 
 /*!
- *
+ * @brief @see dynamic_call_create_argument_vector_from_varargs().
  */
 LIGHTSHIP_UTIL_PUBLIC_API void**
 vdynamic_call_create_argument_vector_from_varargs(
 		const struct type_info_t* type_info, va_list ap);
 
 /*!
+ * @brief Writes new values into an existing argument vector from varargs.
+ * @param type_info The type information to use in order to deduce the types of
+ * the variadic arguments.
  *
+ * The types of the arguments passed to this variadic function are deduced
+ * according to what the type_info object specifies. The arguments are inserted
+ * into the returned argument vector accordingly.
+ *
+ * Example:
+ * ```
+ * int a = 8;
+ * void** argv = dynamic_call_create_argument_vector_from_varargs(type_info, a);
+ * ```
+ * @warning Please understand that the type of each variadic argument passed
+ * **must be precisely equal to the expected type specified by the type info
+ * object**. It is **dangerous** to use immediate values directly as arguments
+ * because of type promotion.
+ * @param argv The existing argument vector to write to.
  */
 LIGHTSHIP_UTIL_PUBLIC_API char
 dynamic_call_set_argument_vector_from_varargs(
 		const struct type_info_t* type_info, void** argv,  ...);
 
 /*!
- *
+ * @brief @see dynamic_call_set_argument_vector_from_varargs().
  */
 LIGHTSHIP_UTIL_PUBLIC_API char
 vdynamic_call_set_argument_vector_from_varargs(
 		const struct type_info_t* type_info, void** argv, va_list ap);
 
 /*!
+ * @brief Allocates and initialises a new argument vector from string arguments
+ * , which can be used in a dynamic call.
+ * @param type_info The type information to use in order to know how to parse
+ * each string.
  *
+ * Example:
+ * ```
+ * ordered_vector_t* vec = ordered_vector_create(sizeof(char*));
+ * ordered_vector_push_emplace(vec) = "5.678";
+ * void** argv = dynamic_call_create_argument_vector_from_varargs(type_info, vec);
+ * ```
+ * Assuming type_info specifies the first argument to be of type ```TYPE_FLOAT```
+ * the string ```"5.678"``` will be converted to a float and inserted into
+ * the returned argument vector.
+ * @param argv A vector (of type ```ordered_vector_t```) filled with a list of
+ * strings.
+ * @note We opted to use a vector instead of a raw C array of strings so the
+ * size is known when building the argument vector.
  */
 LIGHTSHIP_UTIL_PUBLIC_API void**
 dynamic_call_create_argument_vector_from_strings(
@@ -193,7 +279,23 @@ dynamic_call_create_argument_vector_from_strings(
 		const struct ordered_vector_t* argv);
 
 /*!
+ * @brief Writes new values to an existing argument vector from a list of strings.
+ * @param type_info The type information to use in order to know how to parse
+ * each string.
  *
+ * Example:
+ * ```
+ * ordered_vector_t* vec = ordered_vector_create(sizeof(char*));
+ * ordered_vector_push_emplace(vec) = "5.678";
+ * void** argv = dynamic_call_create_argument_vector_from_varargs(type_info, vec);
+ * ```
+ * Assuming type_info specifies the first argument to be of type ```TYPE_FLOAT```
+ * the string ```"5.678"``` will be converted to a float and inserted into
+ * the returned argument vector.
+ * @param argv A vector (of type ```ordered_vector_t```) filled with a list of
+ * strings.
+ * @note We opted to use a vector instead of a raw C array of strings so the
+ * size is known when building the argument vector.
  */
 LIGHTSHIP_UTIL_PUBLIC_API char
 dynamic_call_set_argument_vector_from_strings(
@@ -202,14 +304,17 @@ dynamic_call_set_argument_vector_from_strings(
 	const struct ordered_vector_t* strings);
 
 /*!
- *
+ * @brief Destroys a previously created argument vector.
+ * @param type_info The type info object that was used when creating the
+ * argument vector.
+ * @param argv The argument vector to destroy.
  */
 LIGHTSHIP_UTIL_PUBLIC_API void
 dynamic_call_destroy_argument_vector(const struct type_info_t* type_info,
 									 void** argv);
 
 /*!
- *
+ * @brief
  */
 LIGHTSHIP_UTIL_PUBLIC_API char
 dynamic_call_do_typecheck(const struct type_info_t* type_info,
@@ -218,7 +323,8 @@ dynamic_call_do_typecheck(const struct type_info_t* type_info,
 						  const char** argv);
 
 /*!
- *
+ * @brief Parses a stringified type and returns its type according to the enum
+ * ```type_e```.
  */
 LIGHTSHIP_UTIL_PUBLIC_API type_e
 dynamic_call_get_type_from_string(const char* type);
