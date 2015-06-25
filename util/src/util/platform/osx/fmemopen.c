@@ -28,33 +28,33 @@ struct fmem {
 };
 typedef struct fmem fmem_t;
 
-static int readfn(void *handler, char *buf, uintptr_t size) {
+static int readfn(void *handler, char *buf, int size) {
   fmem_t *mem = handler;
-  uintptr_t available = mem->size - mem->pos;
+  int available = (int)(mem->size - mem->pos);
 
   if (size > available) {
 	size = available;
   }
   memcpy(buf, mem->buffer + mem->pos, sizeof(char) * size);
-  mem->pos += size;
+  mem->pos += (uintptr_t)size;
 
   return size;
 }
 
-static int writefn(void *handler, const char *buf, uintptr_t size) {
+static int writefn(void *handler, const char *buf, int size) {
   fmem_t *mem = handler;
-  uintptr_t available = mem->size - mem->pos;
+  int available = (int)(mem->size - mem->pos);
 
   if (size > available) {
 	size = available;
   }
   memcpy(mem->buffer + mem->pos, buf, sizeof(char) * size);
-  mem->pos += size;
+  mem->pos += (uintptr_t)size;
 
   return size;
 }
 
-static fpos_t seekfn(void *handler, fpos_t offset, uintptr_t whence) {
+static fpos_t seekfn(void *handler, fpos_t offset, int whence) {
   uintptr_t pos;
   fmem_t *mem = handler;
 
