@@ -29,10 +29,10 @@ C_HEADER_BEGIN
 #define DATA_POINTER_TYPE unsigned char
 struct ordered_vector_t
 {
-    uint32_t element_size;       /* how large one element is in bytes */
-    uint32_t capacity;           /* how many elements actually fit into the allocated space */
-    uint32_t count;              /* number of elements inserted */
-    DATA_POINTER_TYPE* data;/* pointer to the contiguous section of memory */
+	uint32_t element_size;       /* how large one element is in bytes */
+	uint32_t capacity;           /* how many elements actually fit into the allocated space */
+	uint32_t count;              /* number of elements inserted */
+	DATA_POINTER_TYPE* data;/* pointer to the contiguous section of memory */
 };
 
 /*!
@@ -54,7 +54,7 @@ ordered_vector_create(const uint32_t element_size);
  */
 LIGHTSHIP_UTIL_PUBLIC_API void
 ordered_vector_init_vector(struct ordered_vector_t* vector,
-                             const uint32_t element_size);
+							 const uint32_t element_size);
 
 /*!
  * @brief Destroys an existing vector object and frees all memory allocated by
@@ -233,18 +233,18 @@ ordered_vector_get_element(struct ordered_vector_t*, uint32_t index);
  * for-loop to reference the current element.
  */
 #define ORDERED_VECTOR_FOR_EACH(vector, var_type, var) \
-    var_type* var; \
-    DATA_POINTER_TYPE* internal_##var_end_of_vector = (vector)->data + (vector)->count * (vector)->element_size; \
-    for(var = (var_type*)(vector)->data; \
-        (DATA_POINTER_TYPE*)var != internal_##var_end_of_vector; \
-        var = (var_type*)(((DATA_POINTER_TYPE*)var) + (vector)->element_size))
+	var_type* var; \
+	DATA_POINTER_TYPE* internal_##var_end_of_vector = (vector)->data + (vector)->count * (vector)->element_size; \
+	for(var = (var_type*)(vector)->data; \
+		(DATA_POINTER_TYPE*)var != internal_##var_end_of_vector; \
+		var = (var_type*)(((DATA_POINTER_TYPE*)var) + (vector)->element_size))
 
 #define ORDERED_VECTOR_FOR_EACH_RANGE(vector, var_type, var, begin_index, end_index) \
-    var_type* var; \
-    DATA_POINTER_TYPE* internal_##var_end_of_vector = (vector)->data + end_index * (vector)->element_size; \
-    for(var = (var_type*)((vector)->data + begin_index * (vector)->element_size); \
-        (DATA_POINTER_TYPE*)var != internal_##var_end_of_vector; \
-        var = (var_type*)(((DATA_POINTER_TYPE*)var) + (vector)->element_size))
+	var_type* var; \
+	DATA_POINTER_TYPE* internal_##var_end_of_vector = (vector)->data + end_index * (vector)->element_size; \
+	for(var = (var_type*)((vector)->data + begin_index * (vector)->element_size); \
+		(DATA_POINTER_TYPE*)var != internal_##var_end_of_vector; \
+		var = (var_type*)(((DATA_POINTER_TYPE*)var) + (vector)->element_size))
 
 /*!
  * @brief Convenient macro for erasing an element while iterating a vector.
@@ -253,7 +253,7 @@ ordered_vector_get_element(struct ordered_vector_t*, uint32_t index);
 @code
 ORDERED_VECTOR_FOR_EACH(some_vector, struct bar, element)
 {
-    ORDERED_VECTOR_ERASE_IN_FOR_LOOP(some_vector, struct bar, element);
+	ORDERED_VECTOR_ERASE_IN_FOR_LOOP(some_vector, struct bar, element);
 }
 @endcode
  * @param[in] vector The vector to erase from.
@@ -261,9 +261,9 @@ ORDERED_VECTOR_FOR_EACH(some_vector, struct bar, element)
  * @param[in] element The element to erase.
  */
 #define ORDERED_VECTOR_ERASE_IN_FOR_LOOP(vector, element_type, element) \
-    ordered_vector_erase_element(vector, element); \
-    element = (element_type*)(((DATA_POINTER_TYPE*)element) - (vector)->element_size); \
-    internal_##var_end_of_vector = (vector)->data + (vector)->count * (vector)->element_size;
+	ordered_vector_erase_element(vector, element); \
+	element = (element_type*)(((DATA_POINTER_TYPE*)element) - (vector)->element_size); \
+	internal_##var_end_of_vector = (vector)->data + (vector)->count * (vector)->element_size;
 C_HEADER_END
 
 #endif /* LIGHTSHIP_UTIL_ORDERED_VECTOR_H */

@@ -3,8 +3,8 @@
 
 struct net_connection_t
 {
-    int sockfd;
-    uint32_t max_connections;
+	int sockfd;
+	uint32_t max_connections;
 };
 
 /*!

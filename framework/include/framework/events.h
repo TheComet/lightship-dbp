@@ -111,15 +111,15 @@ struct game_t;
 
 struct event_t
 {
-    struct plugin_t* plugin;    /* reference to the plugin object that owns this event */
-    char* directory;
-    struct type_info_t* type_info;
-    struct unordered_vector_t listeners; /* holds event_listener_t objects */
+	struct plugin_t* plugin;    /* reference to the plugin object that owns this event */
+	char* directory;
+	struct type_info_t* type_info;
+	struct unordered_vector_t listeners; /* holds event_listener_t objects */
 };
 
 struct event_listener_t
 {
-    event_callback_func exec;
+	event_callback_func exec;
 };
 
 /*!
@@ -143,8 +143,8 @@ event_deinit(struct game_t* game);
  */
 FRAMEWORK_PUBLIC_API struct event_t*
 event_create(struct plugin_t* plugin,
-             const char* directory,
-             struct type_info_t* type_info);
+			 const char* directory,
+			 struct type_info_t* type_info);
 
 /*!
  * @brief Destroys an event object.
@@ -180,16 +180,16 @@ event_get(const struct game_t* game, const char* directory);
  */
 FRAMEWORK_PUBLIC_API char
 event_register_listener(const struct game_t* game,
-                        const char* event_directory,
-                        event_callback_func callback);
+						const char* event_directory,
+						event_callback_func callback);
 
 /*!
  * @brief Unregisters a listener from the specified event.
  */
 FRAMEWORK_PUBLIC_API char
 event_unregister_listener(const struct game_t* game,
-                          const char* event_directory,
-                          event_callback_func callback);
+						  const char* event_directory,
+						  event_callback_func callback);
 
 /*!
  * @brief Unregisters all listeners from the specified event.

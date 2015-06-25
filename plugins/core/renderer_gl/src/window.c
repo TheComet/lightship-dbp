@@ -20,95 +20,95 @@ struct window_t g_window;
 char
 window_init(struct glob_t* g)
 {
-    GLFWwindow* glfw_window;
+	GLFWwindow* glfw_window;
 
-    memset(&g_window, 0, sizeof(struct window_t));
+	memset(&g_window, 0, sizeof(struct window_t));
 
-    /* configure preferences */
-    glfwWindowHint(GLFW_SAMPLES, 4); /* 4x antialiasing */
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3); /* want GL 3.3 */
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); /* to make macOS happy */
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); /* don't want the old OpenGL */
-    glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
+	/* configure preferences */
+	glfwWindowHint(GLFW_SAMPLES, 4); /* 4x antialiasing */
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3); /* want GL 3.3 */
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); /* to make macOS happy */
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); /* don't want the old OpenGL */
+	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
-    /* window dimensions */
-    g_window.width = 800;
-    g_window.height = 600;
+	/* window dimensions */
+	g_window.width = 800;
+	g_window.height = 600;
 
-    /* open window and create OpenGL context */
-    glfw_window = glfwCreateWindow(g_window.width, g_window.height, "Light Ship", NULL, NULL);
-    if(glfw_window == NULL)
-    {
-        llog(LOG_ERROR, g->game, PLUGIN_NAME, "Failed to open glfw window. If you have an Intel GPU, they are not 3.3 compatible.");
-        return 0;
-    }
-    glfwMakeContextCurrent(glfw_window); /* initialise GLEW */
-    glewExperimental = 1; /* needed in core profile */
-    if(glewInit() != GLEW_OK)
-    {
-        llog(LOG_ERROR, g->game, PLUGIN_NAME, "Failed to initialise GLEW\n");
-        return 0;
-    }
-    glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
+	/* open window and create OpenGL context */
+	glfw_window = glfwCreateWindow(g_window.width, g_window.height, "Light Ship", NULL, NULL);
+	if(glfw_window == NULL)
+	{
+		llog(LOG_ERROR, g->game, PLUGIN_NAME, "Failed to open glfw window. If you have an Intel GPU, they are not 3.3 compatible.");
+		return 0;
+	}
+	glfwMakeContextCurrent(glfw_window); /* initialise GLEW */
+	glewExperimental = 1; /* needed in core profile */
+	if(glewInit() != GLEW_OK)
+	{
+		llog(LOG_ERROR, g->game, PLUGIN_NAME, "Failed to initialise GLEW\n");
+		return 0;
+	}
+	glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
 
-    /* ensure the escape key can be captured */
-    glfwSetInputMode(glfw_window, GLFW_STICKY_KEYS, GL_TRUE);
+	/* ensure the escape key can be captured */
+	glfwSetInputMode(glfw_window, GLFW_STICKY_KEYS, GL_TRUE);
 
-    /* register input callbacks */
-    glfwSetKeyCallback(glfw_window, key_callback);
-    glfwSetCursorPosCallback(glfw_window, mouse_position_callback);
-    glfwSetMouseButtonCallback(glfw_window, mouse_button_callback);
-    glfwSetScrollCallback(glfw_window, scroll_callback);
+	/* register input callbacks */
+	glfwSetKeyCallback(glfw_window, key_callback);
+	glfwSetCursorPosCallback(glfw_window, mouse_position_callback);
+	glfwSetMouseButtonCallback(glfw_window, mouse_button_callback);
+	glfwSetScrollCallback(glfw_window, scroll_callback);
 
-    /* create window object */
-    g_window.window = glfw_window;
+	/* create window object */
+	g_window.window = glfw_window;
 
-    return 1;
+	return 1;
 }
 
 void
 window_deinit(void)
 {
-    if(g_window.window)
-        glfwDestroyWindow(g_window.window);
+	if(g_window.window)
+		glfwDestroyWindow(g_window.window);
 }
 
 uint32_t
 window_width(void)
 {
-    return g_window.width;
+	return g_window.width;
 }
 
 uint32_t window_height(void)
 {
-    return g_window.height;
+	return g_window.height;
 }
 
 SERVICE(window_width_wrapper)
 {
-    RETURN(g_window.width, uint32_t);
+	RETURN(g_window.width, uint32_t);
 }
 
 SERVICE(window_height_wrapper)
 {
-    RETURN(g_window.height, uint32_t);
+	RETURN(g_window.height, uint32_t);
 }
 
 EVENT_LISTENER(on_render)
 {
-    /* render everything */
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    draw_2d();
-    sprite_draw();
-    text_draw();
-    glfwSwapBuffers(g_window.window);
+	/* render everything */
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	draw_2d();
+	sprite_draw();
+	text_draw();
+	glfwSwapBuffers(g_window.window);
 
-    glfwPollEvents();
+	glfwPollEvents();
 
-    /* fire close window event */
-    if(glfwWindowShouldClose(g_window.window) != 0)
-    {
-        EVENT_FIRE0(evt_close_window);
-    }
+	/* fire close window event */
+	if(glfwWindowShouldClose(g_window.window) != 0)
+	{
+		EVENT_FIRE0(evt_close_window);
+	}
 }

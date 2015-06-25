@@ -31,13 +31,13 @@ typedef void (*ptree_free_func)(void*);
 struct ptree_t
 {
 #ifdef _DEBUG
-    char* key;
+	char* key;
 #endif
-    void* value;
-    struct ptree_t* parent;
-    ptree_dup_func dup_value;
-    ptree_free_func free_value;
-    struct map_t children;
+	void* value;
+	struct ptree_t* parent;
+	ptree_dup_func dup_value;
+	ptree_free_func free_value;
+	struct map_t children;
 };
 
 /*!
@@ -185,7 +185,7 @@ ptree_duplicate_tree(const struct ptree_t* source_node);
  */
 LIGHTSHIP_UTIL_PUBLIC_API char
 ptree_duplicate_children_into_existing_node(struct ptree_t* target,
-                                       const struct ptree_t* source);
+									   const struct ptree_t* source);
 
 /*!
  * @brief Searches only the current node for the specified key.
@@ -220,7 +220,7 @@ ptree_get_node(const struct ptree_t* node, const char* key);
  */
 LIGHTSHIP_UTIL_PUBLIC_API char
 ptree_node_is_child_of(const struct ptree_t* node,
-                       const struct ptree_t* tree);
+					   const struct ptree_t* tree);
 
 /*!
  * @brief Prints the tree to stdout for debugging purposes.
@@ -230,7 +230,7 @@ LIGHTSHIP_UTIL_PUBLIC_API void
 ptree_print(const struct ptree_t* tree);
 
 #define PTREE_FOR_EACH_IN_NODE(tree, hash, node) \
-    MAP_FOR_EACH(&(tree)->children, struct ptree_t, hash, node)
+	MAP_FOR_EACH(&(tree)->children, struct ptree_t, hash, node)
 
 #define PTREE_HASH_STRING(str) hash_jenkins_oaat(str, strlen(str))
 

@@ -24,11 +24,11 @@ struct game_t;
  */
 FRAMEWORK_PUBLIC_API struct plugin_t*
 plugin_create(struct game_t* game,
-              const char* name,
-              const char* category,
-              const char* author,
-              const char* description,
-              const char* website);
+			  const char* name,
+			  const char* category,
+			  const char* author,
+			  const char* description,
+			  const char* website);
 
 /*!
  * @brief Initialises a plugin object.
@@ -51,7 +51,7 @@ plugin_destroy(struct plugin_t* plugin);
  */
 FRAMEWORK_PUBLIC_API void
 plugin_set_programming_language(struct plugin_t* plugin,
-                                plugin_programming_language_t language);
+								plugin_programming_language_t language);
 
 /*!
  * @brief Sets the version of the plugin.
@@ -62,9 +62,9 @@ plugin_set_programming_language(struct plugin_t* plugin,
  */
 FRAMEWORK_PUBLIC_API void
 plugin_set_version(struct plugin_t* plugin,
-                   uint32_t major,
-                   uint32_t minior,
-                   uint32_t patch);
+				   uint32_t major,
+				   uint32_t minior,
+				   uint32_t patch);
 
 /*!
  * @brief Extracts the three version digits from a string.
@@ -76,9 +76,9 @@ plugin_set_version(struct plugin_t* plugin,
  */
 FRAMEWORK_PUBLIC_API char
 plugin_extract_version_from_string(const char* file,
-                                   uint32_t* major,
-                                   uint32_t* minor,
-                                   uint32_t* patch);
+								   uint32_t* major,
+								   uint32_t* minor,
+								   uint32_t* patch);
 
 /*!
  * @brief Generates a version string from the info struct and copies it into

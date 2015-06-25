@@ -17,9 +17,9 @@ C_HEADER_BEGIN
 
 #define RETURN_NOTHING
 #define OUT_OF_MEMORY(where, ret_val) do { \
-        llog_critical_use_no_memory("malloc() failed in " where " - not enough memory"); \
-        return ret_val; \
-    } while(0)
+		llog_critical_use_no_memory("malloc() failed in " where " - not enough memory"); \
+		return ret_val; \
+	} while(0)
 
 /*!
  * @brief Initialises the memory system.

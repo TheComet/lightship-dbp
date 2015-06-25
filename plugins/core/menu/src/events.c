@@ -9,16 +9,16 @@
 void
 register_events(struct plugin_t* plugin)
 {
-    /* get events struct and initialise all event pointers to NULL */
-    struct glob_events_t* g = &get_global(plugin->game)->events;
-    memset(g, 0, sizeof(struct glob_events_t));
+	/* get events struct and initialise all event pointers to NULL */
+	struct glob_events_t* g = &get_global(plugin->game)->events;
+	memset(g, 0, sizeof(struct glob_events_t));
 
-    EVENT_CREATE1(plugin, g->button_clicked, PLUGIN_NAME ".button_clicked", uint32_t);
+	EVENT_CREATE1(plugin, g->button_clicked, PLUGIN_NAME ".button_clicked", uint32_t);
 }
 
 void
 register_event_listeners(struct plugin_t* plugin)
 {
-    struct game_t* game = plugin->game;
-    event_register_listener(game, "input.mouse_clicked", (event_callback_func)on_mouse_clicked);
+	struct game_t* game = plugin->game;
+	event_register_listener(game, "input.mouse_clicked", (event_callback_func)on_mouse_clicked);
 }

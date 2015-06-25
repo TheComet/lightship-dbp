@@ -14,5 +14,5 @@ void
 main_loop_do_loop(void);
 
 #ifdef _DEBUG
-    EVENT_LISTENER(on_stats);
+	EVENT_LISTENER(on_stats);
 #endif

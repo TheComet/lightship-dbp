@@ -6,13 +6,13 @@ struct glob_t;
 
 struct shapes_t
 {
-    uint32_t ID;
-    uint8_t visible;
-    GLuint vao;
-    GLuint vbo;
-    GLuint ibo;
-    struct unordered_vector_t vertex_data;
-    struct unordered_vector_t index_data;
+	uint32_t ID;
+	uint8_t visible;
+	GLuint vao;
+	GLuint vbo;
+	GLuint ibo;
+	struct unordered_vector_t vertex_data;
+	struct unordered_vector_t index_data;
 };
 
 /*!

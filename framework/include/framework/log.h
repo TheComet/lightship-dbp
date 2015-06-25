@@ -23,12 +23,12 @@ struct event_t;
 
 typedef enum log_level_e
 {
-    LOG_INFO = 0,
-    LOG_WARNING = 1,
-    LOG_ERROR = 2,
-    LOG_FATAL = 3,
-    LOG_USER = 4,
-    LOG_NONE = 5
+	LOG_INFO = 0,
+	LOG_WARNING = 1,
+	LOG_ERROR = 2,
+	LOG_FATAL = 3,
+	LOG_USER = 4,
+	LOG_NONE = 5
 } log_level_e;
 
 /*!
@@ -73,10 +73,10 @@ llog_unindent(struct game_t* game);
  */
 FRAMEWORK_PUBLIC_API void
 llog(log_level_e level,
-     const struct game_t* game,
-     const char* plugin_name,
-     const char* fmt,
-     ...);
+	 const struct game_t* game,
+	 const char* plugin_name,
+	 const char* fmt,
+	 ...);
 
 FRAMEWORK_PUBLIC_API void
 llog_critical_use_no_memory(const char* message);

@@ -6,9 +6,9 @@ struct glob_t;
 
 struct window_t
 {
-    uint32_t width;
-    uint32_t height;
-    struct GLFWwindow* window;
+	uint32_t width;
+	uint32_t height;
+	struct GLFWwindow* window;
 };
 
 char

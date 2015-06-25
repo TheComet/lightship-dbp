@@ -122,12 +122,12 @@ LIGHTSHIP_UTIL_PUBLIC_API char
 yaml_remove_value(struct ptree_t* node, const char* key);
 
 #define YAML_FOR_EACH(m_root, m_key, m_hash_var, m_node_var) {                  \
-    struct ptree_t* yaml_internal_##m_root_node;                                \
-    if((yaml_internal_##m_root_node = yaml_get_node(m_root, m_key))) {          \
-        MAP_FOR_EACH(&(yaml_internal_##m_root_node)->children,                  \
-                     struct ptree_t,                                            \
-                     m_hash_var,                                                \
-                     m_node_var)
+	struct ptree_t* yaml_internal_##m_root_node;                                \
+	if((yaml_internal_##m_root_node = yaml_get_node(m_root, m_key))) {          \
+		MAP_FOR_EACH(&(yaml_internal_##m_root_node)->children,                  \
+					 struct ptree_t,                                            \
+					 m_hash_var,                                                \
+					 m_node_var)
 
 
 #define YAML_END_FOR_EACH }}

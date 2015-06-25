@@ -8,7 +8,7 @@ C_HEADER_BEGIN
 
 typedef enum file_opts_e
 {
-    FILE_BINARY=1
+	FILE_BINARY=1
 } file_opts_e;
 
 /*!

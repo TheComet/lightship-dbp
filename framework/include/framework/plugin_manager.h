@@ -16,8 +16,8 @@ struct ptree_t;
 #define plugin_start(game, plugin) ((plugin)->started_successfully = (plugin)->start(game))
 
 #define plugin_stop(plugin) do { \
-    if((plugin)->started_successfully) \
-        ((plugin)->stop((plugin)->game)); } while(0)
+	if((plugin)->started_successfully) \
+		((plugin)->stop((plugin)->game)); } while(0)
 
 #define plugin_deinit(plugin) do { (plugin)->deinit((plugin)->game); } while(0)
 
@@ -71,8 +71,8 @@ plugin_manager_deinit(struct game_t* game);
  */
 FRAMEWORK_PUBLIC_API struct plugin_t*
 plugin_load(struct game_t* game,
-            const struct plugin_info_t* plugin_info,
-            plugin_search_criteria_t criteria);
+			const struct plugin_info_t* plugin_info,
+			plugin_search_criteria_t criteria);
 
 FRAMEWORK_PUBLIC_API char
 load_plugins_from_yaml(struct game_t* game, const struct ptree_t* plugins_node);

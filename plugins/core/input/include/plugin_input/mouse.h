@@ -3,14 +3,14 @@
 
 struct mouse_position_t
 {
-    double x;
-    double y;
+	double x;
+	double y;
 };
 
 struct mouse_t
 {
-    struct mouse_position_t position;
-    char state;
+	struct mouse_position_t position;
+	char state;
 };
 
 EVENT_LISTENER(on_mouse_move);

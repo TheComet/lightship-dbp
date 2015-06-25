@@ -6,37 +6,37 @@ struct glob_t;
 
 typedef enum sprite_animation_e
 {
-    SPRITE_ANIMATION_STOP,
-    SPRITE_ANIMATION_PLAY,
-    SPRITE_ANIMATION_LOOP
+	SPRITE_ANIMATION_STOP,
+	SPRITE_ANIMATION_PLAY,
+	SPRITE_ANIMATION_LOOP
 } sprite_animation_e;
 
 struct sprite_animation_t
 {
-    uint16_t current_frame;
-    uint16_t frame_a;
-    uint16_t frame_b;
-    uint16_t total_frame_count;
-    sprite_animation_e state;
+	uint16_t current_frame;
+	uint16_t frame_a;
+	uint16_t frame_b;
+	uint16_t total_frame_count;
+	sprite_animation_e state;
 };
 
 struct sprite_gl_t
 {
-    GLuint tex;
+	GLuint tex;
 };
 
 struct sprite_t
 {
-    uint32_t id;
+	uint32_t id;
 
-    struct vec2_t pos;
-    struct vec2_t size;
-    struct vec2_t frame_size;
-    struct sprite_animation_t animation;
-    struct sprite_gl_t gl;
+	struct vec2_t pos;
+	struct vec2_t size;
+	struct vec2_t frame_size;
+	struct sprite_animation_t animation;
+	struct sprite_gl_t gl;
 
-    float aspect_ratio;
-    char is_visible;
+	float aspect_ratio;
+	char is_visible;
 };
 
 char
@@ -47,20 +47,20 @@ sprite_deinit(void);
 
 struct sprite_t*
 sprite_create(struct glob_t* g,
-              const char* file_name,
-              uint16_t x_frame_count,
-              uint16_t y_frame_count,
-              uint16_t total_frame_count,
-              uint32_t* id);
+			  const char* file_name,
+			  uint16_t x_frame_count,
+			  uint16_t y_frame_count,
+			  uint16_t total_frame_count,
+			  uint32_t* id);
 
 struct sprite_t*
 sprite_create_from_memory(const unsigned char* pixel_buffer,
-                          uint16_t img_width,
-                          uint16_t img_height,
-                          uint16_t x_frame_count,
-                          uint16_t y_frame_count,
-                          uint16_t total_frame_count,
-                          uint32_t* id);
+						  uint16_t img_width,
+						  uint16_t img_height,
+						  uint16_t x_frame_count,
+						  uint16_t y_frame_count,
+						  uint16_t total_frame_count,
+						  uint32_t* id);
 
 void
 sprite_destroy(struct sprite_t* sprite);
