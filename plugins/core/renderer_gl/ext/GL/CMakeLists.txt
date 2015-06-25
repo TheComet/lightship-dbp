@@ -1,5 +1,13 @@
 ### GLFW ###
 
+if (UNIX)
+	add_definitions (-Wno-error -Wno-pedantic)
+endif ()
+
+add_subdirectory (glfw-3.0.3)
+
+###################################################
+
 include_directories(
 	glfw-3.0.3/include/GLFW/
 	glew-1.9.0/include/
@@ -20,10 +28,6 @@ set(OPENGL_LIBRARY
 )
 endif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 
-if (UNIX)
-	add_definitions (-Wno-error -Wno-pedantic)
-endif ()
-
 ### GLEW ###
 
 set(GLEW_SOURCE
@@ -43,5 +47,3 @@ target_link_libraries(GLEW_190
 	${OPENGL_LIBRARY}
 	${EXTRA_LIBS}
 )
-
-add_subdirectory (glfw-3.0.3)
