@@ -112,7 +112,7 @@ struct ordered_vector_t;
 typedef enum type_e
 {
 	TYPE_UNKNOWN,
-	TYPE_NONE,
+	TYPE_VOID,
 
 	TYPE_INT8,   /* NOTE: Interleaving signed and unsigned-ness so */
 	TYPE_UINT8,  /*       a signed type can be set to an unsigned */

@@ -63,7 +63,7 @@ TEST(NAME, create_type_info_void)
     struct type_info_t* t = dynamic_call_create_type_info("void", 0, NULL);
     ASSERT_THAT(t, NotNull());
     EXPECT_THAT(t->argc, Eq(0));
-    EXPECT_THAT(t->ret_type, Eq(TYPE_NONE));
+    EXPECT_THAT(t->ret_type, Eq(TYPE_VOID));
     EXPECT_THAT(t->has_unknown_types, Eq(0));
     dynamic_call_destroy_type_info(t);
 }
@@ -75,7 +75,7 @@ TEST(NAME, create_type_info_unknown_ret_type)
     ASSERT_THAT(t, NotNull());
     EXPECT_THAT(t->argc, Eq(1));
     EXPECT_THAT(t->ret_type, Eq(TYPE_UNKNOWN));
-    EXPECT_THAT(t->argv_type[0], Eq(TYPE_NONE));
+    EXPECT_THAT(t->argv_type[0], Eq(TYPE_VOID));
     EXPECT_THAT(t->has_unknown_types, Eq(1));
     dynamic_call_destroy_type_info(t);
 }
@@ -86,7 +86,7 @@ TEST(NAME, create_type_info_unknown_argv_type)
     struct type_info_t* t = dynamic_call_create_type_info("void", 1, argv);
     ASSERT_THAT(t, NotNull());
     EXPECT_THAT(t->argc, Eq(1));
-    EXPECT_THAT(t->ret_type, Eq(TYPE_NONE));
+    EXPECT_THAT(t->ret_type, Eq(TYPE_VOID));
     EXPECT_THAT(t->argv_type[0], Eq(TYPE_UNKNOWN));
     EXPECT_THAT(t->has_unknown_types, Eq(1));
     dynamic_call_destroy_type_info(t);
@@ -267,7 +267,7 @@ TEST(NAME, get_type_from_string_test_floating_point)
 
 TEST(NAME, get_type_from_string_test_void)
 {
-    EXPECT_THAT(dynamic_call_get_type_from_string("void"),           Eq(TYPE_NONE));
+    EXPECT_THAT(dynamic_call_get_type_from_string("void"),           Eq(TYPE_VOID));
     EXPECT_THAT(dynamic_call_get_type_from_string("void*"),          Eq(TYPE_UNKNOWN));
 }
 

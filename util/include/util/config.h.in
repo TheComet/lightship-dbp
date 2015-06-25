@@ -29,6 +29,7 @@
 #   endif
 
 #   define SIZEOF_VOID_PTR  @SIZEOF_VOID_PTR@
+#   define SIZEOF_INT       @SIZEOF_INT@
 #   define SIZEOF_FLOAT     @SIZEOF_FLOAT@
 #   define SIZEOF_DOUBLE    @SIZEOF_DOUBLE@
 
