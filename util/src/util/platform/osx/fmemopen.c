@@ -19,30 +19,31 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/mman.h>
+#include "util/pstdint.h"
 
 struct fmem {
-  size_t pos;
-  size_t size;
+  uintptr_t pos;
+  uintptr_t size;
   char *buffer;
 };
 typedef struct fmem fmem_t;
 
-static int readfn(void *handler, char *buf, int size) {
+static int readfn(void *handler, char *buf, uintptr_t size) {
   fmem_t *mem = handler;
-  size_t available = mem->size - mem->pos;
-  
+  uintptr_t available = mem->size - mem->pos;
+
   if (size > available) {
 	size = available;
   }
   memcpy(buf, mem->buffer + mem->pos, sizeof(char) * size);
   mem->pos += size;
-  
+
   return size;
 }
 
-static int writefn(void *handler, const char *buf, int size) {
+static int writefn(void *handler, const char *buf, uintptr_t size) {
   fmem_t *mem = handler;
-  size_t available = mem->size - mem->pos;
+  uintptr_t available = mem->size - mem->pos;
 
   if (size > available) {
 	size = available;
@@ -53,28 +54,28 @@ static int writefn(void *handler, const char *buf, int size) {
   return size;
 }
 
-static fpos_t seekfn(void *handler, fpos_t offset, int whence) {
-  size_t pos;
+static fpos_t seekfn(void *handler, fpos_t offset, uintptr_t whence) {
+  uintptr_t pos;
   fmem_t *mem = handler;
 
   switch (whence) {
 	case SEEK_SET: {
 	  if (offset >= 0) {
-		pos = (size_t)offset;
+		pos = (uintptr_t)offset;
 	  } else {
 		pos = 0;
 	  }
 	  break;
 	}
 	case SEEK_CUR: {
-	  if (offset >= 0 || (size_t)(-offset) <= mem->pos) {
-		pos = mem->pos + (size_t)offset;
+	  if (offset >= 0 || (uintptr_t)(-offset) <= mem->pos) {
+		pos = mem->pos + (uintptr_t)offset;
 	  } else {
 		pos = 0;
 	  }
 	  break;
 	}
-	case SEEK_END: pos = mem->size + (size_t)offset; break;
+	case SEEK_END: pos = mem->size + (uintptr_t)offset; break;
 	default: return -1;
   }
 
@@ -91,7 +92,7 @@ static int closefn(void *handler) {
   return 0;
 }
 
-FILE *fmemopen(void *buf, size_t size, const char *mode) {
+FILE *fmemopen(void *buf, uintptr_t size, const char *mode) {
   // This data is released on fclose.
   fmem_t* mem = (fmem_t *) malloc(sizeof(fmem_t));
 
