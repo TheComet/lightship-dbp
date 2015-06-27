@@ -27,7 +27,8 @@ file_load_into_memory(const char* file_name, void** buffer, file_opts_e opts)
 #ifdef ENABLE_WINDOWS_EX
 		if(!GetFileSizeEx(hFile, &buffer_size))
 #else
-		if((buffer_size.LowPart = GetFileSize(hFile, &buffer_size.HighPart)) == INVALID_FILE_SIZE)
+        DWORD high_part;
+		if((buffer_size.LowPart = GetFileSize(hFile, &high_part)) == INVALID_FILE_SIZE)
 #endif
 		{
 			char* error = get_last_error_string();
@@ -36,6 +37,10 @@ file_load_into_memory(const char* file_name, void** buffer, file_opts_e opts)
 			free_string(error);
 			break;
 		}
+
+#ifndef ENABLE_WINDOWS_EX
+        buffer_size.HighPart = (LONG)high_part;
+#endif
 
 		/* unlikely to happen */
 		if(buffer_size.HighPart != 0)

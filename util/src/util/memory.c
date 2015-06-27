@@ -211,7 +211,7 @@ free_wrapper(void* ptr)
 			if(info->backtrace)
 				free(info->backtrace);
 			else
-				fprintf(stderr, "[memory] WARNING: free(): Allocation didn't"
+				fprintf(stderr, "[memory] WARNING: free(): Allocation didn't "
 					"have a backtrace (it was NULL)\n");
 #   endif
 			free(info);
@@ -287,9 +287,14 @@ memory_deinit(void)
 
 	/* overall report */
 	leaks = (allocations > deallocations ? allocations - deallocations : deallocations - allocations);
-	printf("allocations: %lu\n", allocations);
-	printf("deallocations: %lu\n", deallocations);
-	printf("memory leaks: %lu\n", leaks);
+#if SIZEOF_VOID_PTR == 8
+#   define FORMAT_UINTPTR_T "lu"
+#elif SIZEOF_VOID_PTR == 4
+#   define FORMAT_UINTPTR_T "u"
+#endif
+	printf("allocations: %" FORMAT_UINTPTR_T "\n", allocations);
+	printf("deallocations: %" FORMAT_UINTPTR_T"\n", deallocations);
+	printf("memory leaks: %" FORMAT_UINTPTR_T "\n", leaks);
 	printf("=========================================\n");
 
 	++allocations; /* this is the single allocation still held by the report vector */

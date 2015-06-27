@@ -62,7 +62,7 @@
  */
 #define MALLOC_ARGUMENT_INTO_ARGV(value_t, extract_func) do {               \
 		argv[i] = MALLOC(sizeof(value_t));                                  \
-		*(value_t*)argv[i] = (value_t)va_arg(ap, extract_t); } while(0)
+		*(value_t*)argv[i] = (value_t)extract_func; } while(0)
 
 /* ------------------------------------------------------------------------- */
 struct type_info_t*

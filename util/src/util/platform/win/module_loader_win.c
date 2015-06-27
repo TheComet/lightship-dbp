@@ -36,7 +36,7 @@ module_sym(void* handle, const char* symbol)
 			FREE(error);
 		}
 	}
-	return (void*)ptr;
+	return *(void**)&ptr;
 }
 
 void

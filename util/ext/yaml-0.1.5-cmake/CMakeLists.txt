@@ -60,6 +60,7 @@ if (${CMAKE_C_COMPILER_ID} STREQUAL "GNU")
         if (NOT MINGW) # MinGW always builds position independent code
             add_definitions (-fPIC -Wno-unused-value)
         endif ()
+        add_definitions (-Wno-error)
     endif ()
 elseif (${CMAKE_C_COMPILER_ID} STREQUAL "Clang")
     if (NOT BUILD_SHARED)

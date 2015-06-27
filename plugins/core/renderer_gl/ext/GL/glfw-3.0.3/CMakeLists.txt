@@ -83,8 +83,8 @@ endif()
 #--------------------------------------------------------------------
 # Set compiler specific flags
 #--------------------------------------------------------------------
-if (UNIX)
-    add_definitions(-Wall)
+if (${CMAKE_C_COMPILER_ID} STREQUAL "GNU")
+    add_definitions(-Wall -Wno-error)
 
     if (BUILD_SHARED_LIBS)
         add_definitions(-fvisibility=hidden)
