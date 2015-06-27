@@ -38,7 +38,7 @@ static volatile int malloc_fail_counter = 0;
 #       else /* defined(LIGHTSHIP_UTIL_PLATFORM_LINUX) || defined(LIGHTSHIP_UTIL_PLATFORM_MACOSX) */
 #			include <Windows.h>
 #			include <process.h>
-#           define MUTEX HANDLE;
+#           define MUTEX HANDLE
 #			define MUTEX_LOCK(x) WaitForSingleObject(x, INFINITE);
 #			define MUTEX_UNLOCK(x) ReleaseMutex(x);
 #			define MUTEX_INIT(x) do { x = CreateMutex(NULL, FALSE, NULL); } while(0);
