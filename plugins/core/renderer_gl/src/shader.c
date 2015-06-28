@@ -104,7 +104,7 @@ load_shader_pair(struct glob_t* g,
 	fsh_ID = glCreateShader(GL_FRAGMENT_SHADER);
 	vsh_code = load_and_compile_shader(g, vsh_ID, vertex_shader);
 	check_shader(g, vsh_ID);
-	vsh_code = load_and_compile_shader(g, fsh_ID, fragment_shader);
+	fsh_code = load_and_compile_shader(g, fsh_ID, fragment_shader);
 	check_shader(g, fsh_ID);
 
 	/* link program */

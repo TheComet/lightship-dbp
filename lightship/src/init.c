@@ -14,40 +14,47 @@ static const char* yml_settings = "../../lightship/cfg/settings.yml";
 static const char* yml_settings = "cfg/settings.yml";
 #endif
 
-static struct ptree_t* g_settings_doc;
-
-typedef void (*start_loop_func)(void);
-
 /* -------------------------------------------------------------------------- */
 char
 load_core_plugins(struct game_t* game)
 {
+	struct ptree_t* settings_doc;
 	struct ptree_t* plugins_node;
+	char success = 1;
 
-	/*
-	 * Try to load and start the core plugins. If that fails, bail out.
-	 */
-	g_settings_doc = yaml_load(yml_settings);
-	if(!g_settings_doc)
+	for(;;)
 	{
-		llog(LOG_WARNING, game, NULL, "Config file \"%s\" was not found. No core plugins will be loaded", yml_settings);
-		return 1;
+		/*
+		* Try to load and start the core plugins. If that fails, bail out.
+		*/
+		settings_doc = yaml_load(yml_settings);
+		if(!settings_doc)
+		{
+			llog(LOG_WARNING, game, NULL, "Config file \"%s\" was not found. No core plugins will be loaded", yml_settings);
+			break;
+		}
+
+		plugins_node = yaml_get_node(settings_doc, "plugins");
+		if(!plugins_node)
+		{
+			llog(LOG_WARNING, game, NULL, "Config file \"%s\" doesn't contain any plugins to load", yml_settings);
+			success = 0;
+			break;
+		}
+
+		if(!load_plugins_from_yaml(game, plugins_node))
+		{
+			llog(LOG_FATAL, game, NULL, "Couldn't start all core plugins");
+			success = 0;
+			break;
+		}
+
+		break;
 	}
 
-	plugins_node = yaml_get_node(g_settings_doc, "plugins");
-	if(!plugins_node)
-	{
-		llog(LOG_WARNING, game, NULL, "Config file \"%s\" doesn't contain any plugins to load", yml_settings);
-		return 1;
-	}
+	yaml_destroy(settings_doc);
 
-	if(!load_plugins_from_yaml(game, plugins_node))
-	{
-		llog(LOG_FATAL, game, NULL, "Couldn't start all core plugins");
-		return 0;
-	}
-
-	return 1;
+	return success;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -90,9 +97,7 @@ init_game(char is_server)
 	 */
 	if(!load_core_plugins(localhost))
 	{
-		yaml_destroy(g_settings_doc);
 		game_destroy(localhost);
-		localhost = NULL;
 		return 0;
 	}
 
