@@ -288,6 +288,7 @@ load_plugins_from_yaml(struct game_t* game, const struct ptree_t* plugins_node)
 					"unloading...", (*pluginp)->info.name);
 				plugin_unload(game, *pluginp);
 				success = 0;
+				break;
 			}
 		}
 	}
