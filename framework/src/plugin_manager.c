@@ -279,19 +279,20 @@ load_plugins_from_yaml(struct game_t* game, const struct ptree_t* plugins_node)
 	YAML_END_FOR_EACH }
 
 	/* start loaded plugins */
+	{ UNORDERED_VECTOR_FOR_EACH(&new_plugins, struct plugin_t*, pluginp)
 	{
-		UNORDERED_VECTOR_FOR_EACH(&new_plugins, struct plugin_t*, pluginp)
+		/*
+		 * If any of the plugins fail to start, abort starting further plugins
+		 * and return an error.
+		 */
+		if(!plugin_start(game, *pluginp))
 		{
-			if(!plugin_start(game, *pluginp))
-			{
-				llog(LOG_ERROR, game, NULL, "Failed to start plugin \"%s\", "
-					"unloading...", (*pluginp)->info.name);
-				plugin_unload(game, *pluginp);
-				success = 0;
-				break;
-			}
+			llog(LOG_ERROR, game, NULL, "Failed to start plugin \"%s\"",
+					(*pluginp)->info.name);
+			success = 0;
+			break;
 		}
-	}
+	}}
 
 	/* clean up */
 	unordered_vector_clear_free(&new_plugins);
