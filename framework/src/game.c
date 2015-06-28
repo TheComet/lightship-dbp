@@ -196,6 +196,17 @@ games_run_all(void)
 				break;
 			}
 		}}
+
+		/* HACK: If the localclient game is destroyed and the only game left
+		 * is the localhost instance, it should be safe to assume we can
+		 * quit */
+		if(map_count(&g_games) == 1)
+		{
+			MAP_FOR_EACH(&g_games, struct game_t, key, game)
+			{
+				game_exit(game);
+			}
+		}
 	}
 }
 
