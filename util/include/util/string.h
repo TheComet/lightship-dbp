@@ -85,7 +85,7 @@ crlf2lf(char* src);
  * string, make a copy with malloc_string().
  * @param str The string to reverse the order of.
  */
-void
+LIGHTSHIP_UTIL_PUBLIC_API void
 string_reverse(char* str);
 
 C_HEADER_END

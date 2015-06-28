@@ -44,6 +44,12 @@ if (COMMAND set_up_hermetic_build)
   set_up_hermetic_build()
 endif()
 
+if (${CMAKE_C_COMPILER_ID} STREQUAL "GNU")
+	add_definitions (-Wno-error)
+elseif (${CMAKE_C_COMPILER_ID} STREQUAL "Clang")
+	add_definitions (-Wno-error)
+endif ()
+
 # Instructs CMake to process Google Test's CMakeLists.txt and add its
 # targets to the current scope.  We are placing Google Test's binary
 # directory in a subdirectory of our own as VC compilation may break
