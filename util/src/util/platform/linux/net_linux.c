@@ -63,31 +63,33 @@ static char*
 get_sockaddr_ip_str(const struct sockaddr* addr)
 {
 	char* s = NULL;
-	
+
 	switch(addr->sa_family)
 	{
 		case AF_INET:
 		{
-			struct sockaddr_in *addr_in = (struct sockaddr_in *)addr;
+			struct sockaddr_in* addr_in = (struct sockaddr_in*)addr;
 			s = (char*)MALLOC(INET_ADDRSTRLEN);
 			inet_ntop(AF_INET, &(addr_in->sin_addr), s, INET_ADDRSTRLEN);
 			break;
 		}
-		
+
 		case AF_INET6:
 		{
-			struct sockaddr_in6 *addr_in6 = (struct sockaddr_in6 *)addr;
+			struct sockaddr_in6* addr_in6 = (struct sockaddr_in6*)addr;
 			s = (char*)MALLOC(INET6_ADDRSTRLEN);
 			inet_ntop(AF_INET6, &(addr_in6->sin6_addr), s, INET6_ADDRSTRLEN);
 			break;
 		}
-		
+
 		default:
+			/* don't use malloc_string() because we're allocating and freeing
+			 * it here. */
 			s = (char*)MALLOC(sizeof(char) * 8);
 			strcpy(s, "unknown");
 			break;
 	}
-	
+
 	return s;
 }
 
@@ -97,7 +99,7 @@ log_addrinfo_error(const char* message, const struct addrinfo* addr)
 {
 	/* get ip address from address info struct */
 	char* ip_str = get_sockaddr_ip_str(addr->ai_addr);
-	
+
 	/* output to stderr */
 	fprintf(stderr, "socket info:\n"
 					"  family:        %d\n"
@@ -115,7 +117,7 @@ log_addrinfo_error(const char* message, const struct addrinfo* addr)
 			addr->ai_family, addr->ai_socktype, addr->ai_protocol, ip_str,
 			AF_UNSPEC, AF_INET, AF_INET6,
 			SOCK_STREAM, SOCK_DGRAM);
-	
+
 	FREE(ip_str);
 }
 
@@ -125,7 +127,7 @@ net_udp(const char* node, const char* port, uint32_t max_connections, char is_ho
 {
 	struct addrinfo hints, *res, *p;
 	struct net_connection_t* connection;
-	
+
 	/* create connection object */
 	connection = (struct net_connection_t*)MALLOC(sizeof *connection);
 	if(!connection)
@@ -133,18 +135,18 @@ net_udp(const char* node, const char* port, uint32_t max_connections, char is_ho
 		fprintf(stderr, "malloc() failed in net_host_udp() -- not enough memory\n");
 		return NULL;
 	}
-	
+
 	/* init connection */
 	memset(connection, 0, sizeof *connection);
 	connection->sockfd = -1; /* set to invalid sockfd */
 	connection->max_connections = max_connections;
-	
+
 	/* fill in hints */
 	memset(&hints, 0, sizeof hints);
 	hints.ai_family = AF_UNSPEC;    /* allow IPv4 or IPv6 */
 	hints.ai_socktype = SOCK_DGRAM; /* UDP */
 	hints.ai_flags = AI_PASSIVE;    /* fill in my IP for me */
-	
+
 	/* get address info matching above hints */
 	if(getaddrinfo(NULL, port, &hints, &res) != 0)
 	{
@@ -152,7 +154,7 @@ net_udp(const char* node, const char* port, uint32_t max_connections, char is_ho
 		net_disconnect(connection);
 		return NULL;
 	}
-	
+
 	/* Filter through list and create and bind the first socket we can */
 	for(p = res; p != NULL; p = p->ai_next)
 	{
@@ -165,7 +167,7 @@ net_udp(const char* node, const char* port, uint32_t max_connections, char is_ho
 			log_addrinfo_error("Failed to create socket()\n", p);
 			continue;
 		}
-		
+
 		/* bind socket if host */
 		if(is_host)
 		{
@@ -177,14 +179,14 @@ net_udp(const char* node, const char* port, uint32_t max_connections, char is_ho
 				continue;
 			}
 		}
-		
+
 		/* success! */
 		break;
 	}
-	
+
 	/* done with address info */
 	freeaddrinfo(res);
-	
+
 	/* make sure bind was successful */
 	if(p == NULL)
 	{
@@ -192,6 +194,6 @@ net_udp(const char* node, const char* port, uint32_t max_connections, char is_ho
 		net_disconnect(connection);
 		return NULL;
 	}
-	
+
 	return connection;
 }
