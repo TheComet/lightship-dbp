@@ -32,7 +32,7 @@ struct ordered_vector_t
 	uint32_t element_size;       /* how large one element is in bytes */
 	uint32_t capacity;           /* how many elements actually fit into the allocated space */
 	uint32_t count;              /* number of elements inserted */
-	DATA_POINTER_TYPE* data;/* pointer to the contiguous section of memory */
+	DATA_POINTER_TYPE* data;     /* pointer to the contiguous section of memory */
 };
 
 /*!

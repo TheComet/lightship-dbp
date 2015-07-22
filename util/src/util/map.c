@@ -1,15 +1,33 @@
 #include "util/map.h"
 #include "util/memory.h"
+#include "util/string.h"
 #include <assert.h>
+#include <string.h>
 
 const uint32_t MAP_INVALID_KEY = (uint32_t)-1;
+
+uint32_t(*g_hash_func)(const char*, uint32_t len);
+
+/* ------------------------------------------------------------------------- */
+void
+map_set_string_hash_func(uint32_t(*func)(const char*, uint32_t len))
+{
+	g_hash_func = func;
+}
+
+/* ------------------------------------------------------------------------- */
+uint32_t
+map_hash_string(const char* str)
+{
+	return g_hash_func(str, strlen(str));
+}
 
 /* ------------------------------------------------------------------------- */
 struct map_t*
 map_create(void)
 {
 	struct map_t* map;
-	if(!(map = (struct map_t*)MALLOC(sizeof(struct map_t))))
+	if(!(map = (struct map_t*)MALLOC(sizeof *map)))
 		return NULL;
 	map_init_map(map);
 	return map;
@@ -144,10 +162,10 @@ map_find_unused_key(struct map_t* map)
 
 /* ------------------------------------------------------------------------- */
 char
-map_insert(struct map_t* map, uint32_t hash, void* value)
+map_insert_using_hash(struct map_t* map, uint32_t hash, void* value)
 {
 	struct map_key_value_t* emplaced_data;
-	struct map_key_value_t* data;
+	struct map_key_value_t* lower_bound;
 
 	assert(map);
 
@@ -156,25 +174,73 @@ map_insert(struct map_t* map, uint32_t hash, void* value)
 		return 0;
 
 	/* lookup location in map to insert */
-	data = map_find_lower_bound(map, hash);
-	if(data && data->hash == hash)
+	lower_bound = map_find_lower_bound(map, hash);
+	if(lower_bound && lower_bound->hash == hash)
 		return 0;
 
 	/* either push back or insert, depending on whether there is already data
 	 * in the map */
-	if(!data)
+	if(!lower_bound)
 		emplaced_data = (struct map_key_value_t*)ordered_vector_push_emplace(&map->vector);
 	else
 		emplaced_data = ordered_vector_insert_emplace(&map->vector,
-						  data - (struct map_key_value_t*)map->vector.data);
+						  lower_bound - (struct map_key_value_t*)map->vector.data);
 
 	if(!emplaced_data)
 		return 0;
 
+	memset(emplaced_data, 0, sizeof *emplaced_data);
 	emplaced_data->hash = hash;
-	emplaced_data->value = value;
+	emplaced_data->value_chain.value = value;
 
 	return 1;
+}
+
+/* ------------------------------------------------------------------------- */
+char
+map_insert_using_key(struct map_t* map, const char* key, void* value)
+{
+	struct map_key_value_t* new_kv;
+	uint32_t hash = map_hash_string(key);
+
+	/* don't insert reserved hashes */
+	if(hash == MAP_INVALID_KEY)
+		return 0;
+
+	/* get the lower bound of the insertion point */
+	struct map_key_value_t* lower_bound = map_find_lower_bound(map, hash);
+
+	/* hash collision */
+	if(lower_bound && lower_bound->hash == hash)
+	{
+		/* get to the end of the chain */
+		struct map_value_chain_t* vc = &lower_bound->value_chain;
+		assert(vc->key); /* sanity check - all values in chain must have a key */
+		while(vc->next && (vc = vc->next))
+		{
+			assert(vc->key); /* sanity check, same as above */
+		}
+
+		/* allocate and link a new value chain */
+		vc->next = new_kv = (struct map_value_chain_t*)MALLOC(sizeof *vc);
+	}
+	else
+	{
+		/*
+		 * No hash collision, either push back or insert, depending on whether
+		 * there is already data in the map
+		 */
+		if(!lower_bound)
+			new_kv = (struct map_key_value_t*)ordered_vector_push_emplace(&map->vector);
+		else
+			new_kv = ordered_vector_insert_emplace(&map->vector,
+					lower_bound - (struct map_key_value_t*)map->vector.data);
+	}
+
+	memset(new_kv, 0, sizeof *new_kv);
+	new_kv->hash = hash;
+	new_kv->value_chain.key = malloc_string(key);
+	new_kv->value_chain.value = value;
 }
 
 /* ------------------------------------------------------------------------- */
