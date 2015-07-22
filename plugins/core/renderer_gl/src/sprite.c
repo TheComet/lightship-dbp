@@ -241,13 +241,12 @@ sprite_draw(void)
 	glEnable(GL_BLEND);printOpenGLError();
 	glUseProgram(g_sprite_shader_id);printOpenGLError();
 	glBindVertexArray(g_vao);printOpenGLError();
-	{ MAP_FOR_EACH(&g_sprites, struct sprite_t, key, sprite)
-	{
+	MAP_FOR_EACH(&g_sprites, struct sprite_t, key, sprite)
 		glBindTexture(GL_TEXTURE_2D, sprite->gl.tex);printOpenGLError();
 		glUniform2f(g_uniform_sprite_position_location, sprite->pos.x, sprite->pos.y);
 		glUniform2f(g_uniform_sprite_size_location, sprite->size.x, sprite->size.y);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, NULL);printOpenGLError();
-	}}
+	MAP_END_EACH
 	glBindVertexArray(0);printOpenGLError();
 	glUseProgram(0);
 	glDisable(GL_BLEND);printOpenGLError();

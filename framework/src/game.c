@@ -188,14 +188,13 @@ games_run_all(void)
 		main_loop_do_loop();
 
 		/* if the game wishes to terminate, destroy it */
-		{ MAP_FOR_EACH(&g_games, struct game_t, key, game)
-		{
+		MAP_FOR_EACH(&g_games, struct game_t, key, game)
 			if(game->state == GAME_STATE_TERMINATED)
 			{
 				game_destroy(game);
 				break;
 			}
-		}}
+		MAP_END_EACH
 
 		/* HACK: If the localclient game is destroyed and the only game left
 		 * is the localhost instance, it should be safe to assume we can
@@ -203,9 +202,8 @@ games_run_all(void)
 		if(map_count(&g_games) == 1)
 		{
 			MAP_FOR_EACH(&g_games, struct game_t, key, game)
-			{
 				game_exit(game);
-			}
+			MAP_END_EACH
 		}
 	}
 }
@@ -215,9 +213,8 @@ void
 game_dispatch_stats(uint32_t render_fps, uint32_t tick_fps)
 {
 	MAP_FOR_EACH(&g_games, struct game_t, key, game)
-	{
 		EVENT_FIRE2(game->event.stats, render_fps, tick_fps);
-	}
+	MAP_END_EACH
 }
 
 /* ------------------------------------------------------------------------- */
@@ -225,9 +222,8 @@ void
 game_dispatch_render(void)
 {
 	MAP_FOR_EACH(&g_games, struct game_t, key, game)
-	{
 		EVENT_FIRE0(game->event.render);
-	}
+	MAP_END_EACH
 }
 
 /* ------------------------------------------------------------------------- */
@@ -235,9 +231,8 @@ void
 game_dispatch_tick(void)
 {
 	MAP_FOR_EACH(&g_games, struct game_t, key, game)
-	{
 		EVENT_FIRE0(game->event.tick);
-	}
+	MAP_END_EACH
 }
 
 /* ------------------------------------------------------------------------- */

@@ -136,15 +136,15 @@ service_destroy(struct service_t* service)
 
 	/* remove service from plugin */
 	found_in_plugin = 0;
-	{ UNORDERED_VECTOR_FOR_EACH(&service->plugin->services, struct service_t*, servp)
-	{
+	UNORDERED_VECTOR_FOR_EACH(&service->plugin->services, struct service_t*, servp)
 		if(*servp == service)
 		{
 			unordered_vector_erase_element(&service->plugin->services, servp);
 			found_in_plugin = 1;
 			break;
 		}
-	}}
+	UNORDERED_VECTOR_END_EACH
+
 	if(!found_in_plugin)
 	{
 		llog(LOG_ERROR, game, NULL, "Attempting to destroy the service \"%s\","

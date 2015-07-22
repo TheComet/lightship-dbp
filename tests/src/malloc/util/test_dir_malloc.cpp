@@ -39,6 +39,7 @@ TEST(NAME, get_directory_listing_valid_path)
     ASSERT_THAT(list->count, Eq(7));
     LIST_FOR_EACH(list, char, file)
         free_string(file);
+	LIST_END_EACH
 
     list_destroy(list);
 }

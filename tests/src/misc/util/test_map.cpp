@@ -350,9 +350,8 @@ TEST(NAME, iterate_with_no_items)
     {
         int counter = 0;
         MAP_FOR_EACH(map, int, key, value)
-        {
             ++counter;
-        }
+        MAP_END_EACH
         ASSERT_EQ(0, counter);
     }
     map_destroy(map);
@@ -369,23 +368,20 @@ TEST(NAME, iterate_5_random_items)
     map_insert(map, 468, &d);
     map_insert(map, 969, &e);
 
-    {
-        int counter = 0;
-        MAP_FOR_EACH(map, int, key, value)
-        {
-            switch(counter)
-            {
-                case 0 : ASSERT_EQ(243, key); ASSERT_EQ(a, *value); break;
-                case 1 : ASSERT_EQ(256, key); ASSERT_EQ(b, *value); break;
-                case 2 : ASSERT_EQ(456, key); ASSERT_EQ(c, *value); break;
-                case 3 : ASSERT_EQ(468, key); ASSERT_EQ(d, *value); break;
-                case 4 : ASSERT_EQ(969, key); ASSERT_EQ(e, *value); break;
-                default: ASSERT_EQ(0, 1); break;
-            }
-            ++counter;
-        }
-        ASSERT_EQ(5, counter);
-    }
+	int counter = 0;
+	MAP_FOR_EACH(map, int, key, value)
+		switch(counter)
+		{
+			case 0 : ASSERT_EQ(243, key); ASSERT_EQ(a, *value); break;
+			case 1 : ASSERT_EQ(256, key); ASSERT_EQ(b, *value); break;
+			case 2 : ASSERT_EQ(456, key); ASSERT_EQ(c, *value); break;
+			case 3 : ASSERT_EQ(468, key); ASSERT_EQ(d, *value); break;
+			case 4 : ASSERT_EQ(969, key); ASSERT_EQ(e, *value); break;
+			default: ASSERT_EQ(0, 1); break;
+		}
+		++counter;
+	MAP_END_EACH
+	ASSERT_EQ(5, counter);
 
     map_destroy(map);
 }
@@ -400,23 +396,20 @@ TEST(NAME, iterate_5_null_items)
     map_insert(map, 468, NULL);
     map_insert(map, 969, NULL);
 
-    {
-        int counter = 0;
-        MAP_FOR_EACH(map, int, key, value)
-        {
-            switch(counter)
-            {
-                case 0 : ASSERT_EQ(243, key); ASSERT_EQ(NULL, value); break;
-                case 1 : ASSERT_EQ(256, key); ASSERT_EQ(NULL, value); break;
-                case 2 : ASSERT_EQ(456, key); ASSERT_EQ(NULL, value); break;
-                case 3 : ASSERT_EQ(468, key); ASSERT_EQ(NULL, value); break;
-                case 4 : ASSERT_EQ(969, key); ASSERT_EQ(NULL, value); break;
-                default: ASSERT_EQ(0, 1); break;
-            }
-            ++counter;
-        }
-        ASSERT_EQ(5, counter);
-    }
+	int counter = 0;
+	MAP_FOR_EACH(map, int, key, value)
+		switch(counter)
+		{
+			case 0 : ASSERT_EQ(243, key); ASSERT_EQ(NULL, value); break;
+			case 1 : ASSERT_EQ(256, key); ASSERT_EQ(NULL, value); break;
+			case 2 : ASSERT_EQ(456, key); ASSERT_EQ(NULL, value); break;
+			case 3 : ASSERT_EQ(468, key); ASSERT_EQ(NULL, value); break;
+			case 4 : ASSERT_EQ(969, key); ASSERT_EQ(NULL, value); break;
+			default: ASSERT_EQ(0, 1); break;
+		}
+		++counter;
+	MAP_END_EACH
+	ASSERT_EQ(5, counter);
 
     map_destroy(map);
 }

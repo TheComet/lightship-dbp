@@ -234,7 +234,10 @@ list_erase_element(struct list_t* list, void* data);
 	 * prevent short circuiting of the expression.
 	 */
 
-#define LIST_END_FOR_EACH }}
+/*!
+ * @brief Closes a for each scope previously opened by LIST_FOR_EACH.
+ */
+#define LIST_END_EACH }}
 
 C_HEADER_END
 

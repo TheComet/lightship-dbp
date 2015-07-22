@@ -199,12 +199,17 @@ unordered_vector_get_element(struct unordered_vector_t*, uint32_t index);
  * @param[in] var The name of a temporary variable you'd like to use within the
  * for-loop to reference the current element.
  */
-#define UNORDERED_VECTOR_FOR_EACH(vector, var_type, var) \
-	var_type* var; \
+#define UNORDERED_VECTOR_FOR_EACH(vector, var_type, var) {                                        \
+	var_type* var;                                                                                \
 	DATA_POINTER_TYPE* end_of_vector = (vector)->data + (vector)->count * (vector)->element_size; \
-	for(var = (var_type*)(vector)->data; \
-		(DATA_POINTER_TYPE*)var != end_of_vector; \
-		var = (var_type*)(((DATA_POINTER_TYPE*)var) + (vector)->element_size))
+	for(var = (var_type*)(vector)->data;                                                          \
+		(DATA_POINTER_TYPE*)var != end_of_vector;                                                 \
+		var = (var_type*)(((DATA_POINTER_TYPE*)var) + (vector)->element_size)) {
+
+/*!
+ * @brief Closes a for each scope previously opened by UNORDERED_VECTOR_FOR_EACH.
+ */
+#define UNORDERED_VECTOR_END_EACH }}
 
 /*!
  * @brief Convenient macro for erasing an element while iterating a vector.
@@ -220,8 +225,8 @@ unordered_vector_get_element(struct unordered_vector_t*, uint32_t index);
  * @param[in] var_type Should be the type of data stored in the vector.
  * @param[in] element The element to erase.
  */
-#define UNORDERED_VECTOR_ERASE_IN_FOR_LOOP(vector, element_type, element) \
-	unordered_vector_erase_element(vector, element); \
+#define UNORDERED_VECTOR_ERASE_IN_FOR_LOOP(vector, element_type, element)              \
+	unordered_vector_erase_element(vector, element);                                   \
 	element = (element_type*)(((DATA_POINTER_TYPE*)element) - (vector)->element_size); \
 	end_of_vector = (vector)->data + (vector)->count * (vector)->element_size;
 

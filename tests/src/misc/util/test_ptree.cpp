@@ -1647,14 +1647,13 @@ TEST(NAME, traverse_node_children)
     ptree_add_node(tree, keys[3], &values[3]);
 
     PTREE_FOR_EACH_IN_NODE(tree, hash, node)
-    {
         int i;
         for(i = 0; i != 3; ++i)
             if(PTREE_HASH_STRING(keys[i]) == hash)
                 break;
         ASSERT_LT(i, 4);
         EXPECT_THAT((int*)node->value, Pointee(values[i]));
-    }
+    PTREE_END_EACH
 
     ptree_destroy(tree);
 }

@@ -115,9 +115,8 @@ menu_destroy(struct menu_t* menu)
 {
 	/* destroy all screens */
 	MAP_FOR_EACH(&menu->screens, struct screen_t, key, screen)
-	{
 		screen_destroy(screen);
-	}
+	MAP_END_EACH
 	map_clear_free(&menu->screens);
 
 	/* remove from global list of menus */
@@ -160,8 +159,7 @@ menu_load_screens(struct menu_t* menu, const struct ptree_t* doc)
 	map_init_map(&created_screen_names);
 
 	/* iterate screens */
-	{ YAML_FOR_EACH(doc, "screens", key, screen_node)
-	{
+	YAML_FOR_EACH(doc, "screens", key, screen_node)
 		struct screen_t* screen;
 		const char* screen_name = yaml_get_value(screen_node, "name");
 
@@ -189,16 +187,13 @@ menu_load_screens(struct menu_t* menu, const struct ptree_t* doc)
 		map_insert(&menu->screens, hash_jenkins_oaat(screen_name, strlen(screen_name)), screen);
 
 		/* iterate objects to add to this screen */
-		{ YAML_FOR_EACH(screen_node, "buttons", key, button_node)
-		{
+		YAML_FOR_EACH(screen_node, "buttons", key, button_node)
 			menu_load_button(menu->glob, screen, button_node);
-		}
-		YAML_END_FOR_EACH }
+		YAML_END_EACH
 
 		/* hide the screen by default */
 		screen_hide(screen);
-	}
-	YAML_END_FOR_EACH }
+	YAML_END_EACH
 
 	map_clear_free(&created_screen_names);
 }

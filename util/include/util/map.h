@@ -168,7 +168,8 @@ map_print(struct map_t* map);
 #endif
 
 /*!
- * @brief Iterates over the specified map's elements.
+ * @brief Iterates over the specified map's elements and opens a FOR_EACH
+ * scope.
  * @param[in] map The map to iterate.
  * @param[in] var_type The type of data being held in the map.
  * @param[in] var The name to give the variable pointing to the current
@@ -183,6 +184,11 @@ map_print(struct map_t* map);
 			((hash_n = ((struct map_key_value_t*) (map)->vector.data)[map_internal_##var_i].hash) || 1) &&        \
 			((var  = (var_type*)((struct map_key_value_t*)(map)->vector.data)[map_internal_##var_i].value) || 1); \
 		++map_internal_##var_i) {
+
+/*!
+ * @brief Closes a for each scope previously opened by MAP_FOR_EACH.
+ */
+#define MAP_END_EACH }}
 
 /*!
  * @brief Will erase the current selected item in a for loop from the map.

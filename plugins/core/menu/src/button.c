@@ -175,8 +175,7 @@ button_collision(struct glob_t* g, struct button_t* button, float x, float y)
 	}
 
 	/* test all buttons */
-	{ MAP_FOR_EACH(&g->button.buttons, struct button_t, id, cur_btn)
-	{
+	MAP_FOR_EACH(&g->button.buttons, struct button_t, id, cur_btn)
 		struct element_data_t* elem;
 		if(!cur_btn->base.element.visible)
 			continue;
@@ -185,7 +184,8 @@ button_collision(struct glob_t* g, struct button_t* button, float x, float y)
 		if(x > elem->pos.x - elem->size.x*0.5 && x < elem->pos.x + elem->size.x*0.5)
 			if(y > elem->pos.y - elem->size.y*0.5 && y < elem->pos.y + elem->size.y*0.5)
 				return cur_btn;
-	}}
+	MAP_END_EACH
+	
 	return NULL;
 }
 

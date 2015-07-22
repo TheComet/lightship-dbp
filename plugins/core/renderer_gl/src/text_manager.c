@@ -174,28 +174,24 @@ text_group_destroy(uint32_t id)
 	/* destroy character info */
 	{
 		MAP_FOR_EACH(&group->char_info, struct char_info_t, key, info)
-		{
 			if(info)
 				FREE(info);
-		}
+		MAP_END_EACH
 		map_clear_free(&group->char_info);
 	}
 
 	/* destroy texts */
-	{
-		UNORDERED_VECTOR_FOR_EACH(&group->texts, struct text_t*, ptext)
-		{
-			/*
-			 * NOTE: text_destroy WILL call text_group_remove_text_object,
-			 * which in turn will modify this vector we're currently
-			 * iterating. For this not to happen, we have to first set
-			 * the group the text object is referencing to NULL.
-			 */
-			(*ptext)->group = NULL;
-			text_destroy(*ptext);
-		}
-		unordered_vector_clear_free(&group->texts);
-	}
+	UNORDERED_VECTOR_FOR_EACH(&group->texts, struct text_t*, ptext)
+		/*
+		 * NOTE: text_destroy WILL call text_group_remove_text_object,
+		 * which in turn will modify this vector we're currently
+		 * iterating. For this not to happen, we have to first set
+		 * the group the text object is referencing to NULL.
+		 */
+		(*ptext)->group = NULL;
+		text_destroy(*ptext);
+	UNORDERED_VECTOR_END_EACH
+	unordered_vector_clear_free(&group->texts);
 
 	/* clear vertex and index buffers */
 	ordered_vector_clear_free(&group->vertex_buffer);
@@ -260,10 +256,9 @@ text_group_load_character_set(struct glob_t* g,
 	unordered_vector_init_vector(&sorted_chars, sizeof(wchar_t));
 	{
 		MAP_FOR_EACH(&group->char_info, void, key, value)
-		{
 			wchar_t chr = (wchar_t)key; /* cast required before insertion due to memcpy() */
 			unordered_vector_push(&sorted_chars, &chr);
-		}
+		MAP_END_EACH
 		unordered_vector_push(&sorted_chars, &null_terminator);
 	}
 
@@ -279,10 +274,9 @@ void
 text_group_add_text_object(struct text_group_t* text_group, struct text_t* text)
 {
 	UNORDERED_VECTOR_FOR_EACH(&text_group->texts, struct text_t*, pregistered_text)
-	{
 		if(*pregistered_text == text)
 			return;
-	}
+	UNORDERED_VECTOR_END_EACH
 
 	unordered_vector_push(&text_group->texts, &text);
 	text->group = text_group;
@@ -295,13 +289,12 @@ void
 text_group_remove_text_object(struct text_group_t* text_group, struct text_t* text)
 {
 	UNORDERED_VECTOR_FOR_EACH(&text_group->texts, struct text_t*, pregistered_text)
-	{
 		if(*pregistered_text == text)
 		{
 			unordered_vector_erase_element(&text_group->texts, pregistered_text);
 			return;
 		}
-	}
+	UNORDERED_VECTOR_END_EACH
 
 	text_group->mesh_needs_reuploading = 1;
 }
@@ -320,20 +313,17 @@ text_draw(void)
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);printOpenGLError();
 	glUseProgram(g_text_shader_id);printOpenGLError();
-	{
-		MAP_FOR_EACH(&g_text_groups, struct text_group_t, key, group)
-		{
-			/* if any text objects were updated, then mesh needs re-uploading */
-			if(group->mesh_needs_reuploading)
-				text_group_sync_with_gpu(group);
+	MAP_FOR_EACH(&g_text_groups, struct text_group_t, key, group)
+		/* if any text objects were updated, then mesh needs re-uploading */
+		if(group->mesh_needs_reuploading)
+			text_group_sync_with_gpu(group);
 
-			/* render */
-			glBindVertexArray(group->gl.vao);printOpenGLError();
-				glBindTexture(GL_TEXTURE_2D, group->gl.tex);
-				glDrawElements(GL_TRIANGLES, group->index_buffer.count, GL_UNSIGNED_SHORT, NULL);printOpenGLError();
+		/* render */
+		glBindVertexArray(group->gl.vao);printOpenGLError();
+			glBindTexture(GL_TEXTURE_2D, group->gl.tex);
+			glDrawElements(GL_TRIANGLES, group->index_buffer.count, GL_UNSIGNED_SHORT, NULL);printOpenGLError();
 
-		}
-	}
+	MAP_END_EACH
 	glBindVertexArray(0);printOpenGLError();
 	glDisable(GL_BLEND);printOpenGLError();
 }
@@ -540,23 +530,19 @@ text_group_sync_with_gpu(struct text_group_t* group)
 
 	/* copy vertex and index data from each text object */
 	/* need to make sure indices align correctly */
-	{
-		UNORDERED_VECTOR_FOR_EACH(&group->texts, struct text_t*, ptext)
+	UNORDERED_VECTOR_FOR_EACH(&group->texts, struct text_t*, ptext)
+		struct text_t* text = *ptext;
+		if(text->visible)
 		{
-			struct text_t* text = *ptext;
-			if(text->visible)
-			{
-				uint32_t insertion_index = group->index_buffer.count;
-				ordered_vector_push_vector(&group->vertex_buffer, &text->vertex_buffer);
-				ordered_vector_push_vector(&group->index_buffer, &text->index_buffer);
-				{ ORDERED_VECTOR_FOR_EACH_RANGE(&group->index_buffer, INDEX_DATA_TYPE, val, insertion_index, group->index_buffer.count)
-				{
-					(*val) += base_index;
-				}}
-				base_index += (GLushort)text->vertex_buffer.count;
-			}
+			uint32_t insertion_index = group->index_buffer.count;
+			ordered_vector_push_vector(&group->vertex_buffer, &text->vertex_buffer);
+			ordered_vector_push_vector(&group->index_buffer, &text->index_buffer);
+			ORDERED_VECTOR_FOR_EACH_RANGE(&group->index_buffer, INDEX_DATA_TYPE, val, insertion_index, group->index_buffer.count)
+				(*val) += base_index;
+			ORDERED_VECTOR_END_EACH
+			base_index += (GLushort)text->vertex_buffer.count;
 		}
-	}
+	UNORDERED_VECTOR_END_EACH
 
 	/* upload to GPU */
 	glBindVertexArray(group->gl.vao);

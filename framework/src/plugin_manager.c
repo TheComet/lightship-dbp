@@ -70,10 +70,9 @@ plugin_manager_deinit(struct game_t* game)
 {
 	/* unload all plugins */
 	LIST_FOR_EACH_ERASE_R(&game->plugins, struct plugin_t, plugin)
-	{
 		/* NOTE this erases the plugin object from the linked list */
 		plugin_unload(game, plugin);
-	}
+	LIST_END_EACH
 
 	/* destroy core plugin if it exists */
 	if(game->core)
@@ -219,8 +218,8 @@ load_plugins_from_yaml(struct game_t* game, const struct ptree_t* plugins_node)
 	unordered_vector_init_vector(&new_plugins, sizeof(struct plugin_t*));
 
 	/* load all plugins listed in the plugins node */
-	{ YAML_FOR_EACH(plugins_node, ".", key, child)
-	{
+	YAML_FOR_EACH(plugins_node, ".", key, child)
+
 		struct plugin_t* plugin;
 		plugin_search_criteria_t criteria;
 		char* version_str;
@@ -275,12 +274,11 @@ load_plugins_from_yaml(struct game_t* game, const struct ptree_t* plugins_node)
 		if(!plugin)
 			continue;
 		unordered_vector_push(&new_plugins, &plugin);
-	}
-	YAML_END_FOR_EACH }
+
+	YAML_END_EACH
 
 	/* start loaded plugins */
-	{ UNORDERED_VECTOR_FOR_EACH(&new_plugins, struct plugin_t*, pluginp)
-	{
+	UNORDERED_VECTOR_FOR_EACH(&new_plugins, struct plugin_t*, pluginp)
 		/*
 		 * If any of the plugins fail to start, abort starting further plugins
 		 * and return an error.
@@ -292,7 +290,7 @@ load_plugins_from_yaml(struct game_t* game, const struct ptree_t* plugins_node)
 			success = 0;
 			break;
 		}
-	}}
+	UNORDERED_VECTOR_END_EACH
 
 	/* clean up */
 	unordered_vector_clear_free(&new_plugins);
@@ -334,10 +332,10 @@ struct plugin_t*
 plugin_get_by_name(struct game_t* game, const char* name)
 {
 	LIST_FOR_EACH(&game->plugins, struct plugin_t, plugin)
-	{
 		if(strcmp(name, plugin->info.name) == 0)
 			return plugin;
-	}
+	LIST_END_EACH
+
 	return NULL;
 }
 
@@ -406,25 +404,22 @@ find_plugin(struct game_t* game,
 #endif
 
 	/* search for plugin file name matching criteria */
-	{ /* need these braces because LIST_FOR_EACH declares new variables */
-		LIST_FOR_EACH(list, char, name)
+	LIST_FOR_EACH(list, char, name)
+		if(!file_found &&
+			strstr(name, info->name) &&
+			plugin_version_acceptable(info, name, criteria))
 		{
-			if(!file_found &&
-				strstr(name, info->name) &&
-				plugin_version_acceptable(info, name, criteria))
-			{
-				file_found = name;
-			}
-			else
-			{
-				/*
-				 * get_directory_listing() allocates the strings it pushes into
-				 * the linked list, and it is up to us to free them.
-				 */
-				free_string(name);
-			}
+			file_found = name;
 		}
-	}
+		else
+		{
+			/*
+			 * get_directory_listing() allocates the strings it pushes into
+			 * the linked list, and it is up to us to free them.
+			 */
+			free_string(name);
+		}
+	LIST_END_EACH
 
 	/* free list of directories */
 	list_destroy(list);

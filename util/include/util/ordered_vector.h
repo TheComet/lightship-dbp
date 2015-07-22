@@ -220,48 +220,65 @@ ordered_vector_get_element(struct ordered_vector_t*, uint32_t index);
  * @brief Convenient macro for iterating a vector's elements.
  *
  * Example:
- * @code
+ * ```
  * ordered_vector_t* some_vector = (a vector containing elements of type "struct bar")
  * ORDERED_VECTOR_FOR_EACH(some_vector, struct bar, element)
  * {
  *     do_something_with(element);  ("element" is now of type "struct bar*")
  * }
- * @endcode
- * @param[in] vector The vector to iterate.
+ * ```
+ * @param[in] vector A pointer to the vector to iterate.
  * @param[in] var_type Should be the type of data stored in the vector.
  * @param[in] var The name of a temporary variable you'd like to use within the
  * for-loop to reference the current element.
  */
-#define ORDERED_VECTOR_FOR_EACH(vector, var_type, var) \
-	var_type* var; \
+#define ORDERED_VECTOR_FOR_EACH(vector, var_type, var) {                     \
+	var_type* var;                                                           \
 	DATA_POINTER_TYPE* internal_##var_end_of_vector = (vector)->data + (vector)->count * (vector)->element_size; \
-	for(var = (var_type*)(vector)->data; \
-		(DATA_POINTER_TYPE*)var != internal_##var_end_of_vector; \
-		var = (var_type*)(((DATA_POINTER_TYPE*)var) + (vector)->element_size))
+	for(var = (var_type*)(vector)->data;                                     \
+		(DATA_POINTER_TYPE*)var != internal_##var_end_of_vector;             \
+		var = (var_type*)(((DATA_POINTER_TYPE*)var) + (vector)->element_size)) {
 
-#define ORDERED_VECTOR_FOR_EACH_RANGE(vector, var_type, var, begin_index, end_index) \
-	var_type* var; \
+/*!
+ * @brief Convenient macro for iterating a range of a vector's elements.
+ * @param[in] vector A pointer to the vector to iterate.
+ * @param[in] var_type Should be the type of data stored in the vector. For
+ * example, if your vector is storing ```struct type_t*``` objects then
+ * var_type should equal ```struct type_t``` (without the pointer).
+ * @param[in] var The name of a temporary variable you'd like to use within the
+ * for loop to reference the current element.
+ * @param[in] begin_index The index (starting at 0) of the first element to
+ * start with.
+ * @param[in] end_index The index of the last element to iterate (exclusive).
+ */
+#define ORDERED_VECTOR_FOR_EACH_RANGE(vector, var_type, var, begin_index, end_index) { \
+	var_type* var;                                                                     \
 	DATA_POINTER_TYPE* internal_##var_end_of_vector = (vector)->data + end_index * (vector)->element_size; \
-	for(var = (var_type*)((vector)->data + begin_index * (vector)->element_size); \
-		(DATA_POINTER_TYPE*)var != internal_##var_end_of_vector; \
-		var = (var_type*)(((DATA_POINTER_TYPE*)var) + (vector)->element_size))
+	for(var = (var_type*)((vector)->data + begin_index * (vector)->element_size);      \
+		(DATA_POINTER_TYPE*)var != internal_##var_end_of_vector;                       \
+		var = (var_type*)(((DATA_POINTER_TYPE*)var) + (vector)->element_size)) {
+
+/*!
+ * @brief Closes a for each scope previously opened by ORDERED_VECTOR_FOR_EACH.
+ */
+#define ORDERED_VECTOR_END_EACH }}
 
 /*!
  * @brief Convenient macro for erasing an element while iterating a vector.
  * @warning Only call this while iterating.
  * Example:
-@code
-ORDERED_VECTOR_FOR_EACH(some_vector, struct bar, element)
-{
-	ORDERED_VECTOR_ERASE_IN_FOR_LOOP(some_vector, struct bar, element);
-}
-@endcode
+ * ```
+ * ORDERED_VECTOR_FOR_EACH(some_vector, struct bar, element)
+ * {
+ *     ORDERED_VECTOR_ERASE_IN_FOR_LOOP(some_vector, struct bar, element);
+ * }
+ * ```
  * @param[in] vector The vector to erase from.
  * @param[in] var_type Should be the type of data stored in the vector.
  * @param[in] element The element to erase.
  */
-#define ORDERED_VECTOR_ERASE_IN_FOR_LOOP(vector, element_type, element) \
-	ordered_vector_erase_element(vector, element); \
+#define ORDERED_VECTOR_ERASE_IN_FOR_LOOP(vector, element_type, element)                \
+	ordered_vector_erase_element(vector, element);                                     \
 	element = (element_type*)(((DATA_POINTER_TYPE*)element) - (vector)->element_size); \
 	internal_##var_end_of_vector = (vector)->data + (vector)->count * (vector)->element_size;
 C_HEADER_END

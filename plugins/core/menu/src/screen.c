@@ -23,9 +23,8 @@ void
 screen_destroy(struct screen_t* screen)
 {
 	MAP_FOR_EACH(&screen->elements, struct element_t, key, element)
-	{
 		element_destroy(element);
-	}
+	MAP_END_EACH
 	map_clear_free(&screen->elements);
 	FREE(screen);
 }
@@ -42,9 +41,8 @@ void
 screen_show(struct screen_t* screen)
 {
 	MAP_FOR_EACH(&screen->elements, struct element_t, id, elem)
-	{
 		element_show(elem);
-	}
+	MAP_END_EACH
 }
 
 /* ------------------------------------------------------------------------- */
@@ -52,7 +50,6 @@ void
 screen_hide(struct screen_t* screen)
 {
 	MAP_FOR_EACH(&screen->elements, struct element_t, id, elem)
-	{
 		element_hide(elem);
-	}
+	MAP_END_EACH
 }

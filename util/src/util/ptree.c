@@ -75,11 +75,10 @@ static void
 ptree_destroy_children_recurse(struct ptree_t* tree)
 {
 	/* destroy all children recursively */
-	{ MAP_FOR_EACH(&tree->children, struct ptree_t, key, child)
-	{
+	MAP_FOR_EACH(&tree->children, struct ptree_t, key, child)
 		ptree_destroy_children_recurse(child);
 		FREE(child);
-	}}
+	MAP_END_EACH
 	map_clear_free(&tree->children);
 
 	/* free the data of this node, if specified */
@@ -325,8 +324,7 @@ ptree_clean(struct ptree_t* root)
 
 	assert(root);
 
-	{ MAP_FOR_EACH(&root->children, struct ptree_t, key, child)
-	{
+	MAP_FOR_EACH(&root->children, struct ptree_t, key, child)
 		count += ptree_clean(child);
 		if(map_count(&child->children) == 0 && child->value == NULL)
 		{
@@ -340,7 +338,7 @@ ptree_clean(struct ptree_t* root)
 
 			++count;
 		}
-	}}
+	MAP_END_EACH
 
 	return count;
 }
@@ -402,14 +400,13 @@ ptree_duplicate_children_into_existing_node_recurse(struct ptree_t* target,
 	}
 
 	/* iterate over all children of source and duplicate them */
-	{ MAP_FOR_EACH(&source->children, struct ptree_t, key, node)
-	{
+	MAP_FOR_EACH(&source->children, struct ptree_t, key, node)
 		struct ptree_t* child;
 		if(!(child = ptree_add_node_hashed_key(target, key, NULL)))
 			return 0;  /* duplicate key error */
 		if(!ptree_duplicate_children_into_existing_node_recurse(child, node))
 			return 0;  /* some other error, propagate */
-	}}
+	MAP_END_EACH
 
 	return 1;
 }
@@ -428,17 +425,16 @@ ptree_duplicate_children_into_existing_node(struct ptree_t* target,
 	 * temporary map before inserting them into the actual target tree.
 	 */
 	map_init_map(&temp);
-	{ MAP_FOR_EACH(&source->children, struct ptree_t, hash, node)
-	{
+	MAP_FOR_EACH(&source->children, struct ptree_t, hash, node)
+
 		/* try to duplicate node and insert into temp map */
 		struct ptree_t* child = ptree_duplicate_tree(node);
 		if(!child)
 		{
 			/* destroy temp nodes and clean up */
 			MAP_FOR_EACH(&temp, struct ptree_t, h, dirty_node)
-			{
 				ptree_destroy(dirty_node);
-			}
+			MAP_END_EACH
 			map_clear_free(&temp);
 			return 0;
 		}
@@ -446,21 +442,19 @@ ptree_duplicate_children_into_existing_node(struct ptree_t* target,
 		{
 			/* destroy temp nodes and clean up */
 			ptree_destroy(child);
-			{ MAP_FOR_EACH(&temp, struct ptree_t, h, dirty_node)
-			{
+			MAP_FOR_EACH(&temp, struct ptree_t, h, dirty_node)
 				ptree_destroy(dirty_node);
-			}}
+			MAP_END_EACH
 			map_clear_free(&temp);
 			return 0;
 		}
-	}}
+	MAP_END_EACH
 
 	/*
 	 * Free to insert children of temp tree into target node. No need to check
 	 * for cycles, they aren't possible.
 	 */
-	{ MAP_FOR_EACH(&temp, struct ptree_t, hash, node)
-	{
+	MAP_FOR_EACH(&temp, struct ptree_t, hash, node)
 		node->parent = target;
 
 		/*
@@ -469,22 +463,20 @@ ptree_duplicate_children_into_existing_node(struct ptree_t* target,
 		if(!map_insert(&target->children, hash, node))
 		{
 			MAP_FOR_EACH(&temp, struct ptree_t, h, dirty_node)
-			{
 				if(node == dirty_node)
 					break;
 				/* if this assert fails, something seriously went wrong */
 				assert(dirty_node == map_erase(&target->children, h));
-			}
+			MAP_END_EACH
 
 			/* destroy temp nodes and clean up */
-			{ MAP_FOR_EACH(&temp, struct ptree_t, h, dirty_node)
-			{
+			MAP_FOR_EACH(&temp, struct ptree_t, h, dirty_node)
 				ptree_destroy(dirty_node);
-			}}
+			MAP_END_EACH
 			map_clear_free(&temp);
 			return 0;
 		}
-	}}
+	MAP_END_EACH
 
 	map_clear_free(&temp);
 
@@ -575,11 +567,10 @@ ptree_node_is_child_of(const struct ptree_t* node,
 {
 	assert(tree);
 
-	{ MAP_FOR_EACH(&tree->children, struct ptree_t, hash, n)
-	{
+	MAP_FOR_EACH(&tree->children, struct ptree_t, hash, n)
 		if(n == node || ptree_node_is_child_of(node, n))
 			return 1;
-	}}
+	MAP_END_EACH
 
 	return 0;
 }
@@ -603,12 +594,9 @@ ptree_print_impl(const struct ptree_t* tree, uint32_t depth)
 #endif
 
 	/* print children */
-	{
-		MAP_FOR_EACH(&tree->children, struct ptree_t, key, child)
-		{
-			ptree_print_impl(child, depth+1);
-		}
-	}
+	MAP_FOR_EACH(&tree->children, struct ptree_t, key, child)
+		ptree_print_impl(child, depth+1);
+	MAP_END_EACH
 }
 
 void

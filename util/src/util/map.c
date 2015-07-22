@@ -93,11 +93,10 @@ map_find_element(const struct map_t* map, const void* value)
 {
 	assert(map);
 
-	{ ORDERED_VECTOR_FOR_EACH(&map->vector, struct map_key_value_t, kv)
-	{
+	ORDERED_VECTOR_FOR_EACH(&map->vector, struct map_key_value_t, kv)
 		if(kv->value == value)
 			return kv->hash;
-	}}
+	ORDERED_VECTOR_END_EACH
 	return MAP_INVALID_KEY;
 }
 
@@ -135,12 +134,11 @@ map_find_unused_key(struct map_t* map)
 
 	assert(map);
 
-	{ MAP_FOR_EACH(map, void, key, value)
-	{
+	MAP_FOR_EACH(map, void, key, value)
 		if(i != key)
 			break;
 		++i;
-	}}
+	MAP_END_EACH
 	return i;
 }
 
@@ -251,13 +249,10 @@ void
 map_print(struct map_t* map)
 {
 	int i = 0;
-	{
-		ORDERED_VECTOR_FOR_EACH(&map->vector, struct map_key_value_t, item)
-		{
-			printf("hash: %d, value (ptr): %p\n", item->hash, (void*)item->value);
-			i++;
-		}
-		printf("items in map: %d\n", i);
-	}
+	ORDERED_VECTOR_FOR_EACH(&map->vector, struct map_key_value_t, item)
+		printf("hash: %d, value (ptr): %p\n", item->hash, (void*)item->value);
+		i++;
+	ORDERED_VECTOR_END_EACH
+	printf("items in map: %d\n", i);
 }
 #endif

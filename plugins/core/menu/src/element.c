@@ -38,14 +38,12 @@ void
 element_destructor(struct element_t* element)
 {
 	struct glob_t* g = element->base.element.glob;
-	{ UNORDERED_VECTOR_FOR_EACH(&element->base.element.gl.shapes, uint32_t, id)
-	{
+	UNORDERED_VECTOR_FOR_EACH(&element->base.element.gl.shapes, uint32_t, id)
 		SERVICE_CALL1(g->services.shapes_2d_destroy, NULL, id);
-	}}
-	{ UNORDERED_VECTOR_FOR_EACH(&element->base.element.gl.text, struct element_font_text_id_pair_t, pair)
-	{
+	UNORDERED_VECTOR_END_EACH
+	UNORDERED_VECTOR_FOR_EACH(&element->base.element.gl.text, struct element_font_text_id_pair_t, pair)
 		SERVICE_CALL1(g->services.text_destroy, NULL, pair->text_id);
-	}}
+	UNORDERED_VECTOR_END_EACH
 	unordered_vector_clear_free(&element->base.element.gl.shapes);
 	unordered_vector_clear_free(&element->base.element.gl.text);
 }
@@ -85,14 +83,12 @@ element_show(struct element_t* element)
 {
 	struct glob_t* g = element->base.element.glob;
 
-	{ UNORDERED_VECTOR_FOR_EACH(&element->base.element.gl.shapes, uint32_t, id)
-	{
+	UNORDERED_VECTOR_FOR_EACH(&element->base.element.gl.shapes, uint32_t, id)
 		SERVICE_CALL1(g->services.shapes_2d_show, NULL, *id);
-	}}
-	{ UNORDERED_VECTOR_FOR_EACH(&element->base.element.gl.text, struct element_font_text_id_pair_t, pair)
-	{
+	UNORDERED_VECTOR_END_EACH
+	UNORDERED_VECTOR_FOR_EACH(&element->base.element.gl.text, struct element_font_text_id_pair_t, pair)
 		SERVICE_CALL1(g->services.text_show, NULL, pair->text_id);
-	}}
+	UNORDERED_VECTOR_END_EACH
 	element->base.element.visible = 1;
 }
 
@@ -102,13 +98,11 @@ element_hide(struct element_t* element)
 {
 	struct glob_t* g = element->base.element.glob;
 
-	{ UNORDERED_VECTOR_FOR_EACH(&element->base.element.gl.shapes, uint32_t, id)
-	{
+	UNORDERED_VECTOR_FOR_EACH(&element->base.element.gl.shapes, uint32_t, id)
 		SERVICE_CALL1(g->services.shapes_2d_hide, NULL, *id);
-	}}
-	{ UNORDERED_VECTOR_FOR_EACH(&element->base.element.gl.text, struct element_font_text_id_pair_t, pair)
-	{
+	UNORDERED_VECTOR_END_EACH
+	UNORDERED_VECTOR_FOR_EACH(&element->base.element.gl.text, struct element_font_text_id_pair_t, pair)
 		SERVICE_CALL1(g->services.text_hide, NULL, pair->text_id);
-	}}
+	UNORDERED_VECTOR_END_EACH
 	element->base.element.visible = 0;
 }

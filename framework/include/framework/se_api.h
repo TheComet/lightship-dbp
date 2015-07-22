@@ -108,12 +108,11 @@ typedef void (*event_callback_func)(struct event_t* event, const void** argv);
 
 /* used to iterate over the listeners of an event */
 #define EVENT_ITERATE_LISTENERS_BEGIN(event)                                \
-			{ UNORDERED_VECTOR_FOR_EACH(&(event)->listeners,                \
-										struct event_listener_t,            \
-										listener)                           \
-			{
+			UNORDERED_VECTOR_FOR_EACH(&(event)->listeners,                  \
+			                          struct event_listener_t,              \
+			                          listener)
 #define EVENT_ITERATE_LISTENERS_END                                         \
-			}}
+			UNORDERED_VECTOR_END_EACH
 
 /* creates and fills out the void** argument vector on the stack */
 #define GEN_ARGV_ON_STACK1(argv, arg1)                                      \

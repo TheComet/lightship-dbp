@@ -12,10 +12,9 @@ char
 list_find(struct list_t* list, const char* name)
 {
     LIST_FOR_EACH(list, char, search_name)
-    {
         if(strcmp(name, search_name) == 0)
             return 1;
-    }
+    LIST_END_EACH
 
     return 0;
 }
@@ -32,6 +31,7 @@ TEST(NAME, empty_directory)
 
     LIST_FOR_EACH(list, char, file)
         free_string(file);
+	LIST_END_EACH
 
     list_destroy(list);
 }
@@ -54,6 +54,7 @@ TEST(NAME, files_and_directories)
 
     LIST_FOR_EACH(list, char, file)
         free_string(file);
+	LIST_END_EACH
 
     list_destroy(list);
 }

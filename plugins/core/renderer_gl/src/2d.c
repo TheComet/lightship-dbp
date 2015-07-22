@@ -194,15 +194,15 @@ void
 draw_2d(void)
 {
 	glUseProgram(g_line_shader_id);printOpenGLError();
-	{ MAP_FOR_EACH(&g_shapes_collection, struct shapes_t, id, shapes)
-	{
+
+	MAP_FOR_EACH(&g_shapes_collection, struct shapes_t, id, shapes)
 		if(!shapes->visible)
 			continue;
 
 		glBindVertexArray(shapes->vao);printOpenGLError();
 			glDrawElements(GL_LINES, shapes->index_data.count, GL_UNSIGNED_SHORT, NULL);printOpenGLError();
+	MAP_END_EACH
 
-	}}
 	glBindVertexArray(0);
 }
 

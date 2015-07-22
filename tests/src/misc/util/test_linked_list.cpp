@@ -379,11 +379,10 @@ TEST(NAME, iterate_forwards)
     list_push(list, &values[1]);
     list_push(list, &values[2]);
 
-    { LIST_FOR_EACH(list, int, value)
-    {
+    LIST_FOR_EACH(list, int, value)
         ASSERT_EQ(values[i], *value);
         i++;
-    }}
+    LIST_END_EACH
 
     list_destroy(list);
 }
@@ -399,11 +398,10 @@ TEST(NAME, iterate_backwards)
     list_push(list, &values[1]);
     list_push(list, &values[2]);
 
-    { LIST_FOR_EACH_R(list, int, value)
-    {
+    LIST_FOR_EACH_R(list, int, value)
         ASSERT_EQ(values[i], *value);
         i--;
-    }}
+    LIST_END_EACH
 
     list_destroy(list);
 }
@@ -419,11 +417,10 @@ TEST(NAME, iterate_forwards_and_erase)
     list_push(list, &values[1]);
     list_push(list, &values[2]);
 
-    { LIST_FOR_EACH_ERASE(list, int, value)
-    {
+    LIST_FOR_EACH_ERASE(list, int, value)
         ASSERT_EQ(values[i], *(int*)list_erase_node(list, node_value));
         i++;
-    }}
+    LIST_END_EACH
 
     EXPECT_THAT(list->head, IsNull());
     EXPECT_THAT(list->tail, IsNull());
@@ -444,11 +441,10 @@ TEST(NAME, iterate_backwards_and_erase)
     list_push(list, &values[1]);
     list_push(list, &values[2]);
 
-    { LIST_FOR_EACH_ERASE_R(list, int, value)
-    {
+    LIST_FOR_EACH_ERASE_R(list, int, value)
         ASSERT_EQ(values[i], *(int*)list_erase_node(list, node_value));
         i--;
-    }}
+    LIST_END_EACH
 
     EXPECT_THAT(list->head, IsNull());
     EXPECT_THAT(list->tail, IsNull());

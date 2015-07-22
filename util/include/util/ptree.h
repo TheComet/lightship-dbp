@@ -232,6 +232,8 @@ ptree_print(const struct ptree_t* tree);
 #define PTREE_FOR_EACH_IN_NODE(tree, hash, node) \
 	MAP_FOR_EACH(&(tree)->children, struct ptree_t, hash, node)
 
+#define PTREE_END_EACH MAP_END_EACH
+
 #define PTREE_HASH_STRING(str) hash_jenkins_oaat(str, strlen(str))
 
 C_HEADER_END

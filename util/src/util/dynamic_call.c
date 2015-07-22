@@ -192,8 +192,7 @@ dynamic_call_set_argument_vector_from_strings(
 
 	/* parse argument vector */
 	i = 0;
-	{ ORDERED_VECTOR_FOR_EACH(strings, const char*, str_p)
-	{
+	ORDERED_VECTOR_FOR_EACH(strings, const char*, str_p)
 		const char* str = *str_p;
 
 		switch(type_info->argv_type[i])
@@ -259,7 +258,7 @@ dynamic_call_set_argument_vector_from_strings(
 		}
 
 		++i;
-	}}
+	ORDERED_VECTOR_END_EACH
 
 	return 1;
 }

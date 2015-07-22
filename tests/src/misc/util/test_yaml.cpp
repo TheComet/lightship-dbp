@@ -161,20 +161,16 @@ TEST(NAME, iterate_nodes_in_basic_yaml_doc)
     ASSERT_THAT((doc = yaml_load_from_memory(basic_yml)), NotNull());
 
     YAML_FOR_EACH(doc, "root.players", hash, node)
-    {
         ASSERT_THAT(yaml_get_value(node, "name"), AnyOf(
             StrEq("Will Smith"),
             StrEq("TheComet")));
-    }
-    YAML_END_FOR_EACH
+    YAML_END_EACH
 
     YAML_FOR_EACH(doc, "root.enemies", hash, node)
-    {
         ASSERT_THAT(yaml_get_value(node, "name"), AnyOf(
             StrEq("George Bush"),
             StrEq("Big Daddy")));
-    }
-    YAML_END_FOR_EACH
+    YAML_END_EACH
 
     yaml_destroy(doc);
 }

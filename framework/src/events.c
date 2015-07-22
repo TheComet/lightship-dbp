@@ -200,15 +200,14 @@ event_register_listener(const struct game_t* game,
 	}
 
 	/* make sure listener hasn't already registered to this event */
-	{ UNORDERED_VECTOR_FOR_EACH(&event->listeners, struct event_listener_t, listener)
-	{
+	UNORDERED_VECTOR_FOR_EACH(&event->listeners, struct event_listener_t, listener)
 		if(listener->exec == callback)
 		{
 			llog(LOG_WARNING, game, NULL, "Already registered as a listener"
 				" to event \"%s\"", event->directory);
 			return 0;
 		}
-	}}
+	UNORDERED_VECTOR_END_EACH
 
 	/* create event listener object */
 	new_listener = (struct event_listener_t*) unordered_vector_push_emplace(&event->listeners);
@@ -232,14 +231,13 @@ event_unregister_listener(const struct game_t* game,
 		return 0;
 	}
 
-	{ UNORDERED_VECTOR_FOR_EACH(&event->listeners, struct event_listener_t, listener)
-	{
+	UNORDERED_VECTOR_FOR_EACH(&event->listeners, struct event_listener_t, listener)
 		if(listener->exec == callback)
 		{
 			unordered_vector_erase_element(&event->listeners, listener);
 			return 1;
 		}
-	}}
+	UNORDERED_VECTOR_END_EACH
 
 	llog(LOG_WARNING, game, NULL, "Tried to unregister from event \"%s\", but "
 		"the listener was not found.", event_directory);

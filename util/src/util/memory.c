@@ -265,8 +265,8 @@ memory_deinit(void)
 	/* report details on any allocations that were not de-allocated */
 	if(report.vector.count != 0)
 	{
-		{ MAP_FOR_EACH(&report, struct report_info_t, key, info)
-		{
+		MAP_FOR_EACH(&report, struct report_info_t, key, info)
+
 			printf("  un-freed memory at %p, size %p\n", (void*)info->location, (void*)info->size);
 			mutated_string_and_hex_dump((void*)info->location, info->size);
 
@@ -281,7 +281,9 @@ memory_deinit(void)
 			printf("  -----------------------------------------\n");
 #   endif
 			free(info);
-		}}
+
+		MAP_END_EACH
+
 		printf("=========================================\n");
 	}
 
