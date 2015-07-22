@@ -97,10 +97,10 @@ map_find_element(const struct map_t* map, const void* value);
  *
  * This is useful when you want to iterate and remove all items from the map
  * at the same time.
- * @return Returns any element as a void pointer.
+ * @return Returns an element as a void pointer. Which element is random.
  */
 LIGHTSHIP_UTIL_PUBLIC_API void*
-map_get_any(const struct map_t* map);
+map_get_any_element(const struct map_t* map);
 
 /*!
  * @brief Returns 1 if the specified key exists, 0 if otherwise.

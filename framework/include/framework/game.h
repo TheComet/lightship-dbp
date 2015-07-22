@@ -1,3 +1,6 @@
+#ifndef LIGHTSHIP_FRAMEWORK_GAME_H
+#define LIGHTSHIP_FRAMEWORK_GAME_H
+
 #include "framework/config.h"
 #include "framework/config.h"
 #include "framework/se_api.h"
@@ -114,3 +117,5 @@ game_dispatch_tick(void);
 #define game_remove_global(game, hash) map_erase(&(game)->global_data, hash)
 
 C_HEADER_END
+
+#endif /* LIGHTSHIP_FRAMEWORK_GAME_H */

@@ -1,22 +1,22 @@
 #include "GL/glew.h"
-#include "util/unordered_vector.h"
+#include "util/ordered_vector.h"
 #include "framework/se_api.h"
 
 struct glob_t;
 
 struct shapes_t
 {
-	uint32_t ID;
+	uint32_t id;
 	uint8_t visible;
 	GLuint vao;
 	GLuint vbo;
 	GLuint ibo;
-	struct unordered_vector_t vertex_data;
-	struct unordered_vector_t index_data;
+	struct ordered_vector_t vertex_data;
+	struct ordered_vector_t index_data;
 };
 
 /*!
- * @brief Initialises 2D sub-system. Call this before calling any other 2D 
+ * @brief Initialises 2D sub-system. Call this before calling any other 2D
  * related calls.
  */
 char
@@ -32,7 +32,7 @@ deinit_2d(void);
  * @brief Begin drawing a collection of shapes.
  */
 void
-shapes_2d_begin(void);
+shapes_2d_begin(struct glob_t* g);
 
 /*!
  * @brief End drawing a collection of shapes.

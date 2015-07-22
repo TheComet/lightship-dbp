@@ -36,7 +36,7 @@ void
 menu_deinit(struct glob_t* g)
 {
 	struct menu_t* menu;
-	while((menu = map_get_any(&g->menu.menus)))
+	while((menu = map_get_any_element(&g->menu.menus)))
 	{
 		menu_destroy(menu);
 	}

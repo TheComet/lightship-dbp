@@ -134,7 +134,7 @@ void
 button_destroy_all(struct glob_t* g)
 {
 	struct button_t* button;
-	while((button = map_get_any(&g->button.buttons)))
+	while((button = map_get_any_element(&g->button.buttons)))
 	{
 		button_destroy(button);
 	}

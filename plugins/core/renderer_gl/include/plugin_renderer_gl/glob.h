@@ -1,5 +1,6 @@
 #include "util/pstdint.h"
 #include "util/unordered_vector.h"
+#include "framework/game.h"
 
 extern uint32_t global_hash;
 

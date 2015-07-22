@@ -103,7 +103,7 @@ map_find_element(const struct map_t* map, const void* value)
 
 /* ------------------------------------------------------------------------- */
 void*
-map_get_any(const struct map_t* map)
+map_get_any_element(const struct map_t* map)
 {
 	struct map_key_value_t* kv;
 	assert(map);
