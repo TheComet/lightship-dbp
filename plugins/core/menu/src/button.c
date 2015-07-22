@@ -228,28 +228,19 @@ SERVICE(button_create_wrapper)
 	EXTRACT_ARGUMENT(2, y, float, float);
 	EXTRACT_ARGUMENT(3, width, float, float);
 	EXTRACT_ARGUMENT(4, height, float, float);
-	RETURN(button_create(g, text, x, y, width, height), struct button_t*);
+	RETURN(button_create(g, text, x, y, width, height), uintptr_t);
 }
 
 /* ------------------------------------------------------------------------- */
 SERVICE(button_destroy_wrapper)
 {
-	struct glob_t* g = get_global(service->plugin->game);
-	EXTRACT_ARGUMENT(0, id, uint32_t, uint32_t);
-
-	struct button_t* button = map_find(&g->button.buttons, id);
-	if(button)
-		button_destroy(button);
+	EXTRACT_ARGUMENT(0, button, uintptr_t, struct button_t*);
+	button_destroy(button);
 }
 
 /* ------------------------------------------------------------------------- */
 SERVICE(button_get_text_wrapper)
 {
-	struct glob_t* g = get_global(service->plugin->game);
-	EXTRACT_ARGUMENT(0, id, uint32_t, uint32_t);
-
-	struct button_t* button = map_find(&g->button.buttons, id);
-	if(button)
-		RETURN(button->base.button.text, wchar_t*);
-	RETURN(NULL, wchar_t*);
+	EXTRACT_ARGUMENT(0, button, uintptr_t, struct button_t*);
+	RETURN(button->base.button.text, wchar_t*);
 }

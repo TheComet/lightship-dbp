@@ -125,8 +125,6 @@ target_link_libraries (plugin_renderer_gl GLEW_190)
 find_package (OpenGL REQUIRED)
 include_directories (${OPENGL_INCLUDE_DIR})
 target_link_libraries (plugin_renderer_gl ${OPENGL_LIBRARIES})
-message (STATUS "GL: ${OPENGL_INCLUDE_DIR}")
-message (STATUS "GL: ${OPENGL_LIBRARIES}")
 
 ###############################################################################
 # freetype

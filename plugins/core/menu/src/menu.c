@@ -80,9 +80,6 @@ menu_load(struct glob_t* g, const char* file_name)
 	memset(menu, 0, sizeof(struct menu_t));
 	map_init_map(&menu->screens);
 
-	/* Add menu to global list */
-	menu->id = ++g->menu.gid;
-
 	/* set the name of the menu */
 	menu->name = malloc_string(menu_name);
 
@@ -102,7 +99,9 @@ menu_load(struct glob_t* g, const char* file_name)
 	}
 
 	/* insert into global list of menus */
-	map_insert(&g->menu.menus, menu->id, menu);
+	map_insert(&g->menu.menus,
+			   hash_jenkins_oaat(menu->name, strlen(menu->name)),
+			   menu);
 
 	/* clean up */
 	yaml_destroy(doc);
@@ -121,11 +120,11 @@ menu_destroy(struct menu_t* menu)
 	}
 	map_clear_free(&menu->screens);
 
+	/* remove from global list of menus */
+	map_erase(&menu->glob->menu.menus, hash_jenkins_oaat(menu->name, strlen(menu->name)));
+
 	/* menu name */
 	free_string(menu->name);
-
-	/* remove from global list of menus */
-	map_erase(&menu->glob->menu.menus, menu->id);
 
 	/* menu object */
 	FREE(menu);
@@ -302,18 +301,18 @@ SERVICE(menu_load_wrapper)
 
 	struct menu_t* menu = menu_load(g, file_name);
 	if(!menu)
-		RETURN(0, uint32_t);
-
-	RETURN(menu->id, uint32_t);
+		RETURN(NULL, const char*);
+	RETURN(menu->name, const char*);
 }
 
 /* ------------------------------------------------------------------------- */
 SERVICE(menu_destroy_wrapper)
 {
 	struct glob_t* g = get_global(service->plugin->game);
-	EXTRACT_ARGUMENT(0, menu_id, uint32_t, uint32_t);
+	EXTRACT_ARGUMENT_PTR(0, menu_name, const char*);
 
-	struct menu_t* menu = map_find(&g->menu.menus, menu_id);
+	uint32_t menu_hash = hash_jenkins_oaat(menu_name, strlen(menu_name));
+	struct menu_t* menu = map_find(&g->menu.menus, menu_hash);
 	if(menu)
 		menu_destroy(menu);
 }
@@ -325,14 +324,13 @@ SERVICE(menu_set_active_screen_wrapper)
 	EXTRACT_ARGUMENT_PTR(0, menu_name, const char*);
 	EXTRACT_ARGUMENT_PTR(1, screen_name, const char*);
 
-	{ MAP_FOR_EACH(&g->menu.menus, struct menu_t, hash, menu)
+	uint32_t menu_hash = hash_jenkins_oaat(menu_name, strlen(menu_name));
+	struct menu_t* menu = map_find(&g->menu.menus, menu_hash);
+	if(menu)
 	{
-		if(strcmp(menu_name, menu->name) == 0)
-		{
-			menu_set_active_screen(menu, screen_name);
-			return;
-		}
-	}}
+		menu_set_active_screen(menu, screen_name);
+		return;
+	}
 
 	llog(LOG_WARNING, service->plugin->game, PLUGIN_NAME, "Failed to "
 		"set the active screen to \"%s\" in menu \"%s\" - menu was not found.",

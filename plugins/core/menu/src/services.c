@@ -16,11 +16,11 @@ register_services(struct plugin_t* plugin)
 	 * ---------------------------------------------------*/
 
 	struct service_t* s;
-	SERVICE_CREATE5(plugin, s, PLUGIN_NAME ".button_create",        button_create_wrapper, uint32_t, const char*, float, float, float, float);
-	SERVICE_CREATE1(plugin, s, PLUGIN_NAME ".button_destroy",       button_destroy_wrapper, void, uint32_t);
-	SERVICE_CREATE1(plugin, s, PLUGIN_NAME ".button_get_text",      button_get_text_wrapper, wchar_t*, uint32_t);
+	SERVICE_CREATE5(plugin, s, PLUGIN_NAME ".button_create",        button_create_wrapper, uintptr_t, const char*, float, float, float, float);
+	SERVICE_CREATE1(plugin, s, PLUGIN_NAME ".button_destroy",       button_destroy_wrapper, void, uintptr_t);
+	SERVICE_CREATE1(plugin, s, PLUGIN_NAME ".button_get_text",      button_get_text_wrapper, wchar_t*, uintptr_t);
 	SERVICE_CREATE1(plugin, s, PLUGIN_NAME ".load",                 menu_load_wrapper, const char*, const char*);
-	SERVICE_CREATE1(plugin, s, PLUGIN_NAME ".destroy",              menu_destroy_wrapper, void, uint32_t);
+	SERVICE_CREATE1(plugin, s, PLUGIN_NAME ".destroy",              menu_destroy_wrapper, void, const char*);
 	SERVICE_CREATE2(plugin, s, PLUGIN_NAME ".set_active_screen",    menu_set_active_screen_wrapper, void, const char*, const char*);
 }
 

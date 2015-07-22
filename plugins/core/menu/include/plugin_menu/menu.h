@@ -9,7 +9,6 @@ struct glob_t;
 struct menu_t
 {
 	char* name;
-	uint32_t id;
 	struct glob_t* glob;
 	struct map_t screens;
 	struct screen_t* active_screen;
