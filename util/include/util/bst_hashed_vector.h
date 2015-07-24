@@ -1,0 +1,12 @@
+#ifndef LIGHTSHIP_UTIL_BST_HASHED_VECTOR_H
+#define LIGHTSHIP_UTIL_BST_HASHED_VECTOR_H
+
+#include "util/config.h"
+
+C_HEADER_BEGIN
+
+extern const uint32_t MAP_INVALID_KEY;
+
+C_HEADER_END
+
+#endif /* LIGHTSHIP_UTIL_BST_HASHED_VECTOR_H */

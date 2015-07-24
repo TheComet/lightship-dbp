@@ -1,5 +1,5 @@
-#ifndef LIGHTSHIP_UTIL_MAP_H
-#define LIGHTSHIP_UTIL_MAP_H
+#ifndef LIGHTSHIP_UTIL_BST_VECTOR_H
+#define LIGHTSHIP_UTIL_BST_VECTOR_H
 
 #include "util/pstdint.h"
 #include "util/config.h"
@@ -7,39 +7,37 @@
 
 C_HEADER_BEGIN
 
-extern const uint32_t MAP_INVALID_KEY;
-
-struct map_value_chain_t
+struct bst_vector_value_chain_t
 {
 	char*                     key;
 	void*                     value;
-	struct map_value_chain_t* next;
+	struct bst_vector_value_chain_t* next;
 };
 
-struct map_key_value_t
+struct bst_vector_key_value_t
 {
 	uint32_t                  hash;
-	struct map_value_chain_t  value_chain;
+	struct bst_vector_value_chain_t  value_chain;
 };
 
-struct map_t
+struct bst_vector_t
 {
 	struct ordered_vector_t   vector;
 };
 
 LIGHTSHIP_UTIL_PUBLIC_API void
-map_set_string_hash_func(uint32_t(*func)(const char*, uint32_t len));
+bst_vector_set_string_hash_func(uint32_t(*func)(const char*, uint32_t len));
 
 LIGHTSHIP_UTIL_PUBLIC_API uint32_t
-map_hash_string(const char* str);
+bst_vector_hash_string(const char* str);
 
 /*!
  * @brief Creates a new map object.
  * @return Returns the newly created map object. It must be freed with
- * map_destroy() when no longer required.
+ * bst_vector_destroy() when no longer required.
  */
-LIGHTSHIP_UTIL_PUBLIC_API struct map_t*
-map_create(void);
+LIGHTSHIP_UTIL_PUBLIC_API struct bst_vector_t*
+bst_vector_create(void);
 
 /*!
  * @brief Initialises an existing map object.
@@ -49,7 +47,7 @@ map_create(void);
  * @param[in] map The map object to initialise.
  */
 LIGHTSHIP_UTIL_PUBLIC_API void
-map_init_map(struct map_t* map);
+bst_vector_init_map(struct bst_vector_t* map);
 
 /*!
  * @brief Destroys an existing map object and FREEs the underlying memory.
@@ -57,13 +55,13 @@ map_init_map(struct map_t* map);
  * @param[in] map The map object to destroy.
  */
 LIGHTSHIP_UTIL_PUBLIC_API void
-map_destroy(struct map_t* map);
+bst_vector_destroy(struct bst_vector_t* map);
 
 /*!
  * @brief Inserts an element into the map by using a string as a key.
  * @note Hash collisions are resolved when using this function.
  * @note Complexity is O(log2(n)) to find the insertion point.
- * @warning It is highly discouraged to mix map_insert_hash() and map_insert().
+ * @warning It is highly discouraged to mix bst_vector_insert_hash() and bst_vector_insert().
  * Use one or the other.
  * @param[in] map A pointer to the map object to insert into.
  * @param[in] key A unique string to assign to the element being inserted. The
@@ -74,14 +72,14 @@ map_destroy(struct map_t* map);
  * @return Returns 1 if insertion was successful, 0 if otherwise.
  */
 LIGHTSHIP_UTIL_PUBLIC_API char
-map_insert_using_key(struct map_t* map, const char* key, void* value);
+bst_vector_insert_using_key(struct bst_vector_t* map, const char* key, void* value);
 
 /*!
  * @brief Inserts an element into the map using a hashed key.
  *
  * @warning There is no way to test for hash collisions since this function
  * doesn't have access to the key which generated the hash. It is highly
- * discouraged to mix map_insert_hash() and map_insert(). Use one or the other.
+ * discouraged to mix bst_vector_insert_hash() and bst_vector_insert(). Use one or the other.
  *
  * @note Complexity is O(log2(n)) to find the insertion point.
  *
@@ -94,7 +92,7 @@ map_insert_using_key(struct map_t* map, const char* key, void* value);
  * @return Returns 1 if insertion was successful, 0 if otherwise.
  */
 LIGHTSHIP_UTIL_PUBLIC_API char
-map_insert_using_hash(struct map_t* map, uint32_t hash, void* value);
+bst_vector_insert_using_hash(struct bst_vector_t* map, uint32_t hash, void* value);
 
 /*!
  * @brief Sets the value mapped to the specified hash in the map.
@@ -104,7 +102,7 @@ map_insert_using_hash(struct map_t* map, uint32_t hash, void* value);
  * @param[in] value The new value to set.
  */
 LIGHTSHIP_UTIL_PUBLIC_API void
-map_set(struct map_t* map, uint32_t hash, void* value);
+bst_vector_set(struct bst_vector_t* map, uint32_t hash, void* value);
 
 /*!
  * @brief Looks for an element in the map and returns it if found.
@@ -115,10 +113,10 @@ map_set(struct map_t* map, uint32_t hash, void* value);
  * not found in the map, then NULL is returned.
  * @note Potential pitfall: The value could be NULL even if the hash was found,
  * as NULL is a valid thing for a value to be. If you are checking to see if a
- * hash exists, use map_key_exists() instead.
+ * hash exists, use bst_vector_key_exists() instead.
  */
 LIGHTSHIP_UTIL_PUBLIC_API void*
-map_find(const struct map_t* map, uint32_t hash);
+bst_vector_find(const struct bst_vector_t* map, uint32_t hash);
 
 /*!
  * @brief Finds the specified element in the map and returns its key.
@@ -129,7 +127,7 @@ map_find(const struct map_t* map, uint32_t hash);
  * otherwise.
  */
 LIGHTSHIP_UTIL_PUBLIC_API uint32_t
-map_find_element(const struct map_t* map, const void* value);
+bst_vector_find_element(const struct bst_vector_t* map, const void* value);
 
 /*!
  * @brief Gets any element from the map.
@@ -139,7 +137,7 @@ map_find_element(const struct map_t* map, const void* value);
  * @return Returns an element as a void pointer. Which element is random.
  */
 LIGHTSHIP_UTIL_PUBLIC_API void*
-map_get_any_element(const struct map_t* map);
+bst_vector_get_any_element(const struct bst_vector_t* map);
 
 /*!
  * @brief Returns 1 if the specified hash exists, 0 if otherwise.
@@ -148,7 +146,7 @@ map_get_any_element(const struct map_t* map);
  * @return 1 if the hash was found, 0 if the hash was not found.
  */
 LIGHTSHIP_UTIL_PUBLIC_API char
-map_hash_exists(struct map_t* map, uint32_t hash);
+bst_vector_hash_exists(struct bst_vector_t* map, uint32_t hash);
 
 /*!
  * @brief Returns a hash that does not yet exist in the map.
@@ -157,14 +155,14 @@ map_hash_exists(struct map_t* map, uint32_t hash);
  * @return Returns a hash that does not yet exist in the map.
  */
 LIGHTSHIP_UTIL_PUBLIC_API uint32_t
-map_find_unused_hash(struct map_t* map);
+bst_vector_find_unused_hash(struct bst_vector_t* map);
 
 /*!
  * @brief Erases an element from the map using a key.
- * @warning It is highly discouraged to mix map_erase_using_hash() and
- * map_erase_using_key(). Use map_erase_using_hash() if you used
- * map_insert_using_hash(). Use map_erase_using_key() if you used
- * map_insert_using_key().
+ * @warning It is highly discouraged to mix bst_vector_erase_using_hash() and
+ * bst_vector_erase_using_key(). Use bst_vector_erase_using_hash() if you used
+ * bst_vector_insert_using_hash(). Use bst_vector_erase_using_key() if you used
+ * bst_vector_insert_using_key().
  * @note Complexity is O(log2(n))
  * @param[in] map The map to erase from.
  * @param[in] key The key that maps to the element to be removed from the map.
@@ -175,14 +173,14 @@ map_find_unused_hash(struct map_t* map);
  * map.
  */
 LIGHTSHIP_UTIL_PUBLIC_API void*
-map_erase_using_key(struct map_t* map, const char* key);
+bst_vector_erase_using_key(struct bst_vector_t* map, const char* key);
 
 /*!
  * @brief Erases an element from the map using a hash.
- * @warning It is highly discouraged to mix map_erase_using_hash() and
- * map_erase_using_key(). Use map_erase_using_hash() if you used
- * map_insert_using_hash(). Use map_erase_using_key() if you used
- * map_insert_using_key().
+ * @warning It is highly discouraged to mix bst_vector_erase_using_hash() and
+ * bst_vector_erase_using_key(). Use bst_vector_erase_using_hash() if you used
+ * bst_vector_insert_using_hash(). Use bst_vector_erase_using_key() if you used
+ * bst_vector_insert_using_key().
  * @note Complexity is O(log2(n))
  * @param[in] map The map to erase from.
  * @param[in] hash The hash that maps to the element to remove from the map.
@@ -193,10 +191,10 @@ map_erase_using_key(struct map_t* map, const char* key);
  * map.
  */
 LIGHTSHIP_UTIL_PUBLIC_API void*
-map_erase_using_hash(struct map_t* map, uint32_t hash);
+bst_vector_erase_using_hash(struct bst_vector_t* map, uint32_t hash);
 
 LIGHTSHIP_UTIL_PUBLIC_API void*
-map_erase_element(struct map_t* map, void* value);
+bst_vector_erase_element(struct bst_vector_t* map, void* value);
 
 /*!
  * @brief Erases the entire map, including the underlying memory.
@@ -206,17 +204,17 @@ map_erase_element(struct map_t* map, void* value);
  * @param[in] map The map to clear.
  */
 LIGHTSHIP_UTIL_PUBLIC_API void
-map_clear(struct map_t* map);
+bst_vector_clear(struct bst_vector_t* map);
 
 LIGHTSHIP_UTIL_PUBLIC_API void
-map_clear_free(struct map_t* map);
+bst_vector_clear_free(struct bst_vector_t* map);
 
 /*!
  * @brief Returns the number of elements in the specified map.
  * @param[in] map The map to count the elements of.
  * @return The number of elements in the specified map.
  */
-#define map_count(map) ((map)->vector.count)
+#define bst_vector_count(map) ((map)->vector.count)
 
 /*!
  * @brief Dumps the contents of the specified map to stdout.
@@ -225,7 +223,7 @@ map_clear_free(struct map_t* map);
  */
 #ifdef _DEBUG
 void
-map_print(struct map_t* map);
+bst_vector_print(struct bst_vector_t* map);
 #endif
 
 /*!
@@ -237,14 +235,14 @@ map_print(struct map_t* map);
  * element.
  */
 #define MAP_FOR_EACH(map, var_type, hash_n, var) {                                                                \
-	uint32_t map_internal_##var_i;                                                                                \
+	uint32_t bst_vector_internal_##var_i;                                                                                \
 	uint32_t hash_n;                                                                                              \
 	var_type* var;                                                                                                \
-	for(map_internal_##var_i = 0;                                                                                 \
-		map_internal_##var_i != map_count(map) &&                                                            \
-			((hash_n = ((struct map_key_value_t*) (map)->vector.data)[map_internal_##var_i].hash) || 1) &&        \
-			((var  = (var_type*)((struct map_key_value_t*)(map)->vector.data)[map_internal_##var_i].value) || 1); \
-		++map_internal_##var_i) {
+	for(bst_vector_internal_##var_i = 0;                                                                                 \
+		bst_vector_internal_##var_i != bst_vector_count(map) &&                                                            \
+			((hash_n = ((struct bst_vector_key_value_t*) (map)->vector.data)[bst_vector_internal_##var_i].hash) || 1) &&        \
+			((var  = (var_type*)((struct bst_vector_key_value_t*)(map)->vector.data)[bst_vector_internal_##var_i].value) || 1); \
+		++bst_vector_internal_##var_i) {
 
 /*!
  * @brief Closes a for each scope previously opened by MAP_FOR_EACH.
@@ -259,9 +257,9 @@ map_print(struct map_t* map);
  * @param[in] map A pointer to the map object currently being iterated.
  */
 #define MAP_ERASE_CURRENT_ITEM_IN_FOR_LOOP(map) \
-	ordered_vector_erase_element(&(map)->vector, &((struct map_key_value_t*)(map)->vector.data)[map_internal_##var_i]); \
-	--map_internal_##var_i;
+	ordered_vector_erase_element(&(map)->vector, &((struct bst_vector_key_value_t*)(map)->vector.data)[bst_vector_internal_##var_i]); \
+	--bst_vector_internal_##var_i;
 
 C_HEADER_END
 
-#endif /* LIGHTSHIP_UTIL_MAP_H */
+#endif /* LIGHTSHIP_UTIL_BST_VECTOR_H */
