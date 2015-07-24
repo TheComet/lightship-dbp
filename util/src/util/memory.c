@@ -1,5 +1,5 @@
 #include "util/memory.h"
-#include "util/map.h"
+#include "util/bst_vector.h"
 #include "util/backtrace.h"
 #include <stdlib.h>
 #include <stdio.h>
@@ -12,7 +12,7 @@
 static uintptr_t allocations = 0;
 static uintptr_t deallocations = 0;
 static uintptr_t ignore_map_malloc = 0;
-static struct map_t report;
+static struct bstv_t report;
 
 #   ifdef ENABLE_MEMORY_EXPLICIT_MALLOC_FAILURES
 static volatile int malloc_fail_counter = 0;

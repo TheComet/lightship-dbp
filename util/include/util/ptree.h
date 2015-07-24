@@ -21,7 +21,7 @@
 #include "util/pstdint.h"
 #include "util/config.h"
 #include "util/hash.h"
-#include "util/map.h"
+#include "util/bst_hashed_vector.h"
 
 C_HEADER_BEGIN
 
@@ -37,7 +37,7 @@ struct ptree_t
 	struct ptree_t* parent;
 	ptree_dup_func dup_value;
 	ptree_free_func free_value;
-	struct map_t children;
+	struct bsthv_t children;
 };
 
 /*!
