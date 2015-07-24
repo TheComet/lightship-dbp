@@ -11,7 +11,7 @@
 #ifdef ENABLE_MEMORY_DEBUGGING
 static uintptr_t allocations = 0;
 static uintptr_t deallocations = 0;
-static uintptr_t ignore_map_malloc = 0;
+static uintptr_t ignore_bstv_malloc = 0;
 static struct bstv_t report;
 
 #   ifdef ENABLE_MEMORY_EXPLICIT_MALLOC_FAILURES
@@ -71,8 +71,8 @@ memory_init(void)
 {
 	allocations = 0;
 	deallocations = 0;
-	ignore_map_malloc = 0;
-	map_init_map(&report);
+	ignore_bstv_malloc = 0;
+	bstv_init_bstv(&report);
 	MUTEX_INIT(mutex)
 #   ifdef ENABLE_MEMORY_EXPLICIT_MALLOC_FAILURES
 	malloc_fail_counter = 0;
@@ -93,7 +93,7 @@ malloc_wrapper(intptr_t size)
 	{
 
 #   ifdef ENABLE_MEMORY_EXPLICIT_MALLOC_FAILURES
-		if(malloc_fail_counter && !ignore_map_malloc)
+		if(malloc_fail_counter && !ignore_bstv_malloc)
 		{
 			/* fail when counter reaches 1 */
 			if(malloc_fail_counter == 1)
@@ -111,18 +111,18 @@ malloc_wrapper(intptr_t size)
 			break;
 
 		/*
-		* Record allocation info. Call to map may allocate memory,
+		* Record allocation info. Call to bstv may allocate memory,
 		* so set flag to ignore the call to malloc() when inserting.
 		*/
-		if(!ignore_map_malloc)
+		if(!ignore_bstv_malloc)
 		{
-			ignore_map_malloc = 1;
+			ignore_bstv_malloc = 1;
 			info = (struct report_info_t*)malloc(sizeof(struct report_info_t));
 			if(!info)
 			{
 				fprintf(stderr, "[memory] ERROR: malloc() for report_info_t failed"
 					" -- not enough memory.\n");
-				ignore_map_malloc = 0;
+				ignore_bstv_malloc = 0;
 				break;
 			}
 
@@ -137,12 +137,12 @@ malloc_wrapper(intptr_t size)
 				fprintf(stderr, "[memory] WARNING: Failed to generate backtrace\n");
 #   endif
 
-			/* insert into map */
-			if(!map_insert(&report, (uintptr_t)p, info))
+			/* insert into bstv */
+			if(!bstv_insert(&report, (uintptr_t)p, info))
 			{
 				fprintf(stderr,
 				"[memory] WARNING: Hash collision occurred when inserting\n"
-				"into memory report map. On 64-bit systems the pointers are\n"
+				"into memory report bstv. On 64-bit systems the pointers are\n"
 				"rounded down to 32-bit unsigned integers, so even though\n"
 				"it's rare, collisions can happen.\n\n"
 				"The matching call to FREE() will generate a warning saying\n"
@@ -165,7 +165,7 @@ malloc_wrapper(intptr_t size)
 				}
 #   endif
 			}
-			ignore_map_malloc = 0;
+			ignore_bstv_malloc = 0;
 		}
 
 		/* success */
@@ -201,10 +201,10 @@ free_wrapper(void* ptr)
 {
 	MUTEX_LOCK(mutex)
 
-	/* find matching allocation and remove from map */
-	if(!ignore_map_malloc)
+	/* find matching allocation and remove from bstv */
+	if(!ignore_bstv_malloc)
 	{
-		struct report_info_t* info = (struct report_info_t*)map_erase(&report, (uintptr_t)ptr);
+		struct report_info_t* info = (struct report_info_t*)bstv_erase(&report, (uintptr_t)ptr);
 		if(info)
 		{
 #   ifdef ENABLE_MEMORY_BACKTRACE
@@ -265,7 +265,7 @@ memory_deinit(void)
 	/* report details on any allocations that were not de-allocated */
 	if(report.vector.count != 0)
 	{
-		MAP_FOR_EACH(&report, struct report_info_t, key, info)
+		BSTV_FOR_EACH(&report, struct report_info_t, key, info)
 
 			printf("  un-freed memory at %p, size %p\n", (void*)info->location, (void*)info->size);
 			mutated_string_and_hex_dump((void*)info->location, info->size);
@@ -282,7 +282,7 @@ memory_deinit(void)
 #   endif
 			free(info);
 
-		MAP_END_EACH
+		BSTV_END_EACH
 
 		printf("=========================================\n");
 	}
@@ -300,8 +300,8 @@ memory_deinit(void)
 	printf("=========================================\n");
 
 	++allocations; /* this is the single allocation still held by the report vector */
-	ignore_map_malloc = 1;
-	map_clear_free(&report);
+	ignore_bstv_malloc = 1;
+	bstv_clear_free(&report);
 
 	MUTEX_DEINIT(mutex)
 

@@ -30,9 +30,6 @@ typedef void (*ptree_free_func)(void*);
 
 struct ptree_t
 {
-#ifdef _DEBUG
-	char* key;
-#endif
 	void* value;
 	struct ptree_t* parent;
 	ptree_dup_func dup_value;
@@ -93,16 +90,16 @@ ptree_destroy_keep_root(struct ptree_t* root);
 
 /*!
  * @brief Creates a child node and adds it as a child of the specified root
- * node, and sets its key and data. The key can be in the form of
+ * node and sets its key and data. The key can be in the form of
  * ```path.to.my.node```. If any of the nodes in between the root node and the
  * target node don't exist, they will be created.
- * @param[in] node The node in which to insert the new child node into.
+ * @param[in] root The node in which to insert the new child node into.
  * @param[in] key The key to give the new child node.
  * @param[in] data The data the child node should reference. Can be NULL.
  * @return Returns the newly created child.
  */
 LIGHTSHIP_UTIL_PUBLIC_API struct ptree_t*
-ptree_add_node(struct ptree_t* root, const char* key, void* data);
+ptree_set(struct ptree_t* root, const char* key, void* data);
 
 /*!
  * @brief Sets the parent node, effectively merging a tree into part of another
@@ -124,7 +121,7 @@ ptree_set_parent(struct ptree_t* node, struct ptree_t* parent, const char* key);
  * @note The value can be NULL.
  */
 LIGHTSHIP_UTIL_PUBLIC_API char
-ptree_remove_node(struct ptree_t* root, const char* key);
+ptree_remove(struct ptree_t* root, const char* key);
 
 /*!
  * @brief Recursively traverses the tree and removes any leaves that don't have
@@ -233,8 +230,6 @@ ptree_print(const struct ptree_t* tree);
 	MAP_FOR_EACH(&(tree)->children, struct ptree_t, hash, node)
 
 #define PTREE_END_EACH MAP_END_EACH
-
-#define PTREE_HASH_STRING(str) hash_jenkins_oaat(str, strlen(str))
 
 C_HEADER_END
 

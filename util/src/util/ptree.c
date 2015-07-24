@@ -45,10 +45,6 @@ ptree_init_ptree(struct ptree_t* tree, void* value)
 	assert(tree);
 
 	ptree_init_node(tree, NULL, value);
-#ifdef _DEBUG
-	tree->key = malloc_string("root");
-#endif
-
 }
 
 /* ------------------------------------------------------------------------- */
@@ -63,6 +59,16 @@ ptree_destroy(struct ptree_t* tree)
 
 	ptree_destroy_keep_root(tree);
 	FREE(tree);
+}
+
+static const char*
+ptree_get_node_key(const struct ptree_t* node)
+{
+	const char* key;
+	if(node->parent && (key = bsthv_find_element(&node->parent->children, node)))
+		return key;
+	else
+		return "root";
 }
 
 /* ------------------------------------------------------------------------- */
@@ -90,17 +96,10 @@ ptree_destroy_children_recurse(struct ptree_t* tree)
 		{
 			fprintf(stderr, "ptree_destroy_recurse(): Unable to de-allocate value!"
 				" No free() function was specified!");
-#ifdef _DEBUG
-			fprintf(stderr, " (at ptree node with name \"%s\")", tree->key);
-#endif
+			fprintf(stderr, " (at ptree node with name \"%s\")", ptree_get_node_key(tree));
 			fprintf(stderr, "\nThe node will be de-allocated, the value will not.\n");
 		}
 	}
-
-#ifdef _DEBUG
-	if(tree->key)
-		free_string(tree->key);
-#endif
 }
 
 /*
@@ -114,41 +113,39 @@ ptree_destroy_keep_root(struct ptree_t* tree)
 {
 	assert(tree);
 
-	/* if tree has parent, detach */
+	/*
+	 * If tree has parent, detach by removing ourselves from the parent's list
+	 * of children.
+	 */
 	if(tree->parent)
 		bsthv_erase_element(&tree->parent->children, tree);
 
-	/* destroy children of detached node */
+	/* recursively destroy children of detached node */
 	ptree_destroy_children_recurse(tree);
 }
 
 /* ------------------------------------------------------------------------- */
-/*
- * This is used to add a node to a given tree when only the hash is known.
- * All functions that in any way add a node will eventually call this.
- */
 static struct ptree_t*
-ptree_add_node_hashed_key(struct ptree_t* tree, uint32_t hash, void* value)
+ptree_add_node(struct ptree_t* tree, const char* key, void* value)
 {
 	struct ptree_t* child;
 	if(!(child = (struct ptree_t*)MALLOC(sizeof(struct ptree_t))))
 		return NULL;
 
-	if(!bsthv_insert(&tree->children, hash, child))
+	if(!bsthv_insert(&tree->children, key, child))
 	{
 		FREE(child);
 		return NULL;
 	}
+
 	ptree_init_node(child, tree, value);
 	return child;
 }
 
 static struct ptree_t*
-ptree_add_node_recurse(struct ptree_t* node, char* key, char** saveptr, void* value)
+ptree_set_recurse(struct ptree_t* node, char* key, char** saveptr, void* value)
 {
-	/*
-	 * Get next token, hash, and add it as a child of the current node.
-	 */
+	/* Get next token and add it as a child of the current node. */
 	char* child_key;
 	struct ptree_t* child;
 	if((child_key = strtok_r_portable(NULL, node_delim, saveptr))) /* we haven't reached the last
@@ -160,27 +157,20 @@ ptree_add_node_recurse(struct ptree_t* node, char* key, char** saveptr, void* va
 		/* node doesn't exist, create */
 		if(!(child = ptree_get_node_no_depth(node, key)))
 		{
-			if(!(child = ptree_add_node_hashed_key(node, PTREE_HASH_STRING(key), NULL)))
+			if(!(child = ptree_add_node(node, key, NULL)))
 				return NULL;
-#ifdef _DEBUG
-			if(!(child->key = malloc_string(key)))
-				return NULL;
-#endif
 		}
 
-		/* continue with child node */
-		return ptree_add_node_recurse(child, child_key, saveptr, value);
+		/* repeat process with child node */
+		return ptree_set_recurse(child, child_key, saveptr, value);
 	}
 
 	/*
-	 * this is the last node to create, if it already exists we return NULL
+	 * If the token is NULL, then this is the last node to create. If it
+	 * already exists we return NULL.
 	 */
-	if(!(child = ptree_add_node_hashed_key(node, PTREE_HASH_STRING(key), value)))
+	if(!(child = ptree_add_node(node, key, value)))
 		return NULL;
-#ifdef _DEBUG
-	if(!(child->key = malloc_string(key)))
-		return NULL;
-#endif
 	return child;
 }
 
@@ -189,7 +179,7 @@ ptree_add_node_recurse(struct ptree_t* node, char* key, char** saveptr, void* va
  * nodes. This function calls ptree_add_node_recurse()
  */
 struct ptree_t*
-ptree_add_node(struct ptree_t* root, const char* key, void* value)
+ptree_set(struct ptree_t* root, const char* key, void* value)
 {
 	struct ptree_t* node;
 	char* saveptr;
@@ -208,11 +198,14 @@ ptree_add_node(struct ptree_t* root, const char* key, void* value)
 	/* store current child count so we can tell if malloc failed */
 	child_count = bsthv_count(&root->children);
 
-	/* recursively fills in any middle nodes until the end node is reached */
-	node = ptree_add_node_recurse(root,
-								  child_node_key,
-								  &saveptr,
-								  value);
+	/*
+	 * Recursively fills in any middle nodes until the end node is reached and
+	 * returns the leaf node
+	 */
+	node = ptree_set_recurse(root,
+							 child_node_key,
+							 &saveptr,
+							 value);
 
 	/*
 	 * If the node wasn't added successfully and the children of root were
@@ -237,11 +230,12 @@ ptree_add_node(struct ptree_t* root, const char* key, void* value)
 /*
  * Sets the parent of a node and checks for cycles in the graph.
  */
-static char
-ptree_set_parent_hashed_key(struct ptree_t* node,
-							struct ptree_t* parent,
-							uint32_t hash)
+char
+ptree_set_parent(struct ptree_t* node, struct ptree_t* parent, const char* key)
 {
+	assert(node);
+	assert(key);
+
 	/* if parent is non-NULL, we need to do some inspections */
 	if(parent)
 	{
@@ -254,11 +248,11 @@ ptree_set_parent_hashed_key(struct ptree_t* node,
 			return 0;
 
 		/* insert into parent */
-		if(!bsthv_insert(&parent->children, hash, node))
+		if(!bsthv_insert(&parent->children, key, node))
 			return 0;
 	}
 
-	/* remove from parent */
+	/* remove from current parent */
 	if(node->parent)
 		bsthv_erase_element(&node->parent->children, node);
 
@@ -268,41 +262,9 @@ ptree_set_parent_hashed_key(struct ptree_t* node,
 	return 1;
 }
 
-char
-ptree_set_parent(struct ptree_t* node, struct ptree_t* parent, const char* key)
-{
-#ifdef _DEBUG
-	char* new_key;
-#endif
-
-	assert(node);
-	assert(key);
-
-#ifdef _DEBUG
-	if(!(new_key = malloc_string(key)))
-		return 0;
-#endif
-
-	if(!ptree_set_parent_hashed_key(node, parent, PTREE_HASH_STRING(key)))
-	{
-#ifdef _DEBUG
-		free_string(new_key);
-#endif
-		return 0;
-	}
-
-#ifdef _DEBUG
-	if(node->key)
-		free_string(node->key);
-	node->key = new_key;
-#endif
-
-	return 1;
-}
-
 /* ------------------------------------------------------------------------- */
 char
-ptree_remove_node(struct ptree_t* root, const char* key)
+ptree_remove(struct ptree_t* root, const char* key)
 {
 	struct ptree_t* node;
 
@@ -324,21 +286,17 @@ ptree_clean(struct ptree_t* root)
 
 	assert(root);
 
-	BSTV_FOR_EACH(&root->children, struct ptree_t, key, child)
+	BSTHV_FOR_EACH(&root->children, struct ptree_t, key, child)
 		count += ptree_clean(child);
 		if(bsthv_count(&child->children) == 0 && child->value == NULL)
 		{
-#ifdef _DEBUG
-			if(child->key)
-				free_string(child->key);
-#endif
 			bsthv_clear_free(&child->children);
 			FREE(child);
-			MAP_ERASE_CURRENT_ITEM_IN_FOR_LOOP(&root->children);
+			BSTHV_ERASE_CURRENT_ITEM_IN_FOR_LOOP(&root->children, key, child);
 
 			++count;
 		}
-	BSTV_END_EACH
+	BSTHV_END_EACH
 
 	return count;
 }
@@ -376,15 +334,6 @@ static char
 ptree_duplicate_children_into_existing_node_recurse(struct ptree_t* target,
 													const struct ptree_t* source)
 {
-#ifdef _DEBUG
-	char* new_key;
-	if(!(new_key = malloc_string(source->key)))
-		return 0;
-	if(target->key)
-		free_string(target->key);
-	target->key = new_key;
-#endif
-
 	/* duplicate source into target */
 	target->dup_value = source->dup_value;
 	target->free_value = source->free_value;
@@ -400,13 +349,13 @@ ptree_duplicate_children_into_existing_node_recurse(struct ptree_t* target,
 	}
 
 	/* iterate over all children of source and duplicate them */
-	BSTV_FOR_EACH(&source->children, struct ptree_t, key, node)
+	BSTHV_FOR_EACH(&source->children, struct ptree_t, key, node)
 		struct ptree_t* child;
-		if(!(child = ptree_add_node_hashed_key(target, key, NULL)))
+		if(!(child = ptree_add_node(target, key, NULL)))
 			return 0;  /* duplicate key error */
 		if(!ptree_duplicate_children_into_existing_node_recurse(child, node))
 			return 0;  /* some other error, propagate */
-	BSTV_END_EACH
+	BSTHV_END_EACH
 
 	return 1;
 }
@@ -424,37 +373,37 @@ ptree_duplicate_children_into_existing_node(struct ptree_t* target,
 	 * In order to avoid circular copying, store all copied children in a
 	 * temporary map before inserting them into the actual target tree.
 	 */
-	bsthv_init_map(&temp);
-	BSTV_FOR_EACH(&source->children, struct ptree_t, hash, node)
+	bsthv_init_bsthv(&temp);
+	BSTHV_FOR_EACH(&source->children, struct ptree_t, key, node)
 
 		/* try to duplicate node and insert into temp map */
 		struct ptree_t* child = ptree_duplicate_tree(node);
 		if(!child)
 		{
 			/* destroy temp nodes and clean up */
-			BSTV_FOR_EACH(&temp, struct ptree_t, h, dirty_node)
+			BSTHV_FOR_EACH(&temp, struct ptree_t, h, dirty_node)
 				ptree_destroy(dirty_node);
-			BSTV_END_EACH
+			BSTHV_END_EACH
 			bsthv_clear_free(&temp);
 			return 0;
 		}
-		if(!bsthv_insert(&temp, hash, child))
+		if(!bsthv_insert(&temp, key, child))
 		{
 			/* destroy temp nodes and clean up */
 			ptree_destroy(child);
-			BSTV_FOR_EACH(&temp, struct ptree_t, h, dirty_node)
+			BSTHV_FOR_EACH(&temp, struct ptree_t, h, dirty_node)
 				ptree_destroy(dirty_node);
-			BSTV_END_EACH
+			BSTHV_END_EACH
 			bsthv_clear_free(&temp);
 			return 0;
 		}
-	BSTV_END_EACH
+	BSTHV_END_EACH
 
 	/*
 	 * Free to insert children of temp tree into target node. No need to check
 	 * for cycles, they aren't possible.
 	 */
-	BSTV_FOR_EACH(&temp, struct ptree_t, hash, node)
+	BSTHV_FOR_EACH(&temp, struct ptree_t, hash, node)
 		node->parent = target;
 
 		/*
@@ -462,21 +411,21 @@ ptree_duplicate_children_into_existing_node(struct ptree_t* target,
 		 */
 		if(!bsthv_insert(&target->children, hash, node))
 		{
-			BSTV_FOR_EACH(&temp, struct ptree_t, h, dirty_node)
+			BSTHV_FOR_EACH(&temp, struct ptree_t, h, dirty_node)
 				if(node == dirty_node)
 					break;
 				/* if this assert fails, something seriously went wrong */
 				assert(dirty_node == bsthv_erase(&target->children, h));
-			BSTV_END_EACH
+			BSTHV_END_EACH
 
 			/* destroy temp nodes and clean up */
-			BSTV_FOR_EACH(&temp, struct ptree_t, h, dirty_node)
+			BSTHV_FOR_EACH(&temp, struct ptree_t, h, dirty_node)
 				ptree_destroy(dirty_node);
-			BSTV_END_EACH
+			BSTHV_END_EACH
 			bsthv_clear_free(&temp);
 			return 0;
 		}
-	BSTV_END_EACH
+	BSTHV_END_EACH
 
 	bsthv_clear_free(&temp);
 
@@ -517,7 +466,7 @@ ptree_get_node_no_depth(const struct ptree_t* tree, const char* key)
 {
 	assert(tree);
 	assert(key);
-	return bsthv_find(&tree->children, PTREE_HASH_STRING(key));
+	return bsthv_find(&tree->children, key);
 }
 
 /* ------------------------------------------------------------------------- */
@@ -533,7 +482,7 @@ ptree_get_node_recurse(const struct ptree_t* tree, char** saveptr)
 	if((token = strtok_r_portable(NULL, node_delim, saveptr)) && tree)
 	{
 		struct ptree_t* child;
-		child = bsthv_find(&tree->children, PTREE_HASH_STRING(token));
+		child = bsthv_find(&tree->children, token);
 		return ptree_get_node_recurse(child, saveptr);
 	} else
 		return (struct ptree_t*)tree;
@@ -567,10 +516,10 @@ ptree_node_is_child_of(const struct ptree_t* node,
 {
 	assert(tree);
 
-	BSTV_FOR_EACH(&tree->children, struct ptree_t, hash, n)
+	BSTHV_FOR_EACH(&tree->children, struct ptree_t, key, n)
 		if(n == node || ptree_node_is_child_of(node, n))
 			return 1;
-	BSTV_END_EACH
+	BSTHV_END_EACH
 
 	return 0;
 }
@@ -589,14 +538,12 @@ ptree_print_impl(const struct ptree_t* tree, uint32_t depth)
 	/* print node info */
 	if(tree->value)
 		value = tree->value;
-#ifdef _DEBUG
-	printf("key: \"%s\", val: %s\n", tree->key, value);
-#endif
+	printf("key: \"%s\", val: %s\n", ptree_get_node_key(tree), value);
 
 	/* print children */
-	BSTV_FOR_EACH(&tree->children, struct ptree_t, key, child)
+	BSTHV_FOR_EACH(&tree->children, struct ptree_t, key, child)
 		ptree_print_impl(child, depth+1);
-	BSTV_END_EACH
+	BSTHV_END_EACH
 }
 
 void

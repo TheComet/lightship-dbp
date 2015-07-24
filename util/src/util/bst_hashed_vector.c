@@ -306,8 +306,6 @@ void*
 bsthv_erase(struct bsthv_t* bsthv, const char* key)
 {
 	struct bsthv_key_value_t* kv;
-	struct bsthv_value_chain_t* vc;
-	struct bsthv_value_chain_t* parent_vc;
 	uint32_t hash;
 
 	assert(bsthv);
@@ -322,6 +320,19 @@ bsthv_erase(struct bsthv_t* bsthv, const char* key)
 	kv = bsthv_find_lower_bound(bsthv, hash);
 	if(!kv || kv->hash != hash)
 		return NULL;
+
+	/* kv object exists and is valid. Remove it */
+	return bsthv_erase_key_value_object(bsthv, key, kv);
+}
+
+/* ------------------------------------------------------------------------- */
+void*
+bsthv_erase_key_value_object(struct bsthv_t* bsthv,
+							 const char* key,
+							 struct bsthv_key_value_t* kv)
+{
+	struct bsthv_value_chain_t* vc;
+	struct bsthv_value_chain_t* parent_vc;
 
 	if(!kv->value_chain.next)
 	{
@@ -362,6 +373,8 @@ bsthv_erase(struct bsthv_t* bsthv, const char* key)
 			return value;
 		}
 	} while(vc);
+
+	return NULL;
 }
 
 /* ------------------------------------------------------------------------- */

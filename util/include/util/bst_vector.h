@@ -206,7 +206,7 @@ bstv_clear_free(struct bstv_t* bstv);
  * @param[in] bstv A pointer to the bstv object currently being iterated.
  */
 #define BSTV_ERASE_CURRENT_ITEM_IN_FOR_LOOP(bstv)  \
-	ordered_vector_erase_element(&(bstv)->vector, &((struct bstv_key_value_t*)(bstv)->vector.data)[bstv_internal_##var_i]); \
+	ordered_vector_erase_element(&(bstv)->vector, ((struct bstv_key_value_t*)(bstv)->vector.data) + bstv_internal_##var_i); \
 	--bstv_internal_##var_i;
 
 C_HEADER_END

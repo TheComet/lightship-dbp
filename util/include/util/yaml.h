@@ -5,7 +5,6 @@
 #include <stdio.h>
 #include "util/pstdint.h"
 #include "util/config.h"
-#include "util/map.h"
 #include "util/unordered_vector.h"
 
 C_HEADER_BEGIN
