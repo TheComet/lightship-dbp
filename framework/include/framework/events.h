@@ -161,6 +161,7 @@ event_destroy(struct event_t* event);
  * @note This also destroys all registered event listeners.
  * @param[in] plugin The plugin to destroy the events from.
  */
+/* TODO implement */
 FRAMEWORK_PUBLIC_API void
 event_destroy_all_matching(const char* pattern);
 

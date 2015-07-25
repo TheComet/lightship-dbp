@@ -34,11 +34,24 @@ TEST_F(NAME, create_event_inits_correctly)
     struct event_t* event;
     EVENT_CREATE0(plugin, event, "test.event");
 
-    ASSERT_THAT(strcmp("test.event", event->directory), Eq(0));
-    ASSERT_THAT(event->listeners.capacity, Eq(0));
-    ASSERT_THAT(event->listeners.count, Eq(0));
-    ASSERT_THAT(event->listeners.element_size, Eq(sizeof(struct event_listener_t)));
-    ASSERT_THAT(event->listeners.data, IsNull());
+    EXPECT_THAT(strcmp("test.event", event->directory), Eq(0));
+    EXPECT_THAT(event->listeners.capacity, Eq(0));
+    EXPECT_THAT(event->listeners.count, Eq(0));
+    EXPECT_THAT(event->listeners.element_size, Eq(sizeof(struct event_listener_t)));
+    EXPECT_THAT(event->listeners.data, IsNull());
 
     event_destroy(event);
+}
+
+TEST_F(NAME, event_get)
+{
+	struct event_t* event;
+	EVENT_CREATE0(plugin, event, "test.event");
+	EVENT_CREATE0(plugin, event, "test.another.event");
+
+	EXPECT_THAT(event_get(game, "test.event"), NotNull());
+	EXPECT_THAT(event_get(game, "test.another.event"), NotNull());
+	EXPECT_THAT(event_get(game, "test.nothing"), IsNull());
+
+	event_destroy(event);
 }
