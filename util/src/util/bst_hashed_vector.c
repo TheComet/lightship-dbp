@@ -123,8 +123,16 @@ bsthv_insert(struct bsthv_t* bsthv, const char* key, void* value)
 		vc->next = (struct bsthv_value_chain_t*)MALLOC(sizeof *vc);
 		if(!vc->next)
 			return 0;
+		/* key */
 		vc->next->key = malloc_string(key);
+		if(!vc->next->key)
+		{
+			FREE(vc->next);
+			return 0;
+		}
+		/* value */
 		vc->next->value = value;
+
 		return 1;
 	}
 
@@ -137,11 +145,18 @@ bsthv_insert(struct bsthv_t* bsthv, const char* key, void* value)
 	else
 		new_kv = ordered_vector_insert_emplace(&bsthv->vector,
 				lower_bound - (struct bsthv_key_value_t*)bsthv->vector.data);
+	if(!new_kv)
+		return 0;
 
 	memset(new_kv, 0, sizeof *new_kv);
 	new_kv->hash = hash;
-	new_kv->value_chain.key = malloc_string(key);
 	new_kv->value_chain.value = value;
+	new_kv->value_chain.key = malloc_string(key);
+	if(!new_kv->value_chain.key)
+	{
+		ordered_vector_erase_element(&bsthv->vector, new_kv);
+		return 0;
+	}
 
 	return 1;
 }
@@ -337,6 +352,7 @@ bsthv_erase_key_value_object(struct bsthv_t* bsthv,
 	if(!kv->value_chain.next)
 	{
 		void* value = kv->value_chain.value;
+		free_string(kv->value_chain.key);
 		ordered_vector_erase_element(&bsthv->vector, kv);
 		return value;
 	}
@@ -395,15 +411,19 @@ bsthv_erase_element(struct bsthv_t* bsthv, void* value)
 
 /* ------------------------------------------------------------------------- */
 static void
-bsthv_free_all_chains(struct bsthv_t* bsthv)
+bsthv_free_all_chains_and_keys(struct bsthv_t* bsthv)
 {
 	assert(bsthv);
 	ORDERED_VECTOR_FOR_EACH(&bsthv->vector, struct bsthv_key_value_t, kv)
 		struct bsthv_value_chain_t* vc = kv->value_chain.next;
+
+		free_string(kv->value_chain.key);
+
 		while(vc)
 		{
 			struct bsthv_value_chain_t* to_free = vc;
 			vc = vc->next;
+			free_string(to_free->key);
 			FREE(to_free);
 		}
 	ORDERED_VECTOR_END_EACH
@@ -414,7 +434,7 @@ void
 bsthv_clear(struct bsthv_t* bsthv)
 {
 	assert(bsthv);
-	bsthv_free_all_chains(bsthv);
+	bsthv_free_all_chains_and_keys(bsthv);
 	ordered_vector_clear(&bsthv->vector);
 }
 
@@ -422,7 +442,7 @@ bsthv_clear(struct bsthv_t* bsthv)
 void bsthv_clear_free(struct bsthv_t* bsthv)
 {
 	assert(bsthv);
-	bsthv_free_all_chains(bsthv);
+	bsthv_free_all_chains_and_keys(bsthv);
 	ordered_vector_clear_free(&bsthv->vector);
 }
 

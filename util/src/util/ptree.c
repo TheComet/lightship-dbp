@@ -371,26 +371,26 @@ ptree_duplicate_children_into_existing_node(struct ptree_t* target,
 
 	/*
 	 * In order to avoid circular copying, store all copied children in a
-	 * temporary map before inserting them into the actual target tree.
+	 * temporary bsthv before inserting them into the actual target tree.
 	 */
 	bsthv_init_bsthv(&temp);
 	BSTHV_FOR_EACH(&source->children, struct ptree_t, key, node)
 
 		/* try to duplicate node and insert into temp map */
-		struct ptree_t* child = ptree_duplicate_tree(node);
-		if(!child)
+		struct ptree_t* duplicate = ptree_duplicate_tree(node);
+		if(!duplicate)
 		{
 			/* destroy temp nodes and clean up */
-			BSTHV_FOR_EACH(&temp, struct ptree_t, h, dirty_node)
+			BSTHV_FOR_EACH(&temp, struct ptree_t, k, dirty_node)
 				ptree_destroy(dirty_node);
 			BSTHV_END_EACH
 			bsthv_clear_free(&temp);
 			return 0;
 		}
-		if(!bsthv_insert(&temp, key, child))
+		if(!bsthv_insert(&temp, key, duplicate))
 		{
 			/* destroy temp nodes and clean up */
-			ptree_destroy(child);
+			ptree_destroy(duplicate);
 			BSTHV_FOR_EACH(&temp, struct ptree_t, h, dirty_node)
 				ptree_destroy(dirty_node);
 			BSTHV_END_EACH
@@ -403,20 +403,21 @@ ptree_duplicate_children_into_existing_node(struct ptree_t* target,
 	 * Free to insert children of temp tree into target node. No need to check
 	 * for cycles, they aren't possible.
 	 */
-	BSTHV_FOR_EACH(&temp, struct ptree_t, hash, node)
+	BSTHV_FOR_EACH(&temp, struct ptree_t, key, node)
 		node->parent = target;
 
 		/*
 		 * If we encounter a duplicate key, revert all insertions.
 		 */
-		if(!bsthv_insert(&target->children, hash, node))
+		if(!bsthv_insert(&target->children, key, node))
 		{
-			BSTHV_FOR_EACH(&temp, struct ptree_t, h, dirty_node)
+			BSTHV_FOR_EACH(&temp, struct ptree_t, k, dirty_node)
 				if(node == dirty_node)
-					break;
+					goto break_erase_temp_for_each;
 				/* if this assert fails, something seriously went wrong */
-				assert(dirty_node == bsthv_erase(&target->children, h));
+				assert(dirty_node == bsthv_erase(&target->children, k));
 			BSTHV_END_EACH
+			break_erase_temp_for_each:
 
 			/* destroy temp nodes and clean up */
 			BSTHV_FOR_EACH(&temp, struct ptree_t, h, dirty_node)
