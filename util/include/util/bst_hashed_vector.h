@@ -192,7 +192,7 @@ bsthv_clear_free(struct bsthv_t* bsthv);
  * @param[in] bsthv The bsthv to count the elements of.
  * @return The number of elements in the specified bsthv.
  */
-#define bsthv_count(bsthv) ((bsthv)->vector.count)
+#define bsthv_count(bsthv) ((bsthv)->count)
 
 /*!
  * @brief Iterates over the specified bsthv's elements and opens a FOR_EACH
@@ -207,7 +207,7 @@ bsthv_clear_free(struct bsthv_t* bsthv);
 	struct bsthv_key_value_t* kv_##var_v; \
 	var_t* var_v;                                                                                       \
 	for(i_##var_v = 0;                                                                                   \
-		i_##var_v != bsthv_count(bsthv_v) &&                                                                 \
+		i_##var_v != (bsthv_v)->vector.count &&                                                     \
 			(kv_##var_v = (((struct bsthv_key_value_t*)(bsthv_v)->vector.data) + i_##var_v));       \
 		++i_##var_v) { \
 		struct bsthv_value_chain_t* vc_##var_v = &(kv_##var_v)->value_chain; \
