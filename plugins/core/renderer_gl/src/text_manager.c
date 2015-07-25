@@ -103,7 +103,7 @@ text_manager_deinit(void)
 	while(g_text_groups.vector.count)
 	{
 		text_group_destroy(
-			((struct bstv_key_value_t*)g_text_groups.vector.data)->hash
+			((struct bstv_hash_value_t*)g_text_groups.vector.data)->hash
 		);
 	}
 	bstv_clear_free(&g_text_groups);

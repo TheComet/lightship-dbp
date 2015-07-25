@@ -14,7 +14,7 @@
 
 C_HEADER_BEGIN
 
-struct bstv_key_value_t
+struct bstv_hash_value_t
 {
 	uint32_t hash;
 	void*    value;
@@ -183,15 +183,15 @@ bstv_clear_free(struct bstv_t* bstv);
  * @param[in] var The name to give the variable pointing to the current
  * element.
  */
-#define BSTV_FOR_EACH(bstv, var_type, hash_n, var) {                                                                 \
-	uint32_t bstv_internal_##var_i;                                                                                  \
-	uint32_t hash_n;                                                                                                 \
-	var_type* var;                                                                                                   \
-	for(bstv_internal_##var_i = 0;                                                                                   \
-		bstv_internal_##var_i != bstv_count(bstv) &&                                                                 \
-			((hash_n = ((struct bstv_key_value_t*) (bstv)->vector.data)[bstv_internal_##var_i].hash) || 1) &&        \
-			((var  = (var_type*)((struct bstv_key_value_t*)(bstv)->vector.data)[bstv_internal_##var_i].value) || 1); \
-		++bstv_internal_##var_i) {
+#define BSTV_FOR_EACH(bstv, var_t, hash_v, var_v) {                                                                 \
+	uint32_t i_##var_v;                                                                                  \
+	uint32_t hash_v;                                                                                                 \
+	var_t* var_v;                                                                                                   \
+	for(i_##var_v = 0;                                                                                   \
+		i_##var_v != bstv_count(bstv) &&                                                                 \
+			((hash_v = ((struct bstv_hash_value_t*) (bstv)->vector.data)[i_##var_v].hash) || 1) &&        \
+			((var_v  = (var_t*)((struct bstv_hash_value_t*)(bstv)->vector.data)[i_##var_v].value) || 1); \
+		++i_##var_v) {
 
 /*!
  * @brief Closes a for each scope previously opened by BSTV_FOR_EACH.
@@ -205,9 +205,9 @@ bstv_clear_free(struct bstv_t* bstv);
  * matter).
  * @param[in] bstv A pointer to the bstv object currently being iterated.
  */
-#define BSTV_ERASE_CURRENT_ITEM_IN_FOR_LOOP(bstv)  \
-	ordered_vector_erase_element(&(bstv)->vector, ((struct bstv_key_value_t*)(bstv)->vector.data) + bstv_internal_##var_i); \
-	--bstv_internal_##var_i;
+#define BSTV_ERASE_CURRENT_ITEM_IN_FOR_LOOP(bstv, var_v) do { \
+	ordered_vector_erase_element(&(bstv)->vector, ((struct bstv_hash_value_t*)(bstv)->vector.data) + i_##var_v); \
+	--i_##var_v; } while(0)
 
 C_HEADER_END
 

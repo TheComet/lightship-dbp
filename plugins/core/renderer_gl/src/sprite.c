@@ -72,7 +72,7 @@ sprite_deinit(void)
 	while(g_sprites.vector.count)
 	{
 		sprite_destroy(
-			(struct sprite_t*)((struct bstv_key_value_t*)g_sprites.vector.data)->value
+			(struct sprite_t*)((struct bstv_hash_value_t*)g_sprites.vector.data)->value
 		);
 	}
 	bstv_clear_free(&g_sprites);

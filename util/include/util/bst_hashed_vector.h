@@ -214,9 +214,9 @@ bsthv_clear_free(struct bsthv_t* bsthv);
  */
 #define BSTHV_END_EACH }}}
 
-#define BSTHV_ERASE_CURRENT_ITEM_IN_FOR_LOOP(bsthv_v, key_v, var_v) \
+#define BSTHV_ERASE_CURRENT_ITEM_IN_FOR_LOOP(bsthv_v, key_v, var_v) do { \
 	bsthv_erase_key_value_object(bsthv_v, key_v, ((struct bsthv_key_value_t*)(bsthv_v)->vector.data) + i_##var_v); \
-	--i_##var_v;
+	--i_##var_v; } while(0)
 
 C_HEADER_END
 
