@@ -298,7 +298,7 @@ TEST(NAME, generating_keys_do_not_conflict_with_existing_ascending_keys)
     bstv_insert(bstv, 2, NULL);
     bstv_insert(bstv, 3, NULL);
     bstv_insert(bstv, 5, NULL);
-    key = bstv_find_unused_key(bstv);
+    key = bstv_find_unused_hash(bstv);
     ASSERT_NE(0, key);
     ASSERT_NE(1, key);
     ASSERT_NE(2, key);
@@ -316,7 +316,7 @@ TEST(NAME, generating_keys_do_not_conflict_with_existing_descending_keys)
     bstv_insert(bstv, 2, NULL);
     bstv_insert(bstv, 1, NULL);
     bstv_insert(bstv, 0, NULL);
-    key = bstv_find_unused_key(bstv);
+    key = bstv_find_unused_hash(bstv);
     ASSERT_NE(0, key);
     ASSERT_NE(1, key);
     ASSERT_NE(2, key);
@@ -335,7 +335,7 @@ TEST(NAME, generating_keys_do_not_conflict_with_existing_random_keys)
     bstv_insert(bstv, 358, NULL);
     bstv_insert(bstv, 183, NULL);
     bstv_insert(bstv, 38, NULL);
-    key = bstv_find_unused_key(bstv);
+    key = bstv_find_unused_hash(bstv);
     ASSERT_NE(2387, key);
     ASSERT_NE(28, key);
     ASSERT_NE(358, key);
@@ -349,9 +349,9 @@ TEST(NAME, iterate_with_no_items)
     struct bstv_t* bstv = bstv_create();
     {
         int counter = 0;
-        MAP_FOR_EACH(bstv, int, key, value)
+        BSTV_FOR_EACH(bstv, int, key, value)
             ++counter;
-        MAP_END_EACH
+        BSTV_END_EACH
         ASSERT_EQ(0, counter);
     }
     bstv_destroy(bstv);
@@ -369,7 +369,7 @@ TEST(NAME, iterate_5_random_items)
     bstv_insert(bstv, 969, &e);
 
 	int counter = 0;
-	MAP_FOR_EACH(bstv, int, key, value)
+	BSTV_FOR_EACH(bstv, int, key, value)
 		switch(counter)
 		{
 			case 0 : ASSERT_EQ(243, key); ASSERT_EQ(a, *value); break;
@@ -380,7 +380,7 @@ TEST(NAME, iterate_5_random_items)
 			default: ASSERT_EQ(0, 1); break;
 		}
 		++counter;
-	MAP_END_EACH
+	BSTV_END_EACH
 	ASSERT_EQ(5, counter);
 
     bstv_destroy(bstv);
@@ -397,7 +397,7 @@ TEST(NAME, iterate_5_null_items)
     bstv_insert(bstv, 969, NULL);
 
 	int counter = 0;
-	MAP_FOR_EACH(bstv, int, key, value)
+	BSTV_FOR_EACH(bstv, int, key, value)
 		switch(counter)
 		{
 			case 0 : ASSERT_EQ(243, key); ASSERT_EQ(NULL, value); break;
@@ -408,7 +408,7 @@ TEST(NAME, iterate_5_null_items)
 			default: ASSERT_EQ(0, 1); break;
 		}
 		++counter;
-	MAP_END_EACH
+	BSTV_END_EACH
 	ASSERT_EQ(5, counter);
 
     bstv_destroy(bstv);

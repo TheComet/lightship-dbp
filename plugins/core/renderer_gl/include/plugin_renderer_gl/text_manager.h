@@ -5,7 +5,7 @@
 
 #include "util/ordered_vector.h"
 #include "util/unordered_vector.h"
-#include "util/map.h"
+#include "util/bst_vector.h"
 #include <GL/glew.h>
 #include "ft2build.h"
 #include FT_FREETYPE_H
@@ -41,7 +41,7 @@ struct text_group_t
 	FT_Face face;
 	struct text_gl_t gl;
 	/* maps character codes to instances of text_manager_char_info_t */
-	struct map_t char_info;
+	struct bstv_t char_info;
 	/* maps text IDs to text_t instances */
 	struct unordered_vector_t texts;
 	/* keep text type specific vertex and index buffers alive for the entirity of the font's life,
@@ -80,7 +80,7 @@ text_group_get(uint32_t id);
 
 /*!
  * @brief Loads all characters specified.
- * 
+ *
  * This needs to be called before being able to draw text. The specified
  * characters specified will be the only characters that can be drawn to the
  * screen.

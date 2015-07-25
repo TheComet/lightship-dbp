@@ -15,17 +15,17 @@ screen_create(void)
 void
 screen_init_screen(struct screen_t* screen)
 {
-	map_init_map(&screen->elements);
+	bstv_init_bstv(&screen->elements);
 }
 
 /* ------------------------------------------------------------------------- */
 void
 screen_destroy(struct screen_t* screen)
 {
-	MAP_FOR_EACH(&screen->elements, struct element_t, key, element)
+	BSTV_FOR_EACH(&screen->elements, struct element_t, key, element)
 		element_destroy(element);
-	MAP_END_EACH
-	map_clear_free(&screen->elements);
+	BSTV_END_EACH
+	bstv_clear_free(&screen->elements);
 	FREE(screen);
 }
 
@@ -33,23 +33,23 @@ screen_destroy(struct screen_t* screen)
 void
 screen_add_element(struct screen_t* screen, struct element_t* element)
 {
-	map_insert(&screen->elements, element->base.element.id, element);
+	bstv_insert(&screen->elements, element->base.element.id, element);
 }
 
 /* ------------------------------------------------------------------------- */
 void
 screen_show(struct screen_t* screen)
 {
-	MAP_FOR_EACH(&screen->elements, struct element_t, id, elem)
+	BSTV_FOR_EACH(&screen->elements, struct element_t, id, elem)
 		element_show(elem);
-	MAP_END_EACH
+	BSTV_END_EACH
 }
 
 /* ------------------------------------------------------------------------- */
 void
 screen_hide(struct screen_t* screen)
 {
-	MAP_FOR_EACH(&screen->elements, struct element_t, id, elem)
+	BSTV_FOR_EACH(&screen->elements, struct element_t, id, elem)
 		element_hide(elem);
-	MAP_END_EACH
+	BSTV_END_EACH
 }

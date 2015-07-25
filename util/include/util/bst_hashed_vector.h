@@ -206,7 +206,7 @@ bsthv_clear_free(struct bsthv_t* bsthv);
 		const char* key_v; \
 		for(; vc_##var_v && \
 			((key_v = (vc_##var_v)->key) || 1) && \
-			((var_v = (vc_##var_v)->value) || 1); \
+			((var_v = (var_t*)(vc_##var_v)->value) || 1); \
 		    vc_##var_v = (vc_##var_v)->next) {
 
 /*!

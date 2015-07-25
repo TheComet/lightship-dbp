@@ -175,22 +175,6 @@ yaml_get_node(const struct ptree_t* node, const char* key)
 }
 
 /* ------------------------------------------------------------------------- */
-uint32_t
-yaml_get_hash(const struct ptree_t* node)
-{
-	assert(node);
-
-	/*
-	 * The hash isn't stored in the node itself, but in the map of the parent
-	 * node.
-	 */
-	if(!node->parent)
-		return 0;
-
-	return map_find_element(&node->parent->children, node);
-}
-
-/* ------------------------------------------------------------------------- */
 struct ptree_t*
 yaml_set_value(struct ptree_t* doc, const char* key, const char* value)
 {
@@ -204,7 +188,7 @@ yaml_set_value(struct ptree_t* doc, const char* key, const char* value)
 		if(!(value_cpy = malloc_string(value)))
 			return NULL;
 
-	if(!(node = ptree_add_node(doc, key, value_cpy)))
+	if(!(node = ptree_set(doc, key, value_cpy)))
 	{
 		if(value_cpy)
 			free_string(value_cpy);
@@ -249,7 +233,7 @@ yaml_free_node_value_func(char* value)
 char
 yaml_remove_value(struct ptree_t* doc, const char* key)
 {
-	return ptree_remove_node(doc, key);
+	return ptree_remove(doc, key);
 }
 
 /* ------------------------------------------------------------------------- */

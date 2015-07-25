@@ -62,7 +62,7 @@ TEST(NAME, init)
 
     ptree_init_ptree(&tree, &a);
 
-    EXPECT_THAT(tree.children.vector.element_size, Eq(sizeof(struct map_key_value_t)));
+    EXPECT_THAT(tree.children.vector.element_size, Eq(sizeof(struct bsthv_key_value_t)));
     EXPECT_THAT(tree.children.vector.capacity, Eq(0));
     EXPECT_THAT(tree.children.vector.count, Eq(0));
     EXPECT_THAT(tree.children.vector.data, IsNull());
@@ -105,41 +105,32 @@ TEST(NAME, add_node_no_fill_in)
     // |_node6      (null)
     // |_node7      (f)
     struct ptree_t* tree  = ptree_create(&a);
-    struct ptree_t* node1 = ptree_add_node(tree,  "node1", &b);
-    struct ptree_t* node2 = ptree_add_node(node1, "node2", NULL);
-    struct ptree_t* node3 = ptree_add_node(node1, "node3", &c);
-    struct ptree_t* node4 = ptree_add_node(node3, "node4", &d);
-    struct ptree_t* node5 = ptree_add_node(node1, "node5", &e);
-    struct ptree_t* node6 = ptree_add_node(tree,  "node6", NULL);
-    struct ptree_t* node7 = ptree_add_node(tree,  "node7", &f);
-
-    uint32_t root_hash  = PTREE_HASH_STRING("root");
-    uint32_t node1_hash = PTREE_HASH_STRING("node1");
-    uint32_t node2_hash = PTREE_HASH_STRING("node2");
-    uint32_t node3_hash = PTREE_HASH_STRING("node3");
-    uint32_t node4_hash = PTREE_HASH_STRING("node4");
-    uint32_t node5_hash = PTREE_HASH_STRING("node5");
-    uint32_t node6_hash = PTREE_HASH_STRING("node6");
-    uint32_t node7_hash = PTREE_HASH_STRING("node7");
+    struct ptree_t* node1 = ptree_set(tree,  "node1", &b);
+    struct ptree_t* node2 = ptree_set(node1, "node2", NULL);
+    struct ptree_t* node3 = ptree_set(node1, "node3", &c);
+    struct ptree_t* node4 = ptree_set(node3, "node4", &d);
+    struct ptree_t* node5 = ptree_set(node1, "node5", &e);
+    struct ptree_t* node6 = ptree_set(tree,  "node6", NULL);
+    struct ptree_t* node7 = ptree_set(tree,  "node7", &f);
 
     // check container sizes
-    EXPECT_THAT(map_count(&tree->children),  Eq(3));
-    EXPECT_THAT(map_count(&node1->children), Eq(3));
-    EXPECT_THAT(map_count(&node2->children), Eq(0));
-    EXPECT_THAT(map_count(&node3->children), Eq(1));
-    EXPECT_THAT(map_count(&node4->children), Eq(0));
-    EXPECT_THAT(map_count(&node5->children), Eq(0));
-    EXPECT_THAT(map_count(&node6->children), Eq(0));
-    EXPECT_THAT(map_count(&node7->children), Eq(0));
+    EXPECT_THAT(bsthv_count(&tree->children),  Eq(3));
+    EXPECT_THAT(bsthv_count(&node1->children), Eq(3));
+    EXPECT_THAT(bsthv_count(&node2->children), Eq(0));
+    EXPECT_THAT(bsthv_count(&node3->children), Eq(1));
+    EXPECT_THAT(bsthv_count(&node4->children), Eq(0));
+    EXPECT_THAT(bsthv_count(&node5->children), Eq(0));
+    EXPECT_THAT(bsthv_count(&node6->children), Eq(0));
+    EXPECT_THAT(bsthv_count(&node7->children), Eq(0));
 
     // check structure
-    EXPECT_THAT((struct ptree_t*)map_find(&tree->children,  node1_hash), Eq(node1));
-    EXPECT_THAT((struct ptree_t*)map_find(&node1->children, node2_hash), Eq(node2));
-    EXPECT_THAT((struct ptree_t*)map_find(&node1->children, node3_hash), Eq(node3));
-    EXPECT_THAT((struct ptree_t*)map_find(&node3->children, node4_hash), Eq(node4));
-    EXPECT_THAT((struct ptree_t*)map_find(&node1->children, node5_hash), Eq(node5));
-    EXPECT_THAT((struct ptree_t*)map_find(&tree->children,  node6_hash), Eq(node6));
-    EXPECT_THAT((struct ptree_t*)map_find(&tree->children,  node7_hash), Eq(node7));
+    EXPECT_THAT((struct ptree_t*)bsthv_find(&tree->children,  "node1"), Eq(node1));
+    EXPECT_THAT((struct ptree_t*)bsthv_find(&node1->children, "node2"), Eq(node2));
+    EXPECT_THAT((struct ptree_t*)bsthv_find(&node1->children, "node3"), Eq(node3));
+    EXPECT_THAT((struct ptree_t*)bsthv_find(&node3->children, "node4"), Eq(node4));
+    EXPECT_THAT((struct ptree_t*)bsthv_find(&node1->children, "node5"), Eq(node5));
+    EXPECT_THAT((struct ptree_t*)bsthv_find(&tree->children,  "node6"), Eq(node6));
+    EXPECT_THAT((struct ptree_t*)bsthv_find(&tree->children,  "node7"), Eq(node7));
 
     // check parents
     EXPECT_THAT(tree->parent, IsNull());
@@ -177,44 +168,35 @@ TEST(NAME, add_node_fill_in_missing_middle_nodes)
     // |_node6      (null)
     // |_node7      (f)
     struct ptree_t* tree  = ptree_create(&a);
-    struct ptree_t* node4 = ptree_add_node(tree, "node1.node3.node4", &d);
-    struct ptree_t* node2 = ptree_add_node(tree, "node1.node2", &c);
-    struct ptree_t* node5 = ptree_add_node(tree, "node1.node5", &e);
-    struct ptree_t* node6 = ptree_add_node(tree, "node6", NULL);
-    struct ptree_t* node7 = ptree_add_node(tree, "node7", &f);
+    struct ptree_t* node4 = ptree_set(tree, "node1.node3.node4", &d);
+    struct ptree_t* node2 = ptree_set(tree, "node1.node2", &c);
+    struct ptree_t* node5 = ptree_set(tree, "node1.node5", &e);
+    struct ptree_t* node6 = ptree_set(tree, "node6", NULL);
+    struct ptree_t* node7 = ptree_set(tree, "node7", &f);
 
     /* set values of filled in middle nodes */
     struct ptree_t* node1 = ptree_get_node(tree, "node1");
     struct ptree_t* node3 = ptree_get_node(tree, "node1.node3");
     node1->value = &b;
 
-    uint32_t root_hash  = PTREE_HASH_STRING("root");
-    uint32_t node1_hash = PTREE_HASH_STRING("node1");
-    uint32_t node2_hash = PTREE_HASH_STRING("node2");
-    uint32_t node3_hash = PTREE_HASH_STRING("node3");
-    uint32_t node4_hash = PTREE_HASH_STRING("node4");
-    uint32_t node5_hash = PTREE_HASH_STRING("node5");
-    uint32_t node6_hash = PTREE_HASH_STRING("node6");
-    uint32_t node7_hash = PTREE_HASH_STRING("node7");
-
     // check container sizes
-    EXPECT_THAT(map_count(&tree->children),  Eq(3));
-    EXPECT_THAT(map_count(&node1->children), Eq(3));
-    EXPECT_THAT(map_count(&node2->children), Eq(0));
-    EXPECT_THAT(map_count(&node3->children), Eq(1));
-    EXPECT_THAT(map_count(&node4->children), Eq(0));
-    EXPECT_THAT(map_count(&node5->children), Eq(0));
-    EXPECT_THAT(map_count(&node6->children), Eq(0));
-    EXPECT_THAT(map_count(&node7->children), Eq(0));
+    EXPECT_THAT(bsthv_count(&tree->children),  Eq(3));
+    EXPECT_THAT(bsthv_count(&node1->children), Eq(3));
+    EXPECT_THAT(bsthv_count(&node2->children), Eq(0));
+    EXPECT_THAT(bsthv_count(&node3->children), Eq(1));
+    EXPECT_THAT(bsthv_count(&node4->children), Eq(0));
+    EXPECT_THAT(bsthv_count(&node5->children), Eq(0));
+    EXPECT_THAT(bsthv_count(&node6->children), Eq(0));
+    EXPECT_THAT(bsthv_count(&node7->children), Eq(0));
 
     // check structure
-    EXPECT_THAT((struct ptree_t*)map_find(&tree->children,  node1_hash), Eq(node1));
-    EXPECT_THAT((struct ptree_t*)map_find(&node1->children, node2_hash), Eq(node2));
-    EXPECT_THAT((struct ptree_t*)map_find(&node1->children, node3_hash), Eq(node3));
-    EXPECT_THAT((struct ptree_t*)map_find(&node3->children, node4_hash), Eq(node4));
-    EXPECT_THAT((struct ptree_t*)map_find(&node1->children, node5_hash), Eq(node5));
-    EXPECT_THAT((struct ptree_t*)map_find(&tree->children,  node6_hash), Eq(node6));
-    EXPECT_THAT((struct ptree_t*)map_find(&tree->children,  node7_hash), Eq(node7));
+    EXPECT_THAT((struct ptree_t*)bsthv_find(&tree->children,  "node1"), Eq(node1));
+    EXPECT_THAT((struct ptree_t*)bsthv_find(&node1->children, "node2"), Eq(node2));
+    EXPECT_THAT((struct ptree_t*)bsthv_find(&node1->children, "node3"), Eq(node3));
+    EXPECT_THAT((struct ptree_t*)bsthv_find(&node3->children, "node4"), Eq(node4));
+    EXPECT_THAT((struct ptree_t*)bsthv_find(&node1->children, "node5"), Eq(node5));
+    EXPECT_THAT((struct ptree_t*)bsthv_find(&tree->children,  "node6"), Eq(node6));
+    EXPECT_THAT((struct ptree_t*)bsthv_find(&tree->children,  "node7"), Eq(node7));
 
     // check parents
     EXPECT_THAT(tree->parent, IsNull());
@@ -252,38 +234,31 @@ TEST(NAME, clean_tree)
     // |_node6      (null)
     // |_node7      (f)
     struct ptree_t* tree  = ptree_create(&a);
-    struct ptree_t* node1 = ptree_add_node(tree,  "node1", &b);
-    struct ptree_t* node2 = ptree_add_node(node1, "node2", NULL);
-    struct ptree_t* node3 = ptree_add_node(node1, "node3", &c);
-    struct ptree_t* node4 = ptree_add_node(node3, "node4", &d);
-    struct ptree_t* node5 = ptree_add_node(node1, "node5", &e);
-    struct ptree_t* node6 = ptree_add_node(tree,  "node6", NULL);
-    struct ptree_t* node7 = ptree_add_node(tree,  "node7", &f);
+    struct ptree_t* node1 = ptree_set(tree,  "node1", &b);
+    struct ptree_t* node2 = ptree_set(node1, "node2", NULL);
+    struct ptree_t* node3 = ptree_set(node1, "node3", &c);
+    struct ptree_t* node4 = ptree_set(node3, "node4", &d);
+    struct ptree_t* node5 = ptree_set(node1, "node5", &e);
+    struct ptree_t* node6 = ptree_set(tree,  "node6", NULL);
+    struct ptree_t* node7 = ptree_set(tree,  "node7", &f);
 
     // should return that 2 nodes were cleaned
     ASSERT_THAT(ptree_clean(tree), Eq(2));
 
-    uint32_t root_hash  = PTREE_HASH_STRING("root");
-    uint32_t node1_hash = PTREE_HASH_STRING("node1");
-    uint32_t node3_hash = PTREE_HASH_STRING("node3");
-    uint32_t node4_hash = PTREE_HASH_STRING("node4");
-    uint32_t node5_hash = PTREE_HASH_STRING("node5");
-    uint32_t node7_hash = PTREE_HASH_STRING("node7");
-
     // check container sizes
-    EXPECT_THAT(map_count(&tree->children),  Eq(2));
-    EXPECT_THAT(map_count(&node1->children), Eq(2));
-    EXPECT_THAT(map_count(&node3->children), Eq(1));
-    EXPECT_THAT(map_count(&node4->children), Eq(0));
-    EXPECT_THAT(map_count(&node5->children), Eq(0));
-    EXPECT_THAT(map_count(&node7->children), Eq(0));
+    EXPECT_THAT(bsthv_count(&tree->children),  Eq(2));
+    EXPECT_THAT(bsthv_count(&node1->children), Eq(2));
+    EXPECT_THAT(bsthv_count(&node3->children), Eq(1));
+    EXPECT_THAT(bsthv_count(&node4->children), Eq(0));
+    EXPECT_THAT(bsthv_count(&node5->children), Eq(0));
+    EXPECT_THAT(bsthv_count(&node7->children), Eq(0));
 
     // check structure
-    EXPECT_THAT((struct ptree_t*)map_find(&tree->children,  node1_hash), Eq(node1));
-    EXPECT_THAT((struct ptree_t*)map_find(&node1->children, node3_hash), Eq(node3));
-    EXPECT_THAT((struct ptree_t*)map_find(&node3->children, node4_hash), Eq(node4));
-    EXPECT_THAT((struct ptree_t*)map_find(&node1->children, node5_hash), Eq(node5));
-    EXPECT_THAT((struct ptree_t*)map_find(&tree->children,  node7_hash), Eq(node7));
+    EXPECT_THAT((struct ptree_t*)bsthv_find(&tree->children,  "node1"), Eq(node1));
+    EXPECT_THAT((struct ptree_t*)bsthv_find(&node1->children, "node3"), Eq(node3));
+    EXPECT_THAT((struct ptree_t*)bsthv_find(&node3->children, "node4"), Eq(node4));
+    EXPECT_THAT((struct ptree_t*)bsthv_find(&node1->children, "node5"), Eq(node5));
+    EXPECT_THAT((struct ptree_t*)bsthv_find(&tree->children,  "node7"), Eq(node7));
 
     // check parents
     EXPECT_THAT(tree->parent, IsNull());
@@ -307,10 +282,10 @@ TEST(NAME, clean_tree)
 TEST(NAME, clean_tree_middle_nodes)
 {
     struct ptree_t* tree = ptree_create(NULL);
-    ptree_add_node(tree, "node1.node2.node3.node4", NULL);
+    ptree_set(tree, "node1.node2.node3.node4", NULL);
     ptree_clean(tree);
 
-    EXPECT_THAT(map_count(&tree->children), Eq(0));
+    EXPECT_THAT(bsthv_count(&tree->children), Eq(0));
 
     ptree_destroy(tree);
 }
@@ -319,9 +294,9 @@ TEST(NAME, dont_allow_duplicate_keys_in_same_node)
 {
     struct ptree_t* tree = ptree_create(NULL);
 
-    EXPECT_THAT(ptree_add_node(tree, "node", NULL), NotNull());
-    EXPECT_THAT(ptree_add_node(tree, "node", NULL), IsNull());
-    EXPECT_THAT(map_count(&tree->children), Eq(1));
+    EXPECT_THAT(ptree_set(tree, "node", NULL), NotNull());
+    EXPECT_THAT(ptree_set(tree, "node", NULL), IsNull());
+    EXPECT_THAT(bsthv_count(&tree->children), Eq(1));
 
     ptree_destroy(tree);
 }
@@ -330,9 +305,9 @@ TEST(NAME, dont_allow_duplicate_keys_with_fill_in)
 {
     struct ptree_t* tree = ptree_create(NULL);
 
-    EXPECT_THAT(ptree_add_node(tree, "node.node.node", NULL), NotNull());
-    EXPECT_THAT(ptree_add_node(tree, "node.node.node", NULL), IsNull());
-    EXPECT_THAT(map_count(&tree->children), Eq(1));
+    EXPECT_THAT(ptree_set(tree, "node.node.node", NULL), NotNull());
+    EXPECT_THAT(ptree_set(tree, "node.node.node", NULL), IsNull());
+    EXPECT_THAT(bsthv_count(&tree->children), Eq(1));
 
     ptree_destroy(tree);
 }
@@ -342,11 +317,11 @@ TEST(NAME, remove_node_and_clean_up_tree)
     int a = 6;
 
     struct ptree_t* tree  = ptree_create(NULL);
-    struct ptree_t* node1 = ptree_add_node(tree, "node1.node2.node3.node4", &a);
+    struct ptree_t* node1 = ptree_set(tree, "node1.node2.node3.node4", &a);
 
-    ptree_remove_node(tree, "node1.node2.node3.node4");
+    ptree_remove(tree, "node1.node2.node3.node4");
 
-    EXPECT_THAT(map_count(&tree->children), Eq(0));
+    EXPECT_THAT(bsthv_count(&tree->children), Eq(0));
 
     ptree_destroy(tree);
 }
@@ -383,13 +358,13 @@ TEST(NAME, recursively_destroy_tree_and_free_values)
     // |_node6      (null)
     // |_node7      (f)
     struct ptree_t* tree  = ptree_create(&a);
-    struct ptree_t* node1 = ptree_add_node(tree,  "node1", &b);
-    struct ptree_t* node2 = ptree_add_node(node1, "node2", NULL);
-    struct ptree_t* node3 = ptree_add_node(node1, "node3", &c);
-    struct ptree_t* node4 = ptree_add_node(node3, "node4", &d);
-    struct ptree_t* node5 = ptree_add_node(node1, "node5", &e);
-    struct ptree_t* node6 = ptree_add_node(tree,  "node6", NULL);
-    struct ptree_t* node7 = ptree_add_node(tree,  "node7", &f);
+    struct ptree_t* node1 = ptree_set(tree,  "node1", &b);
+    struct ptree_t* node2 = ptree_set(node1, "node2", NULL);
+    struct ptree_t* node3 = ptree_set(node1, "node3", &c);
+    struct ptree_t* node4 = ptree_set(node3, "node4", &d);
+    struct ptree_t* node5 = ptree_set(node1, "node5", &e);
+    struct ptree_t* node6 = ptree_set(tree,  "node6", NULL);
+    struct ptree_t* node7 = ptree_set(tree,  "node7", &f);
 
     ptree_set_free_func(tree,  (ptree_free_func)mock_fake_delete_tree_item);
     ptree_set_free_func(node1, (ptree_free_func)mock_fake_delete_tree_item);
@@ -436,13 +411,13 @@ TEST(NAME, recursively_destroy_tree_and_free_values_with_missing_free_functions)
     // |_node6      (null)
     // |_node7      (f)
     struct ptree_t* tree  = ptree_create(&a);
-    struct ptree_t* node1 = ptree_add_node(tree,  "node1", &b);
-    struct ptree_t* node2 = ptree_add_node(node1, "node2", NULL);
-    struct ptree_t* node3 = ptree_add_node(node1, "node3", &c);
-    struct ptree_t* node4 = ptree_add_node(node3, "node4", &d);
-    struct ptree_t* node5 = ptree_add_node(node1, "node5", &e);
-    struct ptree_t* node6 = ptree_add_node(tree,  "node6", NULL);
-    struct ptree_t* node7 = ptree_add_node(tree,  "node7", &f);
+    struct ptree_t* node1 = ptree_set(tree,  "node1", &b);
+    struct ptree_t* node2 = ptree_set(node1, "node2", NULL);
+    struct ptree_t* node3 = ptree_set(node1, "node3", &c);
+    struct ptree_t* node4 = ptree_set(node3, "node4", &d);
+    struct ptree_t* node5 = ptree_set(node1, "node5", &e);
+    struct ptree_t* node6 = ptree_set(tree,  "node6", NULL);
+    struct ptree_t* node7 = ptree_set(tree,  "node7", &f);
 
     ptree_set_free_func(tree,  (ptree_free_func)mock_fake_delete_tree_item);
     ptree_set_free_func(node1, (ptree_free_func)mock_fake_delete_tree_item);
@@ -489,22 +464,13 @@ TEST(NAME, recursively_destroy_node)
     // |_node6      (null)
     // |_node7      (f)
     struct ptree_t* tree  = ptree_create(&a);
-    struct ptree_t* node1 = ptree_add_node(tree,  "node1", &b);
-    struct ptree_t* node2 = ptree_add_node(node1, "node2", NULL);
-    struct ptree_t* node3 = ptree_add_node(node1, "node3", &c);
-    struct ptree_t* node4 = ptree_add_node(node3, "node4", &d);
-    struct ptree_t* node5 = ptree_add_node(node1, "node5", &e);
-    struct ptree_t* node6 = ptree_add_node(tree,  "node6", NULL);
-    struct ptree_t* node7 = ptree_add_node(tree,  "node7", &f);
-
-    uint32_t root_hash  = PTREE_HASH_STRING("root");
-    uint32_t node1_hash = PTREE_HASH_STRING("node1");
-    uint32_t node2_hash = PTREE_HASH_STRING("node2");
-    uint32_t node3_hash = PTREE_HASH_STRING("node3");
-    uint32_t node4_hash = PTREE_HASH_STRING("node4");
-    uint32_t node5_hash = PTREE_HASH_STRING("node5");
-    uint32_t node6_hash = PTREE_HASH_STRING("node6");
-    uint32_t node7_hash = PTREE_HASH_STRING("node7");
+    struct ptree_t* node1 = ptree_set(tree,  "node1", &b);
+    struct ptree_t* node2 = ptree_set(node1, "node2", NULL);
+    struct ptree_t* node3 = ptree_set(node1, "node3", &c);
+    struct ptree_t* node4 = ptree_set(node3, "node4", &d);
+    struct ptree_t* node5 = ptree_set(node1, "node5", &e);
+    struct ptree_t* node6 = ptree_set(tree,  "node6", NULL);
+    struct ptree_t* node7 = ptree_set(tree,  "node7", &f);
 
     ptree_set_free_func(node1, (ptree_free_func)mock_fake_delete_tree_item);
     ptree_set_free_func(node2, (ptree_free_func)mock_fake_delete_tree_item);
@@ -517,14 +483,14 @@ TEST(NAME, recursively_destroy_node)
     ptree_destroy(node1);
 
     // check container sizes of remaining nodes
-    EXPECT_THAT(map_count(&tree->children),  Eq(2));
-    EXPECT_THAT(map_count(&node6->children), Eq(0));
-    EXPECT_THAT(map_count(&node7->children), Eq(0));
+    EXPECT_THAT(bsthv_count(&tree->children),  Eq(2));
+    EXPECT_THAT(bsthv_count(&node6->children), Eq(0));
+    EXPECT_THAT(bsthv_count(&node7->children), Eq(0));
 
     // check structure
-    EXPECT_THAT((struct ptree_t*)map_find(&tree->children,  node1_hash), IsNull());
-    EXPECT_THAT((struct ptree_t*)map_find(&tree->children,  node6_hash), Eq(node6));
-    EXPECT_THAT((struct ptree_t*)map_find(&tree->children,  node7_hash), Eq(node7));
+    EXPECT_THAT((struct ptree_t*)bsthv_find(&tree->children,  "node1"), IsNull());
+    EXPECT_THAT((struct ptree_t*)bsthv_find(&tree->children,  "node6"), Eq(node6));
+    EXPECT_THAT((struct ptree_t*)bsthv_find(&tree->children,  "node7"), Eq(node7));
 
     // check parents
     EXPECT_THAT(tree->parent, IsNull());
@@ -608,13 +574,13 @@ TEST(NAME, duplicate_tree)
     // |_node6      (null)
     // |_node7      (f)
     struct ptree_t* tree  = ptree_create(a);
-    struct ptree_t* node1 = ptree_add_node(tree,  "node1", b);
-    struct ptree_t* node2 = ptree_add_node(node1, "node2", NULL);
-    struct ptree_t* node3 = ptree_add_node(node1, "node3", c);
-    struct ptree_t* node4 = ptree_add_node(node3, "node4", d);
-    struct ptree_t* node5 = ptree_add_node(node1, "node5", e);
-    struct ptree_t* node6 = ptree_add_node(tree,  "node6", NULL);
-    struct ptree_t* node7 = ptree_add_node(tree,  "node7", f);
+    struct ptree_t* node1 = ptree_set(tree,  "node1", b);
+    struct ptree_t* node2 = ptree_set(node1, "node2", NULL);
+    struct ptree_t* node3 = ptree_set(node1, "node3", c);
+    struct ptree_t* node4 = ptree_set(node3, "node4", d);
+    struct ptree_t* node5 = ptree_set(node1, "node5", e);
+    struct ptree_t* node6 = ptree_set(tree,  "node6", NULL);
+    struct ptree_t* node7 = ptree_set(tree,  "node7", f);
 
     ptree_set_free_func(tree,  (ptree_free_func)mock_free_tree_item);
     ptree_set_free_func(node1, (ptree_free_func)mock_free_tree_item);
@@ -640,15 +606,6 @@ TEST(NAME, duplicate_tree)
     struct ptree_t* dnode6 = ptree_get_node_no_depth(dup, "node6");
     struct ptree_t* dnode7 = ptree_get_node_no_depth(dup, "node7");
 
-    uint32_t root_hash  = PTREE_HASH_STRING("root");
-    uint32_t node1_hash = PTREE_HASH_STRING("node1");
-    uint32_t node2_hash = PTREE_HASH_STRING("node2");
-    uint32_t node3_hash = PTREE_HASH_STRING("node3");
-    uint32_t node4_hash = PTREE_HASH_STRING("node4");
-    uint32_t node5_hash = PTREE_HASH_STRING("node5");
-    uint32_t node6_hash = PTREE_HASH_STRING("node6");
-    uint32_t node7_hash = PTREE_HASH_STRING("node7");
-
     // make sure all nodes were copied
     EXPECT_THAT(dup, NotNull());
     EXPECT_THAT(dnode1, NotNull());
@@ -660,23 +617,23 @@ TEST(NAME, duplicate_tree)
     EXPECT_THAT(dnode7, NotNull());
 
     // check container sizes
-    EXPECT_THAT(map_count(&dup->children),  Eq(3));
-    EXPECT_THAT(map_count(&dnode1->children), Eq(3));
-    EXPECT_THAT(map_count(&dnode2->children), Eq(0));
-    EXPECT_THAT(map_count(&dnode3->children), Eq(1));
-    EXPECT_THAT(map_count(&dnode4->children), Eq(0));
-    EXPECT_THAT(map_count(&dnode5->children), Eq(0));
-    EXPECT_THAT(map_count(&dnode6->children), Eq(0));
-    EXPECT_THAT(map_count(&dnode7->children), Eq(0));
+    EXPECT_THAT(bsthv_count(&dup->children),  Eq(3));
+    EXPECT_THAT(bsthv_count(&dnode1->children), Eq(3));
+    EXPECT_THAT(bsthv_count(&dnode2->children), Eq(0));
+    EXPECT_THAT(bsthv_count(&dnode3->children), Eq(1));
+    EXPECT_THAT(bsthv_count(&dnode4->children), Eq(0));
+    EXPECT_THAT(bsthv_count(&dnode5->children), Eq(0));
+    EXPECT_THAT(bsthv_count(&dnode6->children), Eq(0));
+    EXPECT_THAT(bsthv_count(&dnode7->children), Eq(0));
 
     // check structure
-    EXPECT_THAT((struct ptree_t*)map_find(&dup->children,  node1_hash), Eq(dnode1));
-    EXPECT_THAT((struct ptree_t*)map_find(&dnode1->children, node2_hash), Eq(dnode2));
-    EXPECT_THAT((struct ptree_t*)map_find(&dnode1->children, node3_hash), Eq(dnode3));
-    EXPECT_THAT((struct ptree_t*)map_find(&dnode3->children, node4_hash), Eq(dnode4));
-    EXPECT_THAT((struct ptree_t*)map_find(&dnode1->children, node5_hash), Eq(dnode5));
-    EXPECT_THAT((struct ptree_t*)map_find(&dup->children,  node6_hash), Eq(dnode6));
-    EXPECT_THAT((struct ptree_t*)map_find(&dup->children,  node7_hash), Eq(dnode7));
+    EXPECT_THAT((struct ptree_t*)bsthv_find(&dup->children,  "node1"), Eq(dnode1));
+    EXPECT_THAT((struct ptree_t*)bsthv_find(&dnode1->children, "node2"), Eq(dnode2));
+    EXPECT_THAT((struct ptree_t*)bsthv_find(&dnode1->children, "node3"), Eq(dnode3));
+    EXPECT_THAT((struct ptree_t*)bsthv_find(&dnode3->children, "node4"), Eq(dnode4));
+    EXPECT_THAT((struct ptree_t*)bsthv_find(&dnode1->children, "node5"), Eq(dnode5));
+    EXPECT_THAT((struct ptree_t*)bsthv_find(&dup->children,  "node6"), Eq(dnode6));
+    EXPECT_THAT((struct ptree_t*)bsthv_find(&dup->children,  "node7"), Eq(dnode7));
 
     // make sure none of the nodes are the same as the original tree
     EXPECT_THAT(dup, Ne(tree));
@@ -737,13 +694,13 @@ TEST(NAME, duplicate_tree_node)
     // |_node6      (null)
     // |_node7      (f)
     struct ptree_t* tree  = ptree_create(a);
-    struct ptree_t* node1 = ptree_add_node(tree,  "node1", b);
-    struct ptree_t* node2 = ptree_add_node(node1, "node2", NULL);
-    struct ptree_t* node3 = ptree_add_node(node1, "node3", c);
-    struct ptree_t* node4 = ptree_add_node(node3, "node4", d);
-    struct ptree_t* node5 = ptree_add_node(node1, "node5", e);
-    struct ptree_t* node6 = ptree_add_node(tree,  "node6", NULL);
-    struct ptree_t* node7 = ptree_add_node(tree,  "node7", f);
+    struct ptree_t* node1 = ptree_set(tree,  "node1", b);
+    struct ptree_t* node2 = ptree_set(node1, "node2", NULL);
+    struct ptree_t* node3 = ptree_set(node1, "node3", c);
+    struct ptree_t* node4 = ptree_set(node3, "node4", d);
+    struct ptree_t* node5 = ptree_set(node1, "node5", e);
+    struct ptree_t* node6 = ptree_set(tree,  "node6", NULL);
+    struct ptree_t* node7 = ptree_set(tree,  "node7", f);
 
     ptree_set_free_func(tree,  (ptree_free_func)mock_free_tree_item);
     ptree_set_free_func(node1, (ptree_free_func)mock_free_tree_item);
@@ -766,12 +723,6 @@ TEST(NAME, duplicate_tree_node)
     struct ptree_t* dnode4 = ptree_get_node_no_depth(dnode3, "node4");
     struct ptree_t* dnode5 = ptree_get_node_no_depth(dnode1, "node5");
 
-    uint32_t node1_hash = PTREE_HASH_STRING("node1");
-    uint32_t node2_hash = PTREE_HASH_STRING("node2");
-    uint32_t node3_hash = PTREE_HASH_STRING("node3");
-    uint32_t node4_hash = PTREE_HASH_STRING("node4");
-    uint32_t node5_hash = PTREE_HASH_STRING("node5");
-
     // make sure all nodes were copied
     EXPECT_THAT(dnode1, NotNull());
     EXPECT_THAT(dnode2, NotNull());
@@ -780,17 +731,17 @@ TEST(NAME, duplicate_tree_node)
     EXPECT_THAT(dnode5, NotNull());
 
     // check container sizes
-    EXPECT_THAT(map_count(&dnode1->children), Eq(3));
-    EXPECT_THAT(map_count(&dnode2->children), Eq(0));
-    EXPECT_THAT(map_count(&dnode3->children), Eq(1));
-    EXPECT_THAT(map_count(&dnode4->children), Eq(0));
-    EXPECT_THAT(map_count(&dnode5->children), Eq(0));
+    EXPECT_THAT(bsthv_count(&dnode1->children), Eq(3));
+    EXPECT_THAT(bsthv_count(&dnode2->children), Eq(0));
+    EXPECT_THAT(bsthv_count(&dnode3->children), Eq(1));
+    EXPECT_THAT(bsthv_count(&dnode4->children), Eq(0));
+    EXPECT_THAT(bsthv_count(&dnode5->children), Eq(0));
 
     // check structure
-    EXPECT_THAT((struct ptree_t*)map_find(&dnode1->children, node2_hash), Eq(dnode2));
-    EXPECT_THAT((struct ptree_t*)map_find(&dnode1->children, node3_hash), Eq(dnode3));
-    EXPECT_THAT((struct ptree_t*)map_find(&dnode3->children, node4_hash), Eq(dnode4));
-    EXPECT_THAT((struct ptree_t*)map_find(&dnode1->children, node5_hash), Eq(dnode5));
+    EXPECT_THAT((struct ptree_t*)bsthv_find(&dnode1->children, "node2"), Eq(dnode2));
+    EXPECT_THAT((struct ptree_t*)bsthv_find(&dnode1->children, "node3"), Eq(dnode3));
+    EXPECT_THAT((struct ptree_t*)bsthv_find(&dnode3->children, "node4"), Eq(dnode4));
+    EXPECT_THAT((struct ptree_t*)bsthv_find(&dnode1->children, "node5"), Eq(dnode5));
 
     // make sure none of the nodes are the same as the original tree
     EXPECT_THAT(node1, Ne(dnode1));
@@ -849,13 +800,13 @@ TEST(NAME, duplicate_tree_with_missing_dup_func_fails_and_cleans_up)
     // |_node6      (null)
     // |_node7      (f)
     struct ptree_t* tree  = ptree_create(a);
-    struct ptree_t* node1 = ptree_add_node(tree,  "node1", b);
-    struct ptree_t* node2 = ptree_add_node(node1, "node2", NULL);
-    struct ptree_t* node3 = ptree_add_node(node1, "node3", c);
-    struct ptree_t* node4 = ptree_add_node(node3, "node4", d);
-    struct ptree_t* node5 = ptree_add_node(node1, "node5", e);
-    struct ptree_t* node6 = ptree_add_node(tree,  "node6", NULL);
-    struct ptree_t* node7 = ptree_add_node(tree,  "node7", f);
+    struct ptree_t* node1 = ptree_set(tree,  "node1", b);
+    struct ptree_t* node2 = ptree_set(node1, "node2", NULL);
+    struct ptree_t* node3 = ptree_set(node1, "node3", c);
+    struct ptree_t* node4 = ptree_set(node3, "node4", d);
+    struct ptree_t* node5 = ptree_set(node1, "node5", e);
+    struct ptree_t* node6 = ptree_set(tree,  "node6", NULL);
+    struct ptree_t* node7 = ptree_set(tree,  "node7", f);
 
     ptree_set_free_func(tree,  (ptree_free_func)mock_free_tree_item_and_notify);
     ptree_set_free_func(node1, (ptree_free_func)mock_free_tree_item_and_notify);
@@ -910,13 +861,13 @@ TEST(NAME, duplicate_children_into_existing_empty_node)
     // |_node6      (null)
     // |_node7      (f)
     struct ptree_t* tree  = ptree_create(a);
-    struct ptree_t* node1 = ptree_add_node(tree,  "node1", b);
-    struct ptree_t* node2 = ptree_add_node(node1, "node2", NULL);
-    struct ptree_t* node3 = ptree_add_node(node1, "node3", c);
-    struct ptree_t* node4 = ptree_add_node(node3, "node4", d);
-    struct ptree_t* node5 = ptree_add_node(node1, "node5", e);
-    struct ptree_t* node6 = ptree_add_node(tree,  "node6", NULL);
-    struct ptree_t* node7 = ptree_add_node(tree,  "node7", f);
+    struct ptree_t* node1 = ptree_set(tree,  "node1", b);
+    struct ptree_t* node2 = ptree_set(node1, "node2", NULL);
+    struct ptree_t* node3 = ptree_set(node1, "node3", c);
+    struct ptree_t* node4 = ptree_set(node3, "node4", d);
+    struct ptree_t* node5 = ptree_set(node1, "node5", e);
+    struct ptree_t* node6 = ptree_set(tree,  "node6", NULL);
+    struct ptree_t* node7 = ptree_set(tree,  "node7", f);
 
     ptree_set_free_func(tree,  (ptree_free_func)mock_free_tree_item);
     ptree_set_free_func(node1, (ptree_free_func)mock_free_tree_item);
@@ -959,15 +910,6 @@ TEST(NAME, duplicate_children_into_existing_empty_node)
     // |_node6              (null)
     // |_node7              (f)
 
-    uint32_t root_hash  = PTREE_HASH_STRING("root");
-    uint32_t node1_hash = PTREE_HASH_STRING("node1");
-    uint32_t node2_hash = PTREE_HASH_STRING("node2");
-    uint32_t node3_hash = PTREE_HASH_STRING("node3");
-    uint32_t node4_hash = PTREE_HASH_STRING("node4");
-    uint32_t node5_hash = PTREE_HASH_STRING("node5");
-    uint32_t node6_hash = PTREE_HASH_STRING("node6");
-    uint32_t node7_hash = PTREE_HASH_STRING("node7");
-
     // make sure all nodes were copied
     EXPECT_THAT(dnode1, NotNull());
     EXPECT_THAT(dnode2, NotNull());
@@ -978,37 +920,37 @@ TEST(NAME, duplicate_children_into_existing_empty_node)
     EXPECT_THAT(dnode7, NotNull());
 
     // check container sizes
-    EXPECT_THAT(map_count(&tree->children),  Eq(3));
-    EXPECT_THAT(map_count(&node1->children), Eq(3));
-    EXPECT_THAT(map_count(&node2->children), Eq(0));
-    EXPECT_THAT(map_count(&node3->children), Eq(1));
-    EXPECT_THAT(map_count(&node4->children), Eq(3));
-    EXPECT_THAT(map_count(&node5->children), Eq(0));
-    EXPECT_THAT(map_count(&node6->children), Eq(0));
-    EXPECT_THAT(map_count(&node7->children), Eq(0));
-    EXPECT_THAT(map_count(&dnode1->children), Eq(3));
-    EXPECT_THAT(map_count(&dnode2->children), Eq(0));
-    EXPECT_THAT(map_count(&dnode3->children), Eq(1));
-    EXPECT_THAT(map_count(&dnode4->children), Eq(0));
-    EXPECT_THAT(map_count(&dnode5->children), Eq(0));
-    EXPECT_THAT(map_count(&dnode6->children), Eq(0));
-    EXPECT_THAT(map_count(&dnode7->children), Eq(0));
+    EXPECT_THAT(bsthv_count(&tree->children),  Eq(3));
+    EXPECT_THAT(bsthv_count(&node1->children), Eq(3));
+    EXPECT_THAT(bsthv_count(&node2->children), Eq(0));
+    EXPECT_THAT(bsthv_count(&node3->children), Eq(1));
+    EXPECT_THAT(bsthv_count(&node4->children), Eq(3));
+    EXPECT_THAT(bsthv_count(&node5->children), Eq(0));
+    EXPECT_THAT(bsthv_count(&node6->children), Eq(0));
+    EXPECT_THAT(bsthv_count(&node7->children), Eq(0));
+    EXPECT_THAT(bsthv_count(&dnode1->children), Eq(3));
+    EXPECT_THAT(bsthv_count(&dnode2->children), Eq(0));
+    EXPECT_THAT(bsthv_count(&dnode3->children), Eq(1));
+    EXPECT_THAT(bsthv_count(&dnode4->children), Eq(0));
+    EXPECT_THAT(bsthv_count(&dnode5->children), Eq(0));
+    EXPECT_THAT(bsthv_count(&dnode6->children), Eq(0));
+    EXPECT_THAT(bsthv_count(&dnode7->children), Eq(0));
 
     // check structure
-    EXPECT_THAT((struct ptree_t*)map_find(&tree->children,  node1_hash), Eq(node1));
-    EXPECT_THAT((struct ptree_t*)map_find(&node1->children, node2_hash), Eq(node2));
-    EXPECT_THAT((struct ptree_t*)map_find(&node1->children, node3_hash), Eq(node3));
-    EXPECT_THAT((struct ptree_t*)map_find(&node3->children, node4_hash), Eq(node4));
-    EXPECT_THAT((struct ptree_t*)map_find(&node1->children, node5_hash), Eq(node5));
-    EXPECT_THAT((struct ptree_t*)map_find(&tree->children,  node6_hash), Eq(node6));
-    EXPECT_THAT((struct ptree_t*)map_find(&tree->children,  node7_hash), Eq(node7));
-    EXPECT_THAT((struct ptree_t*)map_find(&node4->children, node1_hash), Eq(dnode1));
-    EXPECT_THAT((struct ptree_t*)map_find(&dnode1->children, node2_hash), Eq(dnode2));
-    EXPECT_THAT((struct ptree_t*)map_find(&dnode1->children, node3_hash), Eq(dnode3));
-    EXPECT_THAT((struct ptree_t*)map_find(&dnode3->children, node4_hash), Eq(dnode4));
-    EXPECT_THAT((struct ptree_t*)map_find(&dnode1->children, node5_hash), Eq(dnode5));
-    EXPECT_THAT((struct ptree_t*)map_find(&node4->children, node6_hash), Eq(dnode6));
-    EXPECT_THAT((struct ptree_t*)map_find(&node4->children, node7_hash), Eq(dnode7));
+    EXPECT_THAT((struct ptree_t*)bsthv_find(&tree->children,  "node1"), Eq(node1));
+    EXPECT_THAT((struct ptree_t*)bsthv_find(&node1->children, "node2"), Eq(node2));
+    EXPECT_THAT((struct ptree_t*)bsthv_find(&node1->children, "node3"), Eq(node3));
+    EXPECT_THAT((struct ptree_t*)bsthv_find(&node3->children, "node4"), Eq(node4));
+    EXPECT_THAT((struct ptree_t*)bsthv_find(&node1->children, "node5"), Eq(node5));
+    EXPECT_THAT((struct ptree_t*)bsthv_find(&tree->children,  "node6"), Eq(node6));
+    EXPECT_THAT((struct ptree_t*)bsthv_find(&tree->children,  "node7"), Eq(node7));
+    EXPECT_THAT((struct ptree_t*)bsthv_find(&node4->children, "node1"), Eq(dnode1));
+    EXPECT_THAT((struct ptree_t*)bsthv_find(&dnode1->children, "node2"), Eq(dnode2));
+    EXPECT_THAT((struct ptree_t*)bsthv_find(&dnode1->children, "node3"), Eq(dnode3));
+    EXPECT_THAT((struct ptree_t*)bsthv_find(&dnode3->children, "node4"), Eq(dnode4));
+    EXPECT_THAT((struct ptree_t*)bsthv_find(&dnode1->children, "node5"), Eq(dnode5));
+    EXPECT_THAT((struct ptree_t*)bsthv_find(&node4->children, "node6"), Eq(dnode6));
+    EXPECT_THAT((struct ptree_t*)bsthv_find(&node4->children, "node7"), Eq(dnode7));
 
     // make sure none of the nodes are the same as the original tree
     EXPECT_THAT(node1, Ne(dnode1));
@@ -1081,13 +1023,13 @@ TEST(NAME, duplicate_tree_into_existing_node_with_children)
     // |_node6      (null)
     // |_node7      (f)
     struct ptree_t* tree  = ptree_create(a);
-    struct ptree_t* node1 = ptree_add_node(tree,  "node1", b);
-    struct ptree_t* node2 = ptree_add_node(node1, "node2", NULL);
-    struct ptree_t* node3 = ptree_add_node(node1, "node3", c);
-    struct ptree_t* node4 = ptree_add_node(node3, "node4", d);
-    struct ptree_t* node5 = ptree_add_node(node1, "node5", e);
-    struct ptree_t* node6 = ptree_add_node(tree,  "node6", NULL);
-    struct ptree_t* node7 = ptree_add_node(tree,  "node7", f);
+    struct ptree_t* node1 = ptree_set(tree,  "node1", b);
+    struct ptree_t* node2 = ptree_set(node1, "node2", NULL);
+    struct ptree_t* node3 = ptree_set(node1, "node3", c);
+    struct ptree_t* node4 = ptree_set(node3, "node4", d);
+    struct ptree_t* node5 = ptree_set(node1, "node5", e);
+    struct ptree_t* node6 = ptree_set(tree,  "node6", NULL);
+    struct ptree_t* node7 = ptree_set(tree,  "node7", f);
 
     ptree_set_free_func(tree,  (ptree_free_func)mock_free_tree_item);
     ptree_set_free_func(node1, (ptree_free_func)mock_free_tree_item);
@@ -1130,15 +1072,6 @@ TEST(NAME, duplicate_tree_into_existing_node_with_children)
     // |_node6              (null)
     // |_node7              (f)
 
-    uint32_t root_hash  = PTREE_HASH_STRING("root");
-    uint32_t node1_hash = PTREE_HASH_STRING("node1");
-    uint32_t node2_hash = PTREE_HASH_STRING("node2");
-    uint32_t node3_hash = PTREE_HASH_STRING("node3");
-    uint32_t node4_hash = PTREE_HASH_STRING("node4");
-    uint32_t node5_hash = PTREE_HASH_STRING("node5");
-    uint32_t node6_hash = PTREE_HASH_STRING("node6");
-    uint32_t node7_hash = PTREE_HASH_STRING("node7");
-
     // make sure all nodes were copied
     EXPECT_THAT(dnode1, NotNull());
     EXPECT_THAT(dnode2, NotNull());
@@ -1149,37 +1082,37 @@ TEST(NAME, duplicate_tree_into_existing_node_with_children)
     EXPECT_THAT(dnode7, NotNull());
 
     // check container sizes
-    EXPECT_THAT(map_count(&tree->children),  Eq(3));
-    EXPECT_THAT(map_count(&node1->children), Eq(6));
-    EXPECT_THAT(map_count(&node2->children), Eq(0));
-    EXPECT_THAT(map_count(&node3->children), Eq(1));
-    EXPECT_THAT(map_count(&node4->children), Eq(0));
-    EXPECT_THAT(map_count(&node5->children), Eq(0));
-    EXPECT_THAT(map_count(&node6->children), Eq(0));
-    EXPECT_THAT(map_count(&node7->children), Eq(0));
-    EXPECT_THAT(map_count(&dnode1->children), Eq(3));
-    EXPECT_THAT(map_count(&dnode2->children), Eq(0));
-    EXPECT_THAT(map_count(&dnode3->children), Eq(1));
-    EXPECT_THAT(map_count(&dnode4->children), Eq(0));
-    EXPECT_THAT(map_count(&dnode5->children), Eq(0));
-    EXPECT_THAT(map_count(&dnode6->children), Eq(0));
-    EXPECT_THAT(map_count(&dnode7->children), Eq(0));
+    EXPECT_THAT(bsthv_count(&tree->children),  Eq(3));
+    EXPECT_THAT(bsthv_count(&node1->children), Eq(6));
+    EXPECT_THAT(bsthv_count(&node2->children), Eq(0));
+    EXPECT_THAT(bsthv_count(&node3->children), Eq(1));
+    EXPECT_THAT(bsthv_count(&node4->children), Eq(0));
+    EXPECT_THAT(bsthv_count(&node5->children), Eq(0));
+    EXPECT_THAT(bsthv_count(&node6->children), Eq(0));
+    EXPECT_THAT(bsthv_count(&node7->children), Eq(0));
+    EXPECT_THAT(bsthv_count(&dnode1->children), Eq(3));
+    EXPECT_THAT(bsthv_count(&dnode2->children), Eq(0));
+    EXPECT_THAT(bsthv_count(&dnode3->children), Eq(1));
+    EXPECT_THAT(bsthv_count(&dnode4->children), Eq(0));
+    EXPECT_THAT(bsthv_count(&dnode5->children), Eq(0));
+    EXPECT_THAT(bsthv_count(&dnode6->children), Eq(0));
+    EXPECT_THAT(bsthv_count(&dnode7->children), Eq(0));
 
     // check structure
-    EXPECT_THAT((struct ptree_t*)map_find(&tree->children,  node1_hash), Eq(node1));
-    EXPECT_THAT((struct ptree_t*)map_find(&node1->children, node2_hash), Eq(node2));
-    EXPECT_THAT((struct ptree_t*)map_find(&node1->children, node3_hash), Eq(node3));
-    EXPECT_THAT((struct ptree_t*)map_find(&node3->children, node4_hash), Eq(node4));
-    EXPECT_THAT((struct ptree_t*)map_find(&node1->children, node5_hash), Eq(node5));
-    EXPECT_THAT((struct ptree_t*)map_find(&tree->children,  node6_hash), Eq(node6));
-    EXPECT_THAT((struct ptree_t*)map_find(&tree->children,  node7_hash), Eq(node7));
-    EXPECT_THAT((struct ptree_t*)map_find(&node1->children, node1_hash), Eq(dnode1));
-    EXPECT_THAT((struct ptree_t*)map_find(&dnode1->children, node2_hash), Eq(dnode2));
-    EXPECT_THAT((struct ptree_t*)map_find(&dnode1->children, node3_hash), Eq(dnode3));
-    EXPECT_THAT((struct ptree_t*)map_find(&dnode3->children, node4_hash), Eq(dnode4));
-    EXPECT_THAT((struct ptree_t*)map_find(&dnode1->children, node5_hash), Eq(dnode5));
-    EXPECT_THAT((struct ptree_t*)map_find(&node1->children, node6_hash), Eq(dnode6));
-    EXPECT_THAT((struct ptree_t*)map_find(&node1->children, node7_hash), Eq(dnode7));
+    EXPECT_THAT((struct ptree_t*)bsthv_find(&tree->children,  "node1"), Eq(node1));
+    EXPECT_THAT((struct ptree_t*)bsthv_find(&node1->children, "node2"), Eq(node2));
+    EXPECT_THAT((struct ptree_t*)bsthv_find(&node1->children, "node3"), Eq(node3));
+    EXPECT_THAT((struct ptree_t*)bsthv_find(&node3->children, "node4"), Eq(node4));
+    EXPECT_THAT((struct ptree_t*)bsthv_find(&node1->children, "node5"), Eq(node5));
+    EXPECT_THAT((struct ptree_t*)bsthv_find(&tree->children,  "node6"), Eq(node6));
+    EXPECT_THAT((struct ptree_t*)bsthv_find(&tree->children,  "node7"), Eq(node7));
+    EXPECT_THAT((struct ptree_t*)bsthv_find(&node1->children, "node1"), Eq(dnode1));
+    EXPECT_THAT((struct ptree_t*)bsthv_find(&dnode1->children, "node2"), Eq(dnode2));
+    EXPECT_THAT((struct ptree_t*)bsthv_find(&dnode1->children, "node3"), Eq(dnode3));
+    EXPECT_THAT((struct ptree_t*)bsthv_find(&dnode3->children, "node4"), Eq(dnode4));
+    EXPECT_THAT((struct ptree_t*)bsthv_find(&dnode1->children, "node5"), Eq(dnode5));
+    EXPECT_THAT((struct ptree_t*)bsthv_find(&node1->children, "node6"), Eq(dnode6));
+    EXPECT_THAT((struct ptree_t*)bsthv_find(&node1->children, "node7"), Eq(dnode7));
 
     // make sure none of the nodes are the same as the original tree
     EXPECT_THAT(node1, Ne(dnode1));
@@ -1251,13 +1184,13 @@ TEST(NAME, duplicate_tree_into_itself_fails)
     // |_node6      (null)
     // |_node7      (f)
     struct ptree_t* tree  = ptree_create(a);
-    struct ptree_t* node1 = ptree_add_node(tree,  "node1", b);
-    struct ptree_t* node2 = ptree_add_node(node1, "node2", NULL);
-    struct ptree_t* node3 = ptree_add_node(node1, "node3", c);
-    struct ptree_t* node4 = ptree_add_node(node3, "node4", d);
-    struct ptree_t* node5 = ptree_add_node(node1, "node5", e);
-    struct ptree_t* node6 = ptree_add_node(tree,  "node6", NULL);
-    struct ptree_t* node7 = ptree_add_node(tree,  "node7", f);
+    struct ptree_t* node1 = ptree_set(tree,  "node1", b);
+    struct ptree_t* node2 = ptree_set(node1, "node2", NULL);
+    struct ptree_t* node3 = ptree_set(node1, "node3", c);
+    struct ptree_t* node4 = ptree_set(node3, "node4", d);
+    struct ptree_t* node5 = ptree_set(node1, "node5", e);
+    struct ptree_t* node6 = ptree_set(tree,  "node6", NULL);
+    struct ptree_t* node7 = ptree_set(tree,  "node7", f);
 
     ptree_set_free_func(tree,  (ptree_free_func)mock_free_tree_item);
     ptree_set_free_func(node1, (ptree_free_func)mock_free_tree_item);
@@ -1276,33 +1209,24 @@ TEST(NAME, duplicate_tree_into_itself_fails)
     // duplicate the tree into itself
     EXPECT_THAT(ptree_duplicate_children_into_existing_node(tree, tree), Eq(0));
 
-    uint32_t root_hash  = PTREE_HASH_STRING("root");
-    uint32_t node1_hash = PTREE_HASH_STRING("node1");
-    uint32_t node2_hash = PTREE_HASH_STRING("node2");
-    uint32_t node3_hash = PTREE_HASH_STRING("node3");
-    uint32_t node4_hash = PTREE_HASH_STRING("node4");
-    uint32_t node5_hash = PTREE_HASH_STRING("node5");
-    uint32_t node6_hash = PTREE_HASH_STRING("node6");
-    uint32_t node7_hash = PTREE_HASH_STRING("node7");
-
     // check container sizes
-    EXPECT_THAT(map_count(&tree->children),  Eq(3));
-    EXPECT_THAT(map_count(&node1->children), Eq(3));
-    EXPECT_THAT(map_count(&node2->children), Eq(0));
-    EXPECT_THAT(map_count(&node3->children), Eq(1));
-    EXPECT_THAT(map_count(&node4->children), Eq(0));
-    EXPECT_THAT(map_count(&node5->children), Eq(0));
-    EXPECT_THAT(map_count(&node6->children), Eq(0));
-    EXPECT_THAT(map_count(&node7->children), Eq(0));
+    EXPECT_THAT(bsthv_count(&tree->children),  Eq(3));
+    EXPECT_THAT(bsthv_count(&node1->children), Eq(3));
+    EXPECT_THAT(bsthv_count(&node2->children), Eq(0));
+    EXPECT_THAT(bsthv_count(&node3->children), Eq(1));
+    EXPECT_THAT(bsthv_count(&node4->children), Eq(0));
+    EXPECT_THAT(bsthv_count(&node5->children), Eq(0));
+    EXPECT_THAT(bsthv_count(&node6->children), Eq(0));
+    EXPECT_THAT(bsthv_count(&node7->children), Eq(0));
 
     // check structure
-    EXPECT_THAT((struct ptree_t*)map_find(&tree->children,  node1_hash), Eq(node1));
-    EXPECT_THAT((struct ptree_t*)map_find(&node1->children, node2_hash), Eq(node2));
-    EXPECT_THAT((struct ptree_t*)map_find(&node1->children, node3_hash), Eq(node3));
-    EXPECT_THAT((struct ptree_t*)map_find(&node3->children, node4_hash), Eq(node4));
-    EXPECT_THAT((struct ptree_t*)map_find(&node1->children, node5_hash), Eq(node5));
-    EXPECT_THAT((struct ptree_t*)map_find(&tree->children,  node6_hash), Eq(node6));
-    EXPECT_THAT((struct ptree_t*)map_find(&tree->children,  node7_hash), Eq(node7));
+    EXPECT_THAT((struct ptree_t*)bsthv_find(&tree->children,  "node1"), Eq(node1));
+    EXPECT_THAT((struct ptree_t*)bsthv_find(&node1->children, "node2"), Eq(node2));
+    EXPECT_THAT((struct ptree_t*)bsthv_find(&node1->children, "node3"), Eq(node3));
+    EXPECT_THAT((struct ptree_t*)bsthv_find(&node3->children, "node4"), Eq(node4));
+    EXPECT_THAT((struct ptree_t*)bsthv_find(&node1->children, "node5"), Eq(node5));
+    EXPECT_THAT((struct ptree_t*)bsthv_find(&tree->children,  "node6"), Eq(node6));
+    EXPECT_THAT((struct ptree_t*)bsthv_find(&tree->children,  "node7"), Eq(node7));
 
     // check parents
     EXPECT_THAT(tree->parent, IsNull());
@@ -1329,13 +1253,13 @@ TEST(NAME, relocate_node_in_tree)
     // |_node6      (null)
     // |_node7      (f)
     struct ptree_t* tree  = ptree_create(&a);
-    struct ptree_t* node1 = ptree_add_node(tree,  "node1", &b);
-    struct ptree_t* node2 = ptree_add_node(node1, "node2", NULL);
-    struct ptree_t* node3 = ptree_add_node(node1, "node3", &c);
-    struct ptree_t* node4 = ptree_add_node(node3, "node4", &d);
-    struct ptree_t* node5 = ptree_add_node(node1, "node5", &e);
-    struct ptree_t* node6 = ptree_add_node(tree,  "node6", NULL);
-    struct ptree_t* node7 = ptree_add_node(tree,  "node7", &f);
+    struct ptree_t* node1 = ptree_set(tree,  "node1", &b);
+    struct ptree_t* node2 = ptree_set(node1, "node2", NULL);
+    struct ptree_t* node3 = ptree_set(node1, "node3", &c);
+    struct ptree_t* node4 = ptree_set(node3, "node4", &d);
+    struct ptree_t* node5 = ptree_set(node1, "node5", &e);
+    struct ptree_t* node6 = ptree_set(tree,  "node6", NULL);
+    struct ptree_t* node7 = ptree_set(tree,  "node7", &f);
 
     // relocate node3 to be a child of root
     EXPECT_THAT(ptree_set_parent(node3, tree, "node3"), Ne(0));
@@ -1348,33 +1272,24 @@ TEST(NAME, relocate_node_in_tree)
     // |_node6      (null)
     // |_node7      (f)
 
-    uint32_t root_hash  = PTREE_HASH_STRING("root");
-    uint32_t node1_hash = PTREE_HASH_STRING("node1");
-    uint32_t node2_hash = PTREE_HASH_STRING("node2");
-    uint32_t node3_hash = PTREE_HASH_STRING("node3");
-    uint32_t node4_hash = PTREE_HASH_STRING("node4");
-    uint32_t node5_hash = PTREE_HASH_STRING("node5");
-    uint32_t node6_hash = PTREE_HASH_STRING("node6");
-    uint32_t node7_hash = PTREE_HASH_STRING("node7");
-
     // check container sizes
-    EXPECT_THAT(map_count(&tree->children),  Eq(4));
-    EXPECT_THAT(map_count(&node1->children), Eq(2));
-    EXPECT_THAT(map_count(&node2->children), Eq(0));
-    EXPECT_THAT(map_count(&node3->children), Eq(1));
-    EXPECT_THAT(map_count(&node4->children), Eq(0));
-    EXPECT_THAT(map_count(&node5->children), Eq(0));
-    EXPECT_THAT(map_count(&node6->children), Eq(0));
-    EXPECT_THAT(map_count(&node7->children), Eq(0));
+    EXPECT_THAT(bsthv_count(&tree->children),  Eq(4));
+    EXPECT_THAT(bsthv_count(&node1->children), Eq(2));
+    EXPECT_THAT(bsthv_count(&node2->children), Eq(0));
+    EXPECT_THAT(bsthv_count(&node3->children), Eq(1));
+    EXPECT_THAT(bsthv_count(&node4->children), Eq(0));
+    EXPECT_THAT(bsthv_count(&node5->children), Eq(0));
+    EXPECT_THAT(bsthv_count(&node6->children), Eq(0));
+    EXPECT_THAT(bsthv_count(&node7->children), Eq(0));
 
     // check structure
-    EXPECT_THAT((struct ptree_t*)map_find(&tree->children,  node1_hash), Eq(node1));
-    EXPECT_THAT((struct ptree_t*)map_find(&node1->children, node2_hash), Eq(node2));
-    EXPECT_THAT((struct ptree_t*)map_find(&tree->children,  node3_hash), Eq(node3));
-    EXPECT_THAT((struct ptree_t*)map_find(&node3->children, node4_hash), Eq(node4));
-    EXPECT_THAT((struct ptree_t*)map_find(&node1->children, node5_hash), Eq(node5));
-    EXPECT_THAT((struct ptree_t*)map_find(&tree->children,  node6_hash), Eq(node6));
-    EXPECT_THAT((struct ptree_t*)map_find(&tree->children,  node7_hash), Eq(node7));
+    EXPECT_THAT((struct ptree_t*)bsthv_find(&tree->children,  "node1"), Eq(node1));
+    EXPECT_THAT((struct ptree_t*)bsthv_find(&node1->children, "node2"), Eq(node2));
+    EXPECT_THAT((struct ptree_t*)bsthv_find(&tree->children,  "node3"), Eq(node3));
+    EXPECT_THAT((struct ptree_t*)bsthv_find(&node3->children, "node4"), Eq(node4));
+    EXPECT_THAT((struct ptree_t*)bsthv_find(&node1->children, "node5"), Eq(node5));
+    EXPECT_THAT((struct ptree_t*)bsthv_find(&tree->children,  "node6"), Eq(node6));
+    EXPECT_THAT((struct ptree_t*)bsthv_find(&tree->children,  "node7"), Eq(node7));
 
     // check parents
     EXPECT_THAT(tree->parent, IsNull());
@@ -1412,13 +1327,13 @@ TEST(NAME, relocate_parent_node_into_child_node_fails)
     // |_node6      (null)
     // |_node7      (f)
     struct ptree_t* tree  = ptree_create(&a);
-    struct ptree_t* node1 = ptree_add_node(tree,  "node1", &b);
-    struct ptree_t* node2 = ptree_add_node(node1, "node2", NULL);
-    struct ptree_t* node3 = ptree_add_node(node1, "node3", &c);
-    struct ptree_t* node4 = ptree_add_node(node3, "node4", &d);
-    struct ptree_t* node5 = ptree_add_node(node1, "node5", &e);
-    struct ptree_t* node6 = ptree_add_node(tree,  "node6", NULL);
-    struct ptree_t* node7 = ptree_add_node(tree,  "node7", &f);
+    struct ptree_t* node1 = ptree_set(tree,  "node1", &b);
+    struct ptree_t* node2 = ptree_set(node1, "node2", NULL);
+    struct ptree_t* node3 = ptree_set(node1, "node3", &c);
+    struct ptree_t* node4 = ptree_set(node3, "node4", &d);
+    struct ptree_t* node5 = ptree_set(node1, "node5", &e);
+    struct ptree_t* node6 = ptree_set(tree,  "node6", NULL);
+    struct ptree_t* node7 = ptree_set(tree,  "node7", &f);
 
     // none of these should work
     EXPECT_THAT(ptree_set_parent(tree, node1, "node1"), Eq(0));
@@ -1426,33 +1341,24 @@ TEST(NAME, relocate_parent_node_into_child_node_fails)
     EXPECT_THAT(ptree_set_parent(node3, node4, "node3"), Eq(0));
     EXPECT_THAT(ptree_set_parent(node1, node5, "node1"), Eq(0));
 
-    uint32_t root_hash  = PTREE_HASH_STRING("root");
-    uint32_t node1_hash = PTREE_HASH_STRING("node1");
-    uint32_t node2_hash = PTREE_HASH_STRING("node2");
-    uint32_t node3_hash = PTREE_HASH_STRING("node3");
-    uint32_t node4_hash = PTREE_HASH_STRING("node4");
-    uint32_t node5_hash = PTREE_HASH_STRING("node5");
-    uint32_t node6_hash = PTREE_HASH_STRING("node6");
-    uint32_t node7_hash = PTREE_HASH_STRING("node7");
-
     // check container sizes
-    EXPECT_THAT(map_count(&tree->children),  Eq(3));
-    EXPECT_THAT(map_count(&node1->children), Eq(3));
-    EXPECT_THAT(map_count(&node2->children), Eq(0));
-    EXPECT_THAT(map_count(&node3->children), Eq(1));
-    EXPECT_THAT(map_count(&node4->children), Eq(0));
-    EXPECT_THAT(map_count(&node5->children), Eq(0));
-    EXPECT_THAT(map_count(&node6->children), Eq(0));
-    EXPECT_THAT(map_count(&node7->children), Eq(0));
+    EXPECT_THAT(bsthv_count(&tree->children),  Eq(3));
+    EXPECT_THAT(bsthv_count(&node1->children), Eq(3));
+    EXPECT_THAT(bsthv_count(&node2->children), Eq(0));
+    EXPECT_THAT(bsthv_count(&node3->children), Eq(1));
+    EXPECT_THAT(bsthv_count(&node4->children), Eq(0));
+    EXPECT_THAT(bsthv_count(&node5->children), Eq(0));
+    EXPECT_THAT(bsthv_count(&node6->children), Eq(0));
+    EXPECT_THAT(bsthv_count(&node7->children), Eq(0));
 
     // check structure
-    EXPECT_THAT((struct ptree_t*)map_find(&tree->children,  node1_hash), Eq(node1));
-    EXPECT_THAT((struct ptree_t*)map_find(&node1->children, node2_hash), Eq(node2));
-    EXPECT_THAT((struct ptree_t*)map_find(&node1->children, node3_hash), Eq(node3));
-    EXPECT_THAT((struct ptree_t*)map_find(&node3->children, node4_hash), Eq(node4));
-    EXPECT_THAT((struct ptree_t*)map_find(&node1->children, node5_hash), Eq(node5));
-    EXPECT_THAT((struct ptree_t*)map_find(&tree->children,  node6_hash), Eq(node6));
-    EXPECT_THAT((struct ptree_t*)map_find(&tree->children,  node7_hash), Eq(node7));
+    EXPECT_THAT((struct ptree_t*)bsthv_find(&tree->children,  "node1"), Eq(node1));
+    EXPECT_THAT((struct ptree_t*)bsthv_find(&node1->children, "node2"), Eq(node2));
+    EXPECT_THAT((struct ptree_t*)bsthv_find(&node1->children, "node3"), Eq(node3));
+    EXPECT_THAT((struct ptree_t*)bsthv_find(&node3->children, "node4"), Eq(node4));
+    EXPECT_THAT((struct ptree_t*)bsthv_find(&node1->children, "node5"), Eq(node5));
+    EXPECT_THAT((struct ptree_t*)bsthv_find(&tree->children,  "node6"), Eq(node6));
+    EXPECT_THAT((struct ptree_t*)bsthv_find(&tree->children,  "node7"), Eq(node7));
 
     // check parents
     EXPECT_THAT(tree->parent, IsNull());
@@ -1490,43 +1396,34 @@ TEST(NAME, set_parent_to_null_unlinks_tree)
     // |_node6      (null)
     // |_node7      (f)
     struct ptree_t* tree  = ptree_create(&a);
-    struct ptree_t* node1 = ptree_add_node(tree,  "node1", &b);
-    struct ptree_t* node2 = ptree_add_node(node1, "node2", NULL);
-    struct ptree_t* node3 = ptree_add_node(node1, "node3", &c);
-    struct ptree_t* node4 = ptree_add_node(node3, "node4", &d);
-    struct ptree_t* node5 = ptree_add_node(node1, "node5", &e);
-    struct ptree_t* node6 = ptree_add_node(tree,  "node6", NULL);
-    struct ptree_t* node7 = ptree_add_node(tree,  "node7", &f);
+    struct ptree_t* node1 = ptree_set(tree,  "node1", &b);
+    struct ptree_t* node2 = ptree_set(node1, "node2", NULL);
+    struct ptree_t* node3 = ptree_set(node1, "node3", &c);
+    struct ptree_t* node4 = ptree_set(node3, "node4", &d);
+    struct ptree_t* node5 = ptree_set(node1, "node5", &e);
+    struct ptree_t* node6 = ptree_set(tree,  "node6", NULL);
+    struct ptree_t* node7 = ptree_set(tree,  "node7", &f);
 
     // none of these should work
     EXPECT_THAT(ptree_set_parent(node3, NULL, "root"), Ne(0));
 
-    uint32_t root_hash  = PTREE_HASH_STRING("root");
-    uint32_t node1_hash = PTREE_HASH_STRING("node1");
-    uint32_t node2_hash = PTREE_HASH_STRING("node2");
-    uint32_t node3_hash = PTREE_HASH_STRING("root");
-    uint32_t node4_hash = PTREE_HASH_STRING("node4");
-    uint32_t node5_hash = PTREE_HASH_STRING("node5");
-    uint32_t node6_hash = PTREE_HASH_STRING("node6");
-    uint32_t node7_hash = PTREE_HASH_STRING("node7");
-
     // check container sizes
-    EXPECT_THAT(map_count(&tree->children),  Eq(3));
-    EXPECT_THAT(map_count(&node1->children), Eq(2));
-    EXPECT_THAT(map_count(&node2->children), Eq(0));
-    EXPECT_THAT(map_count(&node3->children), Eq(1));
-    EXPECT_THAT(map_count(&node4->children), Eq(0));
-    EXPECT_THAT(map_count(&node5->children), Eq(0));
-    EXPECT_THAT(map_count(&node6->children), Eq(0));
-    EXPECT_THAT(map_count(&node7->children), Eq(0));
+    EXPECT_THAT(bsthv_count(&tree->children),  Eq(3));
+    EXPECT_THAT(bsthv_count(&node1->children), Eq(2));
+    EXPECT_THAT(bsthv_count(&node2->children), Eq(0));
+    EXPECT_THAT(bsthv_count(&node3->children), Eq(1));
+    EXPECT_THAT(bsthv_count(&node4->children), Eq(0));
+    EXPECT_THAT(bsthv_count(&node5->children), Eq(0));
+    EXPECT_THAT(bsthv_count(&node6->children), Eq(0));
+    EXPECT_THAT(bsthv_count(&node7->children), Eq(0));
 
     // check structure
-    EXPECT_THAT((struct ptree_t*)map_find(&tree->children,  node1_hash), Eq(node1));
-    EXPECT_THAT((struct ptree_t*)map_find(&node1->children, node2_hash), Eq(node2));
-    EXPECT_THAT((struct ptree_t*)map_find(&node3->children, node4_hash), Eq(node4));
-    EXPECT_THAT((struct ptree_t*)map_find(&node1->children, node5_hash), Eq(node5));
-    EXPECT_THAT((struct ptree_t*)map_find(&tree->children,  node6_hash), Eq(node6));
-    EXPECT_THAT((struct ptree_t*)map_find(&tree->children,  node7_hash), Eq(node7));
+    EXPECT_THAT((struct ptree_t*)bsthv_find(&tree->children,  "node1"), Eq(node1));
+    EXPECT_THAT((struct ptree_t*)bsthv_find(&node1->children, "node2"), Eq(node2));
+    EXPECT_THAT((struct ptree_t*)bsthv_find(&node3->children, "node4"), Eq(node4));
+    EXPECT_THAT((struct ptree_t*)bsthv_find(&node1->children, "node5"), Eq(node5));
+    EXPECT_THAT((struct ptree_t*)bsthv_find(&tree->children,  "node6"), Eq(node6));
+    EXPECT_THAT((struct ptree_t*)bsthv_find(&tree->children,  "node7"), Eq(node7));
 
     // check parents
     EXPECT_THAT(tree->parent, IsNull());
@@ -1565,13 +1462,13 @@ TEST(NAME, get_node_no_depth)
     // |_node6      (null)
     // |_node7      (f)
     struct ptree_t* tree  = ptree_create(&a);
-    struct ptree_t* node1 = ptree_add_node(tree,  "node1", &b);
-    struct ptree_t* node2 = ptree_add_node(node1, "node2", NULL);
-    struct ptree_t* node3 = ptree_add_node(node1, "node3", &c);
-    struct ptree_t* node4 = ptree_add_node(node3, "node4", &d);
-    struct ptree_t* node5 = ptree_add_node(node1, "node5", &e);
-    struct ptree_t* node6 = ptree_add_node(tree,  "node6", NULL);
-    struct ptree_t* node7 = ptree_add_node(tree,  "node7", &f);
+    struct ptree_t* node1 = ptree_set(tree,  "node1", &b);
+    struct ptree_t* node2 = ptree_set(node1, "node2", NULL);
+    struct ptree_t* node3 = ptree_set(node1, "node3", &c);
+    struct ptree_t* node4 = ptree_set(node3, "node4", &d);
+    struct ptree_t* node5 = ptree_set(node1, "node5", &e);
+    struct ptree_t* node6 = ptree_set(tree,  "node6", NULL);
+    struct ptree_t* node7 = ptree_set(tree,  "node7", &f);
 
     EXPECT_THAT(ptree_get_node_no_depth(tree, "node1"), Eq(node1));
     EXPECT_THAT(ptree_get_node_no_depth(tree, "node2"), IsNull());
@@ -1594,13 +1491,13 @@ TEST(NAME, get_node_existing_key)
     // |_node6      (null)
     // |_node7      (f)
     struct ptree_t* tree  = ptree_create(&a);
-    struct ptree_t* node1 = ptree_add_node(tree,  "node1", &b);
-    struct ptree_t* node2 = ptree_add_node(node1, "node2", NULL);
-    struct ptree_t* node3 = ptree_add_node(node1, "node3", &c);
-    struct ptree_t* node4 = ptree_add_node(node3, "node4", &d);
-    struct ptree_t* node5 = ptree_add_node(node1, "node5", &e);
-    struct ptree_t* node6 = ptree_add_node(tree,  "node6", NULL);
-    struct ptree_t* node7 = ptree_add_node(tree,  "node7", &f);
+    struct ptree_t* node1 = ptree_set(tree,  "node1", &b);
+    struct ptree_t* node2 = ptree_set(node1, "node2", NULL);
+    struct ptree_t* node3 = ptree_set(node1, "node3", &c);
+    struct ptree_t* node4 = ptree_set(node3, "node4", &d);
+    struct ptree_t* node5 = ptree_set(node1, "node5", &e);
+    struct ptree_t* node6 = ptree_set(tree,  "node6", NULL);
+    struct ptree_t* node7 = ptree_set(tree,  "node7", &f);
 
     EXPECT_THAT(ptree_get_node(tree, "node1.node3.node4"), Eq(node4));
     EXPECT_THAT(ptree_get_node(node1, "node2"), Eq(node2));
@@ -1622,13 +1519,13 @@ TEST(NAME, find_non_existing_key_in_tree)
     // |_node6      (null)
     // |_node7      (f)
     struct ptree_t* tree  = ptree_create(&a);
-    struct ptree_t* node1 = ptree_add_node(tree,  "node1", &b);
-    struct ptree_t* node2 = ptree_add_node(node1, "node2", NULL);
-    struct ptree_t* node3 = ptree_add_node(node1, "node3", &c);
-    struct ptree_t* node4 = ptree_add_node(node3, "node4", &d);
-    struct ptree_t* node5 = ptree_add_node(node1, "node5", &e);
-    struct ptree_t* node6 = ptree_add_node(tree,  "node6", NULL);
-    struct ptree_t* node7 = ptree_add_node(tree,  "node7", &f);
+    struct ptree_t* node1 = ptree_set(tree,  "node1", &b);
+    struct ptree_t* node2 = ptree_set(node1, "node2", NULL);
+    struct ptree_t* node3 = ptree_set(node1, "node3", &c);
+    struct ptree_t* node4 = ptree_set(node3, "node4", &d);
+    struct ptree_t* node5 = ptree_set(node1, "node5", &e);
+    struct ptree_t* node6 = ptree_set(tree,  "node6", NULL);
+    struct ptree_t* node7 = ptree_set(tree,  "node7", &f);
 
     EXPECT_THAT(ptree_get_node(tree, "this.doesn't.exist"), IsNull());
     EXPECT_THAT(ptree_get_node(tree, "node1.node3.nope"), IsNull());
@@ -1641,15 +1538,15 @@ TEST(NAME, traverse_node_children)
     const char* keys[] = {"node1", "node2", "node3", "node4"};
     int values[] = {4, 2, 7, 5};
     struct ptree_t* tree = ptree_create(NULL);
-    ptree_add_node(tree, keys[0], &values[0]);
-    ptree_add_node(tree, keys[1], &values[1]);
-    ptree_add_node(tree, keys[2], &values[2]);
-    ptree_add_node(tree, keys[3], &values[3]);
+    ptree_set(tree, keys[0], &values[0]);
+    ptree_set(tree, keys[1], &values[1]);
+    ptree_set(tree, keys[2], &values[2]);
+    ptree_set(tree, keys[3], &values[3]);
 
-    PTREE_FOR_EACH_IN_NODE(tree, hash, node)
+    PTREE_FOR_EACH_IN_NODE(tree, key, node)
         int i;
         for(i = 0; i != 3; ++i)
-            if(PTREE_HASH_STRING(keys[i]) == hash)
+            if(strcmp(keys[i], key) == 0)
                 break;
         ASSERT_LT(i, 4);
         EXPECT_THAT((int*)node->value, Pointee(values[i]));

@@ -38,11 +38,6 @@ TEST(NAME, get_value_key_is_null)
     yaml_destroy(doc);
 }
 
-TEST(NAME, get_hash_node_is_null)
-{
-    ASSERT_DEATH(yaml_get_hash(NULL), ASSERTION_REGEX);
-}
-
 TEST(NAME, get_node_node_is_null)
 {
     ASSERT_DEATH(yaml_get_node(NULL, "key"), ASSERTION_REGEX);

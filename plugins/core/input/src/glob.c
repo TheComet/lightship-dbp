@@ -2,7 +2,6 @@
 #include "plugin_input/config.h"
 #include "framework/log.h"
 #include "util/memory.h"
-#include "util/hash.h"
 #include <string.h>
 #include <assert.h>
 
@@ -13,11 +12,11 @@ void
 glob_create(struct game_t* game)
 {
 	struct glob_t* glob;
-	
+
 	assert(game);
 	assert(!global_hash);
-	
-	global_hash = hash_jenkins_oaat(PLUGIN_NAME, strlen(PLUGIN_NAME));
+
+	global_hash = bsthv_hash_string(PLUGIN_NAME);
 
 	glob = (struct glob_t*)MALLOC(sizeof(struct glob_t));
 	if(!glob)

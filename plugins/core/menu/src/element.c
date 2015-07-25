@@ -2,7 +2,7 @@
 #include "plugin_menu/services.h"
 #include "plugin_menu/glob.h"
 #include "framework/services.h"
-#include "util/map.h"
+#include "util/bst_hashed_vector.h"
 #include "util/memory.h"
 #include <string.h>
 

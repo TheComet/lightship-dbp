@@ -105,7 +105,7 @@ TEST(NAME, load_empty_string)
 {
     struct ptree_t* doc;
     ASSERT_THAT((doc = yaml_load_from_memory("  ")), NotNull());
-    EXPECT_THAT(map_count(&doc->children), Eq(0));
+    EXPECT_THAT(bsthv_count(&doc->children), Eq(0));
     yaml_destroy(doc);
 }
 

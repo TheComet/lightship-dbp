@@ -6,7 +6,6 @@
 #include "framework/game.h"
 #include "framework/services.h"
 #include "framework/log.h"
-#include "util/map.h"
 #include "util/memory.h"
 #include <assert.h>
 #include <string.h>
@@ -14,7 +13,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
-static struct map_t g_sprites;
+static struct bstv_t g_sprites;
 static uint32_t guid = 1;
 static GLuint g_vao;
 static GLuint g_vbo;
@@ -46,7 +45,7 @@ static const char* sprite_shader_file = "fx/sprite";
 char
 sprite_init(struct glob_t* g)
 {
-	map_init_map(&g_sprites);
+	bstv_init_bstv(&g_sprites);
 
 	g_sprite_shader_id = shader_load(g, sprite_shader_file);printOpenGLError();
 	g_uniform_sprite_position_location = glGetUniformLocation(g_sprite_shader_id, "spritePosition");
@@ -73,10 +72,10 @@ sprite_deinit(void)
 	while(g_sprites.vector.count)
 	{
 		sprite_destroy(
-			(struct sprite_t*)((struct map_key_value_t*)g_sprites.vector.data)->value
+			(struct sprite_t*)((struct bstv_key_value_t*)g_sprites.vector.data)->value
 		);
 	}
-	map_clear_free(&g_sprites);
+	bstv_clear_free(&g_sprites);
 }
 
 /* ------------------------------------------------------------------------- */
@@ -132,7 +131,7 @@ sprite_create_from_memory(const unsigned char* pixel_buffer,
 	sprite = (struct sprite_t*)MALLOC(sizeof(struct sprite_t));
 	memset(sprite, 0, sizeof(struct sprite_t));
 	*id = guid++;
-	map_insert(&g_sprites, *id, sprite);
+	bstv_insert(&g_sprites, *id, sprite);
 
 	sprite->animation.state = SPRITE_ANIMATION_STOP;
 	sprite->animation.frame_b = total_frame_count;
@@ -169,7 +168,7 @@ sprite_destroy(struct sprite_t* sprite)
 	assert(sprite);
 
 	glDeleteTextures(1, &sprite->gl.tex);
-	map_erase_element(&g_sprites, sprite);
+	bstv_erase_element(&g_sprites, sprite);
 	FREE(sprite);
 }
 
@@ -241,12 +240,12 @@ sprite_draw(void)
 	glEnable(GL_BLEND);printOpenGLError();
 	glUseProgram(g_sprite_shader_id);printOpenGLError();
 	glBindVertexArray(g_vao);printOpenGLError();
-	MAP_FOR_EACH(&g_sprites, struct sprite_t, key, sprite)
+	BSTV_FOR_EACH(&g_sprites, struct sprite_t, key, sprite)
 		glBindTexture(GL_TEXTURE_2D, sprite->gl.tex);printOpenGLError();
 		glUniform2f(g_uniform_sprite_position_location, sprite->pos.x, sprite->pos.y);
 		glUniform2f(g_uniform_sprite_size_location, sprite->size.x, sprite->size.y);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, NULL);printOpenGLError();
-	MAP_END_EACH
+	BSTV_END_EACH
 	glBindVertexArray(0);printOpenGLError();
 	glUseProgram(0);
 	glDisable(GL_BLEND);printOpenGLError();
@@ -289,7 +288,7 @@ SERVICE(sprite_create_from_memory_wrapper)
 SERVICE(sprite_destroy_wrapper)
 {
 	EXTRACT_ARGUMENT(0, id, uint32_t, uint32_t);
-	struct sprite_t* sprite = map_find(&g_sprites, id);
+	struct sprite_t* sprite = bstv_find(&g_sprites, id);
 	if(sprite)
 		sprite_destroy(sprite);
 }

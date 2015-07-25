@@ -14,13 +14,13 @@
 #include <assert.h>
 #include <stdio.h>
 
-static struct map_t g_games;
+static struct bsthv_t g_games;
 
 /* ------------------------------------------------------------------------- */
 void
 game_init(void)
 {
-	map_init_map(&g_games);
+	bsthv_init_bsthv(&g_games);
 }
 
 /* ------------------------------------------------------------------------- */
@@ -28,7 +28,7 @@ void
 game_deinit(void)
 {
 	/* TODO free any left over games */
-	map_clear_free(&g_games);
+	bsthv_clear_free(&g_games);
 }
 
 /* ------------------------------------------------------------------------- */
@@ -60,7 +60,7 @@ game_create(const char* name, game_network_role_e net_role)
 		game->network_role = net_role;
 
 		/* initialise the game's global data container */
-		map_init_map(&game->global_data);
+		bstv_init_bstv(&game->global_data);
 
 		/* The initial state of the game is paused. The user must call
 		 * game_start() to launch the game */
@@ -92,11 +92,8 @@ game_create(const char* name, game_network_role_e net_role)
 			break;
 
 		/* add to global list of games */
-		{
-			uint32_t hash = hash_jenkins_oaat(name, strlen(name));
-			if(!map_insert(&g_games, hash, game))
-				break;
-		}
+		if(!bsthv_insert(&g_games, name, game))
+			break;
 
 		/* success! */
 		return game;
@@ -111,14 +108,11 @@ game_create(const char* name, game_network_role_e net_role)
 void
 game_destroy(struct game_t* game)
 {
-	uint32_t hash;
-
 	assert(game);
 	assert(game->name);
 
 	/* remove game from global list */
-	hash = hash_jenkins_oaat(game->name, strlen(game->name));
-	map_erase(&g_games, hash);
+	bsthv_erase(&g_games, game->name);
 
 	/* disconnect the game */
 	game_disconnect(game);
@@ -129,7 +123,7 @@ game_destroy(struct game_t* game)
 	service_deinit(game);
 
 	/* clean up data held by game object */
-	map_clear_free(&game->global_data);
+	bstv_clear_free(&game->global_data);
 	free_string(game->name);
 
 	FREE(game);
@@ -188,22 +182,23 @@ games_run_all(void)
 		main_loop_do_loop();
 
 		/* if the game wishes to terminate, destroy it */
-		MAP_FOR_EACH(&g_games, struct game_t, key, game)
+		BSTHV_FOR_EACH(&g_games, struct game_t, key, game)
 			if(game->state == GAME_STATE_TERMINATED)
 			{
 				game_destroy(game);
-				break;
+				goto break_g_games_for_each;
 			}
-		MAP_END_EACH
+		BSTHV_END_EACH
+		break_g_games_for_each:
 
 		/* HACK: If the localclient game is destroyed and the only game left
 		 * is the localhost instance, it should be safe to assume we can
 		 * quit */
-		if(map_count(&g_games) == 1)
+		if(bsthv_count(&g_games) == 1)
 		{
-			MAP_FOR_EACH(&g_games, struct game_t, key, game)
+			BSTHV_FOR_EACH(&g_games, struct game_t, key, game)
 				game_exit(game);
-			MAP_END_EACH
+			BSTHV_END_EACH
 		}
 	}
 }
@@ -212,27 +207,27 @@ games_run_all(void)
 void
 game_dispatch_stats(uint32_t render_fps, uint32_t tick_fps)
 {
-	MAP_FOR_EACH(&g_games, struct game_t, key, game)
+	BSTHV_FOR_EACH(&g_games, struct game_t, key, game)
 		EVENT_FIRE2(game->event.stats, render_fps, tick_fps);
-	MAP_END_EACH
+	BSTHV_END_EACH
 }
 
 /* ------------------------------------------------------------------------- */
 void
 game_dispatch_render(void)
 {
-	MAP_FOR_EACH(&g_games, struct game_t, key, game)
+	BSTHV_FOR_EACH(&g_games, struct game_t, key, game)
 		EVENT_FIRE0(game->event.render);
-	MAP_END_EACH
+	BSTHV_END_EACH
 }
 
 /* ------------------------------------------------------------------------- */
 void
 game_dispatch_tick(void)
 {
-	MAP_FOR_EACH(&g_games, struct game_t, key, game)
+	BSTHV_FOR_EACH(&g_games, struct game_t, key, game)
 		EVENT_FIRE0(game->event.tick);
-	MAP_END_EACH
+	BSTHV_END_EACH
 }
 
 /* ------------------------------------------------------------------------- */

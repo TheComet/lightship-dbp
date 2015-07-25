@@ -1,5 +1,5 @@
 #include "util/pstdint.h"
-#include "util/map.h"
+#include "util/bst_hashed_vector.h"
 #include "framework/se_api.h"
 
 struct screen_t;
@@ -10,7 +10,7 @@ struct menu_t
 {
 	char* name;
 	struct glob_t* glob;
-	struct map_t screens;
+	struct bsthv_t screens;
 	struct screen_t* active_screen;
 };
 

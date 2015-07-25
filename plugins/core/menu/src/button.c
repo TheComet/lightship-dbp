@@ -5,7 +5,7 @@
 #include "framework/plugin.h"
 #include "framework/services.h"
 #include "framework/log.h"
-#include "util/map.h"
+#include "util/bst_hashed_vector.h"
 #include "util/memory.h"
 #include "util/string.h"
 #include <string.h>
@@ -32,7 +32,7 @@ void button_init(struct glob_t* g)
 	uint32_t char_size;
 
 	/* initialise container in which all buttons are stored */
-	map_init_map(&g->button.buttons);
+	bstv_init_bstv(&g->button.buttons);
 
 	/* load font and characters */
 	char_size = 9;
@@ -45,7 +45,7 @@ void button_deinit(struct glob_t* g)
 {
 	SERVICE_CALL1(g->services.text_group_destroy, NULL, g->button.font_id);
 	button_destroy_all(g);
-	map_clear_free(&g->button.buttons);
+	bstv_clear_free(&g->button.buttons);
 }
 
 /* ------------------------------------------------------------------------- */
@@ -108,7 +108,7 @@ button_constructor(struct button_t* btn, const char* text, float x, float y, flo
 	element_add_shapes((struct element_t*)btn, btn->base.button.shapes_normal_id);
 
 	/* add to global list of buttons */
-	map_insert(&g->button.buttons, btn->base.element.id, btn);
+	bstv_insert(&g->button.buttons, btn->base.element.id, btn);
 }
 
 /* ------------------------------------------------------------------------- */
@@ -116,7 +116,7 @@ static void
 button_destructor(struct button_t* button)
 {
 	struct glob_t* g = button->base.element.glob;
-	map_erase(&g->button.buttons, button->base.element.id);
+	bstv_erase(&g->button.buttons, button->base.element.id);
 	button_free_contents(button);
 }
 
@@ -134,7 +134,7 @@ void
 button_destroy_all(struct glob_t* g)
 {
 	struct button_t* button;
-	while((button = map_get_any_element(&g->button.buttons)))
+	while((button = bstv_get_any_element(&g->button.buttons)))
 	{
 		button_destroy(button);
 	}
@@ -175,7 +175,7 @@ button_collision(struct glob_t* g, struct button_t* button, float x, float y)
 	}
 
 	/* test all buttons */
-	MAP_FOR_EACH(&g->button.buttons, struct button_t, id, cur_btn)
+	BSTV_FOR_EACH(&g->button.buttons, struct button_t, id, cur_btn)
 		struct element_data_t* elem;
 		if(!cur_btn->base.element.visible)
 			continue;
@@ -184,8 +184,8 @@ button_collision(struct glob_t* g, struct button_t* button, float x, float y)
 		if(x > elem->pos.x - elem->size.x*0.5 && x < elem->pos.x + elem->size.x*0.5)
 			if(y > elem->pos.y - elem->size.y*0.5 && y < elem->pos.y + elem->size.y*0.5)
 				return cur_btn;
-	MAP_END_EACH
-	
+	BSTV_END_EACH
+
 	return NULL;
 }
 

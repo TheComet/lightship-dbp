@@ -5,17 +5,16 @@
 #include "framework/game.h"
 #include "framework/plugin.h"
 #include "framework/services.h"
-#include "util/map.h"
 
-static struct map_t g_text_groups;
-static struct map_t g_texts;
+static struct bstv_t g_text_groups;
+static struct bstv_t g_texts;
 static uint32_t guid = 1;
 
 /* ------------------------------------------------------------------------- */
 char
 text_wrapper_init(void)
 {
-	map_init_map(&g_texts);
+	bstv_init_bstv(&g_texts);
 
 	return 1;
 }
@@ -26,14 +25,14 @@ text_wrapper_deinit(void)
 {
 	/* text objects are cleaned up automatically when all groups get destroyed */
 
-	map_clear_free(&g_texts);
+	bstv_clear_free(&g_texts);
 }
 
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
 
 /* ------------------------------------------------------------------------- */
-const struct map_t*
+const struct bstv_t*
 text_group_get_all(void)
 {
 	return &g_text_groups;
@@ -84,7 +83,7 @@ SERVICE(text_create_wrapper)
 	struct text_group_t* group = text_group_get(group_id);
 	struct text_t* text = text_create(g, group, centered, x, y, string);
 	uint32_t text_id = guid++;
-	map_insert(&g_texts, text_id, text);
+	bstv_insert(&g_texts, text_id, text);
 
 	RETURN(text_id, uint32_t);
 }
@@ -94,7 +93,7 @@ SERVICE(text_destroy_wrapper)
 {
 	EXTRACT_ARGUMENT(0, text_id, uint32_t, uint32_t);
 
-	struct text_t* text = map_erase(&g_texts, text_id);
+	struct text_t* text = bstv_erase(&g_texts, text_id);
 	if(text)
 		text_destroy(text);
 }
@@ -105,7 +104,7 @@ SERVICE(text_set_centered_wrapper)
 	EXTRACT_ARGUMENT(0, text_id, uint32_t, uint32_t);
 	EXTRACT_ARGUMENT(1, is_centered, char, char);
 
-	struct text_t* text = map_find(&g_texts, text_id);
+	struct text_t* text = bstv_find(&g_texts, text_id);
 	if(!text)
 		return;
 
@@ -126,7 +125,7 @@ SERVICE(text_set_string_wrapper)
 SERVICE(text_show_wrapper)
 {
 	EXTRACT_ARGUMENT(0, text_id, uint32_t, uint32_t);
-	struct text_t* text = map_find(&g_texts, text_id);
+	struct text_t* text = bstv_find(&g_texts, text_id);
 	if(!text)
 		return;
 
@@ -137,7 +136,7 @@ SERVICE(text_show_wrapper)
 SERVICE(text_hide_wrapper)
 {
 	EXTRACT_ARGUMENT(0, text_id, uint32_t, uint32_t);
-	struct text_t* text = map_find(&g_texts, text_id);
+	struct text_t* text = bstv_find(&g_texts, text_id);
 	if(!text)
 		return;
 

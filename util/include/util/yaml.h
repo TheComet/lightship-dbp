@@ -86,15 +86,6 @@ LIGHTSHIP_UTIL_PUBLIC_API const char*
 yaml_get_value(const struct ptree_t* node, const char* key);
 
 /*!
- * @brief Returns the specified node's hash.
- * @param[in] node The node to get the hash of.
- * @return Returns the hash if it exists. Note that the root node will not
- * have a hash, in which case the value of 0 is returned.
- */
-LIGHTSHIP_UTIL_PUBLIC_API uint32_t
-yaml_get_hash(const struct ptree_t* node);
-
-/*!
  * @brief Looks up the specified node from a loaded yaml file and returns it.
  *
  * For example, if your YAML file looked like this:
@@ -123,14 +114,14 @@ yaml_remove_value(struct ptree_t* node, const char* key);
 #define YAML_FOR_EACH(m_root, m_key, m_hash_var, m_node_var) {               \
 	struct ptree_t* yaml_internal_##m_root_node;                             \
 	if((yaml_internal_##m_root_node = yaml_get_node(m_root, m_key))) {       \
-		MAP_FOR_EACH(&(yaml_internal_##m_root_node)->children,               \
+		BSTHV_FOR_EACH(&(yaml_internal_##m_root_node)->children,             \
 					 struct ptree_t,                                         \
 					 m_hash_var,                                             \
 					 m_node_var)
 
-#define YAML_END_EACH MAP_END_EACH }}
+#define YAML_END_EACH BSTHV_END_EACH }}
 
-#define YAML_IF_EACH_FAILED MAP_END_EACH } else {
+#define YAML_IF_EACH_FAILED BSTHV_END_EACH } else {
 
 #define YAML_ENDIF_EACH_FAILED }}
 

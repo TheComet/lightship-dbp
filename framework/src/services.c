@@ -3,7 +3,6 @@
 #include "framework/services.h"
 #include "util/hash.h"
 #include "framework/log.h"
-#include "util/map.h"
 #include "util/memory.h"
 #include "util/string.h"
 #include <stdlib.h>
@@ -86,7 +85,7 @@ service_create(struct plugin_t* plugin,
 
 		/* create node in game's service directory - want to do this last
 		 * because ptree_remove_node uses malloc() */
-		if(!(node = ptree_add_node(&plugin->game->services, directory, service)))
+		if(!(node = ptree_set(&plugin->game->services, directory, service)))
 			break;
 
 		/* NOTE: don't MALLOC() past this point ----------------------- */

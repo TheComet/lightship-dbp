@@ -1,31 +1,31 @@
 #include "gmock/gmock.h"
-#include "util/map.h"
 #include "util/memory.h"
+#include "util/bst_vector.h"
 
-#define NAME map_malloc
+#define NAME bstv_malloc
 
 using namespace testing;
 
 TEST(NAME, create)
 {
     force_malloc_fail_on();
-    EXPECT_THAT(map_create(), IsNull());
+    EXPECT_THAT(bstv_create(), IsNull());
     force_malloc_fail_off();
 
-    struct map_t* map;
-    ASSERT_THAT((map = map_create()), NotNull());
-    map_destroy(map);
+    struct bstv_t* map;
+    ASSERT_THAT((map = bstv_create()), NotNull());
+    bstv_destroy(map);
 }
 
 TEST(NAME, insert)
 {
-    struct map_t* map = map_create();
+    struct bstv_t* map = bstv_create();
 
     force_malloc_fail_on();
-    EXPECT_THAT(map_insert(map, 1, NULL), Eq(0));
+    EXPECT_THAT(bstv_insert(map, 1, NULL), Eq(0));
     force_malloc_fail_off();
 
-    EXPECT_THAT(map_insert(map, 1, NULL), Ne(0));
+    EXPECT_THAT(bstv_insert(map, 1, NULL), Ne(0));
 
-    map_destroy(map);
+    bstv_destroy(map);
 }

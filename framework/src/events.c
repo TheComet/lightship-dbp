@@ -118,7 +118,7 @@ event_create(struct plugin_t* plugin,
 
 		/* create node in game's event directory and add event - do this last
 		 * because ptree_remove_node() uses malloc() */
-		if(!(node = ptree_add_node(&plugin->game->events, directory, event)))
+		if(!(node = ptree_set(&plugin->game->events, directory, event)))
 			break;
 
 		/* NOTE: don't MALLOC() past this point ----------------------- */

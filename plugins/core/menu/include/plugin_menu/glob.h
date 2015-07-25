@@ -15,13 +15,13 @@ struct glob_element_t
 struct glob_button_t
 {
 	uint32_t font_id;
-	struct map_t buttons;
+	struct bstv_t buttons;
 };
 
 struct glob_menu_t
 {
 	uint32_t gid;
-	struct map_t menus;     /* maps menu IDs to menu objects */
+	struct bsthv_t menus;     /* maps menu IDs to menu objects */
 };
 
 struct glob_services_t

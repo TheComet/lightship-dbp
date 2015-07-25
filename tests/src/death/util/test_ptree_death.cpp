@@ -23,13 +23,13 @@ TEST(NAME, destroy_keep_root_with_tree_as_null_ptr)
 
 TEST(NAME, add_node_with_tree_as_null_ptr)
 {
-    ASSERT_DEATH(ptree_add_node(NULL, "key", NULL), ASSERTION_REGEX);
+    ASSERT_DEATH(ptree_set(NULL, "key", NULL), ASSERTION_REGEX);
 }
 
 TEST(NAME, add_node_with_key_as_null_ptr)
 {
     struct ptree_t* tree = ptree_create(NULL);
-    EXPECT_DEATH(ptree_add_node(tree, NULL, NULL), ASSERTION_REGEX);
+    EXPECT_DEATH(ptree_set(tree, NULL, NULL), ASSERTION_REGEX);
     ptree_destroy(tree);
 }
 
@@ -49,13 +49,13 @@ TEST(NAME, set_parent_with_key_as_null_ptr)
 
 TEST(NAME, remove_node_with_node_as_null_ptr)
 {
-    ASSERT_DEATH(ptree_remove_node(NULL, "key"), ASSERTION_REGEX);
+    ASSERT_DEATH(ptree_remove(NULL, "key"), ASSERTION_REGEX);
 }
 
 TEST(NAME, remove_node_with_key_as_null_ptr)
 {
     struct ptree_t* tree = ptree_create(NULL);
-    EXPECT_DEATH(ptree_remove_node(tree, NULL), ASSERTION_REGEX);
+    EXPECT_DEATH(ptree_remove(tree, NULL), ASSERTION_REGEX);
     ptree_destroy(tree);
 }
 

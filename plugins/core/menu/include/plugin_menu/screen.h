@@ -1,10 +1,10 @@
-#include "util/map.h"
+#include "util/bst_vector.h"
 
 struct element_t;
 
 struct screen_t
 {
-	struct map_t elements;
+	struct bstv_t elements;
 };
 
 /*!

@@ -6,6 +6,7 @@
 #include "framework/se_api.h"
 #include "util/ptree.h"
 #include "util/linked_list.h"
+#include "util/bst_vector.h"
 
 C_HEADER_BEGIN
 
@@ -70,7 +71,7 @@ struct game_t
 	struct list_t plugins;      /* list of active plugins used by this game */
 	struct ptree_t services;    /* service directory of this game */
 	struct ptree_t events;      /* event directory of this game */
-	struct map_t global_data;   /* maps hashed plugin names to glob structs used by this game */
+	struct bstv_t global_data;   /* maps hashed plugin names to glob structs used by this game */
 };
 
 FRAMEWORK_PUBLIC_API void
@@ -112,9 +113,9 @@ game_dispatch_render(void);
 void
 game_dispatch_tick(void);
 
-#define game_add_global(game, hash, glob) map_insert(&(game)->global_data, hash, glob)
-#define game_get_global(game, hash) map_find(&(game)->global_data, hash)
-#define game_remove_global(game, hash) map_erase(&(game)->global_data, hash)
+#define game_add_global(game, hash, glob) bstv_insert(&(game)->global_data, hash, glob)
+#define game_get_global(game, hash) bstv_find(&(game)->global_data, hash)
+#define game_remove_global(game, hash) bstv_erase(&(game)->global_data, hash)
 
 C_HEADER_END
 

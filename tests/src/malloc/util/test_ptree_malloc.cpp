@@ -28,14 +28,14 @@ TEST(NAME, add_node)
 #endif
     {
         force_malloc_fail_after(i);
-        EXPECT_THAT(ptree_add_node(tree, "test.test.test.test", NULL), IsNull());
+        EXPECT_THAT(ptree_set(tree, "test.test.test.test", NULL), IsNull());
         force_malloc_fail_off();
-        ASSERT_THAT(map_count(&tree->children), Eq(0));
+        ASSERT_THAT(bsthv_count(&tree->children), Eq(0));
     }
 
-    ASSERT_THAT(ptree_add_node(tree, "test.test.test.test", NULL), NotNull());
-    ASSERT_THAT(map_count(&tree->children), Eq(1));
-    ASSERT_THAT(map_count(&ptree_get_node(tree, "test.test.test.test")->children), Eq(0));
+    ASSERT_THAT(ptree_set(tree, "test.test.test.test", NULL), NotNull());
+    ASSERT_THAT(bsthv_count(&tree->children), Eq(1));
+    ASSERT_THAT(bsthv_count(&ptree_get_node(tree, "test.test.test.test")->children), Eq(0));
 
     ptree_destroy(tree);
 }
@@ -54,13 +54,13 @@ TEST(NAME, set_parent_fail_later)
         force_malloc_fail_after(i);
         EXPECT_THAT(ptree_set_parent(node, root, "node"), Eq(0));
         force_malloc_fail_off();
-        ASSERT_THAT(map_count(&root->children), Eq(0));
+        ASSERT_THAT(bsthv_count(&root->children), Eq(0));
         ASSERT_THAT(root->parent, IsNull());
         ASSERT_THAT(node->parent, IsNull());
     }
 
     ASSERT_THAT(ptree_set_parent(node, root, "node"), Ne(0));
-    ASSERT_THAT(map_count(&root->children), Eq(1));
+    ASSERT_THAT(bsthv_count(&root->children), Eq(1));
     ASSERT_THAT(root->parent, IsNull());
     ASSERT_THAT(node->parent, Eq(root));
 
@@ -86,8 +86,8 @@ TEST(NAME, duplicate_tree_fail_later)
     int *a=(int*)MALLOC(sizeof(int)), *b=(int*)MALLOC(sizeof(int));
     *a = 6, *b = 3;
     struct ptree_t* tree = ptree_create(NULL);
-    struct ptree_t* n3 = ptree_add_node(tree, "1.2.3", a);
-    struct ptree_t* n1 = ptree_add_node(tree, "1.1.1", b);
+    struct ptree_t* n3 = ptree_set(tree, "1.2.3", a);
+    struct ptree_t* n1 = ptree_set(tree, "1.1.1", b);
     ptree_set_dup_func(n1, (ptree_dup_func)dup_value);
     ptree_set_free_func(n1, (ptree_free_func)free_value);
     ptree_set_dup_func(n3, (ptree_dup_func)dup_value);
@@ -102,7 +102,7 @@ TEST(NAME, duplicate_tree_fail_later)
         force_malloc_fail_after(i);
         EXPECT_THAT(ptree_duplicate_tree(tree), IsNull());
         force_malloc_fail_off();
-        ASSERT_THAT(map_count(&tree->children), Eq(1));
+        ASSERT_THAT(bsthv_count(&tree->children), Eq(1));
         ASSERT_THAT(n3->parent->parent->parent, Eq(tree));
         ASSERT_THAT(n1->parent->parent->parent, Eq(tree));
         ASSERT_THAT(tree->parent, IsNull());
@@ -112,7 +112,7 @@ TEST(NAME, duplicate_tree_fail_later)
 
     struct ptree_t* copy = ptree_duplicate_tree(tree);
     ASSERT_THAT(copy, NotNull());
-    ASSERT_THAT(map_count(&copy->children), Eq(1));
+    ASSERT_THAT(bsthv_count(&copy->children), Eq(1));
     ASSERT_THAT((int*)ptree_get_node(copy, "1.2.3")->value, Pointee(*a));
     ASSERT_THAT((int*)ptree_get_node(copy, "1.1.1")->value, Pointee(*b));
     ASSERT_THAT(copy->parent, IsNull());
@@ -126,9 +126,9 @@ TEST(NAME, duplicate_into_existing_node_fail_later)
     int *a=(int*)MALLOC(sizeof(int)), *b=(int*)MALLOC(sizeof(int));
     *a = 6, *b = 3;
     struct ptree_t* tree = ptree_create(NULL);
-    struct ptree_t* n3 = ptree_add_node(tree, "1.2.3", a);
+    struct ptree_t* n3 = ptree_set(tree, "1.2.3", a);
     struct ptree_t* n2 = ptree_get_node(tree, "1.2");
-    struct ptree_t* n1 = ptree_add_node(tree, "1.1.1", b);
+    struct ptree_t* n1 = ptree_set(tree, "1.1.1", b);
     ptree_set_dup_func(n1, (ptree_dup_func)dup_value);
     ptree_set_free_func(n1, (ptree_free_func)free_value);
     ptree_set_dup_func(n3, (ptree_dup_func)dup_value);
@@ -143,8 +143,8 @@ TEST(NAME, duplicate_into_existing_node_fail_later)
         force_malloc_fail_after(i);
         EXPECT_THAT(ptree_duplicate_children_into_existing_node(n2, tree), Eq(0));
         force_malloc_fail_off();
-        ASSERT_THAT(map_count(&tree->children), Eq(1));
-        ASSERT_THAT(map_count(&n2->children), Eq(1));
+        ASSERT_THAT(bsthv_count(&tree->children), Eq(1));
+        ASSERT_THAT(bsthv_count(&n2->children), Eq(1));
         ASSERT_THAT(tree->parent, IsNull());
         ASSERT_THAT((int*)ptree_get_node(tree, "1.2.3")->value, Pointee(*a));
         ASSERT_THAT((int*)ptree_get_node(tree, "1.1.1")->value, Pointee(*b));
@@ -156,7 +156,7 @@ TEST(NAME, duplicate_into_existing_node_fail_later)
 TEST(NAME, get_node)
 {
     struct ptree_t* tree = ptree_create(NULL);
-    ptree_add_node(tree, "1.1.1", NULL);
+    ptree_set(tree, "1.1.1", NULL);
 
     force_malloc_fail_on();
     EXPECT_THAT(ptree_get_node(tree, "1"), IsNull());

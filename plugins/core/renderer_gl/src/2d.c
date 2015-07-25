@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "util/map.h"
+#include "util/bst_vector.h"
 #include "util/memory.h"
 #include "framework/services.h"
 #include "plugin_renderer_gl/2d.h"
@@ -12,7 +12,7 @@
 
 static GLuint g_line_shader_id;
 static struct shapes_t* g_current_shapes = NULL;
-static struct map_t g_shapes_collection;
+static struct bstv_t g_shapes_collection;
 static uint32_t guid_counter = 1;
 
 #ifdef _DEBUG
@@ -27,7 +27,7 @@ init_2d(struct glob_t* g)
 {
 	g_line_shader_id = shader_load(g, two_d_shader_file);
 
-	map_init_map(&g_shapes_collection);
+	bstv_init_bstv(&g_shapes_collection);
 
 	return 1;
 }
@@ -37,11 +37,11 @@ void
 deinit_2d(void)
 {
 	struct shapes_t* shapes;
-	while((shapes = map_get_any_element(&g_shapes_collection)))
+	while((shapes = bstv_get_any_element(&g_shapes_collection)))
 	{
 		shapes_2d_destroy(shapes->id);
 	}
-	map_clear_free(&g_shapes_collection);
+	bstv_clear_free(&g_shapes_collection);
 
 	if(g_line_shader_id)
 		glDeleteProgram(g_line_shader_id);printOpenGLError();
@@ -61,7 +61,7 @@ shapes_2d_begin(struct glob_t* g)
 
 	/* give this shapes a uinque ID and insert into global map */
 	g_current_shapes->id = guid_counter++;
-	map_insert(&g_shapes_collection, g_current_shapes->id, g_current_shapes);
+	bstv_insert(&g_shapes_collection, g_current_shapes->id, g_current_shapes);
 
 	/* init */
 	ordered_vector_init_vector(&g_current_shapes->vertex_data, sizeof(struct vertex_2d_t));
@@ -111,7 +111,7 @@ shapes_2d_end(void)
 void
 shapes_2d_destroy(uint32_t id)
 {
-	struct shapes_t* shapes = map_erase(&g_shapes_collection, id);
+	struct shapes_t* shapes = bstv_erase(&g_shapes_collection, id);
 	if(!shapes)
 		return;
 
@@ -173,7 +173,7 @@ box_2d(float x1, float y1, float x2, float y2, uint32_t colour)
 void
 shapes_hide(uint32_t id)
 {
-	struct shapes_t* shapes = map_find(&g_shapes_collection, id);
+	struct shapes_t* shapes = bstv_find(&g_shapes_collection, id);
 	if(!shapes)
 		return;
 	shapes->visible = 0;
@@ -183,7 +183,7 @@ shapes_hide(uint32_t id)
 void
 shapes_show(uint32_t id)
 {
-	struct shapes_t* shapes = map_find(&g_shapes_collection, id);
+	struct shapes_t* shapes = bstv_find(&g_shapes_collection, id);
 	if(!shapes)
 		return;
 	shapes->visible = 1;
@@ -195,13 +195,13 @@ draw_2d(void)
 {
 	glUseProgram(g_line_shader_id);printOpenGLError();
 
-	MAP_FOR_EACH(&g_shapes_collection, struct shapes_t, id, shapes)
+	BSTV_FOR_EACH(&g_shapes_collection, struct shapes_t, id, shapes)
 		if(!shapes->visible)
 			continue;
 
 		glBindVertexArray(shapes->vao);printOpenGLError();
 			glDrawElements(GL_LINES, shapes->index_data.count, GL_UNSIGNED_SHORT, NULL);printOpenGLError();
-	MAP_END_EACH
+	BSTV_END_EACH
 
 	glBindVertexArray(0);
 }

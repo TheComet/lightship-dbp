@@ -28,7 +28,7 @@ menu_load_button_action(struct glob_t* g, struct button_t* button, const struct 
 void
 menu_init(struct glob_t* g)
 {
-	map_init_map(&g->menu.menus);
+	bsthv_init_bsthv(&g->menu.menus);
 }
 
 /* ------------------------------------------------------------------------- */
@@ -36,11 +36,11 @@ void
 menu_deinit(struct glob_t* g)
 {
 	struct menu_t* menu;
-	while((menu = map_get_any_element(&g->menu.menus)))
+	while((menu = bsthv_get_any_element(&g->menu.menus)))
 	{
 		menu_destroy(menu);
 	}
-	map_clear_free(&g->menu.menus);
+	bsthv_clear_free(&g->menu.menus);
 }
 
 /* ------------------------------------------------------------------------- */
@@ -78,7 +78,7 @@ menu_load(struct glob_t* g, const char* file_name)
 	/* create new menu object in which to store menu elements */
 	menu = (struct menu_t*)MALLOC(sizeof(struct menu_t));
 	memset(menu, 0, sizeof(struct menu_t));
-	map_init_map(&menu->screens);
+	bsthv_init_bsthv(&menu->screens);
 
 	/* set the name of the menu */
 	menu->name = malloc_string(menu_name);
@@ -99,9 +99,7 @@ menu_load(struct glob_t* g, const char* file_name)
 	}
 
 	/* insert into global list of menus */
-	map_insert(&g->menu.menus,
-			   hash_jenkins_oaat(menu->name, strlen(menu->name)),
-			   menu);
+	bsthv_insert(&g->menu.menus, menu->name, menu);
 
 	/* clean up */
 	yaml_destroy(doc);
@@ -114,13 +112,13 @@ void
 menu_destroy(struct menu_t* menu)
 {
 	/* destroy all screens */
-	MAP_FOR_EACH(&menu->screens, struct screen_t, key, screen)
+	BSTHV_FOR_EACH(&menu->screens, struct screen_t, key, screen)
 		screen_destroy(screen);
-	MAP_END_EACH
-	map_clear_free(&menu->screens);
+	BSTHV_END_EACH
+	bsthv_clear_free(&menu->screens);
 
 	/* remove from global list of menus */
-	map_erase(&menu->glob->menu.menus, hash_jenkins_oaat(menu->name, strlen(menu->name)));
+	bsthv_erase(&menu->glob->menu.menus, menu->name);
 
 	/* menu name */
 	free_string(menu->name);
@@ -133,8 +131,7 @@ menu_destroy(struct menu_t* menu)
 void
 menu_set_active_screen(struct menu_t* menu, const char* screen_name)
 {
-	uint32_t screen_id = hash_jenkins_oaat(screen_name, strlen(screen_name));
-	struct screen_t* screen = map_find(&menu->screens, screen_id);
+	struct screen_t* screen = bsthv_find(&menu->screens, screen_name);
 	if(!screen)
 	{
 		llog(LOG_ERROR, menu->glob->game, PLUGIN_NAME, "Failed to set the "
@@ -155,8 +152,8 @@ menu_set_active_screen(struct menu_t* menu, const char* screen_name)
 static void
 menu_load_screens(struct menu_t* menu, const struct ptree_t* doc)
 {
-	struct map_t created_screen_names;
-	map_init_map(&created_screen_names);
+	struct bsthv_t created_screen_names;
+	bsthv_init_bsthv(&created_screen_names);
 
 	/* iterate screens */
 	YAML_FOR_EACH(doc, "screens", key, screen_node)
@@ -174,17 +171,17 @@ menu_load_screens(struct menu_t* menu, const struct ptree_t* doc)
 		* Screen names must be unique. Verify by searching the map of
 		* screens currently registered.
 		*/
-		if(map_key_exists(&created_screen_names, hash_jenkins_oaat(screen_name, strlen(screen_name))))
+		if(bsthv_key_exists(&created_screen_names, screen_name))
 		{
 			llog(LOG_WARNING, menu->glob->game, PLUGIN_NAME, "Screen with duplicate name found: %s", screen_name);
 			llog(LOG_WARNING, menu->glob->game, PLUGIN_NAME, "Screen will not be created");
 			continue;
 		}
-		map_insert(&created_screen_names, hash_jenkins_oaat(screen_name, strlen(screen_name)), NULL);
+		bsthv_insert(&created_screen_names, screen_name, NULL);
 
 		/* create new screen object */
 		screen = screen_create();
-		map_insert(&menu->screens, hash_jenkins_oaat(screen_name, strlen(screen_name)), screen);
+		bsthv_insert(&menu->screens, screen_name, screen);
 
 		/* iterate objects to add to this screen */
 		YAML_FOR_EACH(screen_node, "buttons", key, button_node)
@@ -195,7 +192,7 @@ menu_load_screens(struct menu_t* menu, const struct ptree_t* doc)
 		screen_hide(screen);
 	YAML_END_EACH
 
-	map_clear_free(&created_screen_names);
+	bsthv_clear_free(&created_screen_names);
 }
 
 /* ------------------------------------------------------------------------- */
@@ -306,8 +303,7 @@ SERVICE(menu_destroy_wrapper)
 	struct glob_t* g = get_global(service->plugin->game);
 	EXTRACT_ARGUMENT_PTR(0, menu_name, const char*);
 
-	uint32_t menu_hash = hash_jenkins_oaat(menu_name, strlen(menu_name));
-	struct menu_t* menu = map_find(&g->menu.menus, menu_hash);
+	struct menu_t* menu = bsthv_find(&g->menu.menus, menu_name);
 	if(menu)
 		menu_destroy(menu);
 }
@@ -319,8 +315,7 @@ SERVICE(menu_set_active_screen_wrapper)
 	EXTRACT_ARGUMENT_PTR(0, menu_name, const char*);
 	EXTRACT_ARGUMENT_PTR(1, screen_name, const char*);
 
-	uint32_t menu_hash = hash_jenkins_oaat(menu_name, strlen(menu_name));
-	struct menu_t* menu = map_find(&g->menu.menus, menu_hash);
+	struct menu_t* menu = bsthv_find(&g->menu.menus, menu_name);
 	if(menu)
 	{
 		menu_set_active_screen(menu, screen_name);
