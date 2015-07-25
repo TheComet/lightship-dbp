@@ -53,5 +53,8 @@ TEST_F(NAME, event_get)
 	EXPECT_THAT(event_get(game, "test.another.event"), NotNull());
 	EXPECT_THAT(event_get(game, "test.nothing"), IsNull());
 
+	EXPECT_THAT(event_get(game, ""), IsNull());
+	EXPECT_THAT(event_get(game, "...."), IsNull());
+
 	event_destroy(event);
 }

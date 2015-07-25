@@ -25,7 +25,7 @@ event_free(struct event_t* event);
  * Exported functions
  * ------------------------------------------------------------------------- */
 char
-event_init(struct game_t* game)
+events_init(struct game_t* game)
 {
 	assert(game);
 	assert(game->core);
@@ -79,7 +79,7 @@ event_init(struct game_t* game)
 
 /* ------------------------------------------------------------------------- */
 void
-event_deinit(struct game_t* game)
+events_deinit(struct game_t* game)
 {
 	ptree_destroy_keep_root(&game->events);
 }

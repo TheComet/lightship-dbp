@@ -126,11 +126,11 @@ struct event_listener_t
  * @brief Initialises the event system.
  * @note Must be called before calling any other event related functions.
  */
-FRAMEWORK_PUBLIC_API char
-event_init(struct game_t* game);
+char
+events_init(struct game_t* game);
 
-FRAMEWORK_PUBLIC_API void
-event_deinit(struct game_t* game);
+void
+events_deinit(struct game_t* game);
 
 /*!
  * @brief Creates and registers a new event in the host program.

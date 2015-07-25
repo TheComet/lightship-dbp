@@ -88,7 +88,7 @@ game_create(const char* name, game_network_role_e net_role)
 			break;
 		if(!service_init(game))
 			break;
-		if(!event_init(game))
+		if(!events_init(game))
 			break;
 
 		/* add to global list of games */
@@ -119,7 +119,7 @@ game_destroy(struct game_t* game)
 
 	/* deinit plugin manager, services, and events (in reverse order) */
 	plugin_manager_deinit(game);
-	event_deinit(game);
+	events_deinit(game);
 	service_deinit(game);
 
 	/* clean up data held by game object */
