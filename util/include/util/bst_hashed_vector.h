@@ -29,7 +29,8 @@ struct bsthv_key_value_t
 
 struct bsthv_t
 {
-	struct ordered_vector_t vector;
+	struct ordered_vector_t     vector;
+	uint32_t                    count;
 };
 
 /*!
@@ -39,6 +40,13 @@ struct bsthv_t
  */
 LIGHTSHIP_UTIL_PUBLIC_API void
 bsthv_set_string_hash_func(uint32_t(*func)(const char*, uint32_t len));
+
+/*!
+ * @brief Restores the default hash function used to compute the hash value of
+ * keys.
+ */
+LIGHTSHIP_UTIL_PUBLIC_API void
+bsthv_restore_default_hash_func(void);
 
 /*!
  * @brief Computes the hash of a given string.

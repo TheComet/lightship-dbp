@@ -16,6 +16,13 @@ bsthv_set_string_hash_func(uint32_t(*func)(const char*, uint32_t len))
 }
 
 /* ------------------------------------------------------------------------- */
+void
+bsthv_restore_default_hash_func(void)
+{
+	g_hash_func = hash_jenkins_oaat;
+}
+
+/* ------------------------------------------------------------------------- */
 uint32_t
 bsthv_hash_string(const char* str)
 {
@@ -123,6 +130,7 @@ bsthv_insert(struct bsthv_t* bsthv, const char* key, void* value)
 		vc->next = (struct bsthv_value_chain_t*)MALLOC(sizeof *vc);
 		if(!vc->next)
 			return 0;
+		memset(vc->next, 0, sizeof *vc->next);
 		/* key */
 		vc->next->key = malloc_string(key);
 		if(!vc->next->key)
@@ -132,6 +140,9 @@ bsthv_insert(struct bsthv_t* bsthv, const char* key, void* value)
 		}
 		/* value */
 		vc->next->value = value;
+
+		/* inc counter to keep track of number of elements */
+		++bsthv->count;
 
 		return 1;
 	}
@@ -157,6 +168,9 @@ bsthv_insert(struct bsthv_t* bsthv, const char* key, void* value)
 		ordered_vector_erase_element(&bsthv->vector, new_kv);
 		return 0;
 	}
+
+	/* inc counter to keep track of number of elements */
+		++bsthv->count;
 
 	return 1;
 }
@@ -354,6 +368,7 @@ bsthv_erase_key_value_object(struct bsthv_t* bsthv,
 		void* value = kv->value_chain.value;
 		free_string(kv->value_chain.key);
 		ordered_vector_erase_element(&bsthv->vector, kv);
+		--bsthv->count;
 		return value;
 	}
 
@@ -369,6 +384,7 @@ bsthv_erase_key_value_object(struct bsthv_t* bsthv,
 		void* value = vc->value;
 		free_string(vc->key);
 		memcpy(vc, vc->next, sizeof *vc); /* copies the next value into the bsthv's internal vector */
+		--bsthv->count;
 		return value;
 	}
 
@@ -386,8 +402,10 @@ bsthv_erase_key_value_object(struct bsthv_t* bsthv,
 			free_string(vc->key);
 			parent_vc->next = vc->next; /* unlink this value by linking next with parent */
 			FREE(vc);
+			--bsthv->count;
 			return value;
 		}
+		vc = vc->next;
 	} while(vc);
 
 	return NULL;

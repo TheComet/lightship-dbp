@@ -1,11 +1,32 @@
 #include "gmock/gmock.h"
 #include "util/bst_hashed_vector.h"
 
-#define NAME bst_hashed_vector
+#define NAME bsthv_hash_collision
 
 using namespace testing;
 
-TEST(NAME, init_sets_correct_values)
+/* always return 42 */
+uint32_t
+hash_collision_func(const char* key, uint32_t len)
+{
+	return 42;
+}
+
+class NAME : public Test
+{
+public:
+	virtual void SetUp()
+	{
+		bsthv_set_string_hash_func(hash_collision_func);
+	}
+
+	virtual void TearDown()
+	{
+		bsthv_restore_default_hash_func();
+	}
+};
+
+TEST_F(NAME, init_sets_correct_values)
 {
     struct bsthv_t bsthv;
     bsthv.vector.count = 4;
@@ -22,7 +43,7 @@ TEST(NAME, init_sets_correct_values)
     ASSERT_EQ(sizeof(struct bsthv_key_value_t), bsthv.vector.element_size);
 }
 
-TEST(NAME, create_initialises_bsthv)
+TEST_F(NAME, create_initialises_bsthv)
 {
     struct bsthv_t* bsthv = bsthv_create();
     ASSERT_EQ(0, bsthv->vector.capacity);
@@ -32,7 +53,7 @@ TEST(NAME, create_initialises_bsthv)
     bsthv_destroy(bsthv);
 }
 
-TEST(NAME, insertion_forwards)
+TEST_F(NAME, insertion_forwards)
 {
     struct bsthv_t* bsthv = bsthv_create();
 
@@ -52,7 +73,7 @@ TEST(NAME, insertion_forwards)
     bsthv_destroy(bsthv);
 }
 
-TEST(NAME, insertion_backwards)
+TEST_F(NAME, insertion_backwards)
 {
     struct bsthv_t* bsthv = bsthv_create();
 
@@ -72,7 +93,7 @@ TEST(NAME, insertion_backwards)
     bsthv_destroy(bsthv);
 }
 
-TEST(NAME, insertion_random)
+TEST_F(NAME, insertion_random)
 {
     struct bsthv_t* bsthv = bsthv_create();
 
@@ -92,7 +113,7 @@ TEST(NAME, insertion_random)
     bsthv_destroy(bsthv);
 }
 
-TEST(NAME, clear_keeps_underlying_vector)
+TEST_F(NAME, clear_keeps_underlying_vector)
 {
     struct bsthv_t* bsthv = bsthv_create();
 
@@ -110,7 +131,7 @@ TEST(NAME, clear_keeps_underlying_vector)
     bsthv_destroy(bsthv);
 }
 
-TEST(NAME, clear_free_deletes_underlying_vector)
+TEST_F(NAME, clear_free_deletes_underlying_vector)
 {
     struct bsthv_t* bsthv = bsthv_create();
 
@@ -128,7 +149,7 @@ TEST(NAME, clear_free_deletes_underlying_vector)
     bsthv_destroy(bsthv);
 }
 
-TEST(NAME, count_returns_correct_number)
+TEST_F(NAME, count_returns_correct_number)
 {
     struct bsthv_t* bsthv = bsthv_create();
 
@@ -142,7 +163,7 @@ TEST(NAME, count_returns_correct_number)
     bsthv_destroy(bsthv);
 }
 
-TEST(NAME, erase_elements)
+TEST_F(NAME, erase_elements)
 {
     struct bsthv_t* bsthv = bsthv_create();
 
@@ -153,40 +174,40 @@ TEST(NAME, erase_elements)
     bsthv_insert(bsthv, "3", &d);
     bsthv_insert(bsthv, "4", &e);
 
-    ASSERT_EQ(c, *(int*)bsthv_erase(bsthv, "2"));
+    EXPECT_THAT((int*)bsthv_erase(bsthv, "2"), Pointee(c));
 
     //"4"
-    ASSERT_EQ(a, *(int*)bsthv_find(bsthv, "0"));
-    ASSERT_EQ(b, *(int*)bsthv_find(bsthv, "1"));
-    ASSERT_EQ(d, *(int*)bsthv_find(bsthv, "3"));
-    ASSERT_EQ(e, *(int*)bsthv_find(bsthv, "4"));
+    EXPECT_THAT((int*)bsthv_find(bsthv, "0"), Pointee(a));
+    EXPECT_THAT((int*)bsthv_find(bsthv, "1"), Pointee(b));
+    EXPECT_THAT((int*)bsthv_find(bsthv, "3"), Pointee(c));
+    EXPECT_THAT((int*)bsthv_find(bsthv, "4"), Pointee(e));
 
-    ASSERT_EQ(e, *(int*)bsthv_erase(bsthv, "4"));
+    EXPECT_THAT((int*)bsthv_erase(bsthv, "4"), Pointee(e));
 
     //"3"
-    ASSERT_EQ(a, *(int*)bsthv_find(bsthv, "0"));
-    ASSERT_EQ(b, *(int*)bsthv_find(bsthv, "1"));
-    ASSERT_EQ(d, *(int*)bsthv_find(bsthv, "3"));
+    EXPECT_THAT((int*)bsthv_find(bsthv, "0"), Pointee(a));
+    EXPECT_THAT((int*)bsthv_find(bsthv, "1"), Pointee(b));
+    EXPECT_THAT((int*)bsthv_find(bsthv, "3"), Pointee(d));
 
-    ASSERT_EQ(a, *(int*)bsthv_erase(bsthv, "0"));
+    EXPECT_THAT((int*)bsthv_erase(bsthv, "0"), Pointee(a));
 
     //"2"
-    ASSERT_EQ(b, *(int*)bsthv_find(bsthv, "1"));
-    ASSERT_EQ(d, *(int*)bsthv_find(bsthv, "3"));
+    EXPECT_THAT((int*)bsthv_find(bsthv, "1"), Pointee(b));
+    EXPECT_THAT((int*)bsthv_find(bsthv, "3"), Pointee(d));
 
-    ASSERT_EQ(b, *(int*)bsthv_erase(bsthv, "1"));
+    EXPECT_THAT((int*)bsthv_erase(bsthv, "1"), Pointee(b));
 
     //"1"
-    ASSERT_EQ(d, *(int*)bsthv_find(bsthv, "3"));
+    EXPECT_THAT((int*)bsthv_find(bsthv, "3"), Pointee(d));
 
-    ASSERT_EQ(d, *(int*)bsthv_erase(bsthv, "3"));
+    EXPECT_THAT((int*)bsthv_erase(bsthv, "3"), Pointee(d));
 
-    ASSERT_EQ(NULL, bsthv_erase(bsthv, "2"));
+    EXPECT_THAT(bsthv_erase(bsthv, "2"), IsNull());
 
     bsthv_destroy(bsthv);
 }
 
-TEST(NAME, reinsertion_forwards)
+TEST_F(NAME, reinsertion_forwards)
 {
     struct bsthv_t* bsthv = bsthv_create();
 
@@ -205,16 +226,16 @@ TEST(NAME, reinsertion_forwards)
     bsthv_insert(bsthv, "3", &d);
     bsthv_insert(bsthv, "4", &e);
 
-    ASSERT_EQ(a, *(int*)bsthv_find(bsthv, "0"));
-    ASSERT_EQ(b, *(int*)bsthv_find(bsthv, "1"));
-    ASSERT_EQ(c, *(int*)bsthv_find(bsthv, "2"));
-    ASSERT_EQ(d, *(int*)bsthv_find(bsthv, "3"));
-    ASSERT_EQ(e, *(int*)bsthv_find(bsthv, "4"));
+    EXPECT_THAT((int*)bsthv_find(bsthv, "0"), Pointee(a));
+    EXPECT_THAT((int*)bsthv_find(bsthv, "1"), Pointee(b));
+    EXPECT_THAT((int*)bsthv_find(bsthv, "2"), Pointee(c));
+    EXPECT_THAT((int*)bsthv_find(bsthv, "3"), Pointee(d));
+    EXPECT_THAT((int*)bsthv_find(bsthv, "4"), Pointee(e));
 
     bsthv_destroy(bsthv);
 }
 
-TEST(NAME, reinsertion_backwards)
+TEST_F(NAME, reinsertion_backwards)
 {
     struct bsthv_t* bsthv = bsthv_create();
 
@@ -233,16 +254,16 @@ TEST(NAME, reinsertion_backwards)
     bsthv_insert(bsthv, "1", &d);
     bsthv_insert(bsthv, "0", &e);
 
-    ASSERT_EQ(e, *(int*)bsthv_find(bsthv, "0"));
-    ASSERT_EQ(d, *(int*)bsthv_find(bsthv, "1"));
-    ASSERT_EQ(c, *(int*)bsthv_find(bsthv, "2"));
-    ASSERT_EQ(b, *(int*)bsthv_find(bsthv, "3"));
-    ASSERT_EQ(a, *(int*)bsthv_find(bsthv, "4"));
+    EXPECT_THAT((int*)bsthv_find(bsthv, "0"), Pointee(e));
+    EXPECT_THAT((int*)bsthv_find(bsthv, "1"), Pointee(d));
+    EXPECT_THAT((int*)bsthv_find(bsthv, "2"), Pointee(c));
+    EXPECT_THAT((int*)bsthv_find(bsthv, "3"), Pointee(b));
+    EXPECT_THAT((int*)bsthv_find(bsthv, "4"), Pointee(a));
 
     bsthv_destroy(bsthv);
 }
 
-TEST(NAME, reinsertion_random)
+TEST_F(NAME, reinsertion_random)
 {
     struct bsthv_t* bsthv = bsthv_create();
 
@@ -261,16 +282,16 @@ TEST(NAME, reinsertion_random)
     bsthv_insert(bsthv, "70", &e);
     bsthv_insert(bsthv, "44", &b);
 
-    ASSERT_EQ(a, *(int*)bsthv_find(bsthv, "26"));
-    ASSERT_EQ(d, *(int*)bsthv_find(bsthv, "41"));
-    ASSERT_EQ(b, *(int*)bsthv_find(bsthv, "44"));
-    ASSERT_EQ(e, *(int*)bsthv_find(bsthv, "70"));
-    ASSERT_EQ(c, *(int*)bsthv_find(bsthv, "82"));
+    EXPECT_THAT((int*)bsthv_find(bsthv, "26"), Pointee(a));
+    EXPECT_THAT((int*)bsthv_find(bsthv, "41"), Pointee(d));
+    EXPECT_THAT((int*)bsthv_find(bsthv, "44"), Pointee(b));
+    EXPECT_THAT((int*)bsthv_find(bsthv, "70"), Pointee(e));
+    EXPECT_THAT((int*)bsthv_find(bsthv, "82"), Pointee(c));
 
     bsthv_destroy(bsthv);
 }
 
-TEST(NAME, inserting_duplicate_keys_doesnt_replace_existing_elements)
+TEST_F(NAME, inserting_duplicate_keys_doesnt_replace_existing_elements)
 {
     struct bsthv_t* bsthv = bsthv_create();
 
@@ -282,14 +303,14 @@ TEST(NAME, inserting_duplicate_keys_doesnt_replace_existing_elements)
     bsthv_insert(bsthv, "4", &b);
     bsthv_insert(bsthv, "3", &c);
 
-    ASSERT_EQ(a, *(int*)bsthv_find(bsthv, "3"));
-    ASSERT_EQ(b, *(int*)bsthv_find(bsthv, "4"));
-    ASSERT_EQ(a, *(int*)bsthv_find(bsthv, "5"));
+    EXPECT_THAT((int*)bsthv_find(bsthv, "3"), Pointee(a));
+    EXPECT_THAT((int*)bsthv_find(bsthv, "4"), Pointee(b));
+    EXPECT_THAT((int*)bsthv_find(bsthv, "5"), Pointee(a));
 
     bsthv_destroy(bsthv);
 }
 
-TEST(NAME, find_element)
+TEST_F(NAME, find_element)
 {
 	struct bsthv_t* bsthv = bsthv_create();
 	int a = 6;
@@ -304,7 +325,7 @@ TEST(NAME, find_element)
 	bsthv_destroy(bsthv);
 }
 
-TEST(NAME, set_value)
+TEST_F(NAME, set_value)
 {
 	struct bsthv_t* bsthv = bsthv_create();
 	int a = 6;
@@ -321,7 +342,7 @@ TEST(NAME, set_value)
 	bsthv_destroy(bsthv);
 }
 
-TEST(NAME, get_any_element)
+TEST_F(NAME, get_any_element)
 {
 	struct bsthv_t* bsthv = bsthv_create();
 	int a = 6;
@@ -335,7 +356,7 @@ TEST(NAME, get_any_element)
 	bsthv_destroy(bsthv);
 }
 
-TEST(NAME, key_exists)
+TEST_F(NAME, key_exists)
 {
 	struct bsthv_t* bsthv = bsthv_create();
 
@@ -349,7 +370,7 @@ TEST(NAME, key_exists)
 	bsthv_destroy(bsthv);
 }
 
-TEST(NAME, erase_element)
+TEST_F(NAME, erase_element)
 {
 	struct bsthv_t* bsthv = bsthv_create();
 	int a = 6;
@@ -362,7 +383,7 @@ TEST(NAME, erase_element)
 	bsthv_destroy(bsthv);
 }
 
-TEST(NAME, iterate_with_no_items)
+TEST_F(NAME, iterate_with_no_items)
 {
     struct bsthv_t* bsthv = bsthv_create();
     {
@@ -375,7 +396,7 @@ TEST(NAME, iterate_with_no_items)
     bsthv_destroy(bsthv);
 }
 
-TEST(NAME, iterate_5_random_items)
+TEST_F(NAME, iterate_5_random_items)
 {
     struct bsthv_t* bsthv = bsthv_create();
 
@@ -397,7 +418,7 @@ TEST(NAME, iterate_5_random_items)
     bsthv_destroy(bsthv);
 }
 
-TEST(NAME, iterate_5_null_items)
+TEST_F(NAME, iterate_5_null_items)
 {
     struct bsthv_t* bsthv = bsthv_create();
 
@@ -418,7 +439,7 @@ TEST(NAME, iterate_5_null_items)
     bsthv_destroy(bsthv);
 }
 
-TEST(NAME, erase_in_for_loop)
+TEST_F(NAME, erase_in_for_loop)
 {
 	struct bsthv_t* bsthv = bsthv_create();
 
