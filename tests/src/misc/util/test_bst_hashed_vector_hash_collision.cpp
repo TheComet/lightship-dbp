@@ -163,7 +163,7 @@ TEST_F(NAME, count_returns_correct_number)
     bsthv_destroy(bsthv);
 }
 
-TEST_F(NAME, erase_elements)
+TEST_F(NAME, erase_by_key)
 {
     struct bsthv_t* bsthv = bsthv_create();
 
@@ -179,7 +179,7 @@ TEST_F(NAME, erase_elements)
     //"4"
     EXPECT_THAT((int*)bsthv_find(bsthv, "0"), Pointee(a));
     EXPECT_THAT((int*)bsthv_find(bsthv, "1"), Pointee(b));
-    EXPECT_THAT((int*)bsthv_find(bsthv, "3"), Pointee(c));
+    EXPECT_THAT((int*)bsthv_find(bsthv, "3"), Pointee(d));
     EXPECT_THAT((int*)bsthv_find(bsthv, "4"), Pointee(e));
 
     EXPECT_THAT((int*)bsthv_erase(bsthv, "4"), Pointee(e));

@@ -45,6 +45,7 @@ void
 bsthv_init_bsthv(struct bsthv_t* bsthv)
 {
 	assert(bsthv);
+	bsthv->count = 0;
 	ordered_vector_init_vector(&bsthv->vector, sizeof(struct bsthv_key_value_t));
 }
 
@@ -381,11 +382,16 @@ bsthv_erase_key_value_object(struct bsthv_t* bsthv,
 	vc = &kv->value_chain;
 	if(strcmp(key, kv->value_chain.key) == 0)
 	{
-		void* value = vc->value;
+		struct bsthv_value_chain_t* replacement = vc->next;
+		void* ret_value = vc->value;
+		/* we have everything we need, free current and move replacement into its place */
 		free_string(vc->key);
-		memcpy(vc, vc->next, sizeof *vc); /* copies the next value into the bsthv's internal vector */
+		memcpy(vc, replacement, sizeof *vc); /* copies the next value into the bsthv's internal vector */
+		FREE(replacement);
+
+		/* done */
 		--bsthv->count;
-		return value;
+		return ret_value;
 	}
 
 	/*
@@ -405,6 +411,7 @@ bsthv_erase_key_value_object(struct bsthv_t* bsthv,
 			--bsthv->count;
 			return value;
 		}
+		parent_vc = vc;
 		vc = vc->next;
 	} while(vc);
 
