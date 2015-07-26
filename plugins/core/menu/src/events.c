@@ -14,6 +14,7 @@ register_events(struct plugin_t* plugin)
 	memset(g, 0, sizeof(struct glob_events_t));
 
 	EVENT_CREATE1(plugin, g->button_clicked, PLUGIN_NAME ".button_clicked", uint32_t);
+	g->button_clicked = event_get(plugin->game, PLUGIN_NAME ".button_clicked");
 }
 
 void

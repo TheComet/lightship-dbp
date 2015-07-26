@@ -175,6 +175,7 @@ event_get(const struct game_t* game, const char* directory);
 
 /*!
  * @brief Registers a listener to the specified event.
+ * @note The same callback function will not be registered twice.
  * @param[in] game The game hosting the event you want to listen to.
  * @param[in] event_name The name of the event to register to.
  * @param[in] callback The callback function to call when the event is fired.

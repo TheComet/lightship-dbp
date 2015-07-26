@@ -45,27 +45,23 @@ events_init(struct game_t* game)
 		 * name, and save the returned event object into game->event.(name). If
 		 * anything fails, break is called.
 		 */
-#define STR_(x) #x
-#define STR(x) STR_(x)
-#define REGISTER_BUILT_IN_EVENT(name) {                                     \
-			if(!(game->event.name = EVENT_CREATE0(game->core, STR(name))))   \
-				break; }
+#define CHECK(name) \
+		if(!(game->event.name)) break;
 
 		/* game core commands */
-		EVENT_CREATE0(game->core, game->event.start,    "start");
-		EVENT_CREATE0(game->core, game->event.pause,    "pause");
-		EVENT_CREATE0(game->core, game->event.exit,     "exit");
-
+		EVENT_CREATE0(game->core, game->event.start, "start"); CHECK(start)
+		EVENT_CREATE0(game->core, game->event.pause, "pause"); CHECK(pause)
+		EVENT_CREATE0(game->core, game->event.exit,  "exit");  CHECK(exit)
 
 		/* main loop events (game update and render updates) */
-		EVENT_CREATE0(game->core, game->event.tick,     "tick");
-		EVENT_CREATE0(game->core, game->event.render,   "render");
-		EVENT_CREATE2(game->core, game->event.stats,     "stats", uint32_t, uint32_t);
+		EVENT_CREATE0(game->core, game->event.tick,   "tick");                      CHECK(tick)
+		EVENT_CREATE0(game->core, game->event.render, "render");                    CHECK(render)
+		EVENT_CREATE2(game->core, game->event.stats,  "stats", uint32_t, uint32_t); CHECK(stats)
 
 		/* The log will fire these events appropriately whenever something is logged */
-		EVENT_CREATE2(game->core, game->event.log,      "log", uint32_t, const char*);
-		EVENT_CREATE1(game->core, game->event.log_indent, "log_indent", const char*);
-		EVENT_CREATE0(game->core, game->event.log_unindent, "log_unindent");
+		EVENT_CREATE2(game->core, game->event.log,          "log", uint32_t, const char*); CHECK(log)
+		EVENT_CREATE1(game->core, game->event.log_indent,   "log_indent", const char*);    CHECK(log_indent)
+		EVENT_CREATE0(game->core, game->event.log_unindent, "log_unindent");               CHECK(log_unindent)
 
 		return 1;
 	}

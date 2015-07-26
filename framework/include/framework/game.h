@@ -61,17 +61,23 @@ struct framework_log_t
 struct game_t
 {
 	game_state_e state;
+
 	char* name;
+
 	game_network_role_e network_role;
 	struct net_connection_t* connection;
-	struct plugin_t* core;      /* core plugin providing core functionality */
-	struct framework_events_t event;
-	struct framework_services_t service;
+
+	struct plugin_t* core;               /* core plugin providing core functionality */
+	struct framework_events_t event;     /* core plugin events are conveniently accessible here */
+	struct framework_services_t service; /* core plugin services are conveniently accessible here */
+
 	struct framework_log_t log;
+
 	struct list_t plugins;      /* list of active plugins used by this game */
 	struct ptree_t services;    /* service directory of this game */
 	struct ptree_t events;      /* event directory of this game */
-	struct bstv_t global_data;   /* maps hashed plugin names to glob structs used by this game */
+
+	struct bstv_t global_data;  /* maps hashed plugin names to glob structs used by this game */
 };
 
 FRAMEWORK_PUBLIC_API void
