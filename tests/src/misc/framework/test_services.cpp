@@ -83,3 +83,26 @@ TEST_F(NAME, verify_registration_in_game_service_directory_and_in_plugin)
     // same for plugin
     EXPECT_THAT(unordered_vector_get_element(&plugin->services, 0), IsNull());
 }
+
+TEST_F(NAME, destoy_service)
+{
+	struct service_t* service;
+	SERVICE_CREATE3(plugin, service, "test.service", (service_func)callback1, int, unsigned int, double, char*);
+
+	ASSERT_THAT(service, NotNull());
+	EXPECT_THAT(service_get(game, "test.service"), Eq(service));
+	service_destroy(service);
+	EXPECT_THAT(service_get(game, "test.service"), IsNull());
+}
+
+TEST_F(NAME, call_service)
+{
+	struct service_t* service;
+	SERVICE_CREATE3(plugin, service, "test.service", (service_func)callback1, int, unsigned int, double, char*);
+
+	ASSERT_THAT(service, NotNull());
+	int ret;
+	int a = 6; double b = 2.4;
+	SERVICE_CALL3(service, &ret, a, b, PTR("test string"));
+	EXPECT_THAT(ret, Eq(19));
+}

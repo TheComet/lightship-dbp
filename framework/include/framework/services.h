@@ -56,6 +56,7 @@ service_create(struct plugin_t* plugin,
 FRAMEWORK_PUBLIC_API void
 service_destroy(struct service_t* service);
 
+/* TODO implement */
 FRAMEWORK_PUBLIC_API uint32_t
 service_destroy_all_matching(const char* pattern);
 
@@ -63,8 +64,8 @@ service_destroy_all_matching(const char* pattern);
  * @brief Retrieves the specified service from the global service directory.
  * @param[in] name The global name, including namespace, of the service to get.
  * This follows the naming convention *plugin_name.service_name*.
- * @return The return value is an integer representing a function pointer to the
- * service. It must be cast to the exact function signature of the service
+ * @return The return value is an integer representing a function pointer to
+ * the service. It must be cast to the exact function signature of the service
  * registered by the plugin. If the service does not exist, 0 is returned.
  */
 FRAMEWORK_PUBLIC_API struct service_t*
