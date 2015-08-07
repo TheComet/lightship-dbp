@@ -1,0 +1,29 @@
+/* ----------------------------------------------------------------------------
+ * Global includes
+ * ------------------------------------------------------------------------- */
+
+#include "plugin_python/export.h"
+
+/* ----------------------------------------------------------------------------
+ * Global definitions
+ * ------------------------------------------------------------------------- */
+
+/* Integer - major version */
+#define PLUGIN_PYTHON_VERSION_MAJOR @PLUGIN_PYTHON_VERSION_MAJOR@
+/* Integer - minor version */
+#define PLUGIN_PYTHON_VERSION_MINOR @PLUGIN_PYTHON_VERSION_MINOR@
+/* Integer - patch version */
+#define PLUGIN_PYTHON_VERSION_PATCH @PLUGIN_PYTHON_VERSION_PATCH@
+/* String - Name of the plugin (no spaces or special chars).
+ * The plugin will be registered under this name in the plugin manager, and
+ * will also be used as the namespace for services and events exposed by this
+ * plugin. */
+#define PLUGIN_PYTHON_NAME "@PLUGIN_PYTHON_NAME@"
+/* String - Name of the author of this plugin */
+#define PLUGIN_PYTHON_AUTHOR "@PLUGIN_PYTHON_AUTHOR@"
+/* String - Category this plugin fits into */
+#define PLUGIN_PYTHON_CATEGORY "@PLUGIN_PYTHON_CATEGORY@"
+/* String - Short description of what this plugin does. */
+#define PLUGIN_PYTHON_DESCRIPTION "@PLUGIN_PYTHON_DESCRIPTION@"
+/* String - URL of a website to refer to */
+#define PLUGIN_PYTHON_WEBSITE "@PLUGIN_PYTHON_WEBSITE@"
