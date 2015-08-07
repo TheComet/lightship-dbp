@@ -3,7 +3,7 @@
 import sys
 import os
 import string
-from TemplateProcessor import TemplateProcessor
+from py_lightship.TemplateProcessor import TemplateProcessor
 
 
 def get_user_info(msg, spaces=True, digits=True, special=True, default_info=None):
