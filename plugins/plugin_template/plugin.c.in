@@ -15,11 +15,11 @@ PLUGIN_@NAME_CAPS@_PUBLIC_API PLUGIN_INIT()
 	/* create plugin object - host requires this */
 	/* plugin information can be changed in the file "CMakeLists.txt" */
 	plugin = plugin_create(game,
-			PLUGIN_@NAME_CAPS@_NAME,
-			PLUGIN_@NAME_CAPS@_CATEGORY,
-			PLUGIN_@NAME_CAPS@_AUTHOR,
-			PLUGIN_@NAME_CAPS@_DESCRIPTION,
-			PLUGIN_@NAME_CAPS@_WEBSITE);
+			PLUGIN_NAME,
+			PLUGIN_CATEGORY,
+			PLUGIN_AUTHOR,
+			PLUGIN_DESCRIPTION,
+			PLUGIN_WEBSITE);
 
 	/* add the plugin to the glob struct for later access */
 	get_global(game)->plugin = plugin;
@@ -28,9 +28,9 @@ PLUGIN_@NAME_CAPS@_PUBLIC_API PLUGIN_INIT()
 	plugin_set_programming_language(plugin,
 			PLUGIN_PROGRAMMING_LANGUAGE_C);
 	plugin_set_version(plugin,
-			PLUGIN_@NAME_CAPS@_VERSION_MAJOR,
-			PLUGIN_@NAME_CAPS@_VERSION_MINOR,
-			PLUGIN_@NAME_CAPS@_VERSION_PATCH);
+			PLUGIN_VERSION_MAJOR,
+			PLUGIN_VERSION_MINOR,
+			PLUGIN_VERSION_PATCH);
 
 	register_services(plugin);
 	register_events(plugin);

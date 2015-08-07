@@ -17,11 +17,11 @@ glob_create(struct game_t* game)
 	assert(game);
 	assert(!global_hash);
 
-	global_hash = hash_jenkins_oaat(PLUGIN_PYTHON_NAME, strlen(PLUGIN_PYTHON_NAME));
+	global_hash = hash_jenkins_oaat(PLUGIN_NAME, strlen(PLUGIN_NAME));
 
 	glob = (struct glob_t*)MALLOC(sizeof(struct glob_t));
 	if(!glob)
-		OUT_OF_MEMORY("[" PLUGIN_PYTHON_NAME "] glob_create()", RETURN_NOTHING);
+		OUT_OF_MEMORY("[" PLUGIN_NAME "] glob_create()", RETURN_NOTHING);
 	memset(glob, 0, sizeof(struct glob_t));
 	game_add_global(game, global_hash, glob);
 

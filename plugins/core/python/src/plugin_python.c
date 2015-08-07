@@ -3,6 +3,8 @@
 #include "plugin_python/services.h" /* plugin services */
 #include "plugin_python/events.h"   /* plugin events */
 #include "framework/plugin.h"	    /* plugin api */
+#include <Python.h>
+#include <unistd.h> /* getcwd */
 
 /* ------------------------------------------------------------------------- */
 PLUGIN_PYTHON_PUBLIC_API PLUGIN_INIT()
@@ -15,11 +17,11 @@ PLUGIN_PYTHON_PUBLIC_API PLUGIN_INIT()
 	/* create plugin object - host requires this */
 	/* plugin information can be changed in the file "CMakeLists.txt" */
 	plugin = plugin_create(game,
-			PLUGIN_PYTHON_NAME,
-			PLUGIN_PYTHON_CATEGORY,
-			PLUGIN_PYTHON_AUTHOR,
-			PLUGIN_PYTHON_DESCRIPTION,
-			PLUGIN_PYTHON_WEBSITE);
+			PLUGIN_NAME,
+			PLUGIN_CATEGORY,
+			PLUGIN_AUTHOR,
+			PLUGIN_DESCRIPTION,
+			PLUGIN_WEBSITE);
 
 	/* add the plugin to the glob struct for later access */
 	get_global(game)->plugin = plugin;
@@ -28,9 +30,9 @@ PLUGIN_PYTHON_PUBLIC_API PLUGIN_INIT()
 	plugin_set_programming_language(plugin,
 			PLUGIN_PROGRAMMING_LANGUAGE_C);
 	plugin_set_version(plugin,
-			PLUGIN_PYTHON_VERSION_MAJOR,
-			PLUGIN_PYTHON_VERSION_MINOR,
-			PLUGIN_PYTHON_VERSION_PATCH);
+			PLUGIN_VERSION_MAJOR,
+			PLUGIN_VERSION_MINOR,
+			PLUGIN_VERSION_PATCH);
 
 	register_services(plugin);
 	register_events(plugin);
@@ -41,11 +43,8 @@ PLUGIN_PYTHON_PUBLIC_API PLUGIN_INIT()
 /* ------------------------------------------------------------------------- */
 PLUGIN_PYTHON_PUBLIC_API PLUGIN_START()
 {
+	char cwd[1024];
 	struct glob_t* g = get_global(game);
-
-	/*
-	 * initialise your stuff here
-	 */
 
 	/* hook in to services and events */
 	if(!get_required_services(g->plugin))
@@ -53,15 +52,20 @@ PLUGIN_PYTHON_PUBLIC_API PLUGIN_START()
 	get_optional_services(g->plugin);
 	register_event_listeners(g->plugin);
 
+	/* init python */
+	if(getcwd(cwd, sizeof(cwd)) != NULL)
+		Py_SetProgramName(cwd);
+	else
+		llog(LOG_WARNING, game, PLUGIN_NAME, "Couldn't get current working directory.");
+	Py_Initialize();
+
 	return PLUGIN_SUCCESS;
 }
 
 /* ------------------------------------------------------------------------- */
 PLUGIN_PYTHON_PUBLIC_API PLUGIN_STOP()
 {
-	/*
-	 * de-initialise your stuff here
-	 */
+	Py_Finalize();
 }
 
 /* ------------------------------------------------------------------------- */

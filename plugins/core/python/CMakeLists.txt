@@ -3,9 +3,9 @@
 ###############################################################################
 
 if (${CMAKE_C_COMPILER_ID} STREQUAL "GNU")
-    add_definitions (-W -Wall -Wextra -pedantic -Wno-unused-parameter)
+    add_definitions (-W -Wall -Wextra -pedantic -Wno-unused-parameter -Wno-error)
 elseif (${CMAKE_C_COMPILER_ID} STREQUAL "Clang")
-    add_definitions (-W -Wall -Wextra -pedantic -Wno-unused-parameter)
+    add_definitions (-W -Wall -Wextra -pedantic -Wno-unused-parameter -Wno-error)
 elseif (${CMAKE_C_COMPILER_ID} STREQUAL "Intel")
 elseif (${CMAKE_C_COMPILER_ID} STREQUAL "MSVC")
 endif ()
@@ -87,8 +87,13 @@ target_link_libraries (plugin_python
 )
 
 ###############################################################################
-# other libs...
+# python
 ###############################################################################
+
+set (Python_ADDITIONAL_VERSIONS "3.3")
+find_package (PythonLibs REQUIRED)
+include_directories (${PYTHON_INCLUDE_DIR})
+target_link_libraries (plugin_python ${PYTHON_LIBRARY})
 
 ###############################################################################
 # install targets

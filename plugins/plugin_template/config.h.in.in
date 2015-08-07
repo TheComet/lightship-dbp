@@ -9,21 +9,21 @@
  * ------------------------------------------------------------------------- */
 
 /* Integer - major version */
-#define PLUGIN_@NAME_CAPS@_VERSION_MAJOR @PLUGIN_@NAME_CAPS@_VERSION_MAJOR@
+#define PLUGIN_VERSION_MAJOR @PLUGIN_@NAME_CAPS@_VERSION_MAJOR@
 /* Integer - minor version */
-#define PLUGIN_@NAME_CAPS@_VERSION_MINOR @PLUGIN_@NAME_CAPS@_VERSION_MINOR@
+#define PLUGIN_VERSION_MINOR @PLUGIN_@NAME_CAPS@_VERSION_MINOR@
 /* Integer - patch version */
-#define PLUGIN_@NAME_CAPS@_VERSION_PATCH @PLUGIN_@NAME_CAPS@_VERSION_PATCH@
+#define PLUGIN_VERSION_PATCH @PLUGIN_@NAME_CAPS@_VERSION_PATCH@
 /* String - Name of the plugin (no spaces or special chars).
  * The plugin will be registered under this name in the plugin manager, and
  * will also be used as the namespace for services and events exposed by this
  * plugin. */
-#define PLUGIN_@NAME_CAPS@_NAME "@PLUGIN_@NAME_CAPS@_NAME@"
+#define PLUGIN_NAME "@PLUGIN_@NAME_CAPS@_NAME@"
 /* String - Name of the author of this plugin */
-#define PLUGIN_@NAME_CAPS@_AUTHOR "@PLUGIN_@NAME_CAPS@_AUTHOR@"
+#define PLUGIN_AUTHOR "@PLUGIN_@NAME_CAPS@_AUTHOR@"
 /* String - Category this plugin fits into */
-#define PLUGIN_@NAME_CAPS@_CATEGORY "@PLUGIN_@NAME_CAPS@_CATEGORY@"
+#define PLUGIN_CATEGORY "@PLUGIN_@NAME_CAPS@_CATEGORY@"
 /* String - Short description of what this plugin does. */
-#define PLUGIN_@NAME_CAPS@_DESCRIPTION "@PLUGIN_@NAME_CAPS@_DESCRIPTION@"
+#define PLUGIN_DESCRIPTION "@PLUGIN_@NAME_CAPS@_DESCRIPTION@"
 /* String - URL of a website to refer to */
-#define PLUGIN_@NAME_CAPS@_WEBSITE "@PLUGIN_@NAME_CAPS@_WEBSITE@"
+#define PLUGIN_WEBSITE "@PLUGIN_@NAME_CAPS@_WEBSITE@"
