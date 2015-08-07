@@ -1,10 +1,3 @@
-#include "framework/events.h"
-#include "util/pstdint.h"
-
-/* -----------------------------------------------------
- * All events this plugin fires
- * ---------------------------------------------------*/
-
 struct plugin_t;
 
 void

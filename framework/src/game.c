@@ -83,13 +83,25 @@ game_create(const char* name, game_network_role_e net_role)
 
 		/* initialise all services for this game */
 		if(!llog_init(game))
+		{
+			llog(LOG_ERROR, NULL, NULL, "Failed to initialise game log");
 			break;
+		}
 		if(!plugin_manager_init(game))
+		{
+			llog(LOG_ERROR, NULL, NULL, "Failed to initialise plugin manager");
 			break;
+		}
 		if(!service_init(game))
+		{
+			llog(LOG_ERROR, NULL, NULL, "Failed to initialise services");
 			break;
+		}
 		if(!events_init(game))
+		{
+			llog(LOG_ERROR, NULL, NULL, "Failed to initialise events");
 			break;
+		}
 
 		/* add to global list of games */
 		if(!bsthv_insert(&g_games, name, game))

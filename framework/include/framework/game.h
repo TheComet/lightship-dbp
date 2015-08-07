@@ -44,6 +44,11 @@ struct framework_events_t
 	struct event_t* log;
 	struct event_t* log_indent;
 	struct event_t* log_unindent;
+
+	struct event_t* event_created;
+	struct event_t* event_destroyed;
+	struct event_t* service_created;
+	struct event_t* service_destroyed;
 };
 
 struct framework_services_t

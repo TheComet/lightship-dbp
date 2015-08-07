@@ -63,6 +63,12 @@ events_init(struct game_t* game)
 		EVENT_CREATE1(game->core, game->event.log_indent,   "log_indent", const char*);    CHECK(log_indent)
 		EVENT_CREATE0(game->core, game->event.log_unindent, "log_unindent");               CHECK(log_unindent)
 
+		/* fired when events or services are created/destroyed */
+		EVENT_CREATE1(game->core, game->event.event_created,     "event_created",     const char*); CHECK(event_created);
+		EVENT_CREATE1(game->core, game->event.event_destroyed,   "event_destroyed",   const char*); CHECK(event_destroyed);
+		EVENT_CREATE1(game->core, game->event.service_created,   "service_created",   const char*); CHECK(service_created);
+		EVENT_CREATE1(game->core, game->event.service_destroyed, "service_destroyed", const char*); CHECK(service_destroyed);
+
 		return 1;
 	}
 

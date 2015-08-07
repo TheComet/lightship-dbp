@@ -15,6 +15,10 @@ plugins:
         name: menu
         version: "0.0.1"
         version_policy: minimum
+    script:
+        name: python
+        version: "0.0.1"
+        version_policy: minimum
 
 ###############################################################################
 # Client settings
