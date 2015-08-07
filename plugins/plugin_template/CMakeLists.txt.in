@@ -14,6 +14,8 @@ endif ()
 # generate config.h and export.h for this plugin
 ###############################################################################
 
+set (PROJECT_NAME "PLUGIN_@NAME_CAPS@")
+set (BUILD_TYPE "SHARED")
 set (PLUGIN_@NAME_CAPS@_VERSION_MAJOR @VERSION_MAJOR@)
 set (PLUGIN_@NAME_CAPS@_VERSION_MINOR @VERSION_MINOR@)
 set (PLUGIN_@NAME_CAPS@_VERSION_PATCH @VERSION_PATCH@)
@@ -27,10 +29,6 @@ set (PLUGIN_@NAME_CAPS@_VERSION_STRING
 
 configure_file ("include/plugin_@NAME@/config.h.in"
                 "include/plugin_@NAME@/config.h")
-
-set (PROJECT_NAME "PLUGIN_@NAME_CAPS@")
-set (BUILD_TYPE "SHARED")
-
 configure_file ("${EXPORT_H_TEMPLATE}"
                 "include/plugin_@NAME@/export.h")
 
@@ -45,6 +43,10 @@ set (plugin_@NAME@_OUTPUT_NAME
 
 file (GLOB plugin_@NAME@_HEADERS "include/plugin_@NAME@/*.h")
 file (GLOB plugin_@NAME@_SOURCES "src/*.c")
+
+set (plugin_@NAME@_HEADERS ${plugin_@NAME@_HEADERS}
+	"include/plugin_@NAME@/config.h.in"
+	"${EXPORT_H_TEMPLATE}")
 
 include_directories ("include")
 

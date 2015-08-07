@@ -1,15 +1,3 @@
-#include "plugin_manager/event_api.h"
-
-/* ----------------------------------------------------------------------------
- * All events this plugin fires
- * ------------------------------------------------------------------------- */
- 
-/* 
- * EVENT_H_NO_EXTERN0(evt_name_1)
- * EVENT_H_NO_EXTERN0(evt_name_2)
- * etc...
- */
-
 struct plugin_t;
 
 void
