@@ -2,9 +2,8 @@
 #include "plugin_python/glob.h"
 #include "plugin_python/services.h" /* plugin services */
 #include "plugin_python/events.h"   /* plugin events */
+#include "plugin_python/py_interp.h"
 #include "framework/plugin.h"	    /* plugin api */
-#include <Python.h>
-#include <unistd.h> /* getcwd */
 
 /* ------------------------------------------------------------------------- */
 PLUGIN_PYTHON_PUBLIC_API PLUGIN_INIT()
@@ -43,7 +42,6 @@ PLUGIN_PYTHON_PUBLIC_API PLUGIN_INIT()
 /* ------------------------------------------------------------------------- */
 PLUGIN_PYTHON_PUBLIC_API PLUGIN_START()
 {
-	char cwd[1024];
 	struct glob_t* g = get_global(game);
 
 	/* hook in to services and events */
@@ -52,12 +50,8 @@ PLUGIN_PYTHON_PUBLIC_API PLUGIN_START()
 	get_optional_services(g->plugin);
 	register_event_listeners(g->plugin);
 
-	/* init python */
-	if(getcwd(cwd, sizeof(cwd)) != NULL)
-		Py_SetProgramName(cwd);
-	else
-		llog(LOG_WARNING, game, PLUGIN_NAME, "Couldn't get current working directory.");
-	Py_Initialize();
+	if(!init_python(g))
+		return PLUGIN_FAILURE;
 
 	return PLUGIN_SUCCESS;
 }
@@ -65,7 +59,9 @@ PLUGIN_PYTHON_PUBLIC_API PLUGIN_START()
 /* ------------------------------------------------------------------------- */
 PLUGIN_PYTHON_PUBLIC_API PLUGIN_STOP()
 {
-	Py_Finalize();
+	struct glob_t* g = get_global(game);
+
+	deinit_python(g);
 }
 
 /* ------------------------------------------------------------------------- */
