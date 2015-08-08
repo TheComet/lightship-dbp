@@ -139,6 +139,9 @@ events_deinit(struct game_t* game);
  * @param[in] directory The name of the event. Should be unique plugin-wide.
  * @note The name string is copied to an internal buffer, so you are free to
  * delete it when it is no longer used.
+ * @param[in] type_info A type info object specifying the type of arguments
+ * this even will fire to its listeners.
+ * @note The event obtains ownership of the type info object with this call.
  * @return Returns a new event object which should be stored by the plugin.
  */
 FRAMEWORK_PUBLIC_API struct event_t*

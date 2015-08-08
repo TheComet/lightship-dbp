@@ -37,6 +37,9 @@ struct ptree_t
 	struct bsthv_t children;
 };
 
+/*! Contains the delimiter used for separating nodes. */
+extern const char ptree_node_delim;
+
 /*!
  * @brief Allocates and initialises a new empty ptree object.
  * @param[in] key The key to give the root node.

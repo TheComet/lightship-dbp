@@ -4,7 +4,7 @@
 #include <string.h>
 #include <assert.h>
 
-static const char node_delim = '.';
+const char ptree_node_delim = '.';
 
 /* ------------------------------------------------------------------------- */
 /*
@@ -148,7 +148,7 @@ ptree_set_recurse(struct ptree_t* node, char* key, char** saveptr, void* value)
 	/* Get next token and add it as a child of the current node. */
 	char* child_key;
 	struct ptree_t* child;
-	if((child_key = strtok_r_portable(NULL, node_delim, saveptr))) /* we haven't reached the last
+	if((child_key = strtok_r_portable(NULL, ptree_node_delim, saveptr))) /* we haven't reached the last
 												* node yet, create any middle
 												* nodes if they don't exist
 												* yet, or get the current
@@ -193,7 +193,7 @@ ptree_set(struct ptree_t* root, const char* key, void* value)
 	/* prepare for tokenisation */
 	if(!(key_tok = malloc_string(key)))
 		return NULL;
-	child_node_key = strtok_r_portable(key_tok, node_delim, &saveptr);
+	child_node_key = strtok_r_portable(key_tok, ptree_node_delim, &saveptr);
 
 	/* store current child count so we can tell if malloc failed */
 	child_count = bsthv_count(&root->children);
@@ -480,7 +480,7 @@ ptree_get_node_recurse(const struct ptree_t* tree, char** saveptr)
 	 * for.
 	 */
 	char* token;
-	if((token = strtok_r_portable(NULL, node_delim, saveptr)) && tree)
+	if((token = strtok_r_portable(NULL, ptree_node_delim, saveptr)) && tree)
 	{
 		struct ptree_t* child;
 		child = bsthv_find(&tree->children, token);
@@ -503,7 +503,7 @@ ptree_get_node(const struct ptree_t* tree, const char* key)
 	key_iter = cat_strings(2, "n.", key); /* root key name is ignored, but must exist */
 	if(!key_iter)
 		return NULL;
-	strtok_r_portable(key_iter, node_delim, &saveptr);
+	strtok_r_portable(key_iter, ptree_node_delim, &saveptr);
 
 	result = ptree_get_node_recurse(tree, &saveptr);
 	free_string(key_iter);

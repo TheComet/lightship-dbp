@@ -71,9 +71,19 @@ memory_init(void)
 {
 	allocations = 0;
 	deallocations = 0;
+
+	/*
+	 * Init bst vector of report objects and force it to allocate by adding
+	 * and removing one item. This fixes a bug where the number of memory leaks
+	 * would be wrong in the case of MALLOC() never being called.
+	 */
+	ignore_bstv_malloc = 1;
+		bstv_init_bstv(&report);
+		bstv_insert(&report, 0, NULL); bstv_erase(&report, 0);
 	ignore_bstv_malloc = 0;
-	bstv_init_bstv(&report);
+
 	MUTEX_INIT(mutex)
+
 #   ifdef ENABLE_MEMORY_EXPLICIT_MALLOC_FAILURES
 	malloc_fail_counter = 0;
 #   endif

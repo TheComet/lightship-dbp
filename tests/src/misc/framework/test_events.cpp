@@ -102,6 +102,14 @@ TEST_F(NAME, create_event_inits_correctly)
 	EXPECT_THAT(event->type_info->ret_type, Eq(TYPE_VOID));
 }
 
+TEST_F(NAME, create_event_with_invalid_directory_name_fails)
+{
+	struct event_t* event;
+	EVENT_CREATE0(plugin, event, "invalid event.name");
+
+	EXPECT_THAT(event, IsNull());
+}
+
 TEST_F(NAME, create_and_destroy_event)
 {
 	struct event_t* event;

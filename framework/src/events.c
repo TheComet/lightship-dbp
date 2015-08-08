@@ -99,6 +99,10 @@ event_create(struct plugin_t* plugin,
 	assert(plugin->game);
 	assert(directory);
 
+	/* make sure directory contains valid characters only */
+	if(!directory_name_is_valid(directory))
+		return NULL;
+
 	/* allocate and initialise event object */
 	if(!(event = (struct event_t*)MALLOC(sizeof(struct event_t))))
 		OUT_OF_MEMORY("event_create()", NULL);

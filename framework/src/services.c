@@ -63,6 +63,10 @@ service_create(struct plugin_t* plugin,
 	assert(exec);
 	assert(type_info);
 
+	/* make sure directory contains valid characters only */
+	if(!directory_name_is_valid(directory))
+		return NULL;
+
 	/* allocate and initialise service object */
 	if(!(service = (struct service_t*)MALLOC(sizeof(struct service_t))))
 		OUT_OF_MEMORY("service_create()", NULL);

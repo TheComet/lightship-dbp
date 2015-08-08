@@ -58,6 +58,14 @@ TEST_F(NAME, create_verify_type_info)
     service_destroy(s);
 }
 
+TEST_F(NAME, create_service_with_invalid_directory_name_fails)
+{
+	struct service_t* service;
+	SERVICE_CREATE0(plugin, service, "invalid service.name", (service_func)callback1, void);
+
+	EXPECT_THAT(service, IsNull());
+}
+
 TEST_F(NAME, verify_registration_in_game_service_directory_and_in_plugin)
 {
     struct service_t* s;

@@ -8,6 +8,8 @@
 #include "util/unordered_vector.h"
 #include "util/pstdint.h"
 
+C_HEADER_BEGIN
+
 /* ------------------------------------------------------------------------- *
  * The following is the event listener and dispatch system implemented       *
  * partially in macros. We have no access to variadic macros so it may       *
@@ -20,6 +22,16 @@ struct event_t;
 
 typedef void (*service_func)(struct service_t* service, void* ret, const void** argv);
 typedef void (*event_callback_func)(struct event_t* event, const void** argv);
+
+/*!
+ * @brief Makes sure a directory name contains only valid characters. This gets
+ * called by services and events when they are first created.
+ * @param[in] directory The directory name to check.
+ * @return Returns zero if the directory name is invalid, non-zero if
+ * otherwise.
+ */
+char
+directory_name_is_valid(const char* directory);
 
 /*!
  * @brief Helper macro for defining a service function.
@@ -621,5 +633,7 @@ typedef void (*event_callback_func)(struct event_t* event, const void** argv);
 	typedef void (*name)(const struct event_t*, arg1, arg2, arg3);
 #define EVENT_LISTENER_TYPEDEF4(name, arg1, arg2, arg3, arg4)               \
 	typedef void (*name)(const struct event_t*, arg1, arg2, arg3, arg4);
+
+C_HEADER_END
 
 #endif /* FRAMEWORK_SERVICE_EVENT_API_H */
