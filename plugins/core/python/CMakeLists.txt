@@ -90,6 +90,7 @@ target_link_libraries (plugin_python
 # python
 ###############################################################################
 
+set (Python_ADDITIONAL_VERSIONS 3.4)
 find_package (PythonLibs 3.3 REQUIRED)
 include_directories (${PYTHON_INCLUDE_DIR})
 target_link_libraries (plugin_python ${PYTHON_LIBRARY})
