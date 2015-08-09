@@ -1,11 +1,14 @@
+#include <Python.h>
 #include "plugin_python/py_interp.h"
 #include "plugin_python/config.h"
 #include "plugin_python/glob.h"
 #include "framework/log.h"
 #include <unistd.h> /* getcwd */
-#include <Python.h>
 
 static uint32_t g_game_references = 0;
+
+PyMODINIT_FUNC
+PyInit_lightship(void);
 
 /* ------------------------------------------------------------------------- */
 char
@@ -20,6 +23,9 @@ init_python(struct glob_t* g)
 	if(g_game_references++)
 		return 1;
 
+	/* add built in moduels */
+	PyImport_AppendInittab("lightship", PyInit_lightship);
+
 	/* try to tell python to use the current working directory */
 	if(getcwd(cwd, sizeof(cwd)) != NULL)
 		Py_SetProgramName(cwd);
@@ -29,6 +35,8 @@ init_python(struct glob_t* g)
 	/* initialise interpreter */
 	llog(LOG_INFO, g->game, PLUGIN_NAME, "Initialising python interpreter");
 	Py_Initialize();
+
+	PyRun_SimpleString("import lightship\nlightship.test()\n");
 
 	return 1;
 }
