@@ -409,11 +409,16 @@ directory_name_is_valid(const char* directory);
  * These parameters are used to construct dynamic type information, which is
  * used to perform some sanity checks during runtime.
  */
+
+/* This is the function to use to create the event. There are cases where this
+ * gets redefined to event_create_no_fire_notification (in events.c) */
+#define EVENT_CREATE event_create
+
 #define EVENT_CREATE0(plugin, evt, directory) do {                          \
 			struct type_info_t* t;                                          \
 			t = dynamic_call_create_type_info("void", 0, NULL);             \
 			if(!t) { evt = NULL; break; }                                   \
-			if(!(evt = event_create(plugin, directory, t)))                 \
+			if(!(evt = EVENT_CREATE(plugin, directory, t)))                 \
 				dynamic_call_destroy_type_info(t);                          \
 		} while(0)
 #define EVENT_CREATE1(plugin, evt, directory, arg1) do {                    \
@@ -421,7 +426,7 @@ directory_name_is_valid(const char* directory);
 			const char* argv[] = {STRINGIFY(arg1)};                         \
 			t = dynamic_call_create_type_info("void", 1, argv);             \
 			if(!t) { evt = NULL; break; }                                   \
-			if(!(evt = event_create(plugin, directory, t)))                 \
+			if(!(evt = EVENT_CREATE(plugin, directory, t)))                 \
 				dynamic_call_destroy_type_info(t);                          \
 		} while(0)
 #define EVENT_CREATE2(plugin, evt, directory, arg1, arg2) do {              \
@@ -429,7 +434,7 @@ directory_name_is_valid(const char* directory);
 			const char* argv[] = {STRINGIFY(arg1), STRINGIFY(arg2)};        \
 			t = dynamic_call_create_type_info("void", 2, argv);             \
 			if(!t) { evt = NULL; break; }                                   \
-			if(!(evt = event_create(plugin, directory, t)))                 \
+			if(!(evt = EVENT_CREATE(plugin, directory, t)))                 \
 				dynamic_call_destroy_type_info(t);                          \
 		} while(0)
 #define EVENT_CREATE3(plugin, evt, directory, arg1, arg2, arg3) do {        \
@@ -438,7 +443,7 @@ directory_name_is_valid(const char* directory);
 								  STRINGIFY(arg3)};                         \
 			t = dynamic_call_create_type_info("void", 3, argv);             \
 			if(!t) { evt = NULL; break; }                                   \
-			if(!(evt = event_create(plugin, directory, t)))                 \
+			if(!(evt = EVENT_CREATE(plugin, directory, t)))                 \
 				dynamic_call_destroy_type_info(t);                          \
 		} while(0)
 #define EVENT_CREATE4(plugin, evt, directory, arg1, arg2, arg3, arg4) do {  \
@@ -447,7 +452,7 @@ directory_name_is_valid(const char* directory);
 								  STRINGIFY(arg3), STRINGIFY(arg4)};        \
 			t = dynamic_call_create_type_info("void", 4, argv);             \
 			if(!t) { evt = NULL; break; }                                   \
-			if(!(evt = event_create(plugin, directory, t)))                 \
+			if(!(evt = EVENT_CREATE(plugin, directory, t)))                 \
 				dynamic_call_destroy_type_info(t);                          \
 		} while(0)
 #define EVENT_CREATE5(plugin, evt, directory, arg1, arg2, arg3, arg4, arg5) \
@@ -458,7 +463,7 @@ directory_name_is_valid(const char* directory);
 								  STRINGIFY(arg5)};                         \
 			t = dynamic_call_create_type_info("void", 5, argv);             \
 			if(!t) { evt = NULL; break; }                                   \
-			if(!(evt = event_create(plugin, directory, t)))                 \
+			if(!(evt = EVENT_CREATE(plugin, directory, t)))                 \
 				dynamic_call_destroy_type_info(t);                          \
 		} while(0)
 #define EVENT_CREATE6(plugin, evt, directory, arg1, arg2, arg3, arg4, arg5, \
@@ -469,7 +474,7 @@ directory_name_is_valid(const char* directory);
 								  STRINGIFY(arg5), STRINGIFY(arg6)};        \
 			t = dynamic_call_create_type_info("void", 6, argv);             \
 			if(!t) { evt = NULL; break; }                                   \
-			if(!(evt = event_create(plugin, directory, t)))                 \
+			if(!(evt = EVENT_CREATE(plugin, directory, t)))                 \
 				dynamic_call_destroy_type_info(t);                          \
 		} while(0)
 
@@ -512,6 +517,12 @@ directory_name_is_valid(const char* directory);
  * These parameters are used to construct dynamic type information, which is
  * used to perform some sanity checks during runtime.
  */
+
+/* This is the function to use to create the service. There are cases where
+ * this gets redefined to service_create_no_fire_notification
+ * (e.g. in services.c) */
+#define SERVICE_CREATE service_create
+
 #define SERVICE_CREATE0(plugin, serv, directory, callback, ret_type)        \
 		do {                                                                \
 			struct type_info_t* t;                                          \
@@ -519,7 +530,7 @@ directory_name_is_valid(const char* directory);
 											  0,                            \
 											  NULL);                        \
 			if(!t) { serv = NULL; break; }                                  \
-			if(!(serv = service_create(plugin, directory, callback, t)))    \
+			if(!(serv = SERVICE_CREATE(plugin, directory, callback, t)))    \
 				dynamic_call_destroy_type_info(t);                          \
 		} while(0)
 #define SERVICE_CREATE1(plugin, serv, directory, callback, ret_type,        \
@@ -529,7 +540,7 @@ directory_name_is_valid(const char* directory);
 			const char* argv[] = {STRINGIFY(arg1)};                         \
 			t = dynamic_call_create_type_info(ret, 1, argv);                \
 			if(!t) { serv = NULL; break; }                                  \
-			if(!(serv = service_create(plugin, directory, callback, t)))    \
+			if(!(serv = SERVICE_CREATE(plugin, directory, callback, t)))    \
 				dynamic_call_destroy_type_info(t);                          \
 		} while(0)
 #define SERVICE_CREATE2(plugin, serv, directory, callback, ret_type,        \
@@ -539,7 +550,7 @@ directory_name_is_valid(const char* directory);
 			const char* argv[] = {STRINGIFY(arg1), STRINGIFY(arg2)};        \
 			t = dynamic_call_create_type_info(ret, 2, argv);                \
 			if(!t) { ret = NULL; break; }                                   \
-			if(!(serv = service_create(plugin, directory, callback, t)))    \
+			if(!(serv = SERVICE_CREATE(plugin, directory, callback, t)))    \
 				dynamic_call_destroy_type_info(t);                          \
 		} while(0)
 #define SERVICE_CREATE3(plugin, serv, directory, callback, ret_type,        \
@@ -550,7 +561,7 @@ directory_name_is_valid(const char* directory);
 								  STRINGIFY(arg3)};                         \
 			t = dynamic_call_create_type_info(ret, 3, argv);                \
 			if(!t) { serv = NULL; break; }                                  \
-			if(!(serv = service_create(plugin, directory, callback, t)))    \
+			if(!(serv = SERVICE_CREATE(plugin, directory, callback, t)))    \
 				dynamic_call_destroy_type_info(t);                          \
 		} while(0)
 #define SERVICE_CREATE4(plugin, serv, directory, callback, ret_type,        \
@@ -561,7 +572,7 @@ directory_name_is_valid(const char* directory);
 								  STRINGIFY(arg3), STRINGIFY(arg4)};        \
 			t = dynamic_call_create_type_info(ret, 4, argv);                \
 			if(!t) { serv = NULL; break; }                                  \
-			if(!(serv = service_create(plugin, directory, callback, t)))    \
+			if(!(serv = SERVICE_CREATE(plugin, directory, callback, t)))    \
 				dynamic_call_destroy_type_info(t);                          \
 		} while(0)
 #define SERVICE_CREATE5(plugin, serv, directory, callback, ret_type,        \
@@ -573,7 +584,7 @@ directory_name_is_valid(const char* directory);
 								  STRINGIFY(arg5)};                         \
 			t = dynamic_call_create_type_info(ret, 5, argv);                \
 			if(!t) { serv = NULL; break; }                                  \
-			if(!(serv = service_create(plugin, directory, callback, t)))    \
+			if(!(serv = SERVICE_CREATE(plugin, directory, callback, t)))    \
 				dynamic_call_destroy_type_info(t);                          \
 		} while(0)
 #define SERVICE_CREATE6(plugin, serv, directory, callback, ret_type,        \
@@ -585,7 +596,7 @@ directory_name_is_valid(const char* directory);
 								  STRINGIFY(arg5), STRINGIFY(arg6)};        \
 			t = dynamic_call_create_type_info(ret, 6, argv);                \
 			if(!t) { serv = NULL; break; }                                  \
-			if(!(serv = service_create(plugin, directory, callback, t)))    \
+			if(!(serv = SERVICE_CREATE(plugin, directory, callback, t)))    \
 				dynamic_call_destroy_type_info(t);                          \
 		} while(0)
 

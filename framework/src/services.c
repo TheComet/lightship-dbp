@@ -1,8 +1,9 @@
+#include "framework/events.h"
 #include "framework/game.h"
+#include "framework/log.h"
 #include "framework/plugin.h"
 #include "framework/services.h"
 #include "util/hash.h"
-#include "framework/log.h"
 #include "util/memory.h"
 #include "util/string.h"
 #include <stdlib.h>
@@ -12,6 +13,16 @@
 
 static void
 service_free(struct service_t* service);
+
+/*!
+ * @brief Same as service_create, but it doesn't fire service.created when
+ * called.
+ */
+static struct service_t*
+service_create_no_fire_notification(struct plugin_t* plugin,
+									const char* directory,
+									const service_func exec,
+									struct type_info_t* type_info);
 
 /* ------------------------------------------------------------------------- */
 char
@@ -27,12 +38,28 @@ service_init(struct game_t* game)
 
 	for(;;)
 	{
-		if(!(game->service.start = service_create(game->core, "start", game_start_wrapper,
-			dynamic_call_create_type_info("void", 0, NULL)))) break;
-		if(!(game->service.pause = service_create(game->core, "pause", game_pause_wrapper,
-			dynamic_call_create_type_info("void", 0, NULL)))) break;
-		if(!(game->service.exit  = service_create(game->core, "exit",  game_exit_wrapper,
-			dynamic_call_create_type_info("void", 0, NULL)))) break;
+		/*
+		 * Define a macro to make typing easier. Checks if the specified member
+		 * of the game object is not null. If it is null, break is called.
+		 */
+#define CHECK(name) \
+		if(!(game->service.name)) break;
+
+		/*
+		 * Re-define SERVICE_CREATE so the following events do not fire.
+		 */
+#pragma push_macro("SERVICE_CREATE")
+#undef SERVICE_CREATE
+#define SERVICE_CREATE service_create_no_fire_notification
+
+		/* game core commands */
+		SERVICE_CREATE0(game->core, game->service.start, "start", game_start_wrapper, void); CHECK(start)
+		SERVICE_CREATE0(game->core, game->service.pause, "pause", game_pause_wrapper, void); CHECK(pause)
+		SERVICE_CREATE0(game->core, game->service.exit,  "stop",  game_exit_wrapper,  void); CHECK(exit)
+
+#undef SERVICE_CREATE
+#pragma pop_macro("SERVICE_CREATE")
+#undef CHECK
 
 		return 1;
 	}
@@ -53,6 +80,23 @@ service_create(struct plugin_t* plugin,
 			   const char* directory,
 			   const service_func exec,
 			   struct type_info_t* type_info)
+{
+	struct service_t* service;
+	service = service_create_no_fire_notification(plugin, directory, exec,
+												  type_info);
+	if(!service)
+		return NULL;
+
+	EVENT_FIRE1(plugin->game->event.service_created, PTR(directory));
+	return service;
+}
+
+/* ------------------------------------------------------------------------- */
+static struct service_t*
+service_create_no_fire_notification(struct plugin_t* plugin,
+									const char* directory,
+									const service_func exec,
+									struct type_info_t* type_info)
 {
 	struct service_t* service;
 	struct ptree_t* node;
@@ -156,6 +200,9 @@ service_destroy(struct service_t* service)
 			 service->directory, service->plugin->info.name);
 		return;
 	}
+
+	EVENT_FIRE1(service->plugin->game->event.service_destroyed,
+				PTR(service->directory));
 
 	/* destroying the node will free the service using ptree's free function */
 	ptree_destroy(node);

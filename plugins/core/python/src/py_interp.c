@@ -3,6 +3,7 @@
 #include "plugin_python/py_interp.h"
 #include "plugin_python/glob.h"
 #include "framework/log.h"
+#include "util/string.h"
 #include <unistd.h> /* getcwd */
 
 static uint32_t g_game_references = 0;
@@ -28,7 +29,11 @@ init_python(struct glob_t* g)
 
 	/* try to tell python to use the current working directory */
 	if(getcwd(cwd, sizeof(cwd)) != NULL)
-		Py_SetProgramName(cwd);
+	{
+		wchar_t* cwd_w = strtowcs(cwd);
+		Py_SetProgramName(cwd_w);
+		free_string(cwd_w);
+	}
 	else
 		llog(LOG_WARNING, g->game, PLUGIN_NAME, "Couldn't set current working directory.");
 

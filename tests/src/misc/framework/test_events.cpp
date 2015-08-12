@@ -4,6 +4,7 @@
 #include "framework/plugin.h"
 #include "framework/game.h"
 #include "framework/log.h"
+#include "util/string.h"
 
 #define NAME event
 
@@ -16,7 +17,9 @@ public:
     virtual void SetUp()
     {
         game = game_create("test", GAME_CLIENT);
+		ASSERT_THAT(game, NotNull());
         plugin = plugin_create(game, "test", "test", "test", "test", "test");
+		ASSERT_THAT(plugin, NotNull());
     }
 
     virtual void TearDown()
@@ -83,10 +86,10 @@ EVENT_LISTENER(test_listener_notify3)
 TEST_F(NAME, create_event_inits_correctly)
 {
 	struct event_t* event;
-    EVENT_CREATE4(plugin, event, "test.event", MockListener*, int32_t, float, const char*);
+    EVENT_CREATE4(plugin, event, "test", MockListener*, int32_t, float, const char*);
 
 	ASSERT_THAT(event, NotNull());
-    EXPECT_THAT(event->directory, StrEq("test.event"));
+    EXPECT_THAT(event->directory, StrEq("test"));
     EXPECT_THAT(event->listeners.capacity, Eq(0));
     EXPECT_THAT(event->listeners.count, Eq(0));
     EXPECT_THAT(event->listeners.element_size, Eq(sizeof(struct event_listener_t)));
@@ -130,6 +133,50 @@ TEST_F(NAME, create_and_destroy_event)
 
 	EXPECT_THAT(event_get(game, "test.event1"), IsNull());
 	EXPECT_THAT(event_get(game, "test.event2"), IsNull());
+}
+
+char* g_last_event_created = NULL;
+EVENT_LISTENER(on_event_created)
+{
+	EXTRACT_ARGUMENT_PTR(0, directory, const char*);
+	g_last_event_created = malloc_string(directory);
+}
+TEST_F(NAME, create_event_fires_event_created)
+{
+	g_last_event_created = NULL;
+
+	event_register_listener(game, "event.created", on_event_created);
+
+	struct event_t* event;
+	EVENT_CREATE0(plugin, event, "test.event");
+	ASSERT_THAT(event, NotNull());
+
+	ASSERT_THAT(g_last_event_created, NotNull());
+	EXPECT_THAT(g_last_event_created, StrEq("test.event"));
+	free_string(g_last_event_created);
+}
+
+char* g_last_event_destroyed = NULL;
+EVENT_LISTENER(on_event_destroyed)
+{
+	EXTRACT_ARGUMENT_PTR(0, directory, const char*);
+	g_last_event_destroyed = malloc_string(directory);
+}
+TEST_F(NAME, destroy_event_fires_event_destroyed)
+{
+	g_last_event_destroyed = NULL;
+
+	event_register_listener(game, "event.destroyed", on_event_destroyed);
+
+	struct event_t* event;
+	EVENT_CREATE0(plugin, event, "test.event");
+	ASSERT_THAT(event, NotNull());
+
+	EXPECT_THAT(g_last_event_destroyed, IsNull());
+	event_destroy(event);
+	ASSERT_THAT(g_last_event_destroyed, NotNull());
+	EXPECT_THAT(g_last_event_destroyed, StrEq("test.event"));
+	free_string(g_last_event_destroyed);
 }
 
 TEST_F(NAME, event_get)

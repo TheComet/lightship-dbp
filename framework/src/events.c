@@ -21,6 +21,14 @@
 static void
 event_free(struct event_t* event);
 
+/*!
+ * @brief Same as event_create, but it doesn't fire the "event.created" event.
+ */
+static struct event_t*
+event_create_no_fire_notification(struct plugin_t* plugin,
+								  const char* directory,
+								  struct type_info_t* type_info);
+
 /* ----------------------------------------------------------------------------
  * Exported functions
  * ------------------------------------------------------------------------- */
@@ -40,13 +48,18 @@ events_init(struct game_t* game)
 	for(;;)
 	{
 		/*
-		 * Define a macro, so I don't have to type that much.
-		 * This will register an event to the "game" object with the specified
-		 * name, and save the returned event object into game->event.(name). If
-		 * anything fails, break is called.
+		 * Define a macro to make typing easier. Checks if the specified member
+		 * of the game object is not null. If it is null, break is called.
 		 */
 #define CHECK(name) \
 		if(!(game->event.name)) break;
+
+		/*
+		 * Re-define EVENT_CREATE so the following events do not fire.
+		 */
+#pragma push_macro("EVENT_CREATE")
+#undef EVENT_CREATE
+#define EVENT_CREATE event_create_no_fire_notification
 
 		/* game core commands */
 		EVENT_CREATE0(game->core, game->event.start, "start"); CHECK(start)
@@ -60,14 +73,18 @@ events_init(struct game_t* game)
 
 		/* The log will fire these events appropriately whenever something is logged */
 		EVENT_CREATE2(game->core, game->event.log,          "log", uint32_t, const char*); CHECK(log)
-		EVENT_CREATE1(game->core, game->event.log_indent,   "log_indent", const char*);    CHECK(log_indent)
-		EVENT_CREATE0(game->core, game->event.log_unindent, "log_unindent");               CHECK(log_unindent)
+		EVENT_CREATE1(game->core, game->event.log_indent,   "log.indent", const char*);    CHECK(log_indent)
+		EVENT_CREATE0(game->core, game->event.log_unindent, "log.unindent");               CHECK(log_unindent)
 
 		/* fired when events or services are created/destroyed */
-		EVENT_CREATE1(game->core, game->event.event_created,     "event_created",     const char*); CHECK(event_created);
-		EVENT_CREATE1(game->core, game->event.event_destroyed,   "event_destroyed",   const char*); CHECK(event_destroyed);
-		EVENT_CREATE1(game->core, game->event.service_created,   "service_created",   const char*); CHECK(service_created);
-		EVENT_CREATE1(game->core, game->event.service_destroyed, "service_destroyed", const char*); CHECK(service_destroyed);
+		EVENT_CREATE1(game->core, game->event.event_created,     "event.created",     const char*); CHECK(event_created);
+		EVENT_CREATE1(game->core, game->event.event_destroyed,   "event.destroyed",   const char*); CHECK(event_destroyed);
+		EVENT_CREATE1(game->core, game->event.service_created,   "service.created",   const char*); CHECK(service_created);
+		EVENT_CREATE1(game->core, game->event.service_destroyed, "service.destroyed", const char*); CHECK(service_destroyed);
+
+#undef EVENT_CREATE
+#pragma pop_macro("EVENT_CREATE")
+#undef CHECK
 
 		return 1;
 	}
@@ -91,6 +108,20 @@ struct event_t*
 event_create(struct plugin_t* plugin,
 			 const char* directory,
 			 struct type_info_t* type_info)
+{
+	struct event_t* event;
+	event = event_create_no_fire_notification(plugin, directory, type_info);
+	if(!event)
+		return NULL;
+
+	EVENT_FIRE1(plugin->game->event.event_created, PTR(directory));
+	return event;
+}
+
+static struct event_t*
+event_create_no_fire_notification(struct plugin_t* plugin,
+								  const char* directory,
+								  struct type_info_t* type_info)
 {
 	struct ptree_t* node;
 	struct event_t* event;
@@ -163,6 +194,9 @@ event_destroy(struct event_t* event)
 			 event->directory, event->plugin->game->name);
 		return;
 	}
+
+	EVENT_FIRE1(event->plugin->game->event.event_destroyed,
+				PTR(event->directory));
 
 	/* destroying the node will call event_free() automatically */
 	ptree_destroy(node);
