@@ -1,5 +1,25 @@
 #include <Python.h>
-#include "structmember.h"
+#include <structmember.h>
+
+#include "plugin_python/config.h"
+#include "plugin_python/context.h"
+#include "plugin_python/lightship_module.h"
+#include "framework/log.h"
+
+/* -------------------------------------------------------------------------
+ * lightship exception.
+ * ------------------------------------------------------------------------- */
+
+static PyObject* lightship_error;
+
+/* ------------------------------------------------------------------------- */
+static void
+create_lightship_exception(PyObject* module)
+{
+	lightship_error = PyErr_NewException("lightship.error", NULL, NULL);
+	Py_INCREF(lightship_error);
+	PyModule_AddObject(module, "error", lightship_error);
+}
 
 /* -------------------------------------------------------------------------
  * Service object.
@@ -39,7 +59,7 @@ static PyTypeObject ServiceType = {
 
 /* -------------------------------------------------------------------------
  * Services object
- * Has a static method for creating and destroying services.
+ * Has static methods for creating and destroying services.
  * Has Service instances as attributes which can be used to call existing
  * services.
  * ------------------------------------------------------------------------- */
@@ -64,7 +84,6 @@ Services_dealloc(struct Services* self)
 static PyObject*
 Services_create(PyObject* self, PyObject* args)
 {
-	puts("Services_create()");
 	Py_INCREF(Py_None);
 	return Py_None;
 }
@@ -124,6 +143,7 @@ struct Game
 {
 	PyObject_HEAD
 	PyObject* service;
+	struct game_t* game;
 };
 
 /* ------------------------------------------------------------------------- */
@@ -174,7 +194,7 @@ static PyMethodDef Game_methods[] = {
 	{NULL}
 };
 
-static PyTypeObject GameType = {
+PyTypeObject GameType = {
 	PyVarObject_HEAD_INIT(NULL, 0)
 	"lightship.Game",          /* tp_name */
 	sizeof(struct Game),       /* tp_basicsize */
@@ -220,12 +240,57 @@ static PyTypeObject GameType = {
  * lightship module
  * ------------------------------------------------------------------------- */
 
+/*
+ * This gets set globally when the plugin first starts and is reset to NULL as
+ * soon as the plugin finishes its start routine. This is to allow python
+ * scripts to register themselves under the correct context.
+ *
+ * Since plugins work per-context and not globally (i.e. we don't have access
+ * to any of the other game instances) I don't see any other way to do this.
+ */
+struct game_t* g_injected_game = NULL;
+
+static PyObject*
+lightship_module_register_game(PyObject* self, PyObject* game)
+{
+	if(g_injected_game)
+	{
+		struct unordered_vector_t* games_vec =
+				&(get_context(g_injected_game)->py_objs.games);
+
+		if(PyObject_IsInstance(game, (PyObject*)&GameType))
+		{
+			Py_INCREF(game);
+			unordered_vector_push(games_vec, &game);
+
+			/* inject game into python Game object so it can be used later */
+			((struct Game*)game)->game = g_injected_game;
+		}
+		else
+		{
+			PyErr_SetString(lightship_error,
+							"Object is not a subclass of lightship.Game");
+			return NULL;
+		}
+	}
+	else
+	{
+		PyErr_SetStirng(lightship_error,
+						"Can't register games after initialisation.");
+		return NULL;
+	}
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+/* ------------------------------------------------------------------------- */
 static PyMethodDef lightship_module_methods[] = {
-	/*{"test", lightship_test, METH_VARARGS, "docstring"},*/
+	{"register_game", lightship_module_register_game, METH_O, "docstring"},
 	{NULL}
 };
 
-static PyModuleDef lightship_module = {
+PyModuleDef lightship_module = {
 	PyModuleDef_HEAD_INIT,
 	"lightship",              /* module name */
 	"",                       /* docstring, may be NULL */
@@ -267,13 +332,6 @@ add_built_in_types_to_module(PyObject* module)
 	PyModule_AddObject(module, "Service", (PyObject*)&ServiceType);
 }
 
-static void
-add_module_attributes(PyObject* module)
-{
-	PyObject* game_object = PyObject_CallObject((PyObject*)&GameType, NULL);
-	PyObject_SetAttrString(module, "game", game_object);
-}
-
 PyMODINIT_FUNC
 PyInit_lightship(void)
 {
@@ -286,8 +344,8 @@ PyInit_lightship(void)
 	if(!(module = PyModule_Create(&lightship_module)))
 		return NULL;
 
+	create_lightship_exception(module);
 	add_built_in_types_to_module(module);
-	add_module_attributes(module);
 
 	return module;
 }

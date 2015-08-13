@@ -7,6 +7,7 @@
 
 #include "util/pstdint.h"
 #include "framework/game.h"
+#include "util/unordered_vector.h"
 
 extern uint32_t context_hash;
 
@@ -14,14 +15,9 @@ struct plugin_t;
 struct game_t;
 struct PyObject;
 
-struct py_lightship_service_t
+struct py_objs_t
 {
-	struct PyObject* register_;
-};
-
-struct py_lightship_t
-{
-	struct py_lightship_service_t service;
+	struct unordered_vector_t games;    /* stores PyObject* game objects */
 };
 
 struct context_t
@@ -30,7 +26,7 @@ struct context_t
 	struct plugin_t* plugin;            /* handle of the plugin object that owns this context */
 	/*struct context_events_t events;
 	struct context_services_t services;*/
-	struct py_lightship_t lightship;
+	struct py_objs_t py_objs;
 };
 
 void

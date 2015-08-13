@@ -9,9 +9,12 @@
 PLUGIN_PYTHON_PUBLIC_API PLUGIN_INIT()
 {
 	struct plugin_t* plugin;
+	struct context_t* context;
 
-	/* init global data */
+	/* init context store */
 	context_create(game);
+	context = get_context(game);
+	unordered_vector_init_vector(&context->py_objs.games, sizeof(void*));
 
 	/* create plugin object - host requires this */
 	/* plugin information can be changed in the file "CMakeLists.txt" */
@@ -67,6 +70,9 @@ PLUGIN_PYTHON_PUBLIC_API PLUGIN_STOP()
 /* ------------------------------------------------------------------------- */
 PLUGIN_PYTHON_PUBLIC_API PLUGIN_DEINIT()
 {
-	plugin_destroy(get_context(game)->plugin);
+	struct context_t* context = get_context(game);
+
+	plugin_destroy(context->plugin);
+	unordered_vector_clear_free(&context->py_objs.games);
 	context_destroy(game);
 }

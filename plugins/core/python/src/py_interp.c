@@ -1,4 +1,5 @@
 #include <Python.h>
+#include "plugin_python/lightship_module.h"
 #include "plugin_python/config.h"
 #include "plugin_python/py_interp.h"
 #include "plugin_python/context.h"
@@ -41,9 +42,14 @@ init_python(struct context_t* context)
 	llog(LOG_INFO, context->game, PLUGIN_NAME, "Initialising python interpreter");
 	Py_Initialize();
 
+	g_injected_game = context->game;
 	PyRun_SimpleString(
 		"import lightship\n"
-		"lightship.game.service.create()\n");
+		"class MyGame(lightship.Game):\n"
+		"    pass\n"
+		"game = MyGame()\n"
+		"lightship.register_game(game)\n");
+	g_injected_game = NULL;
 
 	return 1;
 }
