@@ -43,16 +43,16 @@ PLUGIN_MENU_PUBLIC_API PLUGIN_INIT()
 /* ------------------------------------------------------------------------- */
 PLUGIN_MENU_PUBLIC_API PLUGIN_START()
 {
-	struct context_t* g = get_context(game);
+	struct context_t* context = get_context(game);
 
-	if(!get_required_services(g->plugin))
+	if(!get_required_services(context->plugin))
 		return PLUGIN_FAILURE;
-	get_optional_services(g->plugin);
-	register_event_listeners(g->plugin);
+	get_optional_services(context->plugin);
+	register_event_listeners(context->plugin);
 
-	element_init(g);
-	button_init(g);
-	menu_init(g);
+	element_init(context);
+	button_init(context);
+	menu_init(context);
 
 	return PLUGIN_SUCCESS;
 }
@@ -60,12 +60,12 @@ PLUGIN_MENU_PUBLIC_API PLUGIN_START()
 /* ------------------------------------------------------------------------- */
 PLUGIN_MENU_PUBLIC_API PLUGIN_STOP()
 {
-	struct context_t* g;
+	struct context_t* context;
 
 	/* de-init */
-	g = get_context(game);
-	menu_deinit(g);
-	button_deinit(g);
+	context = get_context(game);
+	menu_deinit(context);
+	button_deinit(context);
 }
 
 /* ------------------------------------------------------------------------- */

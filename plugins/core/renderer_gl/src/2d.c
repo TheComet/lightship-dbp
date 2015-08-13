@@ -23,9 +23,9 @@ static const char* two_d_shader_file = "fx/line_2d";
 
 /* ------------------------------------------------------------------------- */
 char
-init_2d(struct context_t* g)
+init_2d(struct context_t* context)
 {
-	g_line_shader_id = shader_load(g, two_d_shader_file);
+	g_line_shader_id = shader_load(context, two_d_shader_file);
 
 	bstv_init_bstv(&g_shapes_collection);
 
@@ -49,7 +49,7 @@ deinit_2d(void)
 
 /* ------------------------------------------------------------------------- */
 void
-shapes_2d_begin(struct context_t* g)
+shapes_2d_begin(struct context_t* context)
 {
 	if(g_current_shapes)
 		return;
@@ -211,8 +211,8 @@ draw_2d(void)
 /* ------------------------------------------------------------------------- */
 SERVICE(shapes_2d_begin_wrapper)
 {
-	struct context_t* g = get_context(service->plugin->game);
-	shapes_2d_begin(g);
+	struct context_t* context = get_context(service->plugin->game);
+	shapes_2d_begin(context);
 }
 
 SERVICE(shapes_2d_end_wrapper)

@@ -10,11 +10,11 @@ void
 register_events(struct plugin_t* plugin)
 {
 	/* get events struct and initialise all event pointers to NULL */
-	struct context_events_t* g = &get_context(plugin->game)->events;
-	memset(g, 0, sizeof(struct context_events_t));
+	struct context_events_t* context = &get_context(plugin->game)->events;
+	memset(context, 0, sizeof(struct context_events_t));
 
-	EVENT_CREATE1(plugin, g->button_clicked, PLUGIN_NAME ".button_clicked", uint32_t);
-	g->button_clicked = event_get(plugin->game, PLUGIN_NAME ".button_clicked");
+	EVENT_CREATE1(plugin, context->button_clicked, PLUGIN_NAME ".button_clicked", uint32_t);
+	context->button_clicked = event_get(plugin->game, PLUGIN_NAME ".button_clicked");
 }
 
 void

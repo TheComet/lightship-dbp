@@ -40,13 +40,13 @@ struct sprite_t
 };
 
 char
-sprite_init(struct context_t* g);
+sprite_init(struct context_t* context);
 
 void
 sprite_deinit(void);
 
 struct sprite_t*
-sprite_create(struct context_t* g,
+sprite_create(struct context_t* context,
 			  const char* file_name,
 			  uint16_t x_frame_count,
 			  uint16_t y_frame_count,

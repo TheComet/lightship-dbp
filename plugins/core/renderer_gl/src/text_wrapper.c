@@ -44,9 +44,9 @@ SERVICE(text_group_create_wrapper)
 {
 	EXTRACT_ARGUMENT_PTR(0, file_name, const char*);
 	EXTRACT_ARGUMENT(1, char_size, uint32_t, uint32_t);
-	struct context_t* g = get_context(service->plugin->game);
+	struct context_t* context = get_context(service->plugin->game);
 
-	RETURN(text_group_create(g, file_name, char_size), uint32_t);
+	RETURN(text_group_create(context, file_name, char_size), uint32_t);
 
 }
 
@@ -63,9 +63,9 @@ SERVICE(text_group_load_character_set_wrapper)
 {
 	EXTRACT_ARGUMENT(0, id, uint32_t, uint32_t);
 	EXTRACT_ARGUMENT_PTR(1, characters, wchar_t*);
-	struct context_t* g = get_context(service->plugin->game);
+	struct context_t* context = get_context(service->plugin->game);
 
-	text_group_load_character_set(g, id, characters);
+	text_group_load_character_set(context, id, characters);
 }
 
 /* ------------------------------------------------------------------------- */
@@ -78,10 +78,10 @@ SERVICE(text_create_wrapper)
 	EXTRACT_ARGUMENT(2, x, float, GLfloat);
 	EXTRACT_ARGUMENT(3, y, float, GLfloat);
 	EXTRACT_ARGUMENT_PTR(4, string, wchar_t*);
-	struct context_t* g = get_context(service->plugin->game);
+	struct context_t* context = get_context(service->plugin->game);
 
 	struct text_group_t* group = text_group_get(group_id);
-	struct text_t* text = text_create(g, group, centered, x, y, string);
+	struct text_t* text = text_create(context, group, centered, x, y, string);
 	uint32_t text_id = guid++;
 	bstv_insert(&g_texts, text_id, text);
 

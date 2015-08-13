@@ -31,8 +31,8 @@ register_events(struct plugin_t* plugin)
 	memset(g_events, 0, sizeof *g_events);*/
 
 	/*
-	 * g->name_1 = event_create(game, plugin, "name_1");
-	 * g->name_2 = event_create(game, plugin, "name_2");
+	 * context->name_1 = event_create(game, plugin, "name_1");
+	 * context->name_2 = event_create(game, plugin, "name_2");
 	 * etc...
 	 */
 }

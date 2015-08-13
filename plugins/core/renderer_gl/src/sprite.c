@@ -43,11 +43,11 @@ static const char* sprite_shader_file = "fx/sprite";
 
 /* ------------------------------------------------------------------------- */
 char
-sprite_init(struct context_t* g)
+sprite_init(struct context_t* context)
 {
 	bstv_init_bstv(&g_sprites);
 
-	g_sprite_shader_id = shader_load(g, sprite_shader_file);printOpenGLError();
+	g_sprite_shader_id = shader_load(context, sprite_shader_file);printOpenGLError();
 	g_uniform_sprite_position_location = glGetUniformLocation(g_sprite_shader_id, "spritePosition");
 	g_uniform_sprite_size_location     = glGetUniformLocation(g_sprite_shader_id, "spriteSize");
 
@@ -80,7 +80,7 @@ sprite_deinit(void)
 
 /* ------------------------------------------------------------------------- */
 struct sprite_t*
-sprite_create(struct context_t* g,
+sprite_create(struct context_t* context,
 			  const char* file_name,
 			  uint16_t x_frame_count,
 			  uint16_t y_frame_count,
@@ -100,7 +100,7 @@ sprite_create(struct context_t* g,
 	pixel_buffer = stbi_load(file_name, &x, &y, &n, 4);
 	if(!pixel_buffer)
 	{
-		llog(LOG_ERROR, g->game, PLUGIN_NAME, "Failed to load image: \"%s\"", file_name);
+		llog(LOG_ERROR, context->game, PLUGIN_NAME, "Failed to load image: \"%s\"", file_name);
 		return NULL;
 	}
 
@@ -261,9 +261,9 @@ SERVICE(sprite_create_wrapper)
 	EXTRACT_ARGUMENT(1, x_frame_count, uint16_t, uint16_t);
 	EXTRACT_ARGUMENT(2, y_frame_count, uint16_t, uint16_t);
 	EXTRACT_ARGUMENT(3, total_frame_count, uint16_t, uint16_t);
-	struct context_t* g = get_context(service->plugin->game);
+	struct context_t* context = get_context(service->plugin->game);
 
-	if(sprite_create(g, file_name, x_frame_count, y_frame_count, total_frame_count, &id))
+	if(sprite_create(context, file_name, x_frame_count, y_frame_count, total_frame_count, &id))
 		RETURN(id, uint32_t);
 	RETURN(0, uint32_t);
 }

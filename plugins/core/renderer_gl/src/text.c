@@ -10,11 +10,11 @@
 #include <math.h>
 
 static void
-text_generate_mesh(struct context_t* g, struct text_t* text);
+text_generate_mesh(struct context_t* context, struct text_t* text);
 
 /* ------------------------------------------------------------------------- */
 struct text_t*
-text_create(struct context_t* g,
+text_create(struct context_t* context,
 			struct text_group_t* text_group,
 			char centered,
 			GLfloat x,
@@ -33,7 +33,7 @@ text_create(struct context_t* g,
 	ordered_vector_init_vector(&text->index_buffer, sizeof(INDEX_DATA_TYPE));
 
 	text_group_add_text_object(text_group, text);
-	text_generate_mesh(g, text);
+	text_generate_mesh(context, text);
 
 	return text;
 }
@@ -90,7 +90,7 @@ text_hide(struct text_t* text)
 
 /* ------------------------------------------------------------------------- */
 static void
-text_generate_mesh(struct context_t* g, struct text_t* text)
+text_generate_mesh(struct context_t* context, struct text_t* text)
 {
 	const wchar_t* iterator;
 	GLfloat dist_between_chars;
@@ -129,7 +129,7 @@ text_generate_mesh(struct context_t* g, struct text_t* text)
 				char buffer[sizeof(wchar_t)+1];
 				memcpy(buffer, iterator, sizeof(wchar_t));
 				buffer[sizeof(wchar_t)] = '\0';
-				llog(LOG_ERROR, g->game, PLUGIN_NAME, "Failed to look up character: \"%s\"", buffer);
+				llog(LOG_ERROR, context->game, PLUGIN_NAME, "Failed to look up character: \"%s\"", buffer);
 				continue;
 			}
 
@@ -167,7 +167,7 @@ text_generate_mesh(struct context_t* g, struct text_t* text)
 			char buffer[sizeof(wchar_t)+1];
 			memcpy(buffer, iterator, sizeof(wchar_t));
 			buffer[sizeof(wchar_t)] = '\0';
-			llog(LOG_ERROR, g->game, PLUGIN_NAME, "Failed to look up character: \"%s\"", buffer);
+			llog(LOG_ERROR, context->game, PLUGIN_NAME, "Failed to look up character: \"%s\"", buffer);
 			continue;
 		}
 

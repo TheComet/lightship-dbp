@@ -39,9 +39,9 @@ get_required_services(struct plugin_t* plugin)
 	memset(g_services, 0, sizeof *g_services);*/
 
 	/*
-	 * if(!(g->name_1 = service_get(game, "plugin.service1")))
+	 * if(!(context->name_1 = service_get(game, "plugin.service1")))
 	 *	 return 0;
-	 * if(!(g->name_2 = service_get(game, "plugin.service2")))
+	 * if(!(context->name_2 = service_get(game, "plugin.service2")))
 	 *	 return 0;
 	 * etc...
 	 */

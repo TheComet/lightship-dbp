@@ -12,7 +12,7 @@
 
 /* ------------------------------------------------------------------------- */
 static char
-check_shader(struct context_t* g, GLuint shader_ID)
+check_shader(struct context_t* context, GLuint shader_ID)
 {
 	GLint result = GL_FALSE;
 	int info_log_length;
@@ -23,7 +23,7 @@ check_shader(struct context_t* g, GLuint shader_ID)
 	message = (char*)MALLOC(info_log_length);
 	glGetShaderInfoLog(shader_ID, info_log_length, NULL, message);
 	if(result == GL_FALSE)
-		llog(LOG_ERROR, g->game, PLUGIN_NAME, message);
+		llog(LOG_ERROR, context->game, PLUGIN_NAME, message);
 	FREE(message);
 
 	return (result != GL_FALSE);
@@ -31,7 +31,7 @@ check_shader(struct context_t* g, GLuint shader_ID)
 
 /* ------------------------------------------------------------------------- */
 static char*
-load_and_compile_shader(struct context_t* g, GLuint shader_ID, const char* file_name)
+load_and_compile_shader(struct context_t* context, GLuint shader_ID, const char* file_name)
 {
 	GLchar* code;
 
@@ -39,12 +39,12 @@ load_and_compile_shader(struct context_t* g, GLuint shader_ID, const char* file_
 	file_load_into_memory(file_name, (void**)&code, 0);
 	if(!code)
 	{
-		llog(LOG_ERROR, g->game, PLUGIN_NAME, "failed to load file \"%s\"", file_name);
+		llog(LOG_ERROR, context->game, PLUGIN_NAME, "failed to load file \"%s\"", file_name);
 		return NULL;
 	}
 
 	/* compile */
-	llog(LOG_INFO, g->game, PLUGIN_NAME, "compiling shader: \"%s\"", file_name);
+	llog(LOG_INFO, context->game, PLUGIN_NAME, "compiling shader: \"%s\"", file_name);
 	glShaderSource(shader_ID, 1, (const GLchar**)&code, NULL);
 	glCompileShader(shader_ID);
 
@@ -53,7 +53,7 @@ load_and_compile_shader(struct context_t* g, GLuint shader_ID, const char* file_
 
 /* ------------------------------------------------------------------------- */
 static char
-check_program(struct context_t* g, GLuint program_ID)
+check_program(struct context_t* context, GLuint program_ID)
 {
 	GLint result = GL_FALSE;
 	int info_log_length;
@@ -64,7 +64,7 @@ check_program(struct context_t* g, GLuint program_ID)
 	message = (char*)MALLOC(info_log_length);
 	glGetProgramInfoLog(program_ID, info_log_length, NULL, message);
 	if(result == GL_FALSE)
-		llog(LOG_ERROR, g->game, PLUGIN_NAME, message);
+		llog(LOG_ERROR, context->game, PLUGIN_NAME, message);
 	FREE(message);
 
 	return (result != GL_FALSE);
@@ -72,7 +72,7 @@ check_program(struct context_t* g, GLuint program_ID)
 
 /* ------------------------------------------------------------------------- */
 GLuint
-shader_load(struct context_t* g, const char* name)
+shader_load(struct context_t* context, const char* name)
 {
 	char* vertex_shader;
 	char* fragment_shader;
@@ -80,7 +80,7 @@ shader_load(struct context_t* g, const char* name)
 
 	vertex_shader = cat_strings(2, name, ".vsh");
 	fragment_shader = cat_strings(2, name, ".fsh");
-	result = load_shader_pair(g, vertex_shader, fragment_shader);
+	result = load_shader_pair(context, vertex_shader, fragment_shader);
 
 	free_string(vertex_shader);
 	free_string(fragment_shader);
@@ -89,7 +89,7 @@ shader_load(struct context_t* g, const char* name)
 
 /* ------------------------------------------------------------------------- */
 GLuint
-load_shader_pair(struct context_t* g,
+load_shader_pair(struct context_t* context,
 				 const char* vertex_shader,
 				 const char* fragment_shader)
 {
@@ -102,26 +102,26 @@ load_shader_pair(struct context_t* g,
 	/* compile shaders */
 	vsh_ID = glCreateShader(GL_VERTEX_SHADER);
 	fsh_ID = glCreateShader(GL_FRAGMENT_SHADER);
-	vsh_code = load_and_compile_shader(g, vsh_ID, vertex_shader);
-	check_shader(g, vsh_ID);
-	fsh_code = load_and_compile_shader(g, fsh_ID, fragment_shader);
-	check_shader(g, fsh_ID);
+	vsh_code = load_and_compile_shader(context, vsh_ID, vertex_shader);
+	check_shader(context, vsh_ID);
+	fsh_code = load_and_compile_shader(context, fsh_ID, fragment_shader);
+	check_shader(context, fsh_ID);
 
 	/* link program */
-	llog(LOG_INFO, g->game, PLUGIN_NAME, "linking program");
+	llog(LOG_INFO, context->game, PLUGIN_NAME, "linking program");
 	program_ID = glCreateProgram();
 	glAttachShader(program_ID, vsh_ID);
 	glAttachShader(program_ID, fsh_ID);
 	glLinkProgram(program_ID);
-	if(!check_program(g, program_ID))
+	if(!check_program(context, program_ID))
 	{
 		if(vsh_code)
-			llog(LOG_ERROR, g->game, NULL,
+			llog(LOG_ERROR, context->game, NULL,
 				"================= Vertex Shader Dump =================\n%s",
 				vsh_code
 			);
 		if(fsh_code)
-			llog(LOG_ERROR, g->game, NULL,
+			llog(LOG_ERROR, context->game, NULL,
 				"================= Fragment Shader Dump =================\n%s",
 				fsh_code
 			);

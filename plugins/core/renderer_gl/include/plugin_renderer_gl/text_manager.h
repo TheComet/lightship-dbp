@@ -53,7 +53,7 @@ struct text_group_t
 };
 
 char
-text_manager_init(struct context_t* g);
+text_manager_init(struct context_t* context);
 
 void
 text_manager_deinit(void);
@@ -64,7 +64,7 @@ text_manager_deinit(void);
  * @return A new font object which can be used for later text related calls.
  */
 uint32_t
-text_group_create(struct context_t* g,
+text_group_create(struct context_t* context,
 				  const char* font_filename,
 				  uint32_t char_size);
 
@@ -88,11 +88,11 @@ text_group_get(uint32_t id);
  * need to adjust the set of characters.
  * @param[in] font The font object to load characters for.
  * @param[in] characters The characters to load.
- * @note Use wide characters by specifying an "L", e.g. L"abcde..."
+ * @note Use wide characters by specifying an "L", e.context. L"abcde..."
  * @note Use NULL to load the default set of characters.
  */
 void
-text_group_load_character_set(struct context_t* g,
+text_group_load_character_set(struct context_t* context,
 							  uint32_t id,
 							  const wchar_t* characters);
 

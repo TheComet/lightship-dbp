@@ -31,37 +31,37 @@ get_required_services(struct plugin_t* plugin)
 	struct game_t* game = plugin->game;
 
 	/* get service context and set every service pointer to NULL */
-	struct context_services_t* g = &get_context(game)->services;
-	memset(g, 0, sizeof(struct context_services_t));
+	struct context_services_t* context = &get_context(game)->services;
+	memset(context, 0, sizeof(struct context_services_t));
 
-	if(!(g->shapes_2d_begin                = service_get(game, "renderer_gl.shapes_2d_begin")))
+	if(!(context->shapes_2d_begin                = service_get(game, "renderer_gl.shapes_2d_begin")))
 		return 0;
-	if(!(g->shapes_2d_end                  = service_get(game, "renderer_gl.shapes_2d_end")))
+	if(!(context->shapes_2d_end                  = service_get(game, "renderer_gl.shapes_2d_end")))
 		return 0;
-	if(!(g->shapes_2d_destroy              = service_get(game, "renderer_gl.shapes_2d_destroy")))
+	if(!(context->shapes_2d_destroy              = service_get(game, "renderer_gl.shapes_2d_destroy")))
 		return 0;
-	if(!(g->line_2d                        = service_get(game, "renderer_gl.line_2d")))
+	if(!(context->line_2d                        = service_get(game, "renderer_gl.line_2d")))
 		return 0;
-	if(!(g->box_2d                         = service_get(game, "renderer_gl.box_2d")))
+	if(!(context->box_2d                         = service_get(game, "renderer_gl.box_2d")))
 		return 0;
-	if(!(g->shapes_2d_show                 = service_get(game, "renderer_gl.shapes_2d_show")))
+	if(!(context->shapes_2d_show                 = service_get(game, "renderer_gl.shapes_2d_show")))
 		return 0;
-	if(!(g->shapes_2d_hide                 = service_get(game, "renderer_gl.shapes_2d_hide")))
+	if(!(context->shapes_2d_hide                 = service_get(game, "renderer_gl.shapes_2d_hide")))
 		return 0;
 
-	if(!(g->text_group_create              = service_get(game, "renderer_gl.text_group_create")))
+	if(!(context->text_group_create              = service_get(game, "renderer_gl.text_group_create")))
 		return 0;
-	if(!(g->text_group_destroy             = service_get(game, "renderer_gl.text_group_destroy")))
+	if(!(context->text_group_destroy             = service_get(game, "renderer_gl.text_group_destroy")))
 		return 0;
-	if(!(g->text_group_load_character_set  = service_get(game, "renderer_gl.text_group_load_character_set")))
+	if(!(context->text_group_load_character_set  = service_get(game, "renderer_gl.text_group_load_character_set")))
 		return 0;
-	if(!(g->text_create                    = service_get(game, "renderer_gl.text_create")))
+	if(!(context->text_create                    = service_get(game, "renderer_gl.text_create")))
 		return 0;
-	if(!(g->text_destroy                   = service_get(game, "renderer_gl.text_destroy")))
+	if(!(context->text_destroy                   = service_get(game, "renderer_gl.text_destroy")))
 		return 0;
-	if(!(g->text_show                      = service_get(game, "renderer_gl.text_show")))
+	if(!(context->text_show                      = service_get(game, "renderer_gl.text_show")))
 		return 0;
-	if(!(g->text_hide                      = service_get(game, "renderer_gl.text_hide")))
+	if(!(context->text_hide                      = service_get(game, "renderer_gl.text_hide")))
 		return 0;
 
 	return 1;

@@ -8,14 +8,14 @@
 
 /* ------------------------------------------------------------------------- */
 void
-element_init(struct context_t* g)
+element_init(struct context_t* context)
 {
-	g->element.guid = 1;
+	context->element.guid = 1;
 }
 
 /* ------------------------------------------------------------------------- */
 void
-element_constructor(struct context_t* g,
+element_constructor(struct context_t* context,
 					struct element_t* element,
 					element_destructor_func derived_destructor,
 					float x, float y,
@@ -23,8 +23,8 @@ element_constructor(struct context_t* g,
 {
 	unordered_vector_init_vector(&element->base.element.gl.shapes, sizeof(uint32_t));
 	unordered_vector_init_vector(&element->base.element.gl.text, sizeof(struct element_font_text_id_pair_t));
-	element->base.element.id = g->element.guid++;
-	element->base.element.context = g;
+	element->base.element.id = context->element.guid++;
+	element->base.element.context = context;
 	element->base.element.pos.x = x;
 	element->base.element.pos.y = y;
 	element->base.element.size.x = width;
@@ -37,12 +37,12 @@ element_constructor(struct context_t* g,
 void
 element_destructor(struct element_t* element)
 {
-	struct context_t* g = element->base.element.context;
+	struct context_t* context = element->base.element.context;
 	UNORDERED_VECTOR_FOR_EACH(&element->base.element.gl.shapes, uint32_t, id)
-		SERVICE_CALL1(g->services.shapes_2d_destroy, NULL, id);
+		SERVICE_CALL1(context->services.shapes_2d_destroy, NULL, id);
 	UNORDERED_VECTOR_END_EACH
 	UNORDERED_VECTOR_FOR_EACH(&element->base.element.gl.text, struct element_font_text_id_pair_t, pair)
-		SERVICE_CALL1(g->services.text_destroy, NULL, pair->text_id);
+		SERVICE_CALL1(context->services.text_destroy, NULL, pair->text_id);
 	UNORDERED_VECTOR_END_EACH
 	unordered_vector_clear_free(&element->base.element.gl.shapes);
 	unordered_vector_clear_free(&element->base.element.gl.text);
@@ -81,13 +81,13 @@ element_add_shapes(struct element_t* element, uint32_t shapes_id)
 void
 element_show(struct element_t* element)
 {
-	struct context_t* g = element->base.element.context;
+	struct context_t* context = element->base.element.context;
 
 	UNORDERED_VECTOR_FOR_EACH(&element->base.element.gl.shapes, uint32_t, id)
-		SERVICE_CALL1(g->services.shapes_2d_show, NULL, *id);
+		SERVICE_CALL1(context->services.shapes_2d_show, NULL, *id);
 	UNORDERED_VECTOR_END_EACH
 	UNORDERED_VECTOR_FOR_EACH(&element->base.element.gl.text, struct element_font_text_id_pair_t, pair)
-		SERVICE_CALL1(g->services.text_show, NULL, pair->text_id);
+		SERVICE_CALL1(context->services.text_show, NULL, pair->text_id);
 	UNORDERED_VECTOR_END_EACH
 	element->base.element.visible = 1;
 }
@@ -96,13 +96,13 @@ element_show(struct element_t* element)
 void
 element_hide(struct element_t* element)
 {
-	struct context_t* g = element->base.element.context;
+	struct context_t* context = element->base.element.context;
 
 	UNORDERED_VECTOR_FOR_EACH(&element->base.element.gl.shapes, uint32_t, id)
-		SERVICE_CALL1(g->services.shapes_2d_hide, NULL, *id);
+		SERVICE_CALL1(context->services.shapes_2d_hide, NULL, *id);
 	UNORDERED_VECTOR_END_EACH
 	UNORDERED_VECTOR_FOR_EACH(&element->base.element.gl.text, struct element_font_text_id_pair_t, pair)
-		SERVICE_CALL1(g->services.text_hide, NULL, pair->text_id);
+		SERVICE_CALL1(context->services.text_hide, NULL, pair->text_id);
 	UNORDERED_VECTOR_END_EACH
 	element->base.element.visible = 0;
 }

@@ -56,7 +56,7 @@ struct element_t
 };
 
 void
-element_init(struct context_t* g);
+element_init(struct context_t* context);
 
 /*!
  * @brief Initialises the base struct.
@@ -69,7 +69,7 @@ element_init(struct context_t* g);
  * @param height The height of the menu element in GL screen space.
  */
 void
-element_constructor(struct context_t* g,
+element_constructor(struct context_t* context,
 					struct element_t* element,
 					element_destructor_func derived_destructor,
 					float x, float y,

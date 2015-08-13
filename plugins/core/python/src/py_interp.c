@@ -13,7 +13,7 @@ PyInit_lightship(void);
 
 /* ------------------------------------------------------------------------- */
 char
-init_python(struct context_t* g)
+init_python(struct context_t* context)
 {
 	char cwd[1024];
 
@@ -35,10 +35,10 @@ init_python(struct context_t* g)
 		free_string(cwd_w);
 	}
 	else
-		llog(LOG_WARNING, g->game, PLUGIN_NAME, "Couldn't set current working directory.");
+		llog(LOG_WARNING, context->game, PLUGIN_NAME, "Couldn't set current working directory.");
 
 	/* initialise interpreter */
-	llog(LOG_INFO, g->game, PLUGIN_NAME, "Initialising python interpreter");
+	llog(LOG_INFO, context->game, PLUGIN_NAME, "Initialising python interpreter");
 	Py_Initialize();
 
 	PyRun_SimpleString(
@@ -49,7 +49,7 @@ init_python(struct context_t* g)
 }
 
 /* ------------------------------------------------------------------------- */
-void deinit_python(struct context_t* g)
+void deinit_python(struct context_t* context)
 {
 	/*
 	 * Only finalise if we are the last game using the python interpreter.
@@ -57,7 +57,7 @@ void deinit_python(struct context_t* g)
 	 */
 	if(!(--g_game_references))
 	{
-		llog(LOG_INFO, g->game, PLUGIN_NAME, "De-initialising python interpreter");
+		llog(LOG_INFO, context->game, PLUGIN_NAME, "De-initialising python interpreter");
 		Py_Finalize();
 	}
 }

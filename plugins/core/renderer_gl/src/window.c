@@ -18,7 +18,7 @@
 struct window_t g_window;
 
 char
-window_init(struct context_t* g)
+window_init(struct context_t* context)
 {
 	GLFWwindow* glfw_window;
 
@@ -40,14 +40,14 @@ window_init(struct context_t* g)
 	glfw_window = glfwCreateWindow(g_window.width, g_window.height, "Light Ship", NULL, NULL);
 	if(glfw_window == NULL)
 	{
-		llog(LOG_ERROR, g->game, PLUGIN_NAME, "Failed to open glfw window. If you have an Intel GPU, they are not 3.3 compatible.");
+		llog(LOG_ERROR, context->game, PLUGIN_NAME, "Failed to open glfw window. If you have an Intel GPU, they are not 3.3 compatible.");
 		return 0;
 	}
 	glfwMakeContextCurrent(glfw_window); /* initialise GLEW */
 	glewExperimental = 1; /* needed in core profile */
 	if(glewInit() != GLEW_OK)
 	{
-		llog(LOG_ERROR, g->game, PLUGIN_NAME, "Failed to initialise GLEW\n");
+		llog(LOG_ERROR, context->game, PLUGIN_NAME, "Failed to initialise GLEW\n");
 		return 0;
 	}
 	glClearColor(0.0f, 0.0f, 0.4f, 0.0f);

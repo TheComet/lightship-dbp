@@ -12,7 +12,7 @@ struct window_t
 };
 
 char
-window_init(struct context_t* g);
+window_init(struct context_t* context);
 
 void
 window_deinit(void);

@@ -42,15 +42,15 @@ PLUGIN_PYTHON_PUBLIC_API PLUGIN_INIT()
 /* ------------------------------------------------------------------------- */
 PLUGIN_PYTHON_PUBLIC_API PLUGIN_START()
 {
-	struct context_t* g = get_context(game);
+	struct context_t* context = get_context(game);
 
 	/* hook in to services and events */
-	if(!get_required_services(g->plugin))
+	if(!get_required_services(context->plugin))
 		return PLUGIN_FAILURE;
-	get_optional_services(g->plugin);
-	register_event_listeners(g->plugin);
+	get_optional_services(context->plugin);
+	register_event_listeners(context->plugin);
 
-	if(!init_python(g))
+	if(!init_python(context))
 		return PLUGIN_FAILURE;
 
 	return PLUGIN_SUCCESS;
@@ -59,9 +59,9 @@ PLUGIN_PYTHON_PUBLIC_API PLUGIN_START()
 /* ------------------------------------------------------------------------- */
 PLUGIN_PYTHON_PUBLIC_API PLUGIN_STOP()
 {
-	struct context_t* g = get_context(game);
+	struct context_t* context = get_context(game);
 
-	deinit_python(g);
+	deinit_python(context);
 }
 
 /* ------------------------------------------------------------------------- */

@@ -51,10 +51,10 @@ PLUGIN_RENDERER_GL_PUBLIC_API PLUGIN_INIT()
 /* ------------------------------------------------------------------------- */
 PLUGIN_RENDERER_GL_PUBLIC_API PLUGIN_START()
 {
-	struct context_t* g;
+	struct context_t* context;
 
 	/* get global struct */
-	g = get_context(game);
+	context = get_context(game);
 
 	/* initialise GLFW */
 	if(!glfwInit())
@@ -64,27 +64,27 @@ PLUGIN_RENDERER_GL_PUBLIC_API PLUGIN_START()
 	}
 
 	/* creates the window */
-	if(!window_init(g))
+	if(!window_init(context))
 		return PLUGIN_FAILURE;
 
 	/* clear any GL errors caused by glfw and glew */
 	glGetError();
 
 	/* init graphics components */
-	if(!init_2d(g))
+	if(!init_2d(context))
 		return PLUGIN_FAILURE;
-	if(!text_manager_init(g))
+	if(!text_manager_init(context))
 		return PLUGIN_FAILURE;
 	if(!text_wrapper_init())
 		return PLUGIN_FAILURE;
-	if(!sprite_init(g))
+	if(!sprite_init(context))
 		return PLUGIN_FAILURE;
 
-	register_event_listeners(g->plugin);
+	register_event_listeners(context->plugin);
 
 	{
 		uint32_t id;
-		struct sprite_t* sprite = sprite_create(g, "menu/join/join.png", 1, 1, 1, &id);
+		struct sprite_t* sprite = sprite_create(context, "menu/join/join.png", 1, 1, 1, &id);
 		REF(sprite);
 		/*sprite_scale(sprite, 0.3);
 		sprite_set_position(sprite, 0.2, 0.7);*/

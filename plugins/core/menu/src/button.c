@@ -27,36 +27,36 @@ static void
 button_free_contents(struct button_t* button);
 
 /* ------------------------------------------------------------------------- */
-void button_init(struct context_t* g)
+void button_init(struct context_t* context)
 {
 	uint32_t char_size;
 
 	/* initialise container in which all buttons are stored */
-	bstv_init_bstv(&g->button.buttons);
+	bstv_init_bstv(&context->button.buttons);
 
 	/* load font and characters */
 	char_size = 9;
-	SERVICE_CALL2(g->services.text_group_create, &g->button.font_id, PTR(ttf_filename), char_size);
-	SERVICE_CALL2(g->services.text_group_load_character_set, NULL, g->button.font_id, PTR(NULL));
+	SERVICE_CALL2(context->services.text_group_create, &context->button.font_id, PTR(ttf_filename), char_size);
+	SERVICE_CALL2(context->services.text_group_load_character_set, NULL, context->button.font_id, PTR(NULL));
 }
 
 /* ------------------------------------------------------------------------- */
-void button_deinit(struct context_t* g)
+void button_deinit(struct context_t* context)
 {
-	SERVICE_CALL1(g->services.text_group_destroy, NULL, g->button.font_id);
-	button_destroy_all(g);
-	bstv_clear_free(&g->button.buttons);
+	SERVICE_CALL1(context->services.text_group_destroy, NULL, context->button.font_id);
+	button_destroy_all(context);
+	bstv_clear_free(&context->button.buttons);
 }
 
 /* ------------------------------------------------------------------------- */
 struct button_t*
-button_create(struct context_t* g, const char* text, float x, float y, float width, float height)
+button_create(struct context_t* context, const char* text, float x, float y, float width, float height)
 {
 	struct button_t* btn = (struct button_t*)MALLOC(sizeof(struct button_t));
 	memset(btn, 0, sizeof(struct button_t));
 
 	/* base constructor */
-	element_constructor(g,
+	element_constructor(context,
 						(struct element_t*)btn,
 						(element_destructor_func)button_destructor,
 						x, y,
@@ -73,7 +73,7 @@ static void
 button_constructor(struct button_t* btn, const char* text, float x, float y, float width, float height)
 {
 	/* base struct is constructed first, so we can safely get the context struct */
-	struct context_t* g = btn->base.element.context;
+	struct context_t* context = btn->base.element.context;
 
 	/* copy wchar_t string into button object */
 	if(text)
@@ -84,8 +84,8 @@ button_constructor(struct button_t* btn, const char* text, float x, float y, flo
 		/* TODO instead of passing the raw string, add way to pass a "string instance"
 		* which can specify the font and size of the string. */
 		btn->base.button.text = strtowcs(text);
-		SERVICE_CALL5(g->services.text_create, &btn->base.button.text_id, g->button.font_id, is_centered, x, offy, PTR(btn->base.button.text));
-		element_add_text((struct element_t*)btn, g->button.font_id, btn->base.button.text_id);
+		SERVICE_CALL5(context->services.text_create, &btn->base.button.text_id, context->button.font_id, is_centered, x, offy, PTR(btn->base.button.text));
+		element_add_text((struct element_t*)btn, context->button.font_id, btn->base.button.text_id);
 	}
 	else
 	{
@@ -94,7 +94,7 @@ button_constructor(struct button_t* btn, const char* text, float x, float y, flo
 	}
 
 	/* draw box */
-	SERVICE_CALL0(g->services.shapes_2d_begin, NULL);
+	SERVICE_CALL0(context->services.shapes_2d_begin, NULL);
 	{
 		float x1, y1, x2, y2;
 		uint32_t colour = BUTTON_COLOUR_NORMAL;
@@ -102,21 +102,21 @@ button_constructor(struct button_t* btn, const char* text, float x, float y, flo
 		y1 = y - height * 0.5f;
 		x2 = x + width  * 0.5f;
 		y2 = y + height * 0.5f;
-		SERVICE_CALL5(g->services.box_2d, NULL, x1, y1, x2, y2, colour);
+		SERVICE_CALL5(context->services.box_2d, NULL, x1, y1, x2, y2, colour);
 	}
-	SERVICE_CALL0(g->services.shapes_2d_end, &btn->base.button.shapes_normal_id);
+	SERVICE_CALL0(context->services.shapes_2d_end, &btn->base.button.shapes_normal_id);
 	element_add_shapes((struct element_t*)btn, btn->base.button.shapes_normal_id);
 
 	/* add to global list of buttons */
-	bstv_insert(&g->button.buttons, btn->base.element.id, btn);
+	bstv_insert(&context->button.buttons, btn->base.element.id, btn);
 }
 
 /* ------------------------------------------------------------------------- */
 static void
 button_destructor(struct button_t* button)
 {
-	struct context_t* g = button->base.element.context;
-	bstv_erase(&g->button.buttons, button->base.element.id);
+	struct context_t* context = button->base.element.context;
+	bstv_erase(&context->button.buttons, button->base.element.id);
 	button_free_contents(button);
 }
 
@@ -131,10 +131,10 @@ button_destroy(struct button_t* button)
 
 /* ------------------------------------------------------------------------- */
 void
-button_destroy_all(struct context_t* g)
+button_destroy_all(struct context_t* context)
 {
 	struct button_t* button;
-	while((button = bstv_get_any_element(&g->button.buttons)))
+	while((button = bstv_get_any_element(&context->button.buttons)))
 	{
 		button_destroy(button);
 	}
@@ -144,11 +144,11 @@ button_destroy_all(struct context_t* g)
 void
 button_free_contents(struct button_t* button)
 {
-	struct context_t* g = button->base.element.context;
+	struct context_t* context = button->base.element.context;
 
 	if(button->base.button.text)
 	{
-		SERVICE_CALL1(g->services.text_destroy, NULL, button->base.button.text_id);
+		SERVICE_CALL1(context->services.text_destroy, NULL, button->base.button.text_id);
 		free_string(button->base.button.text);
 		if(button->base.element.action.service)
 			dynamic_call_destroy_argument_vector(button->base.element.action.service->type_info,
@@ -158,7 +158,7 @@ button_free_contents(struct button_t* button)
 
 /* ------------------------------------------------------------------------- */
 struct button_t*
-button_collision(struct context_t* g, struct button_t* button, float x, float y)
+button_collision(struct context_t* context, struct button_t* button, float x, float y)
 {
 	/* test specified button */
 	if(button && button->base.element.visible)
@@ -175,7 +175,7 @@ button_collision(struct context_t* g, struct button_t* button, float x, float y)
 	}
 
 	/* test all buttons */
-	BSTV_FOR_EACH(&g->button.buttons, struct button_t, id, cur_btn)
+	BSTV_FOR_EACH(&context->button.buttons, struct button_t, id, cur_btn)
 		struct element_data_t* elem;
 		if(!cur_btn->base.element.visible)
 			continue;
@@ -196,13 +196,13 @@ EVENT_LISTENER(on_mouse_clicked)
 	EXTRACT_ARGUMENT(1, x, double, double);
 	EXTRACT_ARGUMENT(2, y, double, double);
 
-	struct context_t* g = get_context(event->plugin->game);
-	struct button_t* button = button_collision(g, NULL, (float)x, (float)y);
+	struct context_t* context = get_context(event->plugin->game);
+	struct button_t* button = button_collision(context, NULL, (float)x, (float)y);
 
 	if(button)
 	{
 		/* let everything know it was clicked */
-		EVENT_FIRE1(g->events.button_clicked, button->base.element.id);
+		EVENT_FIRE1(context->events.button_clicked, button->base.element.id);
 
 		/* if button has an action, execute it */
 		if(button->base.element.action.service)
@@ -222,13 +222,13 @@ EVENT_LISTENER(on_mouse_clicked)
 
 SERVICE(button_create_wrapper)
 {
-	struct context_t* g = get_context(service->plugin->game);
+	struct context_t* context = get_context(service->plugin->game);
 	EXTRACT_ARGUMENT(0, text, const char*, const char*);
 	EXTRACT_ARGUMENT(1, x, float, float);
 	EXTRACT_ARGUMENT(2, y, float, float);
 	EXTRACT_ARGUMENT(3, width, float, float);
 	EXTRACT_ARGUMENT(4, height, float, float);
-	RETURN(button_create(g, text, x, y, width, height), uintptr_t);
+	RETURN(button_create(context, text, x, y, width, height), uintptr_t);
 }
 
 /* ------------------------------------------------------------------------- */

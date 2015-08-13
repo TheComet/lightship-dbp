@@ -15,13 +15,13 @@ struct menu_t
 };
 
 void
-menu_init(struct context_t* g);
+menu_init(struct context_t* context);
 
 void
-menu_deinit(struct context_t* g);
+menu_deinit(struct context_t* context);
 
 struct menu_t*
-menu_load(struct context_t* g, const char* file_name);
+menu_load(struct context_t* context, const char* file_name);
 
 void
 menu_init_menu(struct menu_t* menu);
