@@ -2,7 +2,7 @@
 #include "util/pstdint.h"
 
 struct GLFWwindow;
-struct glob_t;
+struct context_t;
 
 struct window_t
 {
@@ -12,7 +12,7 @@ struct window_t
 };
 
 char
-window_init(struct glob_t* g);
+window_init(struct context_t* g);
 
 void
 window_deinit(void);

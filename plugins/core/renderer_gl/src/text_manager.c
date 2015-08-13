@@ -1,5 +1,5 @@
 #include "plugin_renderer_gl/config.h"
-#include "plugin_renderer_gl/glob.h"
+#include "plugin_renderer_gl/context.h"
 #include "plugin_renderer_gl/text_manager.h"
 #include "plugin_renderer_gl/text.h"
 #include "plugin_renderer_gl/text_wrapper.h"
@@ -37,7 +37,7 @@ static const char* text_shader_file = "fx/text_2d";
 #endif
 
 static char
-text_group_load_font(struct glob_t* g,
+text_group_load_font(struct context_t* g,
 					 struct text_group_t* group,
 					 const char* filename,
 					 uint32_t char_size);
@@ -59,7 +59,7 @@ to_nearest_pow2(GLuint value)
  * @brief Generates and uploads an atlass to the GPU.
  */
 static void
-text_group_load_atlass(struct glob_t* g,
+text_group_load_atlass(struct context_t* g,
 					   struct text_group_t* group,
 					   const wchar_t* characters);
 
@@ -68,7 +68,7 @@ text_group_sync_with_gpu(struct text_group_t* group);
 
 /* ------------------------------------------------------------------------- */
 char
-text_manager_init(struct glob_t* g)
+text_manager_init(struct context_t* g)
 {
 	FT_Error error;
 
@@ -116,7 +116,7 @@ text_manager_deinit(void)
 
 /* ------------------------------------------------------------------------- */
 uint32_t
-text_group_create(struct glob_t* g,
+text_group_create(struct context_t* g,
 				  const char* font_filename,
 				  uint32_t char_size)
 {
@@ -218,7 +218,7 @@ text_group_get(uint32_t id)
 
 /* ------------------------------------------------------------------------- */
 void
-text_group_load_character_set(struct glob_t* g,
+text_group_load_character_set(struct context_t* g,
 							  uint32_t id,
 							  const wchar_t* characters)
 {
@@ -329,7 +329,7 @@ text_draw(void)
 
 /* ------------------------------------------------------------------------- */
 static char
-text_group_load_font(struct glob_t* g,
+text_group_load_font(struct context_t* g,
 					 struct text_group_t* group,
 					 const char* filename,
 					 uint32_t char_size)
@@ -365,7 +365,7 @@ text_group_load_font(struct glob_t* g,
 
 /* ------------------------------------------------------------------------- */
 static void
-text_group_load_atlass(struct glob_t* g,
+text_group_load_atlass(struct context_t* g,
 					   struct text_group_t* group,
 					   const wchar_t* characters)
 {

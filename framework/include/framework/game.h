@@ -11,7 +11,7 @@
 C_HEADER_BEGIN
 
 struct net_connection_t;
-struct glob_t;
+struct context_t;
 struct plugin_t;
 
 SERVICE(game_start_wrapper);
@@ -35,7 +35,7 @@ struct framework_events_t
 {
 	struct event_t* start;
 	struct event_t* pause;
-	struct event_t* exit;
+	struct event_t* stop;
 
 	struct event_t* tick;
 	struct event_t* render;
@@ -55,7 +55,7 @@ struct framework_services_t
 {
 	struct service_t* start;
 	struct service_t* pause;
-	struct service_t* exit;
+	struct service_t* stop;
 };
 
 struct framework_log_t
@@ -82,7 +82,7 @@ struct game_t
 	struct ptree_t services;    /* service directory of this game */
 	struct ptree_t events;      /* event directory of this game */
 
-	struct bstv_t global_data;  /* maps hashed plugin names to glob structs used by this game */
+	struct bstv_t context_store;  /* maps hashed plugin names to context structs used by this game */
 };
 
 FRAMEWORK_PUBLIC_API void
@@ -124,9 +124,9 @@ game_dispatch_render(void);
 void
 game_dispatch_tick(void);
 
-#define game_add_global(game, hash, glob) bstv_insert(&(game)->global_data, hash, glob)
-#define game_get_global(game, hash) bstv_find(&(game)->global_data, hash)
-#define game_remove_global(game, hash) bstv_erase(&(game)->global_data, hash)
+#define game_add_to_context_store(game, hash, context) bstv_insert(&(game)->context_store, hash, context)
+#define game_get_from_context_store(game, hash) bstv_find(&(game)->context_store, hash)
+#define game_remove_from_context_store(game, hash) bstv_erase(&(game)->context_store, hash)
 
 C_HEADER_END
 

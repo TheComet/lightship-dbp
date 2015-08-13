@@ -1,7 +1,7 @@
-struct glob_t;
+struct context_t;
 
 char
-init_python(struct glob_t* g);
+init_python(struct context_t* g);
 
 void
-deinit_python(struct glob_t* g);
+deinit_python(struct context_t* g);

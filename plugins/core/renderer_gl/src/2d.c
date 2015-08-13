@@ -5,7 +5,7 @@
 #include "plugin_renderer_gl/2d.h"
 #include "plugin_renderer_gl/shader.h"
 #include "plugin_renderer_gl/glutils.h"
-#include "plugin_renderer_gl/glob.h"
+#include "plugin_renderer_gl/context.h"
 
 #include "GL/glew.h"
 #include "glfw3.h"
@@ -23,7 +23,7 @@ static const char* two_d_shader_file = "fx/line_2d";
 
 /* ------------------------------------------------------------------------- */
 char
-init_2d(struct glob_t* g)
+init_2d(struct context_t* g)
 {
 	g_line_shader_id = shader_load(g, two_d_shader_file);
 
@@ -49,7 +49,7 @@ deinit_2d(void)
 
 /* ------------------------------------------------------------------------- */
 void
-shapes_2d_begin(struct glob_t* g)
+shapes_2d_begin(struct context_t* g)
 {
 	if(g_current_shapes)
 		return;
@@ -211,7 +211,7 @@ draw_2d(void)
 /* ------------------------------------------------------------------------- */
 SERVICE(shapes_2d_begin_wrapper)
 {
-	struct glob_t* g = get_global(service->plugin->game);
+	struct context_t* g = get_context(service->plugin->game);
 	shapes_2d_begin(g);
 }
 

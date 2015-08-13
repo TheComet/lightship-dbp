@@ -2,7 +2,7 @@
 #include "util/ordered_vector.h"
 #include "framework/se_api.h"
 
-struct glob_t;
+struct context_t;
 
 struct shapes_t
 {
@@ -20,7 +20,7 @@ struct shapes_t
  * related calls.
  */
 char
-init_2d(struct glob_t* g);
+init_2d(struct context_t* g);
 
 /*!
  * @brief De-inits 2D subsystem. Cleans up all buffers.
@@ -32,7 +32,7 @@ deinit_2d(void);
  * @brief Begin drawing a collection of shapes.
  */
 void
-shapes_2d_begin(struct glob_t* g);
+shapes_2d_begin(struct context_t* g);
 
 /*!
  * @brief End drawing a collection of shapes.

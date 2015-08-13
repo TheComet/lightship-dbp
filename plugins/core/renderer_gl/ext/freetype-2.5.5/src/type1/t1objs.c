@@ -65,8 +65,8 @@
 
     module = FT_Get_Module( size->root.face->driver->root.library,
                             "pshinter" );
-    return ( module && pshinter && pshinter->get_globals_funcs )
-           ? pshinter->get_globals_funcs( module )
+    return ( module && pshinter && pshinter->get_contexts_funcs )
+           ? pshinter->get_contexts_funcs( module )
            : 0 ;
   }
 

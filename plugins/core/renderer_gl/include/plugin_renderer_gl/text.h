@@ -5,7 +5,7 @@
 #include <wchar.h>
 
 struct text_group_t;
-struct glob_t;
+struct context_t;
 
 struct text_t
 {
@@ -34,7 +34,7 @@ struct text_t
  * delete the string from the static buffer.
  */
 struct text_t*
-text_create(struct glob_t* g,
+text_create(struct context_t* g,
 			struct text_group_t*
 			text_group,
 			char centered,

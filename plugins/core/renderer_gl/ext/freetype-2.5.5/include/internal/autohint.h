@@ -190,7 +190,7 @@ FT_BEGIN_HEADER
   typedef struct  FT_AutoHinter_InterfaceRec_
   {
     FT_AutoHinter_GlobalResetFunc  reset_face;
-    FT_AutoHinter_GlobalGetFunc    get_global_hints;
+    FT_AutoHinter_GlobalGetFunc    get_context_hints;
     FT_AutoHinter_GlobalDoneFunc   done_global_hints;
     FT_AutoHinter_GlyphLoadFunc    load_glyph;
 
@@ -202,14 +202,14 @@ FT_BEGIN_HEADER
 #define FT_DEFINE_AUTOHINTER_INTERFACE(       \
           class_,                             \
           reset_face_,                        \
-          get_global_hints_,                  \
+          get_context_hints_,                  \
           done_global_hints_,                 \
           load_glyph_ )                       \
   FT_CALLBACK_TABLE_DEF                       \
   const FT_AutoHinter_InterfaceRec  class_ =  \
   {                                           \
     reset_face_,                              \
-    get_global_hints_,                        \
+    get_context_hints_,                        \
     done_global_hints_,                       \
     load_glyph_                               \
   };
@@ -219,7 +219,7 @@ FT_BEGIN_HEADER
 #define FT_DEFINE_AUTOHINTER_INTERFACE(                            \
           class_,                                                  \
           reset_face_,                                             \
-          get_global_hints_,                                       \
+          get_context_hints_,                                       \
           done_global_hints_,                                      \
           load_glyph_ )                                            \
   void                                                             \
@@ -229,7 +229,7 @@ FT_BEGIN_HEADER
     FT_UNUSED( library );                                          \
                                                                    \
     clazz->reset_face        = reset_face_;                        \
-    clazz->get_global_hints  = get_global_hints_;                  \
+    clazz->get_context_hints  = get_context_hints_;                  \
     clazz->done_global_hints = done_global_hints_;                 \
     clazz->load_glyph        = load_glyph_;                        \
   }

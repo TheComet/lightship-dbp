@@ -99,7 +99,7 @@ GTEST_DECLARE_bool_(catch_exceptions);
 // to let Google Test decide.
 GTEST_DECLARE_string_(color);
 
-// This flag sets up the filter to select by name using a glob pattern
+// This flag sets up the filter to select by name using a context pattern
 // the tests to run. If the filter is not given all tests are executed.
 GTEST_DECLARE_string_(filter);
 
@@ -654,7 +654,7 @@ class GTEST_API_ TestInfo {
   // The full name of a test Bar in test case Foo is defined as
   // "Foo.Bar".  Only the tests that match the filter will run.
   //
-  // A filter is a colon-separated list of glob (not regex) patterns,
+  // A filter is a colon-separated list of context (not regex) patterns,
   // optionally followed by a '-' and a colon-separated list of
   // negative patterns (tests to exclude).  A test is run if it
   // matches one of the positive patterns and does not match any of

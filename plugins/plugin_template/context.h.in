@@ -12,7 +12,7 @@ extern uint32_t global_hash;
 
 struct plugin_t;
 
-struct glob_events_t
+struct context_events_t
 {
 	/* add global event objects here as needed */
 	struct event_t* name_1;
@@ -20,7 +20,7 @@ struct glob_events_t
 	/* etc... */
 };
 
-struct glob_services_t
+struct context_services_t
 {
 	/* add global service objects here as needed */
 	struct service_t* name_1;
@@ -28,18 +28,18 @@ struct glob_services_t
 	/* etc... */
 };
 
-struct glob_t
+struct context_t
 {
 	struct game_t* game;                /* handle of the game object that owns this plugin */
 	struct plugin_t* plugin;            /* handle of the plugin object that owns this glob */
-	struct glob_events_t events;
-	struct glob_services_t services;
+	struct context_events_t events;
+	struct context_services_t services;
 };
 
 void
-glob_create(struct game_t* game);
+context_create(struct game_t* game);
 
 void
-glob_destroy(struct game_t* game);
+context_destroy(struct game_t* game);
 
-#define get_global(game) ((struct glob_t*)game_get_global(game, global_hash))
+#define get_global(game) ((struct context_t*)game_get_global(game, global_hash))

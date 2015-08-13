@@ -92,7 +92,7 @@
 
 
   static PSH_Globals_Funcs
-  cid_size_get_globals_funcs( CID_Size  size )
+  cid_size_get_contexts_funcs( CID_Size  size )
   {
     CID_Face          face     = (CID_Face)size->root.face;
     PSHinter_Service  pshinter = (PSHinter_Service)face->pshinter;
@@ -101,8 +101,8 @@
 
     module = FT_Get_Module( size->root.face->driver->root.library,
                             "pshinter" );
-    return ( module && pshinter && pshinter->get_globals_funcs )
-           ? pshinter->get_globals_funcs( module )
+    return ( module && pshinter && pshinter->get_contexts_funcs )
+           ? pshinter->get_contexts_funcs( module )
            : 0;
   }
 
@@ -118,7 +118,7 @@
       PSH_Globals_Funcs  funcs;
 
 
-      funcs = cid_size_get_globals_funcs( size );
+      funcs = cid_size_get_contexts_funcs( size );
       if ( funcs )
         funcs->destroy( (PSH_Globals)cidsize->internal );
 
@@ -132,7 +132,7 @@
   {
     CID_Size           size  = (CID_Size)cidsize;
     FT_Error           error = FT_Err_Ok;
-    PSH_Globals_Funcs  funcs = cid_size_get_globals_funcs( size );
+    PSH_Globals_Funcs  funcs = cid_size_get_contexts_funcs( size );
 
 
     if ( funcs )
@@ -161,7 +161,7 @@
 
     FT_Request_Metrics( size->face, req );
 
-    funcs = cid_size_get_globals_funcs( (CID_Size)size );
+    funcs = cid_size_get_contexts_funcs( (CID_Size)size );
 
     if ( funcs )
       funcs->set_scale( (PSH_Globals)size->internal,

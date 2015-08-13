@@ -1,5 +1,5 @@
 #include "plugin_@NAME@/config.h"   /* configurations for this plugin */
-#include "plugin_@NAME@/glob.h"
+#include "plugin_@NAME@/context.h"
 #include "plugin_@NAME@/services.h" /* plugin services */
 #include "plugin_@NAME@/events.h"   /* plugin events */
 #include "framework/plugin.h"	    /* plugin api */
@@ -9,8 +9,8 @@ PLUGIN_@NAME_CAPS@_PUBLIC_API PLUGIN_INIT()
 {
 	struct plugin_t* plugin;
 
-	/* init global data */
-	glob_create(game);
+	/* init contextal data */
+	context_create(game);
 
 	/* create plugin object - host requires this */
 	/* plugin information can be changed in the file "CMakeLists.txt" */
@@ -21,8 +21,8 @@ PLUGIN_@NAME_CAPS@_PUBLIC_API PLUGIN_INIT()
 			PLUGIN_DESCRIPTION,
 			PLUGIN_WEBSITE);
 
-	/* add the plugin to the glob struct for later access */
-	get_global(game)->plugin = plugin;
+	/* add the plugin to the context struct for later access */
+	get_context(game)->plugin = plugin;
 
 	/* set other info */
 	plugin_set_programming_language(plugin,
@@ -41,7 +41,7 @@ PLUGIN_@NAME_CAPS@_PUBLIC_API PLUGIN_INIT()
 /* ------------------------------------------------------------------------- */
 PLUGIN_@NAME_CAPS@_PUBLIC_API PLUGIN_START()
 {
-	struct glob_t* g = get_global(game);
+	struct context_t* g = get_context(game);
 
 	/*
 	 * initialise your stuff here
@@ -67,6 +67,6 @@ PLUGIN_@NAME_CAPS@_PUBLIC_API PLUGIN_STOP()
 /* ------------------------------------------------------------------------- */
 PLUGIN_@NAME_CAPS@_PUBLIC_API PLUGIN_DEINIT()
 {
-	plugin_destroy(get_global(game)->plugin);
-	glob_destroy(game);
+	plugin_destroy(get_context(game)->plugin);
+	context_destroy(game);
 }

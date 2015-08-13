@@ -3,7 +3,7 @@
 #include "plugin_menu/screen.h"
 #include "plugin_menu/services.h"
 #include "plugin_menu/button.h"
-#include "plugin_menu/glob.h"
+#include "plugin_menu/context.h"
 #include "framework/plugin.h"
 #include "framework/services.h"
 #include "framework/log.h"
@@ -19,21 +19,21 @@ static void
 menu_load_screens(struct menu_t* menu, const struct ptree_t* screen_node);
 
 static void
-menu_load_button(struct glob_t* g, struct screen_t* screen, const struct ptree_t* button_node);
+menu_load_button(struct context_t* g, struct screen_t* screen, const struct ptree_t* button_node);
 
 static void
-menu_load_button_action(struct glob_t* g, struct button_t* button, const struct ptree_t* action_node);
+menu_load_button_action(struct context_t* g, struct button_t* button, const struct ptree_t* action_node);
 
 /* ------------------------------------------------------------------------- */
 void
-menu_init(struct glob_t* g)
+menu_init(struct context_t* g)
 {
 	bsthv_init_bsthv(&g->menu.menus);
 }
 
 /* ------------------------------------------------------------------------- */
 void
-menu_deinit(struct glob_t* g)
+menu_deinit(struct context_t* g)
 {
 	struct menu_t* menu;
 	while((menu = bsthv_get_any_element(&g->menu.menus)))
@@ -45,7 +45,7 @@ menu_deinit(struct glob_t* g)
 
 /* ------------------------------------------------------------------------- */
 struct menu_t*
-menu_load(struct glob_t* g, const char* file_name)
+menu_load(struct context_t* g, const char* file_name)
 {
 	struct menu_t* menu;
 	struct ptree_t* doc;
@@ -83,8 +83,8 @@ menu_load(struct glob_t* g, const char* file_name)
 	/* set the name of the menu */
 	menu->name = malloc_string(menu_name);
 
-	/* cache glob */
-	menu->glob = g;
+	/* cache context */
+	menu->context = g;
 
 	/* load all screens into menu structure */
 	menu_load_screens(menu, doc);
@@ -118,7 +118,7 @@ menu_destroy(struct menu_t* menu)
 	bsthv_clear_free(&menu->screens);
 
 	/* remove from global list of menus */
-	bsthv_erase(&menu->glob->menu.menus, menu->name);
+	bsthv_erase(&menu->context->menu.menus, menu->name);
 
 	/* menu name */
 	free_string(menu->name);
@@ -134,7 +134,7 @@ menu_set_active_screen(struct menu_t* menu, const char* screen_name)
 	struct screen_t* screen = bsthv_find(&menu->screens, screen_name);
 	if(!screen)
 	{
-		llog(LOG_ERROR, menu->glob->game, PLUGIN_NAME, "Failed to set the "
+		llog(LOG_ERROR, menu->context->game, PLUGIN_NAME, "Failed to set the "
 			"active screen to \"%s\": Screen name not found", screen_name);
 		return;
 	}
@@ -163,7 +163,7 @@ menu_load_screens(struct menu_t* menu, const struct ptree_t* doc)
 		/* get screen name */
 		if(!screen_name)
 		{
-			llog(LOG_WARNING, menu->glob->game, PLUGIN_NAME, "Screen missing the \"name\" property. Skipping.");
+			llog(LOG_WARNING, menu->context->game, PLUGIN_NAME, "Screen missing the \"name\" property. Skipping.");
 			continue;
 		}
 
@@ -173,8 +173,8 @@ menu_load_screens(struct menu_t* menu, const struct ptree_t* doc)
 		*/
 		if(bsthv_key_exists(&created_screen_names, screen_name))
 		{
-			llog(LOG_WARNING, menu->glob->game, PLUGIN_NAME, "Screen with duplicate name found: %s", screen_name);
-			llog(LOG_WARNING, menu->glob->game, PLUGIN_NAME, "Screen will not be created");
+			llog(LOG_WARNING, menu->context->game, PLUGIN_NAME, "Screen with duplicate name found: %s", screen_name);
+			llog(LOG_WARNING, menu->context->game, PLUGIN_NAME, "Screen will not be created");
 			continue;
 		}
 		bsthv_insert(&created_screen_names, screen_name, NULL);
@@ -185,7 +185,7 @@ menu_load_screens(struct menu_t* menu, const struct ptree_t* doc)
 
 		/* iterate objects to add to this screen */
 		YAML_FOR_EACH(screen_node, "buttons", key, button_node)
-			menu_load_button(menu->glob, screen, button_node);
+			menu_load_button(menu->context, screen, button_node);
 		YAML_END_EACH
 
 		/* hide the screen by default */
@@ -197,7 +197,7 @@ menu_load_screens(struct menu_t* menu, const struct ptree_t* doc)
 
 /* ------------------------------------------------------------------------- */
 static void
-menu_load_button(struct glob_t* g, struct screen_t* screen, const struct ptree_t* button_node)
+menu_load_button(struct context_t* g, struct screen_t* screen, const struct ptree_t* button_node)
 {
 	struct button_t* button;
 
@@ -231,13 +231,13 @@ menu_load_button(struct glob_t* g, struct screen_t* screen, const struct ptree_t
 
 /* ------------------------------------------------------------------------- */
 static void
-menu_load_button_action(struct glob_t* g, struct button_t* button, const struct ptree_t* action_node)
+menu_load_button_action(struct context_t* g, struct button_t* button, const struct ptree_t* action_node)
 {
 	const char* service_str = yaml_get_value(action_node, "service");
 	if(service_str)
 	{
 		struct service_t* action_service;
-		if(!(action_service = service_get(button->base.element.glob->game, service_str)))
+		if(!(action_service = service_get(button->base.element.context->game, service_str)))
 		{
 			llog(LOG_WARNING, g->game, PLUGIN_NAME, "Tried to bind button "
 				"to service \"%s\", but the service was not found.", service_str);
@@ -288,7 +288,7 @@ menu_load_button_action(struct glob_t* g, struct button_t* button, const struct 
 /* ------------------------------------------------------------------------- */
 SERVICE(menu_load_wrapper)
 {
-	struct glob_t* g = get_global(service->plugin->game);
+	struct context_t* g = get_context(service->plugin->game);
 	EXTRACT_ARGUMENT_PTR(0, file_name, const char*);
 
 	struct menu_t* menu = menu_load(g, file_name);
@@ -300,7 +300,7 @@ SERVICE(menu_load_wrapper)
 /* ------------------------------------------------------------------------- */
 SERVICE(menu_destroy_wrapper)
 {
-	struct glob_t* g = get_global(service->plugin->game);
+	struct context_t* g = get_context(service->plugin->game);
 	EXTRACT_ARGUMENT_PTR(0, menu_name, const char*);
 
 	struct menu_t* menu = bsthv_find(&g->menu.menus, menu_name);
@@ -311,7 +311,7 @@ SERVICE(menu_destroy_wrapper)
 /* ------------------------------------------------------------------------- */
 SERVICE(menu_set_active_screen_wrapper)
 {
-	struct glob_t* g = get_global(service->plugin->game);
+	struct context_t* g = get_context(service->plugin->game);
 	EXTRACT_ARGUMENT_PTR(0, menu_name, const char*);
 	EXTRACT_ARGUMENT_PTR(1, screen_name, const char*);
 

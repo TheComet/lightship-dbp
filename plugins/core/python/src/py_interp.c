@@ -1,7 +1,7 @@
 #include <Python.h>
 #include "plugin_python/config.h"
 #include "plugin_python/py_interp.h"
-#include "plugin_python/glob.h"
+#include "plugin_python/context.h"
 #include "framework/log.h"
 #include "util/string.h"
 #include <unistd.h> /* getcwd */
@@ -13,7 +13,7 @@ PyInit_lightship(void);
 
 /* ------------------------------------------------------------------------- */
 char
-init_python(struct glob_t* g)
+init_python(struct context_t* g)
 {
 	char cwd[1024];
 
@@ -43,13 +43,13 @@ init_python(struct glob_t* g)
 
 	PyRun_SimpleString(
 		"import lightship\n"
-		"lightship.game.test()\n");
+		"lightship.game.service.create()\n");
 
 	return 1;
 }
 
 /* ------------------------------------------------------------------------- */
-void deinit_python(struct glob_t* g)
+void deinit_python(struct context_t* g)
 {
 	/*
 	 * Only finalise if we are the last game using the python interpreter.

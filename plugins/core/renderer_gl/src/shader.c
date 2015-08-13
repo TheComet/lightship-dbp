@@ -1,6 +1,6 @@
 #include "plugin_renderer_gl/config.h"
 #include "plugin_renderer_gl/shader.h"
-#include "plugin_renderer_gl/glob.h"
+#include "plugin_renderer_gl/context.h"
 #include "framework/log.h"
 #include "util/file.h"
 #include "util/memory.h"
@@ -12,7 +12,7 @@
 
 /* ------------------------------------------------------------------------- */
 static char
-check_shader(struct glob_t* g, GLuint shader_ID)
+check_shader(struct context_t* g, GLuint shader_ID)
 {
 	GLint result = GL_FALSE;
 	int info_log_length;
@@ -31,7 +31,7 @@ check_shader(struct glob_t* g, GLuint shader_ID)
 
 /* ------------------------------------------------------------------------- */
 static char*
-load_and_compile_shader(struct glob_t* g, GLuint shader_ID, const char* file_name)
+load_and_compile_shader(struct context_t* g, GLuint shader_ID, const char* file_name)
 {
 	GLchar* code;
 
@@ -53,7 +53,7 @@ load_and_compile_shader(struct glob_t* g, GLuint shader_ID, const char* file_nam
 
 /* ------------------------------------------------------------------------- */
 static char
-check_program(struct glob_t* g, GLuint program_ID)
+check_program(struct context_t* g, GLuint program_ID)
 {
 	GLint result = GL_FALSE;
 	int info_log_length;
@@ -72,7 +72,7 @@ check_program(struct glob_t* g, GLuint program_ID)
 
 /* ------------------------------------------------------------------------- */
 GLuint
-shader_load(struct glob_t* g, const char* name)
+shader_load(struct context_t* g, const char* name)
 {
 	char* vertex_shader;
 	char* fragment_shader;
@@ -89,7 +89,7 @@ shader_load(struct glob_t* g, const char* name)
 
 /* ------------------------------------------------------------------------- */
 GLuint
-load_shader_pair(struct glob_t* g,
+load_shader_pair(struct context_t* g,
 				 const char* vertex_shader,
 				 const char* fragment_shader)
 {

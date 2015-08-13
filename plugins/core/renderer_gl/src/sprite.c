@@ -1,7 +1,7 @@
 #include "plugin_renderer_gl/shader.h"
 #include "plugin_renderer_gl/sprite.h"
 #include "plugin_renderer_gl/config.h"
-#include "plugin_renderer_gl/glob.h"
+#include "plugin_renderer_gl/context.h"
 #include "framework/plugin.h"
 #include "framework/game.h"
 #include "framework/services.h"
@@ -43,7 +43,7 @@ static const char* sprite_shader_file = "fx/sprite";
 
 /* ------------------------------------------------------------------------- */
 char
-sprite_init(struct glob_t* g)
+sprite_init(struct context_t* g)
 {
 	bstv_init_bstv(&g_sprites);
 
@@ -80,7 +80,7 @@ sprite_deinit(void)
 
 /* ------------------------------------------------------------------------- */
 struct sprite_t*
-sprite_create(struct glob_t* g,
+sprite_create(struct context_t* g,
 			  const char* file_name,
 			  uint16_t x_frame_count,
 			  uint16_t y_frame_count,
@@ -261,7 +261,7 @@ SERVICE(sprite_create_wrapper)
 	EXTRACT_ARGUMENT(1, x_frame_count, uint16_t, uint16_t);
 	EXTRACT_ARGUMENT(2, y_frame_count, uint16_t, uint16_t);
 	EXTRACT_ARGUMENT(3, total_frame_count, uint16_t, uint16_t);
-	struct glob_t* g = get_global(service->plugin->game);
+	struct context_t* g = get_context(service->plugin->game);
 
 	if(sprite_create(g, file_name, x_frame_count, y_frame_count, total_frame_count, &id))
 		RETURN(id, uint32_t);

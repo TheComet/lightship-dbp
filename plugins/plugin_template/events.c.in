@@ -1,7 +1,7 @@
 #include "framework/events.h"
 #include "framework/plugin.h"
 #include "plugin_@NAME@/events.h"
-#include "plugin_@NAME@/glob.h"
+#include "plugin_@NAME@/context.h"
 
 /* ----------------------------------------------------------------------------
  * All events this plugin fires
@@ -19,17 +19,17 @@ register_events(struct plugin_t* plugin)
 {
 	struct game_t* game = plugin->game;
 
-	/* get event glob and set every service pointer to NULL */
+	/* get event context and set every service pointer to NULL */
 	/*
-	 * See glob.h. All event objects cannot be stored statically. Instead, they
-	 * are inserted into a glob struct, which allows each plugin to be loaded
+	 * See context.h. All event objects cannot be stored statically. Instead, they
+	 * are inserted into a context struct, which allows each plugin to be loaded
 	 * multiple times without static data ever conflicting. Every plugin owns
-	 * one glob struct which can be retrieved from the game object.
+	 * one context struct which can be retrieved from the game object.
 	 *
-	 * The event objects you want to register can be added to the glob struct
-	 * in glob.h.
+	 * The event objects you want to register can be added to the context struct
+	 * in context.h.
 	 */
-	struct glob_events_t* g_events = &get_global(game)->events;
+	struct context_events_t* g_events = &get_context(game)->events;
 	memset(g_events, 0, sizeof *g_events);
 
 	/*

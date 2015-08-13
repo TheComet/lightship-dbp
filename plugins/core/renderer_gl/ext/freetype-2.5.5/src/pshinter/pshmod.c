@@ -71,7 +71,7 @@
 
   /* returns global hints interface */
   FT_CALLBACK_DEF( PSH_Globals_Funcs )
-  pshinter_get_globals_funcs( FT_Module  module )
+  pshinter_get_contexts_funcs( FT_Module  module )
   {
     return &((PS_Hinter_Module)module)->globals_funcs;
   }
@@ -95,7 +95,7 @@
 
   FT_DEFINE_PSHINTER_INTERFACE(
     pshinter_interface,
-    pshinter_get_globals_funcs,
+    pshinter_get_contexts_funcs,
     pshinter_get_t1_funcs,
     pshinter_get_t2_funcs )
 

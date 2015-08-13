@@ -55,7 +55,7 @@ service_init(struct game_t* game)
 		/* game core commands */
 		SERVICE_CREATE0(game->core, game->service.start, "start", game_start_wrapper, void); CHECK(start)
 		SERVICE_CREATE0(game->core, game->service.pause, "pause", game_pause_wrapper, void); CHECK(pause)
-		SERVICE_CREATE0(game->core, game->service.exit,  "stop",  game_exit_wrapper,  void); CHECK(exit)
+		SERVICE_CREATE0(game->core, game->service.stop,  "stop",  game_exit_wrapper,  void); CHECK(stop)
 
 #undef SERVICE_CREATE
 #pragma pop_macro("SERVICE_CREATE")

@@ -1,5 +1,5 @@
 #include "plugin_renderer_gl/config.h"
-#include "plugin_renderer_gl/glob.h"
+#include "plugin_renderer_gl/context.h"
 #include "plugin_renderer_gl/window.h"
 #include "plugin_renderer_gl/events.h"
 #include "plugin_renderer_gl/input.h"
@@ -18,7 +18,7 @@
 struct window_t g_window;
 
 char
-window_init(struct glob_t* g)
+window_init(struct context_t* g)
 {
 	GLFWwindow* glfw_window;
 

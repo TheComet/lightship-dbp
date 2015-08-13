@@ -2,7 +2,7 @@
 #include "plugin_renderer_gl/text_manager.h"
 #include "plugin_renderer_gl/text.h"
 #include "plugin_renderer_gl/window.h"
-#include "plugin_renderer_gl/glob.h"
+#include "plugin_renderer_gl/context.h"
 #include "framework/log.h"
 #include "util/memory.h"
 #include "util/string.h"
@@ -10,11 +10,11 @@
 #include <math.h>
 
 static void
-text_generate_mesh(struct glob_t* g, struct text_t* text);
+text_generate_mesh(struct context_t* g, struct text_t* text);
 
 /* ------------------------------------------------------------------------- */
 struct text_t*
-text_create(struct glob_t* g,
+text_create(struct context_t* g,
 			struct text_group_t* text_group,
 			char centered,
 			GLfloat x,
@@ -90,7 +90,7 @@ text_hide(struct text_t* text)
 
 /* ------------------------------------------------------------------------- */
 static void
-text_generate_mesh(struct glob_t* g, struct text_t* text)
+text_generate_mesh(struct context_t* g, struct text_t* text)
 {
 	const wchar_t* iterator;
 	GLfloat dist_between_chars;

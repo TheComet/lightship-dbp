@@ -1,7 +1,7 @@
 #include "framework/services.h"
 #include "framework/plugin.h"
 #include "plugin_python/services.h"
-#include "plugin_python/glob.h"
+#include "plugin_python/context.h"
 #include <string.h>
 
 /* ------------------------------------------------------------------------- */
@@ -25,17 +25,17 @@ register_services(struct plugin_t* plugin)
 char
 get_required_services(struct plugin_t* plugin)
 {
-	/* get service glob and set every service pointer to NULL */
+	/* get service context and set every service pointer to NULL */
 	/*
-	 * See glob.h. All service objects cannot be stored statically. Instead, they
-	 * are inserted into a glob struct, which allows each plugin to be loaded
+	 * See context.h. All service objects cannot be stored statically. Instead, they
+	 * are inserted into a context struct, which allows each plugin to be loaded
 	 * multiple times without static data ever conflicting. Every plugin owns
-	 * one glob struct which can be retrieved from the game object.
+	 * one context struct which can be retrieved from the game object.
 	 *
-	 * The service objects you want to register can be added to the glob struct
-	 * in glob.h.
+	 * The service objects you want to register can be added to the context struct
+	 * in context.h.
 	 *
-	struct glob_services_t* g_services = &get_global(game)->services;
+	struct context_services_t* g_services = &get_context(game)->services;
 	memset(g_services, 0, sizeof *g_services);*/
 
 	/*

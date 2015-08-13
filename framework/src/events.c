@@ -64,7 +64,7 @@ events_init(struct game_t* game)
 		/* game core commands */
 		EVENT_CREATE0(game->core, game->event.start, "start"); CHECK(start)
 		EVENT_CREATE0(game->core, game->event.pause, "pause"); CHECK(pause)
-		EVENT_CREATE0(game->core, game->event.exit,  "exit");  CHECK(exit)
+		EVENT_CREATE0(game->core, game->event.stop,  "stop");  CHECK(stop)
 
 		/* main loop events (game update and render updates) */
 		EVENT_CREATE0(game->core, game->event.tick,   "tick");                      CHECK(tick)

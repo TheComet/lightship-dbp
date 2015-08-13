@@ -1,7 +1,7 @@
 #include "plugin_menu/button.h"
 #include "plugin_menu/services.h"
 #include "plugin_menu/events.h"
-#include "plugin_menu/glob.h"
+#include "plugin_menu/context.h"
 #include "framework/plugin.h"
 #include "framework/services.h"
 #include "framework/log.h"
@@ -27,7 +27,7 @@ static void
 button_free_contents(struct button_t* button);
 
 /* ------------------------------------------------------------------------- */
-void button_init(struct glob_t* g)
+void button_init(struct context_t* g)
 {
 	uint32_t char_size;
 
@@ -41,7 +41,7 @@ void button_init(struct glob_t* g)
 }
 
 /* ------------------------------------------------------------------------- */
-void button_deinit(struct glob_t* g)
+void button_deinit(struct context_t* g)
 {
 	SERVICE_CALL1(g->services.text_group_destroy, NULL, g->button.font_id);
 	button_destroy_all(g);
@@ -50,7 +50,7 @@ void button_deinit(struct glob_t* g)
 
 /* ------------------------------------------------------------------------- */
 struct button_t*
-button_create(struct glob_t* g, const char* text, float x, float y, float width, float height)
+button_create(struct context_t* g, const char* text, float x, float y, float width, float height)
 {
 	struct button_t* btn = (struct button_t*)MALLOC(sizeof(struct button_t));
 	memset(btn, 0, sizeof(struct button_t));
@@ -72,8 +72,8 @@ button_create(struct glob_t* g, const char* text, float x, float y, float width,
 static void
 button_constructor(struct button_t* btn, const char* text, float x, float y, float width, float height)
 {
-	/* base struct is constructed first, so we can safely get the glob struct */
-	struct glob_t* g = btn->base.element.glob;
+	/* base struct is constructed first, so we can safely get the context struct */
+	struct context_t* g = btn->base.element.context;
 
 	/* copy wchar_t string into button object */
 	if(text)
@@ -115,7 +115,7 @@ button_constructor(struct button_t* btn, const char* text, float x, float y, flo
 static void
 button_destructor(struct button_t* button)
 {
-	struct glob_t* g = button->base.element.glob;
+	struct context_t* g = button->base.element.context;
 	bstv_erase(&g->button.buttons, button->base.element.id);
 	button_free_contents(button);
 }
@@ -131,7 +131,7 @@ button_destroy(struct button_t* button)
 
 /* ------------------------------------------------------------------------- */
 void
-button_destroy_all(struct glob_t* g)
+button_destroy_all(struct context_t* g)
 {
 	struct button_t* button;
 	while((button = bstv_get_any_element(&g->button.buttons)))
@@ -144,7 +144,7 @@ button_destroy_all(struct glob_t* g)
 void
 button_free_contents(struct button_t* button)
 {
-	struct glob_t* g = button->base.element.glob;
+	struct context_t* g = button->base.element.context;
 
 	if(button->base.button.text)
 	{
@@ -158,7 +158,7 @@ button_free_contents(struct button_t* button)
 
 /* ------------------------------------------------------------------------- */
 struct button_t*
-button_collision(struct glob_t* g, struct button_t* button, float x, float y)
+button_collision(struct context_t* g, struct button_t* button, float x, float y)
 {
 	/* test specified button */
 	if(button && button->base.element.visible)
@@ -196,7 +196,7 @@ EVENT_LISTENER(on_mouse_clicked)
 	EXTRACT_ARGUMENT(1, x, double, double);
 	EXTRACT_ARGUMENT(2, y, double, double);
 
-	struct glob_t* g = get_global(event->plugin->game);
+	struct context_t* g = get_context(event->plugin->game);
 	struct button_t* button = button_collision(g, NULL, (float)x, (float)y);
 
 	if(button)
@@ -222,7 +222,7 @@ EVENT_LISTENER(on_mouse_clicked)
 
 SERVICE(button_create_wrapper)
 {
-	struct glob_t* g = get_global(service->plugin->game);
+	struct context_t* g = get_context(service->plugin->game);
 	EXTRACT_ARGUMENT(0, text, const char*, const char*);
 	EXTRACT_ARGUMENT(1, x, float, float);
 	EXTRACT_ARGUMENT(2, y, float, float);

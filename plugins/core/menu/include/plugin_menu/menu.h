@@ -4,24 +4,24 @@
 
 struct screen_t;
 struct game_t;
-struct glob_t;
+struct context_t;
 
 struct menu_t
 {
 	char* name;
-	struct glob_t* glob;
+	struct context_t* context;
 	struct bsthv_t screens;
 	struct screen_t* active_screen;
 };
 
 void
-menu_init(struct glob_t* g);
+menu_init(struct context_t* g);
 
 void
-menu_deinit(struct glob_t* g);
+menu_deinit(struct context_t* g);
 
 struct menu_t*
-menu_load(struct glob_t* g, const char* file_name);
+menu_load(struct context_t* g, const char* file_name);
 
 void
 menu_init_menu(struct menu_t* menu);

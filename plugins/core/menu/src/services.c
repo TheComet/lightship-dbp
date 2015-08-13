@@ -3,7 +3,7 @@
 #include "plugin_menu/config.h"
 #include "plugin_menu/services.h"
 #include "plugin_menu/button.h"
-#include "plugin_menu/glob.h"
+#include "plugin_menu/context.h"
 #include "plugin_menu/menu.h"
 #include <string.h>
 
@@ -30,9 +30,9 @@ get_required_services(struct plugin_t* plugin)
 {
 	struct game_t* game = plugin->game;
 
-	/* get service glob and set every service pointer to NULL */
-	struct glob_services_t* g = &get_global(game)->services;
-	memset(g, 0, sizeof(struct glob_services_t));
+	/* get service context and set every service pointer to NULL */
+	struct context_services_t* g = &get_context(game)->services;
+	memset(g, 0, sizeof(struct context_services_t));
 
 	if(!(g->shapes_2d_begin                = service_get(game, "renderer_gl.shapes_2d_begin")))
 		return 0;

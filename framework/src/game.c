@@ -60,7 +60,7 @@ game_create(const char* name, game_network_role_e net_role)
 		game->network_role = net_role;
 
 		/* initialise the game's global data container */
-		bstv_init_bstv(&game->global_data);
+		bstv_init_bstv(&game->context_store);
 
 		/* The initial state of the game is paused. The user must call
 		 * game_start() to launch the game */
@@ -135,7 +135,7 @@ game_destroy(struct game_t* game)
 	service_deinit(game);
 
 	/* clean up data held by game object */
-	bstv_clear_free(&game->global_data);
+	bstv_clear_free(&game->context_store);
 	free_string(game->name);
 
 	FREE(game);
@@ -180,7 +180,7 @@ game_pause(struct game_t* game)
 void
 game_exit(struct game_t* game)
 {
-	EVENT_FIRE0(game->event.exit);
+	EVENT_FIRE0(game->event.stop);
 	game->state = GAME_STATE_TERMINATED;
 }
 

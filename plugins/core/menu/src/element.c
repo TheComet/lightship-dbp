@@ -1,6 +1,6 @@
 #include "plugin_menu/element.h"
 #include "plugin_menu/services.h"
-#include "plugin_menu/glob.h"
+#include "plugin_menu/context.h"
 #include "framework/services.h"
 #include "util/bst_hashed_vector.h"
 #include "util/memory.h"
@@ -8,14 +8,14 @@
 
 /* ------------------------------------------------------------------------- */
 void
-element_init(struct glob_t* g)
+element_init(struct context_t* g)
 {
 	g->element.guid = 1;
 }
 
 /* ------------------------------------------------------------------------- */
 void
-element_constructor(struct glob_t* g,
+element_constructor(struct context_t* g,
 					struct element_t* element,
 					element_destructor_func derived_destructor,
 					float x, float y,
@@ -24,7 +24,7 @@ element_constructor(struct glob_t* g,
 	unordered_vector_init_vector(&element->base.element.gl.shapes, sizeof(uint32_t));
 	unordered_vector_init_vector(&element->base.element.gl.text, sizeof(struct element_font_text_id_pair_t));
 	element->base.element.id = g->element.guid++;
-	element->base.element.glob = g;
+	element->base.element.context = g;
 	element->base.element.pos.x = x;
 	element->base.element.pos.y = y;
 	element->base.element.size.x = width;
@@ -37,7 +37,7 @@ element_constructor(struct glob_t* g,
 void
 element_destructor(struct element_t* element)
 {
-	struct glob_t* g = element->base.element.glob;
+	struct context_t* g = element->base.element.context;
 	UNORDERED_VECTOR_FOR_EACH(&element->base.element.gl.shapes, uint32_t, id)
 		SERVICE_CALL1(g->services.shapes_2d_destroy, NULL, id);
 	UNORDERED_VECTOR_END_EACH
@@ -81,7 +81,7 @@ element_add_shapes(struct element_t* element, uint32_t shapes_id)
 void
 element_show(struct element_t* element)
 {
-	struct glob_t* g = element->base.element.glob;
+	struct context_t* g = element->base.element.context;
 
 	UNORDERED_VECTOR_FOR_EACH(&element->base.element.gl.shapes, uint32_t, id)
 		SERVICE_CALL1(g->services.shapes_2d_show, NULL, *id);
@@ -96,7 +96,7 @@ element_show(struct element_t* element)
 void
 element_hide(struct element_t* element)
 {
-	struct glob_t* g = element->base.element.glob;
+	struct context_t* g = element->base.element.context;
 
 	UNORDERED_VECTOR_FOR_EACH(&element->base.element.gl.shapes, uint32_t, id)
 		SERVICE_CALL1(g->services.shapes_2d_hide, NULL, *id);

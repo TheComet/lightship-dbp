@@ -1,4 +1,4 @@
-#include "plugin_renderer_gl/glob.h"
+#include "plugin_renderer_gl/context.h"
 #include "plugin_renderer_gl/text_wrapper.h"
 #include "plugin_renderer_gl/text.h"
 #include "plugin_renderer_gl/text_manager.h"
@@ -44,7 +44,7 @@ SERVICE(text_group_create_wrapper)
 {
 	EXTRACT_ARGUMENT_PTR(0, file_name, const char*);
 	EXTRACT_ARGUMENT(1, char_size, uint32_t, uint32_t);
-	struct glob_t* g = get_global(service->plugin->game);
+	struct context_t* g = get_context(service->plugin->game);
 
 	RETURN(text_group_create(g, file_name, char_size), uint32_t);
 
@@ -63,7 +63,7 @@ SERVICE(text_group_load_character_set_wrapper)
 {
 	EXTRACT_ARGUMENT(0, id, uint32_t, uint32_t);
 	EXTRACT_ARGUMENT_PTR(1, characters, wchar_t*);
-	struct glob_t* g = get_global(service->plugin->game);
+	struct context_t* g = get_context(service->plugin->game);
 
 	text_group_load_character_set(g, id, characters);
 }
@@ -78,7 +78,7 @@ SERVICE(text_create_wrapper)
 	EXTRACT_ARGUMENT(2, x, float, GLfloat);
 	EXTRACT_ARGUMENT(3, y, float, GLfloat);
 	EXTRACT_ARGUMENT_PTR(4, string, wchar_t*);
-	struct glob_t* g = get_global(service->plugin->game);
+	struct context_t* g = get_context(service->plugin->game);
 
 	struct text_group_t* group = text_group_get(group_id);
 	struct text_t* text = text_create(g, group, centered, x, y, string);

@@ -1,7 +1,7 @@
 #include "plugin_renderer_gl/config.h"
 #include "plugin_renderer_gl/events.h"
 #include "plugin_renderer_gl/services.h"
-#include "plugin_renderer_gl/glob.h"
+#include "plugin_renderer_gl/context.h"
 #include "plugin_renderer_gl/2d.h"
 #include "plugin_renderer_gl/sprite.h"
 #include "plugin_renderer_gl/text_manager.h"
@@ -20,7 +20,7 @@ PLUGIN_RENDERER_GL_PUBLIC_API PLUGIN_INIT()
 	struct plugin_t* plugin;
 
 	/* init global data */
-	glob_create(game);
+	context_create(game);
 
 	/* init plugin */
 	plugin = plugin_create(game,
@@ -30,7 +30,7 @@ PLUGIN_RENDERER_GL_PUBLIC_API PLUGIN_INIT()
 						   PLUGIN_DESCRIPTION,
 						   PLUGIN_WEBSITE
 	);
-	get_global(game)->plugin = plugin;
+	get_context(game)->plugin = plugin;
 
 	/* set plugin information */
 	plugin_set_programming_language(plugin,
@@ -51,10 +51,10 @@ PLUGIN_RENDERER_GL_PUBLIC_API PLUGIN_INIT()
 /* ------------------------------------------------------------------------- */
 PLUGIN_RENDERER_GL_PUBLIC_API PLUGIN_START()
 {
-	struct glob_t* g;
+	struct context_t* g;
 
 	/* get global struct */
-	g = get_global(game);
+	g = get_context(game);
 
 	/* initialise GLFW */
 	if(!glfwInit())
@@ -108,6 +108,6 @@ PLUGIN_RENDERER_GL_PUBLIC_API PLUGIN_STOP()
 /* ------------------------------------------------------------------------- */
 PLUGIN_RENDERER_GL_PUBLIC_API PLUGIN_DEINIT()
 {
-	plugin_destroy(get_global(game)->plugin);
-	glob_destroy(game);
+	plugin_destroy(get_context(game)->plugin);
+	context_destroy(game);
 }

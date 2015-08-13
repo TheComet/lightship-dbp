@@ -671,7 +671,7 @@ FT_BEGIN_HEADER
 
   typedef struct  PSHinter_Interface_
   {
-    PSH_Globals_Funcs  (*get_globals_funcs)( FT_Module  module );
+    PSH_Globals_Funcs  (*get_contexts_funcs)( FT_Module  module );
     T1_Hints_Funcs     (*get_t1_funcs)     ( FT_Module  module );
     T2_Hints_Funcs     (*get_t2_funcs)     ( FT_Module  module );
 
@@ -684,12 +684,12 @@ FT_BEGIN_HEADER
 
 #define FT_DEFINE_PSHINTER_INTERFACE(        \
           class_,                            \
-          get_globals_funcs_,                \
+          get_contexts_funcs_,                \
           get_t1_funcs_,                     \
           get_t2_funcs_ )                    \
   static const PSHinter_Interface  class_ =  \
   {                                          \
-    get_globals_funcs_,                      \
+    get_contexts_funcs_,                      \
     get_t1_funcs_,                           \
     get_t2_funcs_                            \
   };
@@ -698,7 +698,7 @@ FT_BEGIN_HEADER
 
 #define FT_DEFINE_PSHINTER_INTERFACE(                      \
           class_,                                          \
-          get_globals_funcs_,                              \
+          get_contexts_funcs_,                              \
           get_t1_funcs_,                                   \
           get_t2_funcs_ )                                  \
   void                                                     \
@@ -707,7 +707,7 @@ FT_BEGIN_HEADER
   {                                                        \
     FT_UNUSED( library );                                  \
                                                            \
-    clazz->get_globals_funcs = get_globals_funcs_;         \
+    clazz->get_contexts_funcs = get_contexts_funcs_;         \
     clazz->get_t1_funcs      = get_t1_funcs_;              \
     clazz->get_t2_funcs      = get_t2_funcs_;              \
   }

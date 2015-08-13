@@ -2,7 +2,7 @@
 #include "framework/plugin.h"     /* plugin api */
 #include "plugin_menu/services.h" /* plugin services */
 #include "plugin_menu/events.h"   /* plugin events */
-#include "plugin_menu/glob.h"
+#include "plugin_menu/context.h"
 #include "plugin_menu/button.h"
 #include "plugin_menu/menu.h"
 
@@ -12,7 +12,7 @@ PLUGIN_MENU_PUBLIC_API PLUGIN_INIT()
 	struct plugin_t* plugin;
 
 	/* init global data */
-	glob_create(game);
+	context_create(game);
 
 	/* init plugin */
 	plugin = plugin_create(game,
@@ -22,7 +22,7 @@ PLUGIN_MENU_PUBLIC_API PLUGIN_INIT()
 						   PLUGIN_DESCRIPTION,
 						   PLUGIN_WEBSITE
 	);
-	get_global(game)->plugin = plugin;
+	get_context(game)->plugin = plugin;
 
 	/* set plugin information - Change this in the file "CMakeLists.txt" */
 	plugin_set_programming_language(plugin,
@@ -43,7 +43,7 @@ PLUGIN_MENU_PUBLIC_API PLUGIN_INIT()
 /* ------------------------------------------------------------------------- */
 PLUGIN_MENU_PUBLIC_API PLUGIN_START()
 {
-	struct glob_t* g = get_global(game);
+	struct context_t* g = get_context(game);
 
 	if(!get_required_services(g->plugin))
 		return PLUGIN_FAILURE;
@@ -60,10 +60,10 @@ PLUGIN_MENU_PUBLIC_API PLUGIN_START()
 /* ------------------------------------------------------------------------- */
 PLUGIN_MENU_PUBLIC_API PLUGIN_STOP()
 {
-	struct glob_t* g;
+	struct context_t* g;
 
 	/* de-init */
-	g = get_global(game);
+	g = get_context(game);
 	menu_deinit(g);
 	button_deinit(g);
 }
@@ -71,6 +71,6 @@ PLUGIN_MENU_PUBLIC_API PLUGIN_STOP()
 /* ------------------------------------------------------------------------- */
 PLUGIN_MENU_PUBLIC_API PLUGIN_DEINIT()
 {
-	plugin_destroy(get_global(game)->plugin);
-	glob_destroy(game);
+	plugin_destroy(get_context(game)->plugin);
+	context_destroy(game);
 }

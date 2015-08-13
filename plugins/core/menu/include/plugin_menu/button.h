@@ -4,7 +4,7 @@
 
 #define BUTTON_COLOUR_NORMAL 0xFFFFFFFF
 
-struct glob_t;
+struct context_t;
 
 struct button_data_t
 {
@@ -28,8 +28,8 @@ struct button_t
 
 #define GET_BUTTON(self) (&(self)->base.button)
 
-void button_init(struct glob_t* g);
-void button_deinit(struct glob_t* g);
+void button_init(struct context_t* g);
+void button_deinit(struct context_t* g);
 
 /*!
  * @brief Creates a new button and adds it to the internal container of global
@@ -43,7 +43,7 @@ void button_deinit(struct glob_t* g);
  * @return Returns a new button object.
  */
 struct button_t*
-button_create(struct glob_t* g, const char* text, float x, float y, float width, float height);
+button_create(struct context_t* g, const char* text, float x, float y, float width, float height);
 
 /*!
  * @brief Destroys a button object and removes it from the internal container
@@ -58,7 +58,7 @@ button_destroy(struct button_t* button);
  * @param g The global objct.
  */
 void
-button_destroy_all(struct glob_t* g);
+button_destroy_all(struct context_t* g);
 
 /*!
  * @brief Tests if the specified point is on top of the specified button.
@@ -70,7 +70,7 @@ button_destroy_all(struct glob_t* g);
  * no collision.
  */
 struct button_t*
-button_collision(struct glob_t* g, struct button_t* button, float x, float y);
+button_collision(struct context_t* g, struct button_t* button, float x, float y);
 
 SERVICE(button_create_wrapper);
 SERVICE(button_destroy_wrapper);

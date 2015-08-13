@@ -213,7 +213,7 @@ GTEST_DEFINE_string_(
 GTEST_DEFINE_string_(
     filter,
     internal::StringFromGTestEnv("filter", GetDefaultFilter()),
-    "A colon-separated list of glob (not regex) patterns "
+    "A colon-separated list of context (not regex) patterns "
     "for filtering the tests to run, optionally followed by a "
     "'-' and a : separated list of negative patterns (tests to "
     "exclude).  A test is run if it matches one of the positive "

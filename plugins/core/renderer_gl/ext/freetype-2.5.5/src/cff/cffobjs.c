@@ -56,7 +56,7 @@
 
 
   static PSH_Globals_Funcs
-  cff_size_get_globals_funcs( CFF_Size  size )
+  cff_size_get_contexts_funcs( CFF_Size  size )
   {
     CFF_Face          face     = (CFF_Face)size->root.face;
     CFF_Font          font     = (CFF_Font)face->extra.data;
@@ -66,8 +66,8 @@
 
     module = FT_Get_Module( size->root.face->driver->root.library,
                             "pshinter" );
-    return ( module && pshinter && pshinter->get_globals_funcs )
-           ? pshinter->get_globals_funcs( module )
+    return ( module && pshinter && pshinter->get_contexts_funcs )
+           ? pshinter->get_contexts_funcs( module )
            : 0;
   }
 
@@ -86,7 +86,7 @@
       PSH_Globals_Funcs  funcs;
 
 
-      funcs = cff_size_get_globals_funcs( size );
+      funcs = cff_size_get_contexts_funcs( size );
       if ( funcs )
       {
         FT_UInt  i;
@@ -158,7 +158,7 @@
   {
     CFF_Size           size  = (CFF_Size)cffsize;
     FT_Error           error = FT_Err_Ok;
-    PSH_Globals_Funcs  funcs = cff_size_get_globals_funcs( size );
+    PSH_Globals_Funcs  funcs = cff_size_get_contexts_funcs( size );
 
 
     if ( funcs )
@@ -218,7 +218,7 @@
 
     FT_Select_Metrics( size->face, strike_index );
 
-    funcs = cff_size_get_globals_funcs( cffsize );
+    funcs = cff_size_get_contexts_funcs( cffsize );
 
     if ( funcs )
     {
@@ -290,7 +290,7 @@
 
     FT_Request_Metrics( size->face, req );
 
-    funcs = cff_size_get_globals_funcs( cffsize );
+    funcs = cff_size_get_contexts_funcs( cffsize );
 
     if ( funcs )
     {
