@@ -53,7 +53,11 @@ PLUGIN_RENDERER_GL_PUBLIC_API PLUGIN_START()
 {
 	struct context_t* context;
 
-	/* get global struct */
+	/* don't do anything if we are a server */
+	if(game->network_role == GAME_HOST)
+		return PLUGIN_SUCCESS;
+
+	/* get context struct */
 	context = get_context(game);
 
 	/* initialise GLFW */
@@ -96,7 +100,10 @@ PLUGIN_RENDERER_GL_PUBLIC_API PLUGIN_START()
 /* ------------------------------------------------------------------------- */
 PLUGIN_RENDERER_GL_PUBLIC_API PLUGIN_STOP()
 {
-	REF(game);
+	/* don't do anything if we are a server */
+	if(game->network_role == GAME_HOST)
+		return;
+
 	sprite_deinit();
 	text_wrapper_deinit();
 	text_manager_deinit();
