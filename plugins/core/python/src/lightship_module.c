@@ -146,42 +146,15 @@ struct Game
 	struct game_t* game;
 };
 
-/* ------------------------------------------------------------------------- */
+/* method forward declarations */
 static PyObject*
-Game_new(PyTypeObject* type, PyObject* args, PyObject* kwds)
-{
-	struct Game* self;
+Game_new(PyTypeObject* type, PyObject* args, PyObject* kwds);
 
-	self = (struct Game*)type->tp_alloc(type, 0);
-	if(!self)
-		return NULL;
-
-	self->service = PyObject_CallObject((PyObject*)&ServicesType, NULL);
-	if(!self->service)
-	{
-		Py_DECREF(self);
-		return NULL;
-	}
-
-	return (PyObject*)self;
-}
-
-/* ------------------------------------------------------------------------- */
 static void
-Game_dealloc(struct Game* self)
-{
-	Py_XDECREF(self->service);
-	Py_TYPE(self)->tp_free((PyObject*)self);
-}
+Game_dealloc(struct Game* self);
 
-/* ------------------------------------------------------------------------- */
 static PyObject*
-Game_test(PyObject* self, PyObject* args)
-{
-	puts("hello world");
-	Py_INCREF(Py_None);
-	return Py_None;
-}
+Game_get_name(PyObject* self, PyObject* args);
 
 /* ------------------------------------------------------------------------- */
 static PyMemberDef Game_members[] = {
@@ -190,7 +163,7 @@ static PyMemberDef Game_members[] = {
 };
 
 static PyMethodDef Game_methods[] = {
-	{"test", Game_test, METH_VARARGS, "test method"},
+	{"get_name", Game_get_name, METH_VARARGS, "Gets the globally unique name of the game object"},
 	{NULL}
 };
 
@@ -236,6 +209,75 @@ PyTypeObject GameType = {
 	Game_new,                  /* tp_new */
 };
 
+/* ------------------------------------------------------------------------- */
+static PyObject*
+Game_new(PyTypeObject* type, PyObject* args, PyObject* kwds)
+{
+	struct Game* self;
+	struct unordered_vector_t* games_vec;
+
+	if(!g_injected_game)
+	{
+		PyErr_SetString(lightship_error,
+						"Can't register games after initialisation.");
+		return NULL;
+	}
+
+	/* allocate game object */
+	self = (struct Game*)type->tp_alloc(type, 0);
+	if(!self)
+		return NULL;
+
+	/* make sure game object is actually an instance of GameType */
+	if(!PyObject_IsInstance((PyObject*)self, (PyObject*)&GameType))
+	{
+		PyErr_SetString(lightship_error,
+						"Object is not a subclass of lightship.Game");
+		Py_DECREF(self);
+		return NULL;
+	}
+
+	/* instantiate service member */
+	self->service = PyObject_CallObject((PyObject*)&ServicesType, NULL);
+	if(!self->service)
+	{
+		Py_DECREF(self);
+		return NULL;
+	}
+
+	/* inject game into python Game object so it can be used later */
+	((struct Game*)self)->game = g_injected_game;
+
+	/* add game object to context store so it can be accessed later */
+	games_vec = &(get_context(g_injected_game)->py_objs.games);
+	Py_INCREF(self);
+	unordered_vector_push(games_vec, &self);
+
+	return (PyObject*)self;
+}
+
+/* ------------------------------------------------------------------------- */
+static void
+Game_dealloc(struct Game* self)
+{
+	Py_XDECREF(self->service);
+	Py_TYPE(self)->tp_free((PyObject*)self);
+}
+
+/* ------------------------------------------------------------------------- */
+static PyObject*
+Game_get_name(PyObject* self, PyObject* args)
+{
+	struct Game* game = (struct Game*)self;
+	if(game->game)
+	{
+		return PyUnicode_FromString(game->game->name);
+	}
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
 /* -------------------------------------------------------------------------
  * lightship module
  * ------------------------------------------------------------------------- */
@@ -253,32 +295,7 @@ struct game_t* g_injected_game = NULL;
 static PyObject*
 lightship_module_register_game(PyObject* self, PyObject* game)
 {
-	if(g_injected_game)
-	{
-		struct unordered_vector_t* games_vec =
-				&(get_context(g_injected_game)->py_objs.games);
 
-		if(PyObject_IsInstance(game, (PyObject*)&GameType))
-		{
-			Py_INCREF(game);
-			unordered_vector_push(games_vec, &game);
-
-			/* inject game into python Game object so it can be used later */
-			((struct Game*)game)->game = g_injected_game;
-		}
-		else
-		{
-			PyErr_SetString(lightship_error,
-							"Object is not a subclass of lightship.Game");
-			return NULL;
-		}
-	}
-	else
-	{
-		PyErr_SetStirng(lightship_error,
-						"Can't register games after initialisation.");
-		return NULL;
-	}
 
 	Py_INCREF(Py_None);
 	return Py_None;

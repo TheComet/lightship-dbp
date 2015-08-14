@@ -423,7 +423,7 @@ find_plugin(struct game_t* game,
 {
 	/* local variables */
 	struct list_t* list;
-	const char* crit_info[] = {"minimum version ", "exact version "};
+	static const char* crit_info[] = {"minimum version ", "exact version "};
 	char* file_found = NULL;
 
 	llog(LOG_INFO, game, NULL, "looking for plugin \"%s\", %s %d.%d.%d",

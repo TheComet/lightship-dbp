@@ -2,7 +2,7 @@
 #include "plugin_python/context.h"
 #include "plugin_python/services.h" /* plugin services */
 #include "plugin_python/events.h"   /* plugin events */
-#include "plugin_python/py_interp.h"
+#include "plugin_python/interpreter.h"
 #include "framework/plugin.h"	    /* plugin api */
 
 /* ------------------------------------------------------------------------- */

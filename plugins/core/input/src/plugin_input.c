@@ -57,6 +57,7 @@ PLUGIN_INPUT_PUBLIC_API PLUGIN_STOP()
 /* ------------------------------------------------------------------------- */
 PLUGIN_INPUT_PUBLIC_API PLUGIN_DEINIT()
 {
-	plugin_destroy(get_context(game)->plugin);
+	struct context_t* context = get_context(game);
+	plugin_destroy(context->plugin);
 	context_destroy(game);
 }

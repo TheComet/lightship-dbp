@@ -9,7 +9,7 @@
 struct ptree_t;
 
 #ifdef _DEBUG
-static const char* yml_settings = "../../lightship/cfg/settings.yml";
+static const char* yml_settings = "../../lightship/cfg/settings_d.yml";
 #else
 static const char* yml_settings = "cfg/settings.yml";
 #endif
@@ -89,6 +89,26 @@ init_game(char is_server)
 		return 0;
 	}
 
+	/*
+	 * If we are a client, create client instance and connect to local server.
+	 */
+	if(!is_server)
+	{
+		client = game_create("localclient", yml_settings, GAME_CLIENT);
+		if(!client)
+			return 0;
+
+		/* TODO: Remove - for now, to load client plugins */
+		if(!load_core_plugins(client))
+		{
+			game_destroy(client);
+			game_destroy(localhost);
+			return 0;
+		}
+
+		game_connect(client, "localhost");
+	}
+
 	/* TODO: remove - for now, to bootstrap the menu */
 	{
 		char* menu_file_name;
@@ -99,19 +119,7 @@ init_game(char is_server)
 #else
 		menu_file_name = "cfg/menu.yml";
 #endif
-		SERVICE_CALL_NAME1(localhost, "menu.load", &menu, PTR(menu_file_name));
-	}
-
-	/*
-	 * If we are a client, create client instance and connect to local server.
-	 */
-	if(!is_server)
-	{
-		client = game_create("localclient", yml_settings, GAME_CLIENT);
-		if(!client)
-			return 0;
-
-		game_connect(client, "localhost");
+		SERVICE_CALL_NAME1(client, "menu.load", &menu, PTR(menu_file_name));
 	}
 
 	return 1;

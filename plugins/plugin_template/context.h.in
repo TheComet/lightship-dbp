@@ -8,7 +8,7 @@
 #include "util/pstdint.h"
 #include "framework/game.h"
 
-extern uint32_t global_hash;
+extern uint32_t context_hash;
 
 struct plugin_t;
 
@@ -42,4 +42,4 @@ context_create(struct game_t* game);
 void
 context_destroy(struct game_t* game);
 
-#define get_global(game) ((struct context_t*)game_get_global(game, global_hash))
+#define get_global(game) ((struct context_t*)game_get_global(game, context_hash))

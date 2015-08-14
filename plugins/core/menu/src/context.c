@@ -15,9 +15,9 @@ context_create(struct game_t* game)
 	struct context_t* glob;
 
 	assert(game);
-	assert(!context_hash);
 
-	context_hash = hash_jenkins_oaat(PLUGIN_NAME, strlen(PLUGIN_NAME));
+	if(!context_hash)
+		context_hash = hash_jenkins_oaat(PLUGIN_NAME, strlen(PLUGIN_NAME));
 
 	glob = (struct context_t*)MALLOC(sizeof(struct context_t));
 	if(!glob)
@@ -35,5 +35,4 @@ context_destroy(struct game_t* game)
 	struct context_t* glob;
 	glob = game_remove_from_context_store(game, context_hash);
 	FREE(glob);
-	context_hash = 0;
 }
