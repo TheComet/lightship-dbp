@@ -25,8 +25,8 @@ typedef enum plugin_result_t
 
 typedef enum plugin_search_criteria_e
 {
-	PLUGIN_VERSION_MINIMUM = 1,
-	PLUGIN_VERSION_EXACT = 2
+	PLUGIN_VERSION_MINIMUM = 0, /* this must start at 0 because it's used as an index for an array' */
+	PLUGIN_VERSION_EXACT = 1
 } plugin_search_criteria_e;
 
 /*!

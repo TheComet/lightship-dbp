@@ -233,7 +233,8 @@ load_plugins_from_yaml(struct game_t* game, const struct ptree_t* plugins_node)
 		/*
 		 * The plugins need to be loaded in the order in which they are listed.
 		 * This is achieved by incrementing an index value and getting the
-		 * value associated with the index.
+		 * value associated with the index. This works because the plugins
+		 * are stored in a yaml list.
 		 */
 		sprintf(index_key_str, "%d", index_key++);
 		plugin_node = yaml_get_node(plugins_node, index_key_str);
