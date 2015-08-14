@@ -1,3 +1,4 @@
 struct game_t;
+struct PyObject;
 
-extern struct game_t* g_injected_game;
+extern struct PyObject* lightship_error;

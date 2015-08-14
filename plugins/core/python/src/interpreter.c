@@ -1,5 +1,5 @@
-#include <Python.h>
 #include "plugin_python/lightship_module.h"
+#include "plugin_python/lightship_module_game.h"
 #include "plugin_python/config.h"
 #include "plugin_python/interpreter.h"
 #include "plugin_python/context.h"

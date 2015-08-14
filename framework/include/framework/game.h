@@ -2,7 +2,7 @@
 #define LIGHTSHIP_FRAMEWORK_GAME_H
 
 #include "framework/config.h"
-#include "framework/config.h"
+#include "framework/game.h"
 #include "framework/se_api.h"
 #include "util/ptree.h"
 #include "util/linked_list.h"
