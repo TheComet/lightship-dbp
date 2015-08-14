@@ -23,22 +23,22 @@ typedef enum plugin_result_t
 	PLUGIN_SUCCESS = 1
 } plugin_result_t;
 
-typedef enum plugin_search_criteria_t
+typedef enum plugin_search_criteria_e
 {
-	PLUGIN_VERSION_MINIMUM = 0,
-	PLUGIN_VERSION_EXACT = 1
-} plugin_search_criteria_t;
+	PLUGIN_VERSION_MINIMUM = 1,
+	PLUGIN_VERSION_EXACT = 2
+} plugin_search_criteria_e;
 
 /*!
  * @brief Programming language the plugin was written in.
  */
-typedef enum plugin_programming_language_t
+typedef enum plugin_programming_language_e
 {
 	PLUGIN_PROGRAMMING_LANGUAGE_UNSET,
 	PLUGIN_PROGRAMMING_LANGUAGE_C,
 	PLUGIN_PROGRAMMING_LANGUAGE_CPP,
 	PLUGIN_PROGRAMMING_LANGUAGE_D
-} plugin_programming_language_t;
+} plugin_programming_language_e;
 
 /*!
  * @brief API version information of the plugin.
@@ -60,7 +60,8 @@ struct plugin_info_t
 	char* author;
 	char* description;
 	char* website;
-	plugin_programming_language_t language;
+	char is_optional;
+	plugin_programming_language_e language;
 	struct plugin_api_version_t version;
 };
 

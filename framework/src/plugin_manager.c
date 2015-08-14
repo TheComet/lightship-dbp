@@ -27,7 +27,7 @@
 static char
 plugin_version_acceptable(const struct plugin_info_t* info,
 						  const char* file,
-						  const plugin_search_criteria_t criteria);
+						  const plugin_search_criteria_e criteria);
 
 /*!
  * @brief Scans the plugin directory for a suitable plugin to load.
@@ -40,7 +40,7 @@ plugin_version_acceptable(const struct plugin_info_t* info,
 static char*
 find_plugin(struct game_t* game,
 			const struct plugin_info_t* info,
-			const plugin_search_criteria_t criteria);
+			const plugin_search_criteria_e criteria);
 
 /* ------------------------------------------------------------------------- */
 char
@@ -83,7 +83,7 @@ plugin_manager_deinit(struct game_t* game)
 struct plugin_t*
 plugin_load(struct game_t* game,
 			const struct plugin_info_t* plugin_info,
-			const plugin_search_criteria_t criteria)
+			const plugin_search_criteria_e criteria)
 {
 	/* will contain the file name of the plugin if it is found. Must be free_string()'d */
 	char* filename = NULL;
@@ -212,34 +212,59 @@ load_plugins_from_yaml(struct game_t* game, const struct ptree_t* plugins_node)
 {
 	struct plugin_info_t target;
 	struct unordered_vector_t new_plugins;
+	char index_key_str[sizeof(int)*8+1];
+	uint32_t index_key;
 	char success = 1;
 
 	/* holds a list of successfully loaded plugins that haven't been started */
 	unordered_vector_init_vector(&new_plugins, sizeof(struct plugin_t*));
 
 	/* load all plugins listed in the plugins node */
-	YAML_FOR_EACH(plugins_node, ".", key, child)
+	index_key = 0;
+	YAML_FOR_EACH(plugins_node, ".", key, value)
 
 		struct plugin_t* plugin;
-		plugin_search_criteria_t criteria;
-		char* version_str;
-		char* policy_str;
+		struct ptree_t* plugin_node;
+		plugin_search_criteria_e criteria;
+		const char* version_str;
+		const char* policy_str;
+		const char* is_optional_str;
+
+		/*
+		 * The plugins need to be loaded in the order in which they are listed.
+		 * This is achieved by incrementing an index value and getting the
+		 * value associated with the index.
+		 */
+		sprintf(index_key_str, "%d", index_key++);
+		plugin_node = yaml_get_node(plugins_node, index_key_str);
+		if(!plugin_node)
+		{
+			llog(LOG_ERROR, game, NULL, "Failed to get value in list for index"
+				" %d. Are you sure you're using yaml lists correctly?",
+				index_key_str);
+			success = 0;
+			continue;
+		}
 
 		/* extract information from tree */
-		if(!(target.name = (char*)yaml_get_value(child, "name")))
+		if(!(target.name = (char*)yaml_get_value(plugin_node, "name")))
 		{
 			llog(LOG_ERROR, game, NULL, "Key \"name\" isn't defined for plugin");
 			continue;
 		}
-		if(!(version_str = (char*)yaml_get_value(child, "version")))
+		if(!(version_str = (char*)yaml_get_value(plugin_node, "version")))
 		{
 			llog(LOG_ERROR, game, NULL, "Key \"version\" isn't defined for plugin");
 			continue;
 		}
-		if(!(policy_str = (char*)yaml_get_value(child, "version_policy")))
+		if(!(policy_str = (char*)yaml_get_value(plugin_node, "version_policy")))
 		{
 			llog(LOG_WARNING, game, NULL, "Key \"version_policy\" isn't defined for plugin. Using default \"minimum\"");
 			policy_str = "minimum"; /* default */
+		}
+		if(!(is_optional_str = yaml_get_value(plugin_node, "optional")))
+		{
+			is_optional_str = "false";
 		}
 
 		/*
@@ -272,25 +297,39 @@ load_plugins_from_yaml(struct game_t* game, const struct ptree_t* plugins_node)
 		/* load plugin, and add to the list of loaded plugins */
 		plugin = plugin_load(game, &target, criteria);
 		if(!plugin)
+		{
+			/* this plugin was not optional, success cannot be achieved */
+			if(!yaml_string_to_bool(is_optional_str))
+			{
+				success = 0;
+				goto load_plugins_from_yaml_break;
+			}
+
 			continue;
+		}
+
 		unordered_vector_push(&new_plugins, &plugin);
 
 	YAML_END_EACH
+	load_plugins_from_yaml_break:
 
 	/* start loaded plugins */
-	UNORDERED_VECTOR_FOR_EACH(&new_plugins, struct plugin_t*, pluginp)
-		/*
-		 * If any of the plugins fail to start, abort starting further plugins
-		 * and return an error.
-		 */
-		if(!plugin_start(game, *pluginp))
-		{
-			llog(LOG_ERROR, game, NULL, "Failed to start plugin \"%s\"",
-					(*pluginp)->info.name);
-			success = 0;
-			break;
-		}
-	UNORDERED_VECTOR_END_EACH
+	if(success)
+	{
+		UNORDERED_VECTOR_FOR_EACH(&new_plugins, struct plugin_t*, pluginp)
+			/*
+			* If any of the plugins fail to start, abort starting further plugins
+			* and return an error.
+			*/
+			if(!plugin_start(game, *pluginp))
+			{
+				llog(LOG_ERROR, game, NULL, "Failed to start plugin \"%s\"",
+						(*pluginp)->info.name);
+				success = 0;
+				break;
+			}
+		UNORDERED_VECTOR_END_EACH
+	}
 
 	/* clean up */
 	unordered_vector_clear_free(&new_plugins);
@@ -343,7 +382,7 @@ plugin_get_by_name(struct game_t* game, const char* name)
 static char
 plugin_version_acceptable(const struct plugin_info_t* info,
 						  const char* file,
-						  const plugin_search_criteria_t criteria)
+						  const plugin_search_criteria_e criteria)
 {
 	uint32_t major, minor, patch;
 	if(!plugin_extract_version_from_string(file, &major, &minor, &patch))
@@ -379,7 +418,7 @@ plugin_version_acceptable(const struct plugin_info_t* info,
 static char*
 find_plugin(struct game_t* game,
 			const struct plugin_info_t* info,
-			const plugin_search_criteria_t criteria)
+			const plugin_search_criteria_e criteria)
 {
 	/* local variables */
 	struct list_t* list;

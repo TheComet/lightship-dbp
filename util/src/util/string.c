@@ -275,3 +275,16 @@ string_reverse(char* str)
 		*end = tmp;
 	}
 }
+
+/* ------------------------------------------------------------------------- */
+void
+string_tolower(char* str)
+{
+	/*
+	 * This shit was taken from here.
+	 * http://stackoverflow.com/questions/2661766/c-convert-a-mixed-case-string-to-all-lower-case
+	 */
+	char* p;
+	for(p = str; *p; ++p)
+		*p = *p > 0x40 && *p < 0x5b ? *p | 0x60 : *p;
+}

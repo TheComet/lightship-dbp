@@ -16,7 +16,7 @@ public:
 
     virtual void SetUp()
     {
-        game = game_create("test", GAME_CLIENT);
+        game = game_create("test", NULL, GAME_CLIENT);
 		ASSERT_THAT(game, NotNull());
         plugin = plugin_create(game, "test", "test", "test", "test", "test");
 		ASSERT_THAT(plugin, NotNull());

@@ -88,6 +88,13 @@ crlf2lf(char* src);
 LIGHTSHIP_UTIL_PUBLIC_API void
 string_reverse(char* str);
 
+/*!
+ * @brief In place tolower.
+ * @param[in] str The string to convert to lower case characters only.
+ */
+LIGHTSHIP_UTIL_PUBLIC_API void
+string_tolower(char* str);
+
 C_HEADER_END
 
 #endif /* LIGHTSHIP_UTIL_STRING_H */

@@ -9,6 +9,7 @@
 #include "util/string.h"
 #include "util/net.h"
 #include "util/hash.h"
+#include "util/yaml.h"
 #include "thread_pool/thread_pool.h"
 #include <string.h>
 #include <assert.h>
@@ -33,7 +34,9 @@ game_deinit(void)
 
 /* ------------------------------------------------------------------------- */
 struct game_t*
-game_create(const char* name, game_network_role_e net_role)
+game_create(const char* name,
+			const char* settings_yml_file,
+			game_network_role_e net_role)
 {
 	struct game_t* game;
 
@@ -58,6 +61,16 @@ game_create(const char* name, game_network_role_e net_role)
 	for(;;)
 	{
 		game->network_role = net_role;
+
+		/* load settings */
+		if(settings_yml_file)
+		{
+			if(!(game->settings = yaml_load(settings_yml_file)))
+			{
+				llog(LOG_WARNING, NULL, NULL, "Config file \"%s\" was not found.",
+					settings_yml_file);
+			}
+		}
 
 		/* initialise the game's global data container */
 		bstv_init_bstv(&game->context_store);
@@ -137,6 +150,8 @@ game_destroy(struct game_t* game)
 	/* clean up data held by game object */
 	bstv_clear_free(&game->context_store);
 	free_string(game->name);
+	if(game->settings)
+		yaml_destroy(game->settings);
 
 	FREE(game);
 }

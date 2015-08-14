@@ -51,7 +51,7 @@ plugin_destroy(struct plugin_t* plugin);
  */
 FRAMEWORK_PUBLIC_API void
 plugin_set_programming_language(struct plugin_t* plugin,
-								plugin_programming_language_t language);
+								plugin_programming_language_e language);
 
 /*!
  * @brief Sets the version of the plugin.

@@ -201,3 +201,11 @@ TEST(NAME, reverse_empty_string)
     EXPECT_THAT(s, StrEq(""));
     free_string(s);
 }
+
+TEST(NAME, tolower)
+{
+	char* s = malloc_string("tEsT STRinG");
+	string_tolower(s);
+	EXPECT_THAT(s, StrEq("test string"));
+	free_string(s);
+}

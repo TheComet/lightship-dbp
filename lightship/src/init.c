@@ -18,43 +18,31 @@ static const char* yml_settings = "cfg/settings.yml";
 char
 load_core_plugins(struct game_t* game)
 {
-	struct ptree_t* settings_doc;
 	struct ptree_t* plugins_node;
-	char success = 1;
 
-	for(;;)
-	{
-		/*
+	/*
 		* Try to load and start the core plugins. If that fails, bail out.
 		*/
-		settings_doc = yaml_load(yml_settings);
-		if(!settings_doc)
-		{
-			llog(LOG_WARNING, game, NULL, "Config file \"%s\" was not found. No core plugins will be loaded", yml_settings);
-			break;
-		}
-
-		plugins_node = yaml_get_node(settings_doc, "plugins");
-		if(!plugins_node)
-		{
-			llog(LOG_WARNING, game, NULL, "Config file \"%s\" doesn't contain any plugins to load", yml_settings);
-			success = 0;
-			break;
-		}
-
-		if(!load_plugins_from_yaml(game, plugins_node))
-		{
-			llog(LOG_FATAL, game, NULL, "Couldn't start all core plugins");
-			success = 0;
-			break;
-		}
-
-		break;
+	if(!game->settings)
+	{
+		llog(LOG_WARNING, game, NULL, "No core plugins will be loaded");
+		return 1;
 	}
 
-	yaml_destroy(settings_doc);
+	plugins_node = yaml_get_node(game->settings, "plugins");
+	if(!plugins_node)
+	{
+		llog(LOG_WARNING, game, NULL, "Config file \"%s\" doesn't contain any plugins to load", yml_settings);
+		return 0;
+	}
 
-	return success;
+	if(!load_plugins_from_yaml(game, plugins_node))
+	{
+		llog(LOG_FATAL, game, NULL, "Couldn't start all core plugins");
+		return 0;
+	}
+
+	return 1;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -85,7 +73,7 @@ init_game(char is_server)
 	 * Create the local game server. This is the context that holds all
 	 * plugins, services, and events together.
 	 */
-	localhost = game_create("localhost", GAME_HOST);
+	localhost = game_create("localhost", yml_settings, GAME_HOST);
 	if(!localhost)
 	{
 		llog(LOG_FATAL, NULL, NULL, "Failed to create game");
@@ -119,7 +107,7 @@ init_game(char is_server)
 	 */
 	if(!is_server)
 	{
-		client = game_create("localclient", GAME_CLIENT);
+		client = game_create("localclient", yml_settings, GAME_CLIENT);
 		if(!client)
 			return 0;
 

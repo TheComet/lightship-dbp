@@ -237,6 +237,23 @@ yaml_remove_value(struct ptree_t* doc, const char* key)
 }
 
 /* ------------------------------------------------------------------------- */
+char
+yaml_string_to_bool(const char* str)
+{
+	const char* p_source;
+	const char* p_comp;
+	static const char* comp = "true";
+	for(p_source = str, p_comp = comp; *p_source && *p_comp; ++p_source, ++p_comp)
+	{
+		/* case insensitive check */
+		if(*p_source != *p_comp && (*p_source | 0x60) != *p_comp)
+			return 0;
+	}
+
+	return 1;
+}
+
+/* ------------------------------------------------------------------------- */
 static char
 yaml_load_into_ptree(struct ptree_t* tree,
 					 struct ptree_t* root_node,

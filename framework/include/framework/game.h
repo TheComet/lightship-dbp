@@ -66,8 +66,8 @@ struct framework_log_t
 struct game_t
 {
 	game_state_e state;
-
 	char* name;
+	struct ptree_t* settings;            /* yaml settings */
 
 	game_network_role_e network_role;
 	struct net_connection_t* connection;
@@ -75,7 +75,6 @@ struct game_t
 	struct plugin_t* core;               /* core plugin providing core functionality */
 	struct framework_events_t event;     /* core plugin events are conveniently accessible here */
 	struct framework_services_t service; /* core plugin services are conveniently accessible here */
-
 	struct framework_log_t log;
 
 	struct list_t plugins;      /* list of active plugins used by this game */
@@ -92,7 +91,9 @@ FRAMEWORK_PUBLIC_API void
 game_deinit(void);
 
 FRAMEWORK_PUBLIC_API struct game_t*
-game_create(const char* name, game_network_role_e net_role);
+game_create(const char* name,
+			const char* settings_yml_file,
+			game_network_role_e net_role);
 
 FRAMEWORK_PUBLIC_API void
 game_destroy(struct game_t* game);

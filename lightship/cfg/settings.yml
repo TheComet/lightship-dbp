@@ -3,22 +3,30 @@
 ###############################################################################
 
 plugins:
-    renderer:
-        name: renderer_gl
-        version: "0.0.1"
-        version_policy: minimum
-    input:
-        name: input
-        version: "0.0.1"
-        version_policy: minimum
-    menu:
-        name: menu
-        version: "0.0.1"
-        version_policy: minimum
-    script:
-        name: python
-        version: "0.0.1"
-        version_policy: minimum
+  - name: renderer_gl
+    version: "0.0.1"
+    version_policy: minimum
+    optional: false
+
+  - name: input
+    version: "0.0.1"
+    version_policy: minimum
+    optional: false
+
+  - name: menu
+    version: "0.0.1"
+    version_policy: minimum
+    optional: false
+
+  - name: python
+    version: "0.0.1"
+    version_policy: minimum
+    optional: true
+
+  - name: d_example
+    version: "0.0.1"
+    version_policy: minimum
+    optional: false
 
 ###############################################################################
 # Client settings

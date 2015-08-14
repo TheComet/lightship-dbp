@@ -260,4 +260,12 @@ TEST(NAME, anchors_in_lists2)
 
     yaml_destroy(doc);
 }
+
+TEST(NAME, string_to_bool)
+{
+	EXPECT_THAT(yaml_string_to_bool("true"), Ne(0));
+	EXPECT_THAT(yaml_string_to_bool("True"), Ne(0));
+	EXPECT_THAT(yaml_string_to_bool("false"), Eq(0));
+	EXPECT_THAT(yaml_string_to_bool("False"), Eq(0));
+}
 #endif /* #if defined(LIGHTSHIP_UTIL_PLATFORM_LINUX) || defined(LIGHTSHIP_UTIL_PLATFORM_MACOSX) */

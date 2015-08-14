@@ -101,7 +101,7 @@ plugin_set_info(struct plugin_t* plugin,
 /* ------------------------------------------------------------------------- */
 void
 plugin_set_programming_language(struct plugin_t* plugin,
-								plugin_programming_language_t language)
+								plugin_programming_language_e language)
 {
 	plugin->info.language = language;
 }
