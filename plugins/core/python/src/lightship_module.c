@@ -6,20 +6,33 @@
 #include "plugin_python/lightship_module.h"
 #include "framework/log.h"
 
+/*
+ * This gets set globally when the plugin first starts and is reset to NULL as
+ * soon as the plugin finishes its start routine. This is to allow python
+ * scripts to register themselves under the correct context.
+ *
+ * Since plugins work per-context and not globally (i.e. we don't have access
+ * to any of the other game instances) I don't see any other way to do this.
+ */
+struct game_t* g_injected_game = NULL;
+
 /* -------------------------------------------------------------------------
- * lightship exception.
+ * lightship exceptions.
  * ------------------------------------------------------------------------- */
 
 static PyObject* lightship_error;
 
 /* ------------------------------------------------------------------------- */
 static void
-create_lightship_exception(PyObject* module)
+create_lightship_exceptions(PyObject* module)
 {
-	lightship_error = PyErr_NewException("lightship.error", NULL, NULL);
+	lightship_error = PyErr_NewException("lightship.LightshipError", NULL, NULL);
 	Py_INCREF(lightship_error);
-	PyModule_AddObject(module, "error", lightship_error);
+	PyModule_AddObject(module, "LightshipError", lightship_error);
 }
+
+/* ------------------------------------------------------------------------- */
+
 
 /* -------------------------------------------------------------------------
  * Service object.
@@ -154,7 +167,10 @@ static void
 Game_dealloc(struct Game* self);
 
 static PyObject*
-Game_get_name(PyObject* self, PyObject* args);
+Game_get_name(PyObject* self, PyObject* noargs);
+
+static PyObject*
+Game_get_network_role(PyObject* self, PyObject* noargs);
 
 /* ------------------------------------------------------------------------- */
 static PyMemberDef Game_members[] = {
@@ -163,7 +179,8 @@ static PyMemberDef Game_members[] = {
 };
 
 static PyMethodDef Game_methods[] = {
-	{"get_name", Game_get_name, METH_VARARGS, "Gets the globally unique name of the game object"},
+	{"get_name", Game_get_name, METH_NOARGS, "Gets the globally unique name of the game object"},
+	{"get_network_role", Game_get_network_role, METH_NOARGS, "Gets the network role (either 'host' or 'client'"},
 	{NULL}
 };
 
@@ -210,16 +227,21 @@ PyTypeObject GameType = {
 };
 
 /* ------------------------------------------------------------------------- */
+/*
+ * Creates a new Game object and injects the active context from PLUGIN_START()
+ * into it. The Game object is pushed into the context store.
+ *
+ * The Game object is given a Services object as an attribute.
+ */
 static PyObject*
 Game_new(PyTypeObject* type, PyObject* args, PyObject* kwds)
 {
 	struct Game* self;
-	struct unordered_vector_t* games_vec;
 
 	if(!g_injected_game)
 	{
 		PyErr_SetString(lightship_error,
-						"Can't register games after initialisation.");
+						"Can't instantiate game objects after plugin initialisation because they rely on internal global data.");
 		return NULL;
 	}
 
@@ -227,6 +249,9 @@ Game_new(PyTypeObject* type, PyObject* args, PyObject* kwds)
 	self = (struct Game*)type->tp_alloc(type, 0);
 	if(!self)
 		return NULL;
+
+	/* inject game into python Game object so it can be used later */
+	((struct Game*)self)->game = g_injected_game;
 
 	/* make sure game object is actually an instance of GameType */
 	if(!PyObject_IsInstance((PyObject*)self, (PyObject*)&GameType))
@@ -245,14 +270,6 @@ Game_new(PyTypeObject* type, PyObject* args, PyObject* kwds)
 		return NULL;
 	}
 
-	/* inject game into python Game object so it can be used later */
-	((struct Game*)self)->game = g_injected_game;
-
-	/* add game object to context store so it can be accessed later */
-	games_vec = &(get_context(g_injected_game)->py_objs.games);
-	Py_INCREF(self);
-	unordered_vector_push(games_vec, &self);
-
 	return (PyObject*)self;
 }
 
@@ -266,36 +283,76 @@ Game_dealloc(struct Game* self)
 
 /* ------------------------------------------------------------------------- */
 static PyObject*
-Game_get_name(PyObject* self, PyObject* args)
+Game_get_name(PyObject* self, PyObject* noargs)
 {
 	struct Game* game = (struct Game*)self;
-	if(game->game)
-	{
-		return PyUnicode_FromString(game->game->name);
-	}
+	return PyUnicode_FromString(game->game->name);
+}
 
-	Py_INCREF(Py_None);
-	return Py_None;
+/* ------------------------------------------------------------------------- */
+static PyObject*
+Game_get_network_role(PyObject* self, PyObject* noargs)
+{
+	struct Game* game = (struct Game*)self;
+	PyErr_SetString(lightship_error, "fuck you");
+	return NULL;
+	if(game->game->network_role == GAME_HOST)
+		return PyUnicode_FromString("host");
+	else
+		return PyUnicode_FromString("client");
 }
 
 /* -------------------------------------------------------------------------
  * lightship module
  * ------------------------------------------------------------------------- */
 
-/*
- * This gets set globally when the plugin first starts and is reset to NULL as
- * soon as the plugin finishes its start routine. This is to allow python
- * scripts to register themselves under the correct context.
- *
- * Since plugins work per-context and not globally (i.e. we don't have access
- * to any of the other game instances) I don't see any other way to do this.
- */
-struct game_t* g_injected_game = NULL;
-
+/* ------------------------------------------------------------------------- */
 static PyObject*
 lightship_module_register_game(PyObject* self, PyObject* game)
 {
+	struct unordered_vector_t* games_vec;
 
+	/* make sure game object is actually an instance of GameType */
+	if(!PyObject_IsInstance(game, (PyObject*)&GameType))
+	{
+		PyErr_SetString(lightship_error,
+						"Object is not a subclass of lightship.Game");
+		return NULL;
+	}
+
+	/* add game object to context store so it can be accessed later */
+	games_vec = &(get_context(g_injected_game)->py_objs.games);
+	Py_INCREF(game);
+	unordered_vector_push(games_vec, &game);
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+/* ------------------------------------------------------------------------- */
+static PyObject*
+lightship_module_unregister_game(PyObject* self, PyObject* game)
+{
+	struct unordered_vector_t* games_vec;
+
+	/* make sure game object is actually an instance of GameType */
+	if(!PyObject_IsInstance(game, (PyObject*)&GameType))
+	{
+		PyErr_SetString(lightship_error,
+						"Object is not a subclass of lightship.Game");
+		return NULL;
+	}
+
+	/* remove game from context store */
+	games_vec = &(get_context(((struct Game*)game)->game)->py_objs.games);
+	UNORDERED_VECTOR_FOR_EACH(games_vec, PyObject*, p_game)
+		if(*p_game == game)
+		{
+			unordered_vector_erase_element(games_vec, p_game);
+			Py_DECREF(game);
+			break;
+		}
+	UNORDERED_VECTOR_END_EACH
 
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -303,7 +360,8 @@ lightship_module_register_game(PyObject* self, PyObject* game)
 
 /* ------------------------------------------------------------------------- */
 static PyMethodDef lightship_module_methods[] = {
-	{"register_game", lightship_module_register_game, METH_O, "docstring"},
+	{"register_game", lightship_module_register_game, METH_O, "registers a new game object."},
+	{"unregister_game", lightship_module_unregister_game, METH_O, "unregisters an existing game object"},
 	{NULL}
 };
 
@@ -361,7 +419,7 @@ PyInit_lightship(void)
 	if(!(module = PyModule_Create(&lightship_module)))
 		return NULL;
 
-	create_lightship_exception(module);
+	create_lightship_exceptions(module);
 	add_built_in_types_to_module(module);
 
 	return module;
