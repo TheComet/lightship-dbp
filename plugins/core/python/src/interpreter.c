@@ -66,9 +66,9 @@ init_python(struct context_t* context)
 			break;
 		}
 
-		g_injected_game = context->game;
+		g_injected_context = context;
 		PyRun_SimpleFile(fd, file_name);
-		g_injected_game = NULL;
+		g_injected_context = NULL;
 
 		fclose(fd);
 		break;

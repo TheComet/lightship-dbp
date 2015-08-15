@@ -1,6 +1,7 @@
 #include "plugin_python/lightship_module_game.h"
 #include "plugin_python/lightship_module_exceptions.h"
 #include "plugin_python/lightship_module_services.h"
+#include "plugin_python/context.h"
 #include "framework/game.h"
 #include <structmember.h>
 
@@ -12,7 +13,7 @@
  * Since plugins work per-context and not globally (i.e. we don't have access
  * to any of the other game instances) I don't see any other way to do this.
  */
-struct game_t* g_injected_game = NULL;
+struct context_t* g_injected_context = NULL;
 
 /* method forward declarations */
 static PyObject*
@@ -39,6 +40,8 @@ static PyMethodDef Game_methods[] = {
 	{NULL}
 };
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmissing-field-initializers"
 PyTypeObject GameType = {
 	PyVarObject_HEAD_INIT(NULL, 0)
 	"lightship.Game",          /* tp_name */
@@ -80,6 +83,7 @@ PyTypeObject GameType = {
 	0,                         /* tp_alloc */
 	Game_new,                  /* tp_new */
 };
+#pragma GCC diagnostic pop
 
 /* ------------------------------------------------------------------------- */
 /*
@@ -92,8 +96,9 @@ static PyObject*
 Game_new(PyTypeObject* type, PyObject* args, PyObject* kwds)
 {
 	struct Game* self;
+	PyObject* pass_args;
 
-	if(!g_injected_game)
+	if(!g_injected_context)
 	{
 		PyErr_SetString(lightship_error,
 						"Can't instantiate game objects after plugin initialisation because they rely on internal global data.");
@@ -106,10 +111,10 @@ Game_new(PyTypeObject* type, PyObject* args, PyObject* kwds)
 		return NULL;
 
 	/* inject game into python Game object so it can be used later */
-	((struct Game*)self)->game = g_injected_game;
+	((struct Game*)self)->context = g_injected_context;
 
 	/* make sure game object is actually an instance of GameType */
-	if(!PyObject_IsInstance((PyObject*)self, (PyObject*)&GameType))
+	if(PyObject_IsInstance((PyObject*)self, (PyObject*)&GameType) == -1)
 	{
 		PyErr_SetString(lightship_error,
 						"Object is not a subclass of lightship.Game");
@@ -118,7 +123,10 @@ Game_new(PyTypeObject* type, PyObject* args, PyObject* kwds)
 	}
 
 	/* instantiate service member */
-	self->service = PyObject_CallObject((PyObject*)&ServicesType, NULL);
+	pass_args = PyTuple_New(1);
+	PyTuple_SetItem(pass_args, 0, (PyObject*)self);
+	self->service = PyObject_CallObject((PyObject*)&ServicesType, pass_args);
+	Py_DECREF(pass_args);
 	if(!self->service)
 	{
 		Py_DECREF(self);
@@ -141,7 +149,7 @@ static PyObject*
 Game_get_name(PyObject* self, PyObject* noargs)
 {
 	struct Game* game = (struct Game*)self;
-	return PyUnicode_FromString(game->game->name);
+	return PyUnicode_FromString(game->context->game->name);
 }
 
 /* ------------------------------------------------------------------------- */
@@ -151,7 +159,7 @@ Game_get_network_role(PyObject* self, PyObject* noargs)
 	struct Game* game = (struct Game*)self;
 	PyErr_SetString(lightship_error, "fuck you");
 	return NULL;
-	if(game->game->network_role == GAME_HOST)
+	if(game->context->game->network_role == GAME_HOST)
 		return PyUnicode_FromString("host");
 	else
 		return PyUnicode_FromString("client");

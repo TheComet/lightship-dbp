@@ -1,5 +1,5 @@
 {
-	shit
+    obj:/
 	obj:/usr/lib64/valgrind/vgpreload_memcheck-amd64-linux.so
 	obj:/usr/lib64/libX11.so.6.3.0
 	obj:/usr/lib64/opengl/nvidia/lib/libGL.so.343.36

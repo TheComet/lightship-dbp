@@ -2,6 +2,7 @@
 #include "plugin_python/lightship_module_game.h"
 #include "plugin_python/lightship_module_events.h"
 #include "plugin_python/lightship_module_services.h"
+#include "plugin_python/lightship_module_exceptions.h"
 
 #include <structmember.h>
 
@@ -18,7 +19,7 @@ lightship_module_register_game(PyObject* self, PyObject* game)
 	struct unordered_vector_t* games_vec;
 
 	/* make sure game object is actually an instance of GameType */
-	if(!PyObject_IsInstance(game, (PyObject*)&GameType))
+	if(PyObject_IsInstance(game, (PyObject*)&GameType) == -1)
 	{
 		PyErr_SetString(lightship_error,
 						"Object is not a subclass of lightship.Game");
@@ -26,7 +27,7 @@ lightship_module_register_game(PyObject* self, PyObject* game)
 	}
 
 	/* add game object to context store so it can be accessed later */
-	games_vec = &(get_context(g_injected_game)->py_objs.games);
+	games_vec = &(((struct Game*)game)->context->py_objs.games);
 	Py_INCREF(game);
 	unordered_vector_push(games_vec, &game);
 
@@ -41,7 +42,7 @@ lightship_module_unregister_game(PyObject* self, PyObject* game)
 	struct unordered_vector_t* games_vec;
 
 	/* make sure game object is actually an instance of GameType */
-	if(!PyObject_IsInstance(game, (PyObject*)&GameType))
+	if(PyObject_IsInstance(game, (PyObject*)&GameType) == -1)
 	{
 		PyErr_SetString(lightship_error,
 						"Object is not a subclass of lightship.Game");
@@ -49,7 +50,7 @@ lightship_module_unregister_game(PyObject* self, PyObject* game)
 	}
 
 	/* remove game from context store */
-	games_vec = &(get_context(((struct Game*)game)->game)->py_objs.games);
+	games_vec = &(((struct Game*)game)->context->py_objs.games);
 	UNORDERED_VECTOR_FOR_EACH(games_vec, PyObject*, p_game)
 		if(*p_game == game)
 		{

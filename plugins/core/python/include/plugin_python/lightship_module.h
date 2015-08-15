@@ -1,4 +1,3 @@
-struct game_t;
-struct PyObject;
+#include <Python.h>
 
-extern struct PyObject* lightship_error;
+extern PyObject* lightship_error;
